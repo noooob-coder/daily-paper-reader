@@ -549,7 +549,7 @@ function testSidebarStickyHierarchyCssContract() {
   assert.ok(/--dpr-sidebar-sticky-mask-bleed:\s*8px/i.test(rootRule));
   assert.ok(/--dpr-sidebar-sticky-panel-top:\s*0px/i.test(rootRule));
   assert.ok(/--dpr-sidebar-sticky-axis-top:\s*34px/i.test(rootRule));
-  assert.ok(/--dpr-sidebar-sticky-section-top:\s*70px/i.test(rootRule));
+  assert.ok(/--dpr-sidebar-sticky-section-top:\s*72px/i.test(rootRule));
 
   const panelHeaderRule = cssRule(css, '.dpr-sidebar-panel.is-expanded > .dpr-sidebar-panel-header');
   assert.ok(/position:\s*sticky/i.test(panelHeaderRule));
@@ -574,7 +574,7 @@ function testSidebarStickyHierarchyCssContract() {
 
   const axisTabsRule = cssRule(css, '.dpr-sidebar-axis-tabs');
   assert.ok(/padding-top:\s*2px/i.test(axisTabsRule));
-  assert.ok(/margin-top:\s*-2px/i.test(axisTabsRule));
+  assert.ok(!/margin-top:\s*-/i.test(axisTabsRule));
 
   const sectionHeaderRule = cssRule(css, '.dpr-sidebar-panel.is-expanded .dpr-sidebar-axis-section-header');
   assert.ok(/position:\s*sticky/i.test(sectionHeaderRule));
@@ -583,10 +583,16 @@ function testSidebarStickyHierarchyCssContract() {
   assert.ok(/isolation:\s*isolate/i.test(sectionHeaderRule));
   assert.ok(/background:\s*var\(--dpr-sidebar-sticky-mask-bg\)/i.test(sectionHeaderRule));
 
-  assert.ok(/\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-header::before,\s*\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-content > \.dpr-sidebar-axis-row::before,\s*\.dpr-sidebar-panel\.is-expanded \.dpr-sidebar-axis-section-header::before\s*{[^}]*content:\s*""/i.test(css));
-  assert.ok(/\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-header::before,\s*\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-content > \.dpr-sidebar-axis-row::before,\s*\.dpr-sidebar-panel\.is-expanded \.dpr-sidebar-axis-section-header::before\s*{[^}]*inset:\s*calc\(var\(--dpr-sidebar-sticky-mask-bleed\) \* -1\) 0/i.test(css));
-  assert.ok(/\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-header::before,\s*\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-content > \.dpr-sidebar-axis-row::before,\s*\.dpr-sidebar-panel\.is-expanded \.dpr-sidebar-axis-section-header::before\s*{[^}]*background:\s*var\(--dpr-sidebar-sticky-mask-bg\)/i.test(css));
-  assert.ok(/\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-header::before,\s*\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-content > \.dpr-sidebar-axis-row::before,\s*\.dpr-sidebar-panel\.is-expanded \.dpr-sidebar-axis-section-header::before\s*{[^}]*z-index:\s*-1/i.test(css));
+  const panelHeaderMaskRule = cssRule(css, '.dpr-sidebar-panel.is-expanded > .dpr-sidebar-panel-header::before');
+  assert.ok(/content:\s*""/i.test(panelHeaderMaskRule));
+  assert.ok(/inset:\s*0/i.test(panelHeaderMaskRule));
+  assert.ok(/background:\s*var\(--dpr-sidebar-sticky-mask-bg\)/i.test(panelHeaderMaskRule));
+  assert.ok(/z-index:\s*-1/i.test(panelHeaderMaskRule));
+
+  assert.ok(/\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-content > \.dpr-sidebar-axis-row::before,\s*\.dpr-sidebar-panel\.is-expanded \.dpr-sidebar-axis-section-header::before\s*{[^}]*content:\s*""/i.test(css));
+  assert.ok(/\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-content > \.dpr-sidebar-axis-row::before,\s*\.dpr-sidebar-panel\.is-expanded \.dpr-sidebar-axis-section-header::before\s*{[^}]*inset:\s*calc\(var\(--dpr-sidebar-sticky-mask-bleed\) \* -1\) 0/i.test(css));
+  assert.ok(/\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-content > \.dpr-sidebar-axis-row::before,\s*\.dpr-sidebar-panel\.is-expanded \.dpr-sidebar-axis-section-header::before\s*{[^}]*background:\s*var\(--dpr-sidebar-sticky-mask-bg\)/i.test(css));
+  assert.ok(/\.dpr-sidebar-panel\.is-expanded > \.dpr-sidebar-panel-content > \.dpr-sidebar-axis-row::before,\s*\.dpr-sidebar-panel\.is-expanded \.dpr-sidebar-axis-section-header::before\s*{[^}]*z-index:\s*-1/i.test(css));
 
   const panelContentRule = cssRule(css, '.dpr-sidebar-panel-content');
   assert.ok(/background:\s*var\(--dpr-sidebar-surface\)/i.test(panelContentRule));
