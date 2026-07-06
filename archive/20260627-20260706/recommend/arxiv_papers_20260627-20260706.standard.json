@@ -1,0 +1,1484 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-06T23:02:33.884856+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 39,
+    "deep_cap": 7,
+    "deep_selected": 24,
+    "quick_candidates": 22,
+    "quick_skim_target": 12,
+    "quick_selected": 12
+  },
+  "deep_dive": [
+    {
+      "id": "2606.29089v1",
+      "source": "arxiv",
+      "title": "TAP-VLA: Tactile Annotation Prompting for Vision Language Action Models",
+      "abstract": "Vision-Language-Action (VLA) models demonstrate impressive reasoning over visual, semantic, and spatial task variations by leveraging large-scale vision and language pre-training. They remain, however, largely blind to contact forces, which seldom manifest clearly in visual feedback but are central to contact-rich manipulation. Tactile sensing measures these forces directly, but integrating it into VLAs is difficult: tactile data is absent from the large-scale corpora used to pre-train VLAs, so adding it as a new input modality induces a distribution shift that erodes the very pre-training that makes VLAs effective. We propose Tactile Annotation Prompting for Vision-Language-Action models (TAP-VLA), a simple framework that supplies tactile feedback through visual augmentation rather than architectural change. TAP-VLA extracts shear fields from visuo-tactile sensors and overlays them as spatially-grounded vectors onto the multi-view RGB images the policy already consumes, yielding a clear, interpretable tactile cue in the VLA's native observation space. Because the architecture is untouched, the approach requires no tactile pre-training, adds negligible compute, and stays close to the pre-training distribution. Across four contact-rich tasks, TAP-VLA succeeds on 78% of trials, compared to under 50% for vision-only fine-tuning and alternative tactile-fusion baselines -- including tasks where the baselines perform no better than chance.",
+      "authors": [
+        "Mark Van der Merwe",
+        "Mohamad Louai Shehab",
+        "Jayjun Lee",
+        "Youngsun Wi",
+        "Yinpei Dai",
+        "Dmitry Berenson",
+        "Nima Fazeli"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-27T21:06:06+00:00",
+      "link": "https://arxiv.org/pdf/2606.29089v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "TAP-VLA framework integrates tactile feedback into VLA models for robot manipulation",
+      "llm_evidence_cn": "TAP-VLA框架将触觉反馈集成到VLA模型中用于机器人操作",
+      "llm_evidence": "TAP-VLA框架将触觉反馈集成到VLA模型中用于机器人操作",
+      "canonical_evidence": "TAP-VLA框架将触觉反馈集成到VLA模型中用于机器人操作",
+      "llm_tldr_en": "TAP-VLA supplies tactile feedback via annotation prompting, bridging the distribution shift and enabling VLA models to use contact forces without erasing pre-training benefits.",
+      "llm_tldr_cn": "本文提出TAP-VLA框架，通过触觉注释提示将触觉反馈无缝集成到视觉-语言-动作模型中，解决了触觉数据缺失导致的分布偏移问题，使VLA模型能利用接触力信息进行精细操作，同时保留预训练优势。实验证明在接触丰富任务上性能显著提升。",
+      "llm_tldr": "本文提出TAP-VLA框架，通过触觉注释提示将触觉反馈无缝集成到视觉-语言-动作模型中，解决了触觉数据缺失导致的分布偏移问题，使VLA模型能利用接触力信息进行精细操作，同时保留预训练优势。实验证明在接触丰富任务上性能显著提升。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.29384v1",
+      "source": "arxiv",
+      "title": "Event-VLA: Action-Conditioned Event Fusion for Robust Vision-Language-Action Model",
+      "abstract": "Vision-Language-Action (VLA) models have become an important paradigm of embodied AI. However, existing VLA models typically assume well-lit and stable indoor settings, while real-world embodied manipulation may involve degraded RGB observations caused by illumination shifts, posing critical challenges for robust robotic manipulation. To address this gap, we propose \\textbf{Event-VLA}, an event-enhanced VLA framework for generalizable manipulation across varying illumination conditions. We formulate VLA-based manipulation under degraded visibility as a practical robustness problem for RGB-centric policies, and introduce event streams as an illumination-robust, motion-sensitive complementary observation to improve robustness across visibility levels. Specifically, unlike conventional multimodal fusion that directly merges event features into the global semantic token space, Event-VLA injects event information through an action-query routing pathway. It uses learnable action queries to extract task-relevant semantics from the VLA reasoning process, and selectively aggregates event tokens via gated cross-attention to construct event-aware action representations. This design preserves the pretrained RGB-language semantic priors while effectively leveraging event information for robust action prediction. Experiments in simulation and real-world deployment show that Event-VLA maintains strong manipulation performance under normal lighting and improves success rates under low-light degradation and near-dark real-world settings.",
+      "authors": [
+        "Jiaxin Liu",
+        "Xun Xu",
+        "Zhenhao Zhang",
+        "Hanqing Wang",
+        "Ruiqi Chen",
+        "Shi Chang",
+        "Weiyu Guo",
+        "Laurent Kneip"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-06-28T13:19:11+00:00",
+      "link": "https://arxiv.org/pdf/2606.29384v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "event-enhanced VLA for robust robotic manipulation under varying illumination",
+      "llm_evidence_cn": "事件增强的VLA，用于光照变化下的鲁棒机器人操作",
+      "llm_evidence": "事件增强的VLA，用于光照变化下的鲁棒机器人操作",
+      "canonical_evidence": "事件增强的VLA，用于光照变化下的鲁棒机器人操作",
+      "llm_tldr_en": "Proposes Event-VLA that fuses event streams with RGB to make VLA models robust to illumination shifts in real-world manipulation.",
+      "llm_tldr_cn": "现有VLA模型假设良好光照，实际环境光照变化易导致RGB观测退化。本文提出Event-VLA，将事件流作为光照鲁棒、运动敏感的互补观测，与RGB融合以提升VLA在光照变化下的泛化能力。在仿真和真实机器人实验中，该方法显著提高了在不同光照条件下的操作成功率。",
+      "llm_tldr": "现有VLA模型假设良好光照，实际环境光照变化易导致RGB观测退化。本文提出Event-VLA，将事件流作为光照鲁棒、运动敏感的互补观测，与RGB融合以提升VLA在光照变化下的泛化能力。在仿真和真实机器人实验中，该方法显著提高了在不同光照条件下的操作成功率。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30552v1",
+      "source": "arxiv",
+      "title": "Training Vision-Language-Action Models with Dense Embodied Chain-of-Thought Supervision",
+      "abstract": "Cross-embodiment transfer in vision-language-action (VLA) models remains challenging because low-level state and action spaces differ fundamentally across robot platforms. We observe that the high-level cognitive process underlying manipulation, including scene perception, object identification, task planning, and sub-task decomposition, is largely shared across embodiments. Based on this observation, we present ZR-0, a 2.6 billion parameter end-to-end VLA model that uses dense Embodied Chain-of-Thought (ECoT) supervision to align cross-embodiment representations within the vision-language model (VLM). ZR-0 adopts a dual-stream architecture: a pre-trained VLM (System 2) generates structured ECoT reasoning during training, while a Diffusion Transformer-based action expert (System 1) produces continuous action chunks via flow matching. The two components are coupled through cross-attention, with an attention mask that restricts the action expert to input prompt features only, enabling ECoT generation to be entirely skipped at inference without any performance loss. ZR-0 is pre-trained on ProcCorpus-60M, a large-scale dataset comprising approximately 60 million frames (approximately 1,000 hours) from over 400K trajectories, with dense ECoT annotations covering 96.8% of all frames. We evaluate ZR-0 on three simulation benchmarks spanning single-arm (LIBERO), bimanual (RoboTwin 2.0), and humanoid (RoboCasa GR-1 Tabletop) embodiments, as well as real-world experiments on the xArm platform, demonstrating strong performance across all settings. Code and model checkpoints are available at https://github.com/RUCKBReasoning/ZR-0.",
+      "authors": [
+        "Haoyang Li",
+        "Guanlin Li",
+        "Youhe Feng",
+        "Chen Zhao",
+        "Zhuoran Wang",
+        "Yang Li",
+        "Qizhe Wei",
+        "Shifeng Bao",
+        "Haitao Shen",
+        "Yihan Zhao",
+        "Tong Yang",
+        "Jing Zhang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.CV"
+      ],
+      "published": "2026-06-29T16:48:48+00:00",
+      "link": "https://arxiv.org/pdf/2606.30552v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "directly trains VLA models with dense embodied chain-of-thought for robot manipulation",
+      "llm_evidence_cn": "直接训练VLA模型，使用密集具身思维链进行机器人操作",
+      "llm_evidence": "直接训练VLA模型，使用密集具身思维链进行机器人操作",
+      "canonical_evidence": "直接训练VLA模型，使用密集具身思维链进行机器人操作",
+      "llm_tldr_en": "Proposes ZR-0, a 2.6B VLA model using dense Embodied Chain-of-Thought (ECoT) supervision to align cross-embodiment representations, enabling transfer across robot platforms.",
+      "llm_tldr_cn": "跨本体迁移在VLA模型中因底层状态和动作空间不同而困难。本文提出ZR-0，一个26亿参数端到端VLA模型，使用密集具身思维链（ECoT）监督来对齐跨本体表征。采用双流架构：预训练VLM生成结构化ECoT推理，扩散头负责动作生成。在多个机器人平台上的实验表明，该方法显著提升了跨本体转移性能。",
+      "llm_tldr": "跨本体迁移在VLA模型中因底层状态和动作空间不同而困难。本文提出ZR-0，一个26亿参数端到端VLA模型，使用密集具身思维链（ECoT）监督来对齐跨本体表征。采用双流架构：预训练VLM生成结构化ECoT推理，扩散头负责动作生成。在多个机器人平台上的实验表明，该方法显著提升了跨本体转移性能。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31144v1",
+      "source": "arxiv",
+      "title": "A Modular Vision-Language-Action Robotics Framework for Indoor Environments",
+      "abstract": "This paper presents an integrated system for the CMU Vision-Language-Action (VLA) Challenge, designed to enable an autonomous agent to perform complex tasks based on natural language instructions. Our framework employs a modular architecture that orchestrates environment mapping, question processing, and navigation. The system operates in two parallel streams: a perception pipeline that constructs a semantic voxel map from real-time camera feeds using OwlViT embeddings, and a language pipeline that classifies user commands with a Vision-Language Model. The mapping is time-constrained; the system proceeds with a partial map if a 500-second exploration limit is reached. The classified query is then grounded in the geometric and semantic context of the map to generate a detailed prompt for the VLM. This yields an actionable output, demonstrating a capable solution for bridging the gap between human language and robotic action.",
+      "authors": [
+        "Anindya Jana",
+        "Snehasis Banerjee",
+        "Arup Sadhu",
+        "Ranjan Dasgupta"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "published": "2026-06-30T05:17:02+00:00",
+      "link": "https://arxiv.org/pdf/2606.31144v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "modular VLA robotics framework for indoor environments",
+      "llm_evidence_cn": "面向室内环境的模块化VLA机器人框架",
+      "llm_evidence": "面向室内环境的模块化VLA机器人框架",
+      "canonical_evidence": "面向室内环境的模块化VLA机器人框架",
+      "llm_tldr_en": "A modular VLA framework for indoor environments that combines semantic voxel mapping with vision-language models to execute tasks from natural language instructions.",
+      "llm_tldr_cn": "针对室内环境中基于自然语言指令的自主任务，本文提出模块化视觉-语言-动作框架。通过并行感知流水线构建语义体素地图，并利用视觉语言模型分类用户指令，从而实现环境理解和导航。在CMU VLA挑战中展示了其有效性。",
+      "llm_tldr": "针对室内环境中基于自然语言指令的自主任务，本文提出模块化视觉-语言-动作框架。通过并行感知流水线构建语义体素地图，并利用视觉语言模型分类用户指令，从而实现环境理解和导航。在CMU VLA挑战中展示了其有效性。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31329v1",
+      "source": "arxiv",
+      "title": "3D HAMSTER: Bridging Planning and Control in Hierarchical Vision Language Action Models through 3D Trajectory Guidance",
+      "abstract": "Hierarchical Vision-Language-Action (VLA) models decouple high-level planning from low-level control to improve generalization in robot manipulation. Recent work in this paradigm uses 2D end-effector trajectories predicted by a Vision-Language Model (VLM) as explicit guidance for a downstream policy. However, state-of-the-art low-level policies operate in 3D metric space on point clouds, and feeding them 2D guidance that lacks depth forces each waypoint to be assigned the depth of whatever scene surface lies beneath it, producing geometrically distorted trajectories. We propose 3D HAMSTER, a hierarchical framework that closes this gap by having the planner directly output metrically reliable 3D trajectories. We augment a VLM with a dedicated depth encoder and a dense depth reconstruction objective to predict 3D waypoint sequences, which are directly integrated into a pointcloudbased low-level policy. Across 3D trajectory prediction, simulation, and real-world manipulation, 3D HAMSTER consistently outperforms proprietary VLMs and 2D-guided baselines, with the largest gains under appearance-altering shifts and unseen language, spatial, and visual conditions. The project page is available at https://davian-robotics.github.io/3D_HAMSTER/.",
+      "authors": [
+        "Dongyoon Hwang",
+        "Byungkun Lee",
+        "Dongjin Kim",
+        "Hyojin Jang",
+        "Hoiyeong Jin",
+        "Jueun Mun",
+        "Minho Park",
+        "Hojoon Lee",
+        "Hyunseung Kim",
+        "Jaegul Choo"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "published": "2026-06-30T08:31:35+00:00",
+      "link": "https://arxiv.org/pdf/2606.31329v1",
+      "tags": [
+        "keyword:d-mesh",
+        "keyword:vla",
+        "query:d-mesh",
+        "query:vla"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Hierarchical VLA model with 3D trajectory guidance for robot manipulation",
+      "llm_evidence_cn": "分层VLA模型结合3D轨迹引导用于机器人操作",
+      "llm_evidence": "分层VLA模型结合3D轨迹引导用于机器人操作",
+      "canonical_evidence": "分层VLA模型结合3D轨迹引导用于机器人操作",
+      "llm_tldr_en": "3D HAMSTER proposes a hierarchical VLA framework that outputs metrically reliable 3D trajectories to bridge planning and control for robot manipulation.",
+      "llm_tldr_cn": "该论文针对分层VLA模型中2D轨迹引导导致的几何失真问题，提出3D HAMSTER框架，让规划器直接输出度量准确的3D轨迹，与基于点云的低层控制无缝对接。在机器人操作任务上显著提升了泛化性和成功率。",
+      "llm_tldr": "该论文针对分层VLA模型中2D轨迹引导导致的几何失真问题，提出3D HAMSTER框架，让规划器直接输出度量准确的3D轨迹，与基于点云的低层控制无缝对接。在机器人操作任务上显著提升了泛化性和成功率。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02466v1",
+      "source": "arxiv",
+      "title": "Learning to Move Before Learning to Do: Task-Agnostic pretraining for VLAs",
+      "abstract": "Vision-Language-Action (VLA) models are fundamentally bottlenecked by the scarcity of expert demonstrations -- triplets of observations, instructions, and actions that are costly to collect at scale. We argue that this bottleneck stems from conflating two distinct learning objectives: acquiring physical competence (how to move) and acquiring semantic alignment (what to do). Crucially, only the latter requires language supervision. Building on this Decomposition Hypothesis, we propose Task-Agnostic Pretraining (TAP), a two-stage framework that first learns transferable motor priors from cheap, unlabeled interaction data -- including discarded off-task trajectories and autonomous robot play -- via a self-supervised Inverse Dynamics objective. A lightweight second stage then grounds these priors in language using minimal expert data. On the SIMPLER benchmark, TAP matches models trained on over 1M expert trajectories while using orders of magnitude less labeled data, yielding a 10% absolute gain over standard behavior cloning. On a real-world WidowX platform, TAP retains 25% success under camera perturbations where internet-scale baselines collapse to 0%, demonstrating that task-agnostic pretraining produces robust, transferable physical representations and offers a scalable path forward for Embodied AI.",
+      "authors": [
+        "Junhao Shi",
+        "Siyin Wang",
+        "Xiaopeng Yu",
+        "Li Ji",
+        "Jingjing Gong",
+        "Xipeng Qiu"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "published": "2026-07-02T17:33:37+00:00",
+      "link": "https://arxiv.org/pdf/2607.02466v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "task-agnostic pretraining for VLAs addresses language conditioned policy learning",
+      "llm_evidence_cn": "面向VLA的任务无关预训练，解决语言条件策略学习",
+      "llm_evidence": "面向VLA的任务无关预训练，解决语言条件策略学习",
+      "canonical_evidence": "面向VLA的任务无关预训练，解决语言条件策略学习",
+      "llm_tldr_en": "Proposes Task-Agnostic Pretraining (TAP) that learns motor priors from unlabeled data via inverse dynamics, then fine-tunes with language, reducing the need for expert demonstrations.",
+      "llm_tldr_cn": "VLA模型受限于专家演示数据稀缺。本文提出分解假设：物理能力（如何移动）和语义对齐（做什么）可分离学习。基于此，提出任务无关预训练（TAP）框架：第一阶段通过自监督逆动力学从廉价无标签交互数据学习可迁移运动先验，第二阶段轻量微调加入语言指令。该方法大幅降低了对标注演示的需求，提升了样本效率。",
+      "llm_tldr": "VLA模型受限于专家演示数据稀缺。本文提出分解假设：物理能力（如何移动）和语义对齐（做什么）可分离学习。基于此，提出任务无关预训练（TAP）框架：第一阶段通过自监督逆动力学从廉价无标签交互数据学习可迁移运动先验，第二阶段轻量微调加入语言指令。该方法大幅降低了对标注演示的需求，提升了样本效率。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Language conditioned policy learning for robots",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.29028v1",
+      "source": "arxiv",
+      "title": "Keypose Exploration: Efficient Automatic Trajectory Labelling and Cross-Embodiment Policy Transfer",
+      "abstract": "Keypose-based manipulation decomposes tasks into critical waypoints to simplify policy learning for long-horizon tasks, but existing approaches rely on task-specific heuristics or manual annotation to extract keyposes from demonstrations. We present an automatic trajectory labelling pipeline for grasp-related tasks. This pipeline combines vision-language models (VLMs) for semantic event detection with classical trajectory analysis for precise temporal alignment, requiring VLM inference only on one single demo among repeating ones per task. Using the labelled data, we train a keypose-guided Diffusion Policy (DP) that exploits keypose conditioning to intervene demonstration distributions. We explore the possibility to apply this property for cross-embodiment transfer: candidate keyposes are sampled and filtered via a reachability map, steering the policy toward kinematically feasible keyposes for the target robot. As a preliminary feasibility study, experiments on two robomimic tasks show that the labelled data produces policies matching a standard DP baseline, and that reachability-filtered keypose conditioning may benefit zero-shot transfer on the multimodal insertion task when feasible candidates are available.",
+      "authors": [
+        "Yupu Lu",
+        "Hang Xu",
+        "Yizhou Chen",
+        "Jia Pan"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-27T17:48:39+00:00",
+      "link": "https://arxiv.org/pdf/2606.29028v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Vision-language models for keypose detection and policy learning for robot manipulation",
+      "llm_evidence_cn": "使用视觉语言模型进行关键位姿检测和机器人操作策略学习",
+      "llm_evidence": "使用视觉语言模型进行关键位姿检测和机器人操作策略学习",
+      "canonical_evidence": "使用视觉语言模型进行关键位姿检测和机器人操作策略学习",
+      "llm_tldr_en": "Proposes automatic trajectory labeling using VLMs for keypose extraction and trains a keypose-guided Diffusion Policy for cross-embodiment grasp tasks.",
+      "llm_tldr_cn": "该论文提出自动轨迹标注流水线，结合视觉语言模型（VLM）进行语义事件检测和经典轨迹分析进行时间对齐，仅需每个任务一个演示的VLM推理。利用标注数据训练关键位姿引导的扩散策略（DP），实现跨实体策略迁移。实验证明该方法在抓取任务上高效且可迁移。",
+      "llm_tldr": "该论文提出自动轨迹标注流水线，结合视觉语言模型（VLM）进行语义事件检测和经典轨迹分析进行时间对齐，仅需每个任务一个演示的VLM推理。利用标注数据训练关键位姿引导的扩散策略（DP），实现跨实体策略迁移。实验证明该方法在抓取任务上高效且可迁移。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.29850v1",
+      "source": "arxiv",
+      "title": "Efficient Visual Pointing for Embodied AI:Agent-Driven Data Synthesis, Cross-Block Attention, and Iterative Correction",
+      "abstract": "Visual pointing maps a language instruction to pixel co ordinates, a core skill for embodied AI. We describe our PointArena 2026 solution, which achieves 77.2% overall accuracy and ranks second on the benchmark. The ap proach targets three failure modes. First, agent-driven syn thesis builds large semantic and anchor-relative candidate pools; the server inventory contains 55,372 processed out puts, 53,772 de-duplicated sample IDs, and 37,574 train able completed or accepted rows. Second, a determinis tic steerable-data pipeline creates a verified 10,000-sample main set, plus reserve samples, using masks, templates, and path verification. Third, two model-side modules address complementary errors: AttnRes adds gated cross-block at tention for steerability, while ABC correction encodes per turbed coordinates with visual features for general coordi nate grounding. Category-aware routing combines comple mentary specialists; local validation used to select experts records 93.9% Affordance, 82.6% Spatial Relation, 78.2% Reasoning, 70.4% Counting, and 63.0% Steerability.",
+      "authors": [
+        "Zijian Hong",
+        "Qi Lv",
+        "Yuxiang Xie",
+        "Jianming Xing",
+        "Xiang Deng",
+        "Weili Guan",
+        "Liqiang Nie"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T06:39:03+00:00",
+      "link": "https://arxiv.org/pdf/2606.29850v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "visual grounding of language instructions to pixel coordinates for embodied AI",
+      "llm_evidence_cn": "将语言指令视觉接地到像素坐标，用于具身AI",
+      "llm_evidence": "将语言指令视觉接地到像素坐标，用于具身AI",
+      "canonical_evidence": "将语言指令视觉接地到像素坐标，用于具身AI",
+      "llm_tldr_en": "Achieves 77.2% accuracy on PointArena 2026 benchmark via agent-driven data synthesis, cross-block attention, and iterative correction for visual pointing from language instructions.",
+      "llm_tldr_cn": "针对视觉指向任务，提出代理驱动数据合成、跨块注意力和迭代校正三种策略，在PointArena 2026基准上达到77.2%准确率排名第二，有效解决了语言指令到像素坐标的映射问题，为具身AI提供基础技能。",
+      "llm_tldr": "针对视觉指向任务，提出代理驱动数据合成、跨块注意力和迭代校正三种策略，在PointArena 2026基准上达到77.2%准确率排名第二，有效解决了语言指令到像素坐标的映射问题，为具身AI提供基础技能。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Visual grounding of language instructions for action",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30047v1",
+      "source": "arxiv",
+      "title": "Argus: Metric Panoramic 3D Reconstruction for Indoor Scenes",
+      "abstract": "Metric feed-forward 3D reconstruction for panoramic data remains under-explored due to the lack of large-scale panoramic RGB-D training data.   We present Realsee3D, a hybrid dataset of 10K indoor scenes (1K real, 9K synthetic) with 299K panoramic viewpoints and precise metric annotations,   and Argus, a feed-forward network trained on it for metric panoramic 3D reconstruction.   In the sparse unordered capture setting of Realsee3D,   a poorly chosen coordinate anchor can cause global pose drift.   Argus addresses this with a learned covisibility module that selects the geometrically optimal reference view to anchor the metric world frame.   To further improve multi-task learning,   we decompose the bidirectional pixel-to-world mapping into interpretable sub-steps with per-step supervision and cross-coordinate joint constraints,   reinforcing geometric consistency across prediction branches.   On the Realsee3D benchmark,   Argus achieves state-of-the-art metric performance in camera pose estimation, depth estimation, and point cloud reconstruction.   Project page: https://argus-paper.realsee.ai.",
+      "authors": [
+        "Xi Li",
+        "Linyuan Li",
+        "Yan Wu",
+        "Tong Rao",
+        "Kai Zhang",
+        "Xinchen Hui",
+        "Cihui Pan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T09:39:17+00:00",
+      "link": "https://arxiv.org/pdf/2606.30047v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "metric panoramic 3D reconstruction for indoor scenes",
+      "llm_evidence_cn": "室内场景公制全景三维重建",
+      "llm_evidence": "室内场景公制全景三维重建",
+      "canonical_evidence": "室内场景公制全景三维重建",
+      "llm_tldr_en": "Argus is a feed-forward network for metric panoramic 3D reconstruction from sparse unordered RGB-D panoramas, using a learned covisibility module to select optimal reference view, trained on Realsee3D dataset.",
+      "llm_tldr_cn": "针对全景RGB-D数据缺乏和大规模度量3D重建难题，提出Realsee3D混合数据集和Argus前馈网络，通过可学习的共视模块选择最优参考视图锚定度量世界框架，并分解双向像素到世界映射为可解释子步骤，实现了从无序稀疏全景视角的度量重建。",
+      "llm_tldr": "针对全景RGB-D数据缺乏和大规模度量3D重建难题，提出Realsee3D混合数据集和Argus前馈网络，通过可学习的共视模块选择最优参考视图锚定度量世界框架，并分解双向像素到世界映射为可解释子步骤，实现了从无序稀疏全景视角的度量重建。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "3D mesh reconstruction techniques",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30113v1",
+      "source": "arxiv",
+      "title": "SA-VLA: State-aware tokenizer for improving Vision-Language-Action Models' performance",
+      "abstract": "Discrete action tokenization provides a compact interface for autoregressive VLA policies, but accurately recovering continuous robot actions from discrete codes remains challenging. Existing tokenizers typically map each discrete code to a fixed continuous action prototype, ignoring the robot's current proprioceptive state. This limitation is particularly pronounced in manipulation, where the same action token may require different continuous controls under different joint configurations, object poses, and contact conditions. We therefore propose SA-VLA, a state-aware action tokenizer that conditions action decoding on robot state. We study two state-injection mechanisms for VQ-based action tokenization: cross-attention between state and action features, and a lightweight state adapter that predicts action-wise modulation factors for state-conditioned action modulation and reconstruction. The adapter formulation expands the effective support of a finite codebook by allowing each discrete token to represent a family of state-dependent continuous actions, while preserving the efficiency and compatibility of discrete action modeling. Integrated into an LLM-based VLA policy, SA-VLA supports both autoregressive and parallel action-token decoding with minimal changes to the model interface. On 12 RoboTwin manipulation tasks, SA-VLA improves the average success rate from 0.29 to 0.56 over the strongest tokenizer baseline. In zero-shot sim-to-real experiments on three real-world tasks, it further improves average success from 0.15 to 0.33 over the strongest tokenizer baseline. These results demonstrate that state-conditioned action decoding is a simple and effective mechanism for reducing the compression gap in discrete VLA policies.",
+      "authors": [
+        "Tengyue Jiang",
+        "Chunpu Xu",
+        "Jiayue Kang",
+        "Yao Mu"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "published": "2026-06-29T10:45:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.30113v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "VLA model with state-aware action tokenizer for manipulation",
+      "llm_evidence_cn": "面向机器人操作的VLA模型状态感知动作分词器",
+      "llm_evidence": "面向机器人操作的VLA模型状态感知动作分词器",
+      "canonical_evidence": "面向机器人操作的VLA模型状态感知动作分词器",
+      "llm_tldr_en": "Proposes SA-VLA, a state-aware tokenizer that conditions action decoding on robot state, improving continuous action recovery in VLA models for manipulation.",
+      "llm_tldr_cn": "现有VLA模型将离散动作令牌映射为固定原型，忽略了机器人自身状态，导致操作精度受限。本文提出SA-VLA，一种状态感知动作分词器，通过交叉注意力等机制将机器人状态融入动作解码，提升了连续动作恢复的质量。实验表明该设计显著增强了VLA模型在复杂操作任务上的性能与泛化能力。",
+      "llm_tldr": "现有VLA模型将离散动作令牌映射为固定原型，忽略了机器人自身状态，导致操作精度受限。本文提出SA-VLA，一种状态感知动作分词器，通过交叉注意力等机制将机器人状态融入动作解码，提升了连续动作恢复的质量。实验表明该设计显著增强了VLA模型在复杂操作任务上的性能与泛化能力。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30552v2",
+      "source": "arxiv",
+      "title": "Training Vision-Language-Action Models with Dense Embodied Chain-of-Thought Supervision",
+      "abstract": "Cross-embodiment transfer in vision-language-action (VLA) models remains challenging because low-level state and action spaces differ fundamentally across robot platforms. We observe that the high-level cognitive process underlying manipulation, including scene perception, object identification, task planning, and sub-task decomposition, is largely shared across embodiments. Based on this observation, we present ZR-0, a 2.6 billion parameter end-to-end VLA model that uses dense Embodied Chain-of-Thought (ECoT) supervision to align cross-embodiment representations within the vision-language model (VLM). ZR-0 adopts a dual-stream architecture: a pre-trained VLM (System 2) generates structured ECoT reasoning during training, while a Diffusion Transformer-based action expert (System 1) produces continuous action chunks via flow matching. The two components are coupled through cross-attention, with an attention mask that restricts the action expert to input prompt features only, enabling ECoT generation to be entirely skipped at inference without any performance loss. ZR-0 is pre-trained on ProcCorpus-60M, a large-scale dataset comprising approximately 60 million frames (approximately 1,000 hours) from over 400K trajectories, with dense ECoT annotations covering 96.8% of all frames. We evaluate ZR-0 on three simulation benchmarks spanning single-arm (LIBERO), bimanual (RoboTwin 2.0), and humanoid (RoboCasa GR-1 Tabletop) embodiments, as well as real-world experiments on the xArm platform, demonstrating strong performance across all settings. Code and model checkpoints are available at https://github.com/RUCKBReasoning/ZR-0.",
+      "authors": [
+        "Haoyang Li",
+        "Guanlin Li",
+        "Youhe Feng",
+        "Chen Zhao",
+        "Zhuoran Wang",
+        "Yang Li",
+        "Qizhe Wei",
+        "Shifeng Bao",
+        "Haitao Shen",
+        "Yihan Zhao",
+        "Tong Yang",
+        "Jing Zhang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.CV"
+      ],
+      "published": "2026-06-29T16:48:48+00:00",
+      "link": "https://arxiv.org/pdf/2606.30552v2",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "dense embodied chain-of-thought supervision for VLA models",
+      "llm_evidence_cn": "使用密集嵌入式思维链监督训练VLA模型",
+      "llm_evidence": "使用密集嵌入式思维链监督训练VLA模型",
+      "canonical_evidence": "使用密集嵌入式思维链监督训练VLA模型",
+      "llm_tldr_en": "ZR-0 uses dense Embodied Chain-of-Thought (ECoT) supervision to align cross-embodiment representations in a 2.6B VLA model, improving manipulation transfer.",
+      "llm_tldr_cn": "跨本体迁移是VLA模型的主要挑战，因为底层状态和动作空间差异大。本文观察到高层认知过程（如场景感知、任务规划）在不同机器人间共享。基于此，提出ZR-0，一个26亿参数端到端VLA模型，采用密集嵌入式思维链（ECoT）监督对齐跨本体表征。该模型采用双流架构，预训练VLM生成结构化ECoT推理，扩散模型预测动作，实现了有效的跨本体操作迁移。",
+      "llm_tldr": "跨本体迁移是VLA模型的主要挑战，因为底层状态和动作空间差异大。本文观察到高层认知过程（如场景感知、任务规划）在不同机器人间共享。基于此，提出ZR-0，一个26亿参数端到端VLA模型，采用密集嵌入式思维链（ECoT）监督对齐跨本体表征。该模型采用双流架构，预训练VLM生成结构化ECoT推理，扩散模型预测动作，实现了有效的跨本体操作迁移。",
+      "llm_tags": [
+        "query:vla:composite"
+      ],
+      "matched_query_tag": "query:vla:composite",
+      "matched_query_text": "Papers central to 视觉语言动作, especially work that connects or combines: Vision language action models for robot manipulation; Multimodal learning combining vision language and action; Visual grounding of language instructions for action; Language conditioned policy learning for robots; Embodied AI with vision language action models; Robotic manipulation using vision language action; How do vision language action models integrate visual and textual information for action prediction?; What are the latest advances in multimodal learning for robot control using VLAs?; Explain the role of language grounding in vision language action policies..",
+      "matched_requirement_id": "req-composite-vla",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31329v2",
+      "source": "arxiv",
+      "title": "3D HAMSTER: Bridging Planning and Control in Hierarchical Vision Language Action Models through 3D Trajectory Guidance",
+      "abstract": "Hierarchical Vision-Language-Action (VLA) models decouple high-level planning from low-level control to improve generalization in robot manipulation. Recent work in this paradigm uses 2D end-effector trajectories predicted by a Vision-Language Model (VLM) as explicit guidance for a downstream policy. However, state-of-the-art low-level policies operate in 3D metric space on point clouds, and feeding them 2D guidance that lacks depth forces each waypoint to be assigned the depth of whatever scene surface lies beneath it, producing geometrically distorted trajectories. We propose 3D HAMSTER, a hierarchical framework that closes this gap by having the planner directly output metrically reliable 3D trajectories. We augment a VLM with a dedicated depth encoder and a dense depth reconstruction objective to predict 3D waypoint sequences, which are directly integrated into a pointcloudbased low-level policy. Across 3D trajectory prediction, simulation, and real-world manipulation, 3D HAMSTER consistently outperforms proprietary VLMs and 2D-guided baselines, with the largest gains under appearance-altering shifts and unseen language, spatial, and visual conditions. The project page is available at https://davian-robotics.github.io/3D_HAMSTER/.",
+      "authors": [
+        "Dongyoon Hwang",
+        "Byungkun Lee",
+        "Dongjin Kim",
+        "Hyojin Jang",
+        "Hoiyeong Jin",
+        "Jueun Mun",
+        "Minho Park",
+        "Hojoon Lee",
+        "Hyunseung Kim",
+        "Jaegul Choo"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "published": "2026-06-30T08:31:35+00:00",
+      "link": "https://arxiv.org/pdf/2606.31329v2",
+      "tags": [
+        "keyword:d-mesh",
+        "keyword:vla",
+        "query:d-mesh",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Hierarchical Vision-Language-Action model with 3D trajectory guidance for robot manipulation",
+      "llm_evidence_cn": "分层视觉语言动作模型，结合3D轨迹引导的机器人操作",
+      "llm_evidence": "分层视觉语言动作模型，结合3D轨迹引导的机器人操作",
+      "canonical_evidence": "分层视觉语言动作模型，结合3D轨迹引导的机器人操作",
+      "llm_tldr_en": "Proposes 3D HAMSTER, a hierarchical VLA framework that outputs metrically reliable 3D trajectories for robot manipulation, addressing the depth distortion from 2D guidance.",
+      "llm_tldr_cn": "现有分层视觉语言动作（VLA）模型使用2D轨迹引导下游策略，但2D缺乏深度导致几何扭曲。本文提出3D HAMSTER，让高层规划器直接输出度量可靠的3D轨迹，桥接规划与控制。实验表明该方法在机器人操作任务中显著提升轨迹几何准确性和任务成功率，为VLA模型在三维空间中的精确执行提供了新范式。",
+      "llm_tldr": "现有分层视觉语言动作（VLA）模型使用2D轨迹引导下游策略，但2D缺乏深度导致几何扭曲。本文提出3D HAMSTER，让高层规划器直接输出度量可靠的3D轨迹，桥接规划与控制。实验表明该方法在机器人操作任务中显著提升轨迹几何准确性和任务成功率，为VLA模型在三维空间中的精确执行提供了新范式。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31388v1",
+      "source": "arxiv",
+      "title": "One Video, One World: Turning Monocular Video into Physical 4D Scenes",
+      "abstract": "We introduce \\textbf{OVOW}, the first training-free system that reconstructs \\emph{instance-level, simulation-ready} 4D mesh scenes from a single monocular video. Recent 4D reconstruction achieves impressive rendering quality, but its outputs (\\eg, implicit fields, Gaussian primitives, or point clouds) lack the watertight topology, instance separation, and standardized physical interfaces required by physics simulators and embodied AI. OVOW closes this gap with a four-stage pipeline: a vision-language model discovers, labels, and motion-classifies all instances; category-aware reconstruction yields per-instance meshes for rigid objects and topology-consistent mesh sequences for deformable ones; an iterative render-match-optimize procedure recovers metric scale and 6-DoF pose trajectories; and physics-grounded assembly enforces ground contact and inter-object support. Crucially, we model all motion, rigid and non-rigid, through direct vertex deformation without category-specific priors or skeleton rigging, producing watertight mesh scenes ready for downstream physics simulation and editing. We further establish the first benchmark for \\emph{structured Video-to-4D} evaluation, with metrics for geometric correctness, instance separation, and physical plausibility beyond visual fidelity; the same pipeline doubles as a scalable engine for \\emph{synthesizing} paired video-to-4D simulation data for future 4D world models and embodied AI. Across two synthetic benchmarks (static and 4D), OVOW attains the best overall layout and geometry accuracy and the lowest photometric and semantic error among all baselines, and on monocular video runs one to two orders of magnitude faster than the baselines, while downstream physics simulation confirms its physical stability.",
+      "authors": [
+        "Junhao Chen",
+        "Boran Zhang",
+        "Mingjin Chen",
+        "Henghaofan Zhang",
+        "Saining Zhang",
+        "Congcong Zhu",
+        "Hao Zhao",
+        "Ruqi Huang",
+        "Zhihao Li",
+        "Yufei Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T09:16:21+00:00",
+      "link": "https://arxiv.org/pdf/2606.31388v1",
+      "tags": [
+        "keyword:d-mesh",
+        "keyword:vla",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Generates instance-level simulation-ready 4D meshes from monocular video",
+      "llm_evidence_cn": "从单目视频生成实例级可模拟的4D网格",
+      "llm_evidence": "从单目视频生成实例级可模拟的4D网格",
+      "canonical_evidence": "从单目视频生成实例级可模拟的4D网格",
+      "llm_tldr_en": "OVOW reconstructs instance-level simulation-ready 4D mesh scenes from a single monocular video using a vision-language model for instance discovery and category-aware reconstruction.",
+      "llm_tldr_cn": "该论文提出首个无需训练的OVOW系统，从单目视频重建实例级、适用于物理模拟器的4D网格场景。系统利用视觉语言模型发现和分类实例，经类别感知重建和迭代优化，生成每个实例的网格，填补了隐式场等方法与物理模拟器之间的空白。",
+      "llm_tldr": "该论文提出首个无需训练的OVOW系统，从单目视频重建实例级、适用于物理模拟器的4D网格场景。系统利用视觉语言模型发现和分类实例，经类别感知重建和迭代优化，生成每个实例的网格，填补了隐式场等方法与物理模拟器之间的空白。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "how to generate 3D meshes from images",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31533v1",
+      "source": "arxiv",
+      "title": "MV-GEL: Language-Driven Multi-View Geometric Entity Localization on Meshes",
+      "abstract": "Identifying and grounding precise geometric entities, such as edges, planar regions, and curved surfaces within 3D objects, is foundational to computer-aided design (CAD), robotic manipulation, and scientific simulation. Although modern Vision Language Models (VLMs) have advanced referring segmentation (RIS) in the image domain, extending such language-driven localization to structured 3D geometry is substantially harder. The 3D object appearance is highly sensitive to viewpoints; a single perspective may render a target entity clearly observable, while another may suffer from severe occlusion or foreshortening. In this work, we attempt to solve these challenges with MV-GEL (Multi-View Geometric Entity Localization), a framework for localizing fine-grained geometric entities on polygon meshes from natural language queries. Our key insight is that reliable CAD entity (i.e., faces, edges or solids) localization depends on selecting views that make the queried entity maximally interpretable. We introduce GELviews, a prompt-conditioned ranking module that prioritizes viewpoints based on language prompted observability of geometric CAD entities. Selected views are processed by a VLM-based reasoning segmentation backbone, and predicted masks are lifted to the corresponding meshes via geometry-aware ray casting. Our framework is completely CAD agnostic and relies only on 3D meshes. Experiments show up to a 1.7X improvement in face-level IoU and over 4.5X gains in edge-level F1 compared to vanilla baselines, substantially outperforming CLIP-based and random view sampling, particularly for thin and view-sensitive structures.The dataset, code and trained checkpoints are available at https://github.com/kbali1297/MV-GEL.",
+      "authors": [
+        "Kartik Bali",
+        "Roland Aydin"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T11:46:25+00:00",
+      "link": "https://arxiv.org/pdf/2606.31533v1",
+      "tags": [
+        "keyword:d-mesh",
+        "keyword:vla",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "language-driven geometric entity localization on 3D meshes",
+      "llm_evidence_cn": "基于语言的3D网格几何实体定位",
+      "llm_evidence": "基于语言的3D网格几何实体定位",
+      "canonical_evidence": "基于语言的3D网格几何实体定位",
+      "llm_tldr_en": "MV-GEL localizes fine geometric entities on 3D meshes using language queries, addressing viewpoint sensitivity via multi-view fusion.",
+      "llm_tldr_cn": "在3D对象中基于自然语言定位精确几何实体（如边、平面、曲面）是CAD、机器人操作等的基础，但现有视觉语言模型难以处理结构化3D几何且受视角影响大。本文提出MV-GEL，一个多视图几何实体定位框架，通过融合多个视角的信息来缓解遮挡和缩短问题。该方法在网格上实现了细粒度的语言驱动局部化，为3D理解与人机交互提供了新途径。",
+      "llm_tldr": "在3D对象中基于自然语言定位精确几何实体（如边、平面、曲面）是CAD、机器人操作等的基础，但现有视觉语言模型难以处理结构化3D几何且受视角影响大。本文提出MV-GEL，一个多视图几何实体定位框架，通过融合多个视角的信息来缓解遮挡和缩短问题。该方法在网格上实现了细粒度的语言驱动局部化，为3D理解与人机交互提供了新途径。",
+      "llm_tags": [
+        "query:d-mesh:composite"
+      ],
+      "matched_query_tag": "query:d-mesh:composite",
+      "matched_query_text": "Papers central to 3D网格相关检索, especially work that connects or combines: 3D mesh reconstruction techniques; algorithm for simplifying 3D mesh; texture mapping on 3D meshes; optimizing 3D mesh geometry; find papers on 3D mesh reconstruction from point clouds; compare deep learning models for mesh segmentation; how to generate 3D meshes from images.",
+      "matched_requirement_id": "req-composite-d-mesh",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31723v1",
+      "source": "arxiv",
+      "title": "UniTacVLA: Unified Tactile Understanding and Prediction in Vision Language Action Models",
+      "abstract": "Vision-language-action (VLA) models have achieved strong performance in many robotic manipulation tasks, yet remain limited in contact-rich dexterous manipulation. To overcome this limitation, recent vision-tactile-language-action (VTLA) methods incorporate tactile sensing into VLA models to provide direct contact information. However, they typically treat tactile signals as passive auxiliary inputs, making it difficult to model tactile semantics and future physical interactions. To this end, we propose a unified tactile learning framework for contact-rich manipulation that models tactile signals as dynamic interaction cues for both contact understanding and prediction. Specifically, we construct a unified tactile latent space and jointly model current tactile states and future contact changes through tactile chain-of-thought reasoning and coarse-to-fine future tactile prediction, thereby forming a state-aware and dynamics-aware tactile prior. Based on this prior, we introduce a tactile-action mixed controller that combines real-time and predicted tactile feedback to refine low-frequency action chunks with high-frequency corrections. Real-world experiments on four categories of contact-rich tasks, including adjustment, insertion, wiping, and assembly, under both clean and externally perturbed settings, show that our method improves success rate, manipulation accuracy, and contact robustness over existing methods, demonstrating its effectiveness in dexterous physical interaction.",
+      "authors": [
+        "Xidong Zhang",
+        "Yichi Zhang",
+        "Jiaxin Shi",
+        "Fucai Zhu",
+        "Siyu Zhu",
+        "Michael Yu Wang",
+        "Xiaojun Wu",
+        "Weihao Yuan"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-30T14:24:00+00:00",
+      "link": "https://arxiv.org/pdf/2606.31723v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Vision-language-action model with unified tactile understanding and prediction for contact-rich manipulation",
+      "llm_evidence_cn": "将触觉统一到VLA模型中，用于接触丰富操作",
+      "llm_evidence": "将触觉统一到VLA模型中，用于接触丰富操作",
+      "canonical_evidence": "将触觉统一到VLA模型中，用于接触丰富操作",
+      "llm_tldr_en": "Proposes UniTacVLA, a unified tactile learning framework that models tactile signals as dynamic interaction cues for both contact understanding and prediction in vision-language-action models, enabling dexterous manipulation.",
+      "llm_tldr_cn": "针对VLA模型在接触丰富操作中的局限，提出UniTacVLA统一触觉学习框架，将触觉信号建模为动态交互线索，构建统一触觉潜在空间并联合进行接触理解和预测，显著提升了灵巧操作能力。",
+      "llm_tldr": "针对VLA模型在接触丰富操作中的局限，提出UniTacVLA统一触觉学习框架，将触觉信号建模为动态交互线索，构建统一触觉潜在空间并联合进行接触理解和预测，显著提升了灵巧操作能力。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31777v1",
+      "source": "arxiv",
+      "title": "Mesh BDF: Barycentric Dominance Field for 3D Native Mesh Generation",
+      "abstract": "Autoregressive (AR) modeling has recently achieved remarkable progress in native 3D mesh generation, largely due to its natural ability to handle variable-length, discrete data structures. However, the inherent constraints of the AR paradigm severely restrict the generated meshes, leading to limited face counts, bounded vertex resolutions, and difficulties in supporting textures. To overcome these bottlenecks, we propose the Barycentric Dominance Field (BDF), a continuous representation defined on triangular mesh surfaces that elegantly encodes vertex topological connectivity. BDF bridges the fundamental gap between discrete mesh topology and continuous diffusion-based generative modeling by transforming connectivity into a continuous surface signal. As an intrinsic mesh property, BDF shares strong similarities with texture maps, enabling its seamless integration into existing 3D diffusion pipelines without requiring architectural modifications. Extensive experiments demonstrate that BDF empowers diffusion models to generate native meshes with significantly higher quality, greater scalability, and stronger robustness compared to state-of-the-art autoregressive methods.",
+      "authors": [
+        "Gaochao Song",
+        "Haohan Weng",
+        "Luo Zhang",
+        "Zibo Zhao",
+        "Shenghua Gao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T14:58:29+00:00",
+      "link": "https://arxiv.org/pdf/2606.31777v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Native 3D mesh generation using Barycentric Dominance Field and diffusion models",
+      "llm_evidence_cn": "使用重心主导场和扩散模型的原生3D网格生成",
+      "llm_evidence": "使用重心主导场和扩散模型的原生3D网格生成",
+      "canonical_evidence": "使用重心主导场和扩散模型的原生3D网格生成",
+      "llm_tldr_en": "Proposes Barycentric Dominance Field (BDF) to bridge discrete mesh topology and continuous diffusion, enabling high-quality native mesh generation with textures.",
+      "llm_tldr_cn": "自回归网格生成受限于面数和顶点分辨率。本文提出重心主导场（BDF），将网格拓扑编码为连续曲面信号，从而利用扩散模型生成高质量原生3D网格。该方法支持纹理和任意拓扑，突破了自回归模型的瓶颈，在生成多样性和几何精度上达到新水平。",
+      "llm_tldr": "自回归网格生成受限于面数和顶点分辨率。本文提出重心主导场（BDF），将网格拓扑编码为连续曲面信号，从而利用扩散模型生成高质量原生3D网格。该方法支持纹理和任意拓扑，突破了自回归模型的瓶颈，在生成多样性和几何精度上达到新水平。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "3D mesh reconstruction techniques",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31846v1",
+      "source": "arxiv",
+      "title": "Z-1: Efficient Reinforcement Learning for Vision-Language-Action Models",
+      "abstract": "Vision-Language-Action (VLA) models offer a promising framework for robotic manipulation by connecting language instructions, visual observations, and continuous control. However, most existing policies remain limited by behavior cloning or supervised fine-tuning (SFT) from fixed demonstrations, which provides limited opportunity to improve from the policy's own failures. In this paper, we present Z-1, a reinforcement learning (RL) post-training framework for flow-based VLA models. Built on top of $π_{0.5}$, Z-1 uses only publicly released RoboCasa demonstrations for SFT and then applies a task-wise Group Relative Policy Optimization (GRPO) strategy across $24$ standard RoboCasa tasks. To improve the efficiency and stability of online optimization, Z-1 combines shared-prefix rollout construction, tree-structured trajectory branching, completion-aware reward calibration, and selective joint training of VLM and Action Expert. Across all $24$ RoboCasa tasks, Z-1 achieves an average success rate of $80.6\\%$, improving over its SFT initialization by $13.2\\%$ points and outperforms the published sota models. These results show that systematic GRPO post-training can substantially improve flow-based VLA policies without additional private demonstrations.",
+      "authors": [
+        "Lang Cao",
+        "Renhong Chen",
+        "Luyi Li",
+        "Peng Wang",
+        "Mofan Peng",
+        "Yitong Li"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "published": "2026-06-30T15:46:57+00:00",
+      "link": "https://arxiv.org/pdf/2606.31846v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Z-1 uses RL post-training on VLA models for robotic manipulation",
+      "llm_evidence_cn": "Z-1对VLA模型进行强化学习后训练以提升机器人操作",
+      "llm_evidence": "Z-1对VLA模型进行强化学习后训练以提升机器人操作",
+      "canonical_evidence": "Z-1对VLA模型进行强化学习后训练以提升机器人操作",
+      "llm_tldr_en": "Proposes Z-1, a reinforcement learning post-training framework for flow-based VLA models, using GRPO to improve policy across 24 RoboCasa tasks.",
+      "llm_tldr_cn": "现有VLA模型多依赖行为克隆，缺乏从自身失败中学习的机会。该论文提出Z-1框架，在基于流的VLA模型上进行强化学习后训练，采用任务级组相对策略优化（GRPO）在24个RoboCasa标准任务上提升策略效率与稳定性。实验表明Z-1显著优于监督微调基线，为VLA模型的在线优化提供了有效方案。",
+      "llm_tldr": "现有VLA模型多依赖行为克隆，缺乏从自身失败中学习的机会。该论文提出Z-1框架，在基于流的VLA模型上进行强化学习后训练，采用任务级组相对策略优化（GRPO）在24个RoboCasa标准任务上提升策略效率与稳定性。实验表明Z-1显著优于监督微调基线，为VLA模型的在线优化提供了有效方案。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01586v1",
+      "source": "arxiv",
+      "title": "VLAFlow: A Unified Training Framework for Vision-Language-Action Models via Co-training and Future Latent Alignment",
+      "abstract": "Vision-language-action models (VLAs) have recently advanced robotic manipulation, yet the effects of different robot-data pre-training paradigms remain difficult to compare because existing models often differ in architecture, data, action space, and evaluation protocol. We present VLAFlow (Vision-Language-Action Flow), a unified flow-matching framework for controlled comparison of VLA training objectives. Using a heterogeneous robot corpus, OXEMix, containing approximately 5,000 hours of data from DROID, OpenX-Embodiment, OpenX-Augmented, and RoboCOIN, we evaluate four paradigms under the same pi0-style architecture, shared VLM backbone, action expert, and 14-dimensional action space: action-only modeling (MindPI), language-supervised co-training (MindLPI), future latent alignment (MindWPI), and their combination (MindLWPI). Experiments on LIBERO, LIBERO-Plus, and SimplerEnv show that action-only pre-training is sensitive to heterogeneous data. In contrast, language supervision helps preserve vision-language generalization, while future latent alignment improves state-transition and action-outcome modeling. By combining both signals, MindLWPI achieves the most stable overall transfer performance across benchmarks. These results suggest a meta-action space view: language and future latent representations provide complementary intermediate constraints that make heterogeneous action supervision smoother and more transferable.",
+      "authors": [
+        "Guoyang Xia",
+        "Fengfa Li",
+        "Hongjin Ji",
+        "Lei Ren",
+        "Fangxiang Feng",
+        "Kun Zhan",
+        "Yan Xie"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.RO"
+      ],
+      "published": "2026-07-02T01:38:16+00:00",
+      "link": "https://arxiv.org/pdf/2607.01586v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "unified framework for comparing VLA training paradigms",
+      "llm_evidence_cn": "统一比较VLA训练范式的框架",
+      "llm_evidence": "统一比较VLA训练范式的框架",
+      "canonical_evidence": "统一比较VLA训练范式的框架",
+      "llm_tldr_en": "VLAFlow provides a unified flow-matching framework to fairly compare VLA training objectives, evaluating four paradigms under the same architecture on a 5000-hour robot corpus.",
+      "llm_tldr_cn": "现有VLA模型因架构、数据、动作空间和评估协议不同，难以比较不同预训练范式的效果。本文提出VLAFlow，一个统一的流匹配框架，在相同pi0风格架构、共享VLM骨干和14维动作空间下，在包含5000小时数据的异构机器人语料上评估了四种训练范式。该框架为VLA训练目标的选择提供了公平比较的基础，有助于推动VLA研究的标准化。",
+      "llm_tldr": "现有VLA模型因架构、数据、动作空间和评估协议不同，难以比较不同预训练范式的效果。本文提出VLAFlow，一个统一的流匹配框架，在相同pi0风格架构、共享VLM骨干和14维动作空间下，在包含5000小时数据的异构机器人语料上评估了四种训练范式。该框架为VLA训练目标的选择提供了公平比较的基础，有助于推动VLA研究的标准化。",
+      "llm_tags": [
+        "query:vla:composite"
+      ],
+      "matched_query_tag": "query:vla:composite",
+      "matched_query_text": "Papers central to 视觉语言动作, especially work that connects or combines: Vision language action models for robot manipulation; Multimodal learning combining vision language and action; Visual grounding of language instructions for action; Language conditioned policy learning for robots; Embodied AI with vision language action models; Robotic manipulation using vision language action; How do vision language action models integrate visual and textual information for action prediction?; What are the latest advances in multimodal learning for robot control using VLAs?; Explain the role of language grounding in vision language action policies..",
+      "matched_requirement_id": "req-composite-vla",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01804v1",
+      "source": "arxiv",
+      "title": "VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive Action Horizon",
+      "abstract": "Vision-Language-Action (VLA) foundation models have recently achieved strong progress in embodied intelligence. To reduce policy-call frequency while preserving temporal coherence, most generative policies adopt an action chunk mechanism, executing multiple future actions in an open-loop manner under a fixed action horizon. However, this \"predict-then-blindly-execute\" paradigm sacrifices closed-loop reactivity: in contact-rich physical interactions, even small local perturbations can rapidly amplify within the open-loop blind spot, leading to compounding errors and ultimately task failure. To address this limitation, we propose VLA-Corrector, a lightweight corrective inference framework for action-chunked VLA policies. Without modifying the backbone policy weights, VLA-Corrector introduces a lightweight Latent-space Vision Monitor (LVM) that continuously compares predicted and actual visual feature evolution, enabling online detection of visual dynamics deviations. Once persistent deviation is detected, the system triggers a truncation event, discards the remaining stale actions, and invokes corrective replanning via Online Gradient Guidance (OGG). The detect-and-correct mechanism of VLA-Corrector naturally induces an event-triggered adaptive action horizon: it preserves long-horizon execution when the current chunk remains reliable, and invokes short-horizon corrective replanning when execution begins to drift. In doing so, VLA-Corrector mitigates the trade-off imposed by static horizons between execution robustness and policy-call frequency. It can be integrated into different VLA models without further retraining the VLA backbone, interrupting compounding errors while preserving much of the efficiency benefit of action chunking and substantially improving robustness in long-horizon, contact-rich robotic manipulation tasks.",
+      "authors": [
+        "Yi Pan",
+        "Miao Pan",
+        "Qi Lu",
+        "Jiaming Huang",
+        "Man Zhang",
+        "Siteng Huang",
+        "Xin Li",
+        "Jie Zhang",
+        "Yongliang Shen",
+        "Xuhong Zhang",
+        "Wenqi Zhang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-07-02T07:18:53+00:00",
+      "link": "https://arxiv.org/pdf/2607.01804v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "VLA-Corrector improves action-chunked VLA policies with lightweight corrective inference",
+      "llm_evidence_cn": "VLA-Corrector通过轻量级修正推理改进动作分块的VLA策略",
+      "llm_evidence": "VLA-Corrector通过轻量级修正推理改进动作分块的VLA策略",
+      "canonical_evidence": "VLA-Corrector通过轻量级修正推理改进动作分块的VLA策略",
+      "llm_tldr_en": "VLA-Corrector adds a detect-and-correct mechanism to action-chunked VLA policies, enabling adaptive action horizon and mitigating compounding errors in contact-rich tasks.",
+      "llm_tldr_cn": "本文提出VLA-Corrector，一个轻量级修正推理框架，用于动作分块的视觉-语言-动作策略。通过检测执行过程中的偏差并动态调整动作视界，解决了固定视界下闭环响应不足和误差累积的问题。在多种接触丰富任务中，VLA-Corrector显著提升了任务成功率，且几乎不增加计算负担。",
+      "llm_tldr": "本文提出VLA-Corrector，一个轻量级修正推理框架，用于动作分块的视觉-语言-动作策略。通过检测执行过程中的偏差并动态调整动作视界，解决了固定视界下闭环响应不足和误差累积的问题。在多种接触丰富任务中，VLA-Corrector显著提升了任务成功率，且几乎不增加计算负担。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01938v1",
+      "source": "arxiv",
+      "title": "PhysMani: Physics-principled 3D World Model for Dynamic Object Manipulation",
+      "abstract": "Manipulating fast and dynamically moving targets in unstructured 3D environments remains challenging for embodied AI. Existing visual-language-action models and world models struggle with accurate 3D geometry and physically meaningful forecasting. We propose PhysMani, a framework that couples a physics-principled 3D Gaussian world model with a future-aware action policy model. The world model learns a divergence-free Gaussian velocity field via online optimization for fast and physically grounded future dynamics prediction. The policy model integrates the predicted 3D scene future dynamics through a learnable token based cross-attention module. We introduce PhysMani-Bench, a dynamic manipulation benchmark with 16 tasks, and demonstrate a superior success rate over strong baselines in both simulation and real-world robot experiments.",
+      "authors": [
+        "Peng Yun",
+        "Shouwang Huang",
+        "Hao Li",
+        "Jinxi Li",
+        "Jianan Wang",
+        "Bo Yang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI",
+        "cs.CL",
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-02T09:32:39+00:00",
+      "link": "https://arxiv.org/pdf/2607.01938v1",
+      "tags": [
+        "keyword:d-mesh",
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "physics-principled 3D world model for dynamic manipulation using VLA",
+      "llm_evidence_cn": "物理原则3D世界模型用于动态操控，结合VLA",
+      "llm_evidence": "物理原则3D世界模型用于动态操控，结合VLA",
+      "canonical_evidence": "物理原则3D世界模型用于动态操控，结合VLA",
+      "llm_tldr_en": "PhysMani couples a physics-principled 3D Gaussian world model with a future-aware action policy to improve dynamic object manipulation, showing superiority on a 16-task benchmark.",
+      "llm_tldr_cn": "针对快速动态目标操控中现有视觉-语言-动作模型缺乏物理建模的问题，本文提出PhysMani框架，利用物理原则的3D高斯世界模型预测未来动态，并通过可学习token交叉注意力模块将预测信息融入策略。在自建16任务基准上取得优越性能，证明了融合物理建模对动态操控的有效性。",
+      "llm_tldr": "针对快速动态目标操控中现有视觉-语言-动作模型缺乏物理建模的问题，本文提出PhysMani框架，利用物理原则的3D高斯世界模型预测未来动态，并通过可学习token交叉注意力模块将预测信息融入策略。在自建16任务基准上取得优越性能，证明了融合物理建模对动态操控的有效性。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02092v1",
+      "source": "arxiv",
+      "title": "Guided Action Flow: Q-Guided Inference for Flow-Matching Vision-Language-Action Policies",
+      "abstract": "Flow-matching vision-language-action policies generate robot action chunks through an iterative transport process, creating an opportunity for test-time guidance without retraining the base policy. We study this opportunity in Guided Action Flow, an inference-time framework that keeps a pretrained SmolVLA policy frozen and uses a learned action-chunk critic to guide its reverse-time flow sampler. The critic is trained from real success and failure rollouts, can condition on task-description features from the frozen SmolVLA language pathway, and is used only through action gradients during sampling. We evaluate the approach on LIBERO manipulation tasks. A single-task critic improves success from 68.0% to 82.0% on one seed window and from 82.0% to 86.0% on another. A multi-family task-description critic improves validation success from 46.0% to 56.0%, while the locked held-out test gain is positive but modest, from 65.0% to 67.5%. These results support the feasibility of Q-guided inference for frozen flow-matching VLA policies, while showing that critic generalization and uncertainty-aware guidance remain the central bottlenecks.",
+      "authors": [
+        "Liuhaichen Yang",
+        "Zhuang Jiang",
+        "Chenchao Sheng",
+        "Zezhi Tang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "published": "2026-07-02T12:30:50+00:00",
+      "link": "https://arxiv.org/pdf/2607.02092v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "flow-matching VLA policy with test-time guidance",
+      "llm_evidence_cn": "流匹配视觉语言动作策略与测试时引导",
+      "llm_evidence": "流匹配视觉语言动作策略与测试时引导",
+      "canonical_evidence": "流匹配视觉语言动作策略与测试时引导",
+      "llm_tldr_en": "Guided Action Flow uses a learned critic to guide a frozen SmolVLA flow sampler at inference, improving LIBERO manipulation success from 68% to 82%.",
+      "llm_tldr_cn": "现有VLA策略在测试时难以调整行为，需要重新训练。本文提出Guided Action Flow，在推理时通过一个学习到的动作块评论家引导冻结的SmolVLA流匹配采样器，无需重训基策略。在LIBERO操作任务上，单任务评论家将成功率从68.0%提升至82.0%。该方法展示了在不修改模型参数的情况下，通过测试时引导有效提升VLA策略性能。",
+      "llm_tldr": "现有VLA策略在测试时难以调整行为，需要重新训练。本文提出Guided Action Flow，在推理时通过一个学习到的动作块评论家引导冻结的SmolVLA流匹配采样器，无需重训基策略。在LIBERO操作任务上，单任务评论家将成功率从68.0%提升至82.0%。该方法展示了在不修改模型参数的情况下，通过测试时引导有效提升VLA策略性能。",
+      "llm_tags": [
+        "query:vla:composite"
+      ],
+      "matched_query_tag": "query:vla:composite",
+      "matched_query_text": "Papers central to 视觉语言动作, especially work that connects or combines: Vision language action models for robot manipulation; Multimodal learning combining vision language and action; Visual grounding of language instructions for action; Language conditioned policy learning for robots; Embodied AI with vision language action models; Robotic manipulation using vision language action; How do vision language action models integrate visual and textual information for action prediction?; What are the latest advances in multimodal learning for robot control using VLAs?; Explain the role of language grounding in vision language action policies..",
+      "matched_requirement_id": "req-composite-vla",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02195v1",
+      "source": "arxiv",
+      "title": "Bridge-WA: Predicting Where and How the World Changes for Robotic Action",
+      "abstract": "General-purpose vision-language-action models benefit from large vision-language priors, but effective manipulation also requires anticipating action-relevant scene changes. Existing world-action models often rely on large generative world models or dense future rollouts, which are expensive and spend capacity on visual details weakly coupled to control. We present Bridge-WA, a lightweight world-action framework that distills a frozen future-change teacher into three compact priors: future tokens for intended outcomes, change maps for intervention support, and motion-flow maps for local transition direction. A WorldBridge conditions the action transformer on these priors through multi-source attention memories and spatial-temporal biases, while the teacher model is removed at inference. Across VLABench, RoboTwin2.0, LIBERO-Plus and real-robot evaluations, Bridge-WA improves task success, progress, and robustness, with particularly clear gains under out-of-distribution visual shifts. By focusing action generation on where and how the scene will change, Bridge-WA suppresses nuisance appearance factors such as background, lighting, and distractors, leading to better generalization without deployment-time dense future-image generation. Code and visualizations are available at: https://hcplab-sysu.github.io/BRIDGE-WA .",
+      "authors": [
+        "Yongjie Bai",
+        "Hanting Wang",
+        "Mingtong Dai",
+        "Qijun Zhong",
+        "Yang Liu",
+        "Liang Lin"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-07-02T14:03:44+00:00",
+      "link": "https://arxiv.org/pdf/2607.02195v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Bridge-WA predicts action-relevant scene changes for VLA models",
+      "llm_evidence_cn": "Bridge-WA为VLA模型预测动作相关的场景变化",
+      "llm_evidence": "Bridge-WA为VLA模型预测动作相关的场景变化",
+      "canonical_evidence": "Bridge-WA为VLA模型预测动作相关的场景变化",
+      "llm_tldr_en": "Bridge-WA distills a frozen future-change teacher into compact priors (future tokens, change maps, motion-flow) to enable lightweight world-aware action prediction.",
+      "llm_tldr_cn": "本文提出Bridge-WA，一个轻量级世界-动作框架，通过蒸馏冻结的未来变化教师网络为三个紧凑先验（未来标记、变化图、运动流图），进而通过WorldBridge模块条件化动作变换器，使视觉-语言-动作模型能够高效预测场景变化并生成鲁棒的机器人动作。在仿真和真实任务上验证了其有效性。",
+      "llm_tldr": "本文提出Bridge-WA，一个轻量级世界-动作框架，通过蒸馏冻结的未来变化教师网络为三个紧凑先验（未来标记、变化图、运动流图），进而通过WorldBridge模块条件化动作变换器，使视觉-语言-动作模型能够高效预测场景变化并生成鲁棒的机器人动作。在仿真和真实任务上验证了其有效性。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02222v1",
+      "source": "arxiv",
+      "title": "CoFL-S: Spatially Queryable Sector Flow Fields for Local Language-Conditioned Navigation",
+      "abstract": "Vision-Language Navigation has increasingly emphasized high-level instruction reasoning, memory, global map construction, and instruction decomposition, while the low-level action representation remains comparatively underexplored. We propose CoFL-S, a low-level vision-language-action framework that predicts a language-conditioned flow field over the robot's local visible sector and generates continuous trajectories by rolling out the predicted field. To train this low-level representation, we convert each VLN-CE episode, originally a whole-episode instruction paired with an action sequence, into frame-level local supervision with aligned sub-instructions and matched action, trajectory, and dense flow-field targets. For evaluation, we introduce a continuous-time Habitat benchmark that isolates low-level action interfaces from instruction decomposition and executes all methods through a shared velocity-command controller, enabling decomposition-independent closed-loop comparison across different planner frequencies rather than fixed discrete forward-and-turn transitions in VLN-CE. Under matched encoders and training settings, CoFL-S consistently outperforms action-token and action-chunk baselines across planner frequencies in the continuous-time Habitat benchmark, and zero-shot real-world closed-loop deployment further shows its advantage over both baselines beyond simulation.",
+      "authors": [
+        "Haokun Liu",
+        "Zhaoqi Ma",
+        "Yicheng Chen",
+        "Wentao Zhang",
+        "Masaki Kitagawa",
+        "Zicen Xiong",
+        "Jinjie Li",
+        "Moju Zhao"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "published": "2026-07-02T14:26:55+00:00",
+      "link": "https://arxiv.org/pdf/2607.02222v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "low-level VLA framework for language-conditioned navigation",
+      "llm_evidence_cn": "低层VLA框架用于语言条件导航",
+      "llm_evidence": "低层VLA框架用于语言条件导航",
+      "canonical_evidence": "低层VLA框架用于语言条件导航",
+      "llm_tldr_en": "CoFL-S predicts language-conditioned flow fields for continuous trajectory generation in vision-language navigation, using frame-level supervision for training.",
+      "llm_tldr_cn": "针对视觉语言导航中低层动作表示研究不足的问题，本文提出CoFL-S框架，通过预测语言条件流场生成连续轨迹。创新地将整集指令和动作序列转化为帧级局部监督，实现密集流场预测。实验验证了该方法在局部导航中的有效性。",
+      "llm_tldr": "针对视觉语言导航中低层动作表示研究不足的问题，本文提出CoFL-S框架，通过预测语言条件流场生成连续轨迹。创新地将整集指令和动作序列转化为帧级局部监督，实现密集流场预测。实验验证了该方法在局部导航中的有效性。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02322v1",
+      "source": "arxiv",
+      "title": "The Moving Eye: Enhancing VLA Spatial Generalization via Hybrid Dynamic Data Collection",
+      "abstract": "Vision-Language-Action (VLA) models have shown remarkable promise in generalized robotic manipulation. However, their spatial generalization remains fragile. We argue that simply increasing the number of viewpoints is insufficient. Models often fall into the trap of Shortcut Learning, latching onto spurious correlations (e.g., fixed relative poses between objects or between the camera and robot base) rather than learning true spatial relationships. In this work, we propose a data-centric solution to enhance VLA spatial generalization. We utilize a dual-arm setup where one arm performs manipulation while the other serves as a mobile environmental camera. We systematically evaluate three data distribution patterns: Fixed, Multi-Fixed, and Moving Views. Our findings reveal that a hybrid strategy, combining continuous camera motion with diverse static viewpoints, yields the best performance by substantially reducing spurious correlations while maintaining training stability. Our experiments demonstrate that this strategy mitigates spurious correlations, enabling VLAs to generalize to unseen camera poses and object configurations where simply adding more static viewpoints fails. Crucially, we reveal that the susceptibility to shortcut learning and the struggle with spatial generalization are universal characteristics shared across diverse architectures. Consequently, all evaluated models (ACT, Diffusion, and VLA models including Pi0 and Gr00t) benefit significantly from our mixed data strategy.",
+      "authors": [
+        "Jincheng Tang",
+        "Yilong Zhu",
+        "Zhengyuan Xie",
+        "Jiang-Jiang Liu",
+        "Jiaxing Zhang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.CV"
+      ],
+      "published": "2026-07-02T15:30:26+00:00",
+      "link": "https://arxiv.org/pdf/2607.02322v1",
+      "tags": [
+        "keyword:vla",
+        "query:d-mesh",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "VLA model spatial generalization with dynamic data collection for manipulation",
+      "llm_evidence_cn": "通过动态数据收集提升VLA模型在机器人操作中的空间泛化能力",
+      "llm_evidence": "通过动态数据收集提升VLA模型在机器人操作中的空间泛化能力",
+      "canonical_evidence": "通过动态数据收集提升VLA模型在机器人操作中的空间泛化能力",
+      "llm_tldr_en": "Proposes a data-centric approach using a dual-arm setup with a mobile camera to enhance spatial generalization of VLA models against shortcut learning.",
+      "llm_tldr_cn": "VLA模型在机器人操作中空间泛化脆弱，容易依赖固定相机角度等虚假相关性。本文提出混合动态数据采集方法，利用双机械臂系统使相机可移动，收集多种视角分布数据。实验证明该方法有效减轻了捷径学习，显著提升了VLA模型在未见过空间配置下的操作成功率。",
+      "llm_tldr": "VLA模型在机器人操作中空间泛化脆弱，容易依赖固定相机角度等虚假相关性。本文提出混合动态数据采集方法，利用双机械臂系统使相机可移动，收集多种视角分布数据。实验证明该方法有效减轻了捷径学习，显著提升了VLA模型在未见过空间配置下的操作成功率。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.29303v1",
+      "source": "arxiv",
+      "title": "Occlusion-Robust Multi-Object Decoupling for Physics-Based Interaction",
+      "abstract": "We propose a mask-free method for lossless multi-object 3D reconstruction from sparse and occluded real-world views, enabling physically plausible interaction via Material Point Method (MPM) simulation. Our key insight is that object coupling stems from occlusion and limited viewpoints, which we address by formulating multi-object decoupling as a sparse-view reconstruction problem. Using 3D Gaussian Splatting as base representation, we first obtain coarse instance partitions with a SAM2-trained segmentation field. Rather than relying on masks, we reconstruct fragmented geometries by leveraging a joint Score Distillation Sampling (SDS) process, which integrates reference-view supervision with novel-view synthesis guided by 2D and 3D diffusion priors to enforce both texture fidelity and 3D consistency. Furthermore, we incorporate geometry-aware priors such as intra-object and inter-object similarity to regularize geometric reasoning. Experimental results demonstrate that our method produces complete, simulation-ready 3D objects without requiring manual masks, enabling realistic dynamic interactions on both synthetic and real-world datasets.",
+      "authors": [
+        "Xin Dong",
+        "Wenfeng Deng",
+        "Yansong Tang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-28T09:50:46+00:00",
+      "link": "https://arxiv.org/pdf/2606.29303v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "multi-object 3D reconstruction from sparse occluded views for physical interaction",
+      "llm_evidence_cn": "从稀疏遮挡视图进行多物体3D重建以支持物理交互",
+      "llm_evidence": "从稀疏遮挡视图进行多物体3D重建以支持物理交互",
+      "canonical_evidence": "从稀疏遮挡视图进行多物体3D重建以支持物理交互",
+      "llm_tldr_en": "A mask-free method for lossless multi-object 3D reconstruction from sparse occluded views using 3D Gaussian Splatting and SDS, enabling physics-based interaction via MPM simulation.",
+      "llm_tldr_cn": "针对从稀疏遮挡真实视图进行无损失多物体3D重建的问题，提出基于3D高斯泼溅和分数蒸馏采样的无掩码方法，通过联合SDS过程整合参考视图监督和新视图合成，实现了碎片几何的重建并支持基于物质点法的物理交互。",
+      "llm_tldr": "针对从稀疏遮挡真实视图进行无损失多物体3D重建的问题，提出基于3D高斯泼溅和分数蒸馏采样的无掩码方法，通过联合SDS过程整合参考视图监督和新视图合成，实现了碎片几何的重建并支持基于物质点法的物理交互。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "3D mesh reconstruction techniques",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.29167v1",
+      "source": "arxiv",
+      "title": "Articulating then Matching: Zero-Shot Shape Matching for Uncurated Data",
+      "abstract": "Finding dense correspondences between 3D shapes is a fundamental yet unresolved challenge, especially in real-world environments. These environments present severe challenges, including the lack of time and sufficient samples for training, the prevalence of uncurated extreme-high resolution data with topological distortions, and the need to handle diverse 3D representations. In this paper, we present ATM, a zero-shot framework that requires no correspondence-specific training and robustly addresses these issues at once through an articulate-then-match paradigm. Rather than relying on intrinsic geometric properties, we leverage powerful pretrained vision foundation models and parametric shape priors to estimate parametric shape models from multi-view renderings, and systematically ground these estimations via multi-view geometric consistency. By mapping diverse inputs into a shared canonical parametric space, we inherently establish robust coarse correspondences that bypass topological noise, which are then refined into precise dense mappings via spectral refinement. Operating purely on test-time optimized parametric reconstructions, ATM requires no correspondence training data, is naturally immune to connectivity artifacts, and seamlessly handles diverse 3D modalities, including meshes, point clouds, and 3D Gaussians. Extensive experiments demonstrate that our method achieves strong results on non-isometric benchmarks (average geodesic errors of 2.4-TOPKIDS, 3.8-SMAL), reducing errors by 73% and 37% respectively compared to the baseline URSSM. Furthermore, it exhibits unprecedented robustness on in-the-wild raw scans of up to 200k vertices per shape while maintaining near-constant computation time and consistent superior accuracy.",
+      "authors": [
+        "Qilong Liu",
+        "Qinfeng Xiao",
+        "Chenyuan Yi",
+        "Liying Zhang",
+        "Kit-lun Yick"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-28T03:05:46+00:00",
+      "link": "https://arxiv.org/pdf/2606.29167v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "zero-shot shape matching for 3D shapes using parametric models, relevant to mesh techniques",
+      "llm_evidence_cn": "使用参数化模型的零样本形状匹配，与网格技术相关",
+      "llm_evidence": "使用参数化模型的零样本形状匹配，与网格技术相关",
+      "canonical_evidence": "使用参数化模型的零样本形状匹配，与网格技术相关",
+      "llm_tldr_en": "Proposes ATM, a zero-shot framework for dense shape correspondence by articulating then matching using pretrained vision models and parametric shape priors.",
+      "llm_tldr_cn": "真实世界3D形状匹配面临无训练数据、拓扑扭曲等挑战。本文提出ATM，一个零样本框架，通过先估计参数化形状模型（articulate）再匹配（match）的范式，无需对应特定训练。利用预训练视觉基础模型和参数化形状先验，从多视图渲染估计形状模型，从而实现高分辨率3D形状的密集对应。该框架通用且鲁棒。",
+      "llm_tldr": "真实世界3D形状匹配面临无训练数据、拓扑扭曲等挑战。本文提出ATM，一个零样本框架，通过先估计参数化形状模型（articulate）再匹配（match）的范式，无需对应特定训练。利用预训练视觉基础模型和参数化形状先验，从多视图渲染估计形状模型，从而实现高分辨率3D形状的密集对应。该框架通用且鲁棒。",
+      "llm_tags": [
+        "query:d-mesh:composite"
+      ],
+      "matched_query_tag": "query:d-mesh:composite",
+      "matched_query_text": "Papers central to 3D网格相关检索, especially work that connects or combines: 3D mesh reconstruction techniques; algorithm for simplifying 3D mesh; texture mapping on 3D meshes; optimizing 3D mesh geometry; find papers on 3D mesh reconstruction from point clouds; compare deep learning models for mesh segmentation; how to generate 3D meshes from images.",
+      "matched_requirement_id": "req-composite-d-mesh",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.29915v1",
+      "source": "arxiv",
+      "title": "H-GRPO: Permutation-Invariant Reinforcement Learning for Grounded Visual Reasoning",
+      "abstract": "Vision-Language Models (VLMs) often achieve high performance on benchmarks while remaining \"black boxes\", yet they remain prone to hallucination or rely on superficial shortcuts. In this work, we propose a framework designed to enhance both performance and interpretability through De-compositional Evidence Grounding. Unlike monolithic inference approaches, our approach forces the model to decompose a global query into a sequence of atomic sub-questions, each requiring an explicit sub-answer and critically a localized evidence bounding box. By grounding intermediate logical steps (e.g. identifying a container, analyzing liquid properties, and assessing environmental context) in specific visual regions, we construct a structured reasoning path that mirrors human-like deduction. This allows the final answer to emerge as a logical consequence of verified visual facts rather than a statistical guess.",
+      "authors": [
+        "Eric Peh",
+        "Debaditya Roy",
+        "Basura Fernando"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T07:51:25+00:00",
+      "link": "https://arxiv.org/pdf/2606.29915v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "decompositional evidence grounding for visual reasoning with VLMs",
+      "llm_evidence_cn": "基于分解证据的视觉推理，将全局查询分解为原子子问题并定位视觉区域",
+      "llm_evidence": "基于分解证据的视觉推理，将全局查询分解为原子子问题并定位视觉区域",
+      "canonical_evidence": "基于分解证据的视觉推理，将全局查询分解为原子子问题并定位视觉区域",
+      "llm_tldr_en": "H-GRPO forces VLMs to decompose queries into atomic sub-questions with localized evidence bounding boxes, improving interpretability and grounding.",
+      "llm_tldr_cn": "视觉语言模型常依赖表面捷径并产生幻觉，缺乏可解释的中间推理。本文提出H-GRPO框架，通过分解式证据基础强制模型将全局查询分解为原子子问题，每个子问题需要显式子答案和局部证据边界框。该方法增强了视觉推理的透明性和鲁棒性，为语言指导下的视觉定位提供了结构化推理路径。",
+      "llm_tldr": "视觉语言模型常依赖表面捷径并产生幻觉，缺乏可解释的中间推理。本文提出H-GRPO框架，通过分解式证据基础强制模型将全局查询分解为原子子问题，每个子问题需要显式子答案和局部证据边界框。该方法增强了视觉推理的透明性和鲁棒性，为语言指导下的视觉定位提供了结构化推理路径。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Visual grounding of language instructions for action",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.29513v1",
+      "source": "arxiv",
+      "title": "Scenes as Objects, Not Primitives: Instance-Structured 3D Tokenization from Unposed Views",
+      "abstract": "A 3D scene is understood through its objects, not the primitives that compose them. Yet feed-forward reconstruction methods output dense, unstructured sets of points or Gaussians, leaving object-level structure to be recovered after the fact. We propose a feed-forward framework that decomposes a scene into instance-structured 3D token groups directly from unposed multi-view images -- compact object-centric units from which reconstruction, segmentation, and manipulation all follow. Each token group pairs an instance token capturing entity-level identity with anchor tokens that encode local geometry and appearance, which are decoded into a set of 3D Gaussians. This two-level factorization decouples object identity from local appearance, making object instances a native interface of the representation rather than a derived product. The token groups are learned through differentiable rendering with joint reconstruction and segmentation supervision, requiring no 3D annotations. Our feed-forward model surpasses per-scene optimization baselines in class-agnostic instance segmentation while remaining competitive in novel view synthesis. Beyond these metrics, the same token groups directly unlock instance-level scene editing -- removing, translating, or inserting objects by operating on their groups -- as well as efficient open-vocabulary 3D instance retrieval, where retrieval complexity scales with the number of instances rather than primitives.",
+      "authors": [
+        "Mijin Yoo",
+        "In Cho",
+        "Subin Jeon",
+        "Jiwoo Lee",
+        "Eunbyung Park",
+        "Seon Joo Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-06-28T17:21:45+00:00",
+      "link": "https://arxiv.org/pdf/2606.29513v1",
+      "tags": [
+        "keyword:d-mesh",
+        "keyword:vla",
+        "query:d-mesh"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "from multi-view images to 3D tokens for object-level reconstruction",
+      "llm_evidence_cn": "从无位姿多视角图像生成实例结构化3D token用于物体级重建",
+      "llm_evidence": "从无位姿多视角图像生成实例结构化3D token用于物体级重建",
+      "canonical_evidence": "从无位姿多视角图像生成实例结构化3D token用于物体级重建",
+      "llm_tldr_en": "Proposes a feed-forward framework for instance-structured 3D tokenization from unposed multi-view images, decoding into 3D Gaussians for object-level reconstruction and segmentation.",
+      "llm_tldr_cn": "现有前馈重建方法输出非结构化点集，缺乏物体层级结构。该论文提出实例结构化3D token化框架，从无位姿多视图图像直接分解场景为物体级别的token组，每个组合包含身份token和局部几何外观锚点token，解码为3D高斯，实现重建、分割与操作。在多种场景下验证了方法的有效性，为从图像生成结构化3D表示提供了新思路。",
+      "llm_tldr": "现有前馈重建方法输出非结构化点集，缺乏物体层级结构。该论文提出实例结构化3D token化框架，从无位姿多视图图像直接分解场景为物体级别的token组，每个组合包含身份token和局部几何外观锚点token，解码为3D高斯，实现重建、分割与操作。在多种场景下验证了方法的有效性，为从图像生成结构化3D表示提供了新思路。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "how to generate 3D meshes from images",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.29570v1",
+      "source": "arxiv",
+      "title": "Hierarchical Policy Learning via Spectral Decomposition",
+      "abstract": "In this paper, we identify a semantic decomposition in robot action sequences, separating task-level motion intent from execution-level refinements. By analyzing actions in the spectral domain using the discrete cosine transform (DCT), we observe that low-frequency components capture global motion trajectories, while high-frequency components encode precise timing, alignment, and contact behaviors. Motivated by this structure, we propose Causal Spectral Policy (CSP), which models action generation as a causal coarse-to-fine process: coarse motion is predicted from observation and language, and fine corrections are generated conditionally on the realized trajectory. Across simulation and real-world evaluations, CSP consistently outperforms strong baselines on precision-sensitive manipulation tasks. Additionally, we propose human-inspired teleoperation noise injection as a data augmentation method, under which our approach demonstrates strong robustness to noisy demonstrations.",
+      "authors": [
+        "Shuxin Cao",
+        "Liquan Wang",
+        "Walker Byrnes",
+        "Yiye Chen",
+        "Yilun Du",
+        "Animesh Garg"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-28T19:22:40+00:00",
+      "link": "https://arxiv.org/pdf/2606.29570v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Causal Spectral Policy: language-conditioned coarse-to-fine action generation via spectral decomposition",
+      "llm_evidence_cn": "因果谱策略：通过谱分解实现语言条件的从粗到精动作生成",
+      "llm_evidence": "因果谱策略：通过谱分解实现语言条件的从粗到精动作生成",
+      "canonical_evidence": "因果谱策略：通过谱分解实现语言条件的从粗到精动作生成",
+      "llm_tldr_en": "Proposes Causal Spectral Policy that models action generation as a coarse-to-fine process conditioned on observations and language, using spectral decomposition.",
+      "llm_tldr_cn": "机器人动作序列包含任务级意图和执行级精调。本文提出因果谱策略（CSP），利用离散余弦变换将动作分解为低频轨迹和高频校正，以观察和语言为条件先生成粗动作再预测精校正。在仿真和真实实验中，CSP在精度和泛化上超越基线，展示了语言条件策略学习的有效性。",
+      "llm_tldr": "机器人动作序列包含任务级意图和执行级精调。本文提出因果谱策略（CSP），利用离散余弦变换将动作分解为低频轨迹和高频校正，以观察和语言为条件先生成粗动作再预测精校正。在仿真和真实实验中，CSP在精度和泛化上超越基线，展示了语言条件策略学习的有效性。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Language conditioned policy learning for robots",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.01754v1",
+      "source": "arxiv",
+      "title": "Path-level Hindsight Instructions for Semantic Exploration in Vision-Language Navigation",
+      "abstract": "On-policy exploration is a crucial component for training robust Vision-Language Navigation agents, as it exposes the policy to a broader state distribution. However, such exploration inevitably leads to trajectories that deviate from expert demonstrations, resulting in a semantic mismatch between the executed visual stream and the original language instruction. In this work, we address this challenge by introducing Phi-Nav, a unified on-policy framework that leverages hindsight reasoning to align instructions with the agent's actual exploratory journey. Specifically, Phi-Nav operates through a three-stage dual-supervision cycle: 1) the agent performs oracle-guided on-policy exploration, sampling a trajectory while learning from expert action feedback, 2) a hindsight speaker synthesizes a path-level hindsight instruction grounded in the collected visual observations, and 3) the agent conducts a second imitation pass, treating the synthesized trajectory-instruction pair as an additional expert demonstration. Through this process, Phi-Nav bridges the critical semantic supervision gap inherent in on-policy methods, transforming semantically unlabeled movement into dense training signals. Evaluations on the R2R-CE and RxR-CE benchmarks show that Phi-Nav yields competitive performance while requiring only a fraction of the expert demonstrations used by current baselines. These results underscore the necessity of semantic exploration in VLN, positioning Phi-Nav as an effective solution for training embodied agents with limited data.",
+      "authors": [
+        "Sung June Kim",
+        "Sangpil Kim",
+        "Honglak Lee"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-07-02T06:11:07+00:00",
+      "link": "https://arxiv.org/pdf/2607.01754v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Language-conditioned policy for navigation with hindsight instruction alignment",
+      "llm_evidence_cn": "基于语言指令的导航策略，结合事后指令对齐",
+      "llm_evidence": "基于语言指令的导航策略，结合事后指令对齐",
+      "canonical_evidence": "基于语言指令的导航策略，结合事后指令对齐",
+      "llm_tldr_en": "Introduces Phi-Nav, an on-policy framework that uses hindsight reasoning to align instructions with exploratory trajectories in vision-language navigation.",
+      "llm_tldr_cn": "在视觉语言导航中，策略探索导致轨迹与语言指令语义不匹配。本文提出Phi-Nav框架，通过事后指令推理生成与真实路径对齐的指令，从而利用探索数据进行双监督学习。该方法在多个导航基准上提升了策略的鲁棒性和泛化能力。",
+      "llm_tldr": "在视觉语言导航中，策略探索导致轨迹与语言指令语义不匹配。本文提出Phi-Nav框架，通过事后指令推理生成与真实路径对齐的指令，从而利用探索数据进行双监督学习。该方法在多个导航基准上提升了策略的鲁棒性和泛化能力。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Language conditioned policy learning for robots",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.29936v1",
+      "source": "arxiv",
+      "title": "OpenSPM: An Environment-Transferable Robotic Key Spatial Pose Memory and Closed-Loop High-Frequency Flow-Matching Action Generation Model",
+      "abstract": "Open-environment tabletop robotic manipulation requires systems to possess semantic understanding, precise geometric pose estimation, and high-frequency action generation. While end-to-end vision-language-action (VLA) models excel at semantic generalization, they often lack explicit geometric constraints for fine-grained tasks and require costly training. To bridge the gap between high-level semantics and low-level physical execution, we propose OpenSPM, an open environment spatial persistent memory framework consisting of spatial pose memory and flow-matching action generation model. OpenSPM first leverages semantically conditioned 3D perception and Kalman filtering to track continuous 6D poses. It then extracts key spatial poses from human demonstrations, keeping them as transferable, object-centric spatial persistent memory entries. During inference, OpenSPM retrieves relevant memory entries in terms of natural language instructions, transfers the spatial poses to new scenes using SE(3) transformations, and generates high-frequency action chunks via a lightweight conditional flow-matching model. Combined with real-time proprioceptive state feedback and terminal residual correction, the system effectively suppresses trajectory error accumulation. Evaluated on ten LIBERO-GOAL tasks, OpenSPM achieves an 85.6% success rate and an equivalent control frequency of 1033.3 Hz, while requiring minimal inference AI computing power. Extensive ablations illustrate that structured spatial persistent memory and closed-loop residual correction play a crucial role in reliable, high-frequency robotic manipulation.",
+      "authors": [
+        "Iok Tong Lei",
+        "Qingchen Xie",
+        "Yifan Wang",
+        "Yap Ying Jie",
+        "Zhidong Deng"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-29T08:12:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.29936v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "OpenSPM combines VLA with spatial pose memory and flow-matching for precise robotic manipulation",
+      "llm_evidence_cn": "OpenSPM结合VLA与空间姿态记忆和流匹配，实现精准机器人操作",
+      "llm_evidence": "OpenSPM结合VLA与空间姿态记忆和流匹配，实现精准机器人操作",
+      "canonical_evidence": "OpenSPM结合VLA与空间姿态记忆和流匹配，实现精准机器人操作",
+      "llm_tldr_en": "Proposes a spatial persistent memory framework with VLA for open-environment tabletop manipulation, integrating semantic understanding and geometric pose estimation.",
+      "llm_tldr_cn": "端到端VLA模型缺乏几何约束且训练昂贵。本文提出OpenSPM框架，包含空间姿态记忆和流匹配动作生成模型，利用语义条件3D感知和卡尔曼滤波跟踪连续位姿，实现高频精准动作。在开放环境桌面操作中，OpenSPM在精度和泛化性上超越纯VLA方法。",
+      "llm_tldr": "端到端VLA模型缺乏几何约束且训练昂贵。本文提出OpenSPM框架，包含空间姿态记忆和流匹配动作生成模型，利用语义条件3D感知和卡尔曼滤波跟踪连续位姿，实现高频精准动作。在开放环境桌面操作中，OpenSPM在精度和泛化性上超越纯VLA方法。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Robotic manipulation using vision language action",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.01626v1",
+      "source": "arxiv",
+      "title": "Multi-THuMBS: Multi-person Tracking of 3D Human Meshes Beyond Video Shots",
+      "abstract": "Tracking multi-person 3D human meshes from in-the-wild videos is a highly challenging problem due to complex interactions, frequent occlusions, and severe truncation inherent in unconstrained environments. While recent approaches have improved robustness against these issues, they largely overlook the critical challenge prevalent in real-world footage: frequent shot changes. These abrupt transitions in camera viewpoints often cause existing methods to lose track of human identities and fail in reconstructing temporally coherent trajectories. Although several recent works have explored 3D human mesh tracking under shot changes, they are still limited to single-person scenarios, making them inadequate for real-world videos where multiple people interact and appear simultaneously. To address this limitation, we propose Multi-THuMBS (Multi-person Tracking of 3D Human Meshes Beyond Video Shots) that leverages a state-of-the-art 3D scene prior to reconstruct the two boundary frames in a single shared 3D space. Human meshes are then registered within the shared 3D space, maintaining per-person identity and motion consistency across shot changes. Extensive experiments demonstrate that our approach yields significant improvements in 3D human mesh recovery, camera pose estimation, and identity tracking, thereby ensuring high-fidelity motion reconstruction with consistent identity preservation across shots compared to previous state-of-the-art methods.",
+      "authors": [
+        "Jeongwan On",
+        "Muhammad Salman Ali",
+        "Muneeb A. Khan",
+        "Sunwoo Park",
+        "Inwoong Moon",
+        "Hyung Jin Chang",
+        "Jaekwang Kim",
+        "Seong Jong Ha",
+        "Seungryul Baek"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-02T02:48:43+00:00",
+      "link": "https://arxiv.org/pdf/2607.01626v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-person 3D human mesh tracking across video shots",
+      "llm_evidence_cn": "跨视频镜头的多人物3D人体网格跟踪",
+      "llm_evidence": "跨视频镜头的多人物3D人体网格跟踪",
+      "canonical_evidence": "跨视频镜头的多人物3D人体网格跟踪",
+      "llm_tldr_en": "Multi-THuMBS tracks multi-person 3D human meshes in in-the-wild videos with shot changes, addressing identity loss and temporal incoherence.",
+      "llm_tldr_cn": "现实视频中频繁镜头切换导致多人物3D人体网格跟踪身份丢失和时间不连贯。为此提出Multi-THuMBS方法，能够跨镜头保持身份一致性并重建时间连贯的轨迹。该方法超越了现有单人物跟踪限制，在复杂交互和遮挡场景下鲁棒工作，为视频级3D人体网格跟踪提供了实用方案。",
+      "llm_tldr": "现实视频中频繁镜头切换导致多人物3D人体网格跟踪身份丢失和时间不连贯。为此提出Multi-THuMBS方法，能够跨镜头保持身份一致性并重建时间连贯的轨迹。该方法超越了现有单人物跟踪限制，在复杂交互和遮挡场景下鲁棒工作，为视频级3D人体网格跟踪提供了实用方案。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "3D mesh reconstruction techniques",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.02425v1",
+      "source": "arxiv",
+      "title": "Learning to Evolve Scenes: Reasoning about Human Activities with Scene Graphs",
+      "abstract": "Understanding human behavior while interacting with the surrounding world is crucial for many applications of embodied AI. First-person videos are particularly informative for this problem, as they well capture how activities reshape the scene over time. However, existing approaches often rely on implicit visual or language-aligned representations, disregarding structured reasoning over the scene dynamic. We argue that explicit, compositional and editable representations of human-environment interactions can play a crucial role for rich grounded activity understanding. To this end, we introduce SG-Ego, a large scale annotation set extending Ego4D with spatio-temporal scene graphs, where relations triplets are consolidated over time into explicit time-evolving descriptions of the scene state. To reason over this representation, we propose GLEN, a graph-based model that operates over scene graph sequences to both align them with textual actions and model their temporal evolution. In addition, we formulate the activity-driven graph-edit forecasting (A-GEF) problem, a novel task that casts scene dynamics as a sequence of structured transformations conditioned on ongoing actions, enabling explicit reasoning about how scenes change over time. We validate our approach across multiple downstream tasks, spanning retrieval benchmarks as EgoMCQ and EgoCVR, as well as long-horizon reasoning benchmarks as EXPLORE-Bench and the newly introduced A-GEF. GLEN achieves strong results compared to raw video baselines and it excels in reasoning settings, typically addressed only with MLLMs, while enabling controllable and structured predictions of scene dynamics driven by human activities. We believe our results establish spatio-temporal scene graphs, together with models that reason over them, as strong compositional and interpretable representations for video understanding and potentially beyond.",
+      "authors": [
+        "Francesca Pistilli",
+        "Simone Alberto Peirone",
+        "Giuseppe Averta"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-02T16:53:42+00:00",
+      "link": "https://arxiv.org/pdf/2607.02425v1",
+      "tags": [
+        "keyword:vla",
+        "query:d-mesh",
+        "query:vla"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Embodied AI with scene graphs for human activity reasoning from first-person video",
+      "llm_evidence_cn": "使用场景图进行第一人称视频中人类活动推理的具身AI",
+      "llm_evidence": "使用场景图进行第一人称视频中人类活动推理的具身AI",
+      "canonical_evidence": "使用场景图进行第一人称视频中人类活动推理的具身AI",
+      "llm_tldr_en": "Introduces SG-Ego, a spatio-temporal scene graph annotation set for Ego4D, enabling structured reasoning about human-environment interactions for embodied AI.",
+      "llm_tldr_cn": "该论文针对第一人称视频中人类活动理解，提出显式、可组合和可编辑的场景表示。引入SG-Ego，扩展Ego4D的时空场景图标注集，将关系三元组随时间整合为显式表示。该方法有助于具身AI中的丰富接地活动理解，但与机器人操作没有直接关联。",
+      "llm_tldr": "该论文针对第一人称视频中人类活动理解，提出显式、可组合和可编辑的场景表示。引入SG-Ego，扩展Ego4D的时空场景图标注集，将关系三元组随时间整合为显式表示。该方法有助于具身AI中的丰富接地活动理解，但与机器人操作没有直接关联。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Embodied AI with vision language action models",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.30047v2",
+      "source": "arxiv",
+      "title": "Argus: Metric Panoramic 3D Reconstruction for Indoor Scenes",
+      "abstract": "Metric feed-forward 3D reconstruction for panoramic data remains under-explored due to the lack of large-scale panoramic RGB-D training data. We present Realsee3D, a hybrid dataset of 10K indoor scenes (1K real, 9K synthetic) with 299K panoramic viewpoints and precise metric annotations, and Argus, a feed-forward network trained on it for metric panoramic 3D reconstruction. In the sparse unordered capture setting of Realsee3D, a poorly chosen coordinate anchor can cause global pose drift. Argus addresses this with a learned covisibility module that selects the geometrically optimal reference view to anchor the metric world frame. To further improve multi-task learning, we decompose the bidirectional pixel-to-world mapping into interpretable sub-steps with per-step supervision and cross-coordinate joint constraints, reinforcing geometric consistency across prediction branches. On the Realsee3D benchmark, Argus achieves state-of-the-art metric performance in camera pose estimation, depth estimation, and point cloud reconstruction. Project page: https://argus-paper.realsee.ai.",
+      "authors": [
+        "Xi Li",
+        "Linyuan Li",
+        "Yan Wu",
+        "Tong Rao",
+        "Kai Zhang",
+        "Xinchen Hui",
+        "Cihui Pan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T09:39:17+00:00",
+      "link": "https://arxiv.org/pdf/2606.30047v2",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "3D mesh reconstruction from panoramic RGB-D data",
+      "llm_evidence_cn": "从全景RGB-D数据进行3D网格重建",
+      "llm_evidence": "从全景RGB-D数据进行3D网格重建",
+      "canonical_evidence": "从全景RGB-D数据进行3D网格重建",
+      "llm_tldr_en": "Argus is a feed-forward network for metric panoramic 3D reconstruction using a hybrid dataset with learned covisibility module to handle sparse capture.",
+      "llm_tldr_cn": "全景数据的公制3D重建因缺乏训练数据而发展不足。本文提出Realsee3D混合数据集和Argus前馈网络。Argus通过可学习的共视模块选择最优参考视图，并分解像素到世界映射为可解释子步骤。实验表明Argus在稀疏无序全景图像下实现了准确的度量3D重建。",
+      "llm_tldr": "全景数据的公制3D重建因缺乏训练数据而发展不足。本文提出Realsee3D混合数据集和Argus前馈网络。Argus通过可学习的共视模块选择最优参考视图，并分解像素到世界映射为可解释子步骤。实验表明Argus在稀疏无序全景图像下实现了准确的度量3D重建。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "3D mesh reconstruction techniques",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.01633v1",
+      "source": "arxiv",
+      "title": "Bridging 3D Gaussians and Semantic Occupancy for Comprehensive Open-Vocabulary Scene Understanding from Unposed Images",
+      "abstract": "Comprehensive 3D scene understanding from sparse, unposed images requires a model to recover renderable geometry, open-vocabulary semantics, and free/occupied 3D space without relying on external camera calibration. Recent feed-forward Gaussian methods improve pose-free reconstruction and semantic rendering, but their Gaussian primitives are mainly optimized through image-space objectives and remain weakly constrained in unobserved regions. We propose \\textit{COVScene}, a pose-free semantic Gaussian framework that couples renderable Gaussian primitives with a dense semantic occupancy field through differentiable volumetric lifting. Instead of converting Gaussians to voxels only at evaluation time, COVScene lifts the predicted semantic Gaussians inside the training computation graph, so volumetric regularization provides gradients to Gaussian opacity, geometry, and semantic features. The framework combines a semantic-aware Geometry Transformer, multi-task Gaussian decoding, geometric foundation distillation, and occupancy entropy regularization to support novel view synthesis, open-vocabulary semantic querying, and semantic occupancy prediction within a single representation. Experiments on ScanNet and ScanNet++ show that COVScene maintains competitive rendering quality, improves open-vocabulary segmentation, and achieves stronger semantic occupancy prediction than the self-supervised baseline without direct voxel-level supervision.",
+      "authors": [
+        "Hu Zhu",
+        "Bohan Li",
+        "Xianda Guo",
+        "Yanlun Peng",
+        "Zheng Zhu",
+        "Xin Jin",
+        "Wenjun Zeng",
+        "Chang Wen Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-02T03:00:23+00:00",
+      "link": "https://arxiv.org/pdf/2607.01633v1",
+      "tags": [
+        "keyword:d-mesh",
+        "keyword:vla",
+        "query:d-mesh",
+        "query:vla"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Generates 3D scene representation from unposed images using Gaussians and occupancy",
+      "llm_evidence_cn": "从无姿态图像生成3D场景表示，结合高斯和语义占用",
+      "llm_evidence": "从无姿态图像生成3D场景表示，结合高斯和语义占用",
+      "canonical_evidence": "从无姿态图像生成3D场景表示，结合高斯和语义占用",
+      "llm_tldr_en": "Proposes COVScene, a pose-free Gaussian framework that couples 3D Gaussians with semantic occupancy for open-vocabulary scene understanding from unposed images.",
+      "llm_tldr_cn": "该论文提出COVScene框架，针对从稀疏无姿态图像中重建可渲染几何和开放词汇语义的问题。通过可微分体积提升将可渲染高斯原语与密集语义占用场耦合，无需外部相机标定。方法在无观测区域也能产生强约束，实现了全面的3D场景理解。",
+      "llm_tldr": "该论文提出COVScene框架，针对从稀疏无姿态图像中重建可渲染几何和开放词汇语义的问题。通过可微分体积提升将可渲染高斯原语与密集语义占用场耦合，无需外部相机标定。方法在无观测区域也能产生强约束，实现了全面的3D场景理解。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "how to generate 3D meshes from images",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.30352v1",
+      "source": "arxiv",
+      "title": "FastPano3D: Feed-Forward Indoor Panoramic 3D Reconstruction from a Single Image",
+      "abstract": "Recent advances in 3D scene reconstruction have highlighted the intricate trade-offs among rendering quality, inference efficiency, and data dependency. To address the challenge of rapidly reconstructing detailed 3D indoor scenes from minimal input, we introduce FastPano3D, an end-to-end framework that directly generates renderable 3D Gaussian representations from a single panoramic image. Unlike perspective-based methods, panoramic images inherently suffer from equirectangular projection distortions and spatially non-uniform feature distributions, making direct feed-forward Gaussian generation particularly challenging. In contrast to existing Gaussian Splatting based methods that rely on multi-view supervision or per-scene optimization, FastPano3D employs a lightweight feature encoder, adaptive Gaussian sampling, and a point-cloud-guided refinement strategy to achieve efficient and accurate scene generation without any test-time optimization. Our approach reconstructs high-fidelity 3D scenes within seconds, achieving up to 156 times faster inference than prior state-of-the-art methods such as Pano2Room, while using only half the parameters. Extensive experiments demonstrate that FastPano3D delivers rendering quality comparable to NeRF- and 3DGS-based reconstructions, establishing a new benchmark for rapid, single-view 3D scene inference.",
+      "authors": [
+        "Jianqiang Li",
+        "Liumei Zhang",
+        "Wenjia Guo",
+        "Tianlong Feng",
+        "Yongzhi Liao",
+        "Di Lu",
+        "Hanchi Ren",
+        "Jingjing Deng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T14:23:12+00:00",
+      "link": "https://arxiv.org/pdf/2606.30352v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Single-image 3D reconstruction with Gaussian representation from panoramic input",
+      "llm_evidence_cn": "从单张全景图像直接生成3D高斯表征实现重建",
+      "llm_evidence": "从单张全景图像直接生成3D高斯表征实现重建",
+      "canonical_evidence": "从单张全景图像直接生成3D高斯表征实现重建",
+      "llm_tldr_en": "FastPano3D generates 3D Gaussian representations from a single panoramic image in an end-to-end feed-forward manner, avoiding multi-view supervision.",
+      "llm_tldr_cn": "现有单图像3D重建方法多基于透视图，全景图像的畸变和特征非均匀性带来挑战。FastPano3D直接从前馈方式生成可渲染的3D高斯，无需多视图监督。它设计了针对全景畸变的网络结构，实现了从单张全景图快速重建高质量室内场景。",
+      "llm_tldr": "现有单图像3D重建方法多基于透视图，全景图像的畸变和特征非均匀性带来挑战。FastPano3D直接从前馈方式生成可渲染的3D高斯，无需多视图监督。它设计了针对全景畸变的网络结构，实现了从单张全景图快速重建高质量室内场景。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "how to generate 3D meshes from images",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    }
+  ]
+}

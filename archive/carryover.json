@@ -1,6 +1,395 @@
 {
-  "generated_at": "2026-03-06T19:11:18.471356+00:00",
-  "updated_date": "20260306",
+  "generated_at": "2026-07-06T23:02:33.887219+00:00",
+  "updated_date": "20260627-20260706",
   "carryover_days": 9,
-  "items": []
+  "tag_states": {
+    "vla": {
+      "updated_date": "20260627-20260706",
+      "carryover_days": 9,
+      "items": [
+        {
+          "id": "2606.30686v1",
+          "source": "arxiv",
+          "title": "Position: Vision-Language-Action Models Cannot Be Verified to Perform Physical Reasoning",
+          "abstract": "Vision-Language-Action (VLA) systems, built on pretrained vision-language models (VLMs), have shown rapidly improving performance on robot manipulation benchmarks. These gains are commonly interpreted as evidence that semantic representations learned from internet-scale data transfer to physical execution generalization. This position paper argues that the assumption underlying this interpretation -- that semantic generalization is sufficient to support physical action decisions -- has not been independently verified and cannot be tested under current evaluation protocols. We support this claim by decomposing VLA policies into semantic mapping and physical action decision, and showing that task success rate -- the dominant evaluation metric -- cannot distinguish between these two sources of capability. As a result, improvements in benchmark performance are consistent with multiple competing explanations, including semantic matching, distributional overlap, and genuine physical generalization. We further argue that this identifiability gap has been reinforced through narrative drift, whereby successive systems inherit and strengthen prior interpretations of performance gains without isolating the underlying causal mechanism. To address this limitation, we propose a research direction based on evaluation designs that introduce controlled variation to separately measure semantic and physical generalization. Such designs make it possible to causally attribute performance without requiring access to model internals, and to empirically assess the role of VLM backbones as semantic interfaces rather than implicit sources of physical competence. Our goal is not to refute the role of VLMs in robotics, but to clarify the conditions under which claims of physical generalization can be meaningfully evaluated.",
+          "authors": [
+            "Taozhao Chen",
+            "Ian Manchester",
+            "Huaming Chen"
+          ],
+          "primary_category": "cs.RO",
+          "categories": [
+            "cs.RO",
+            "cs.AI"
+          ],
+          "published": "2026-06-28T14:03:57+00:00",
+          "link": "https://arxiv.org/pdf/2606.30686v1",
+          "tags": [
+            "keyword:vla",
+            "query:vla"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "position paper on the inability to verify physical reasoning in VLA models",
+          "llm_evidence_cn": "立场论文批判VLA模型无法验证物理推理",
+          "llm_evidence": "立场论文批判VLA模型无法验证物理推理",
+          "canonical_evidence": "立场论文批判VLA模型无法验证物理推理",
+          "llm_tldr_en": "This position paper argues that Vision-Language-Action models cannot be verified to perform genuine physical reasoning under current evaluation protocols.",
+          "llm_tldr_cn": "当前VLA系统在机器人操作基准上表现优异，但该立场论文指出这些性能提升无法证明模型具备物理推理能力。通过将VLA策略分解为语义映射和物理动作决策，论文论证了任务成功率指标不足以验证物理推理，并警示现有评估协议存在根本缺陷。该工作为VLA研究提供了关键反思，呼吁改进评估方法。",
+          "llm_tldr": "当前VLA系统在机器人操作基准上表现优异，但该立场论文指出这些性能提升无法证明模型具备物理推理能力。通过将VLA策略分解为语义映射和物理动作决策，论文论证了任务成功率指标不足以验证物理推理，并警示现有评估协议存在根本缺陷。该工作为VLA研究提供了关键反思，呼吁改进评估方法。",
+          "llm_tags": [
+            "query:vla"
+          ],
+          "matched_query_tag": "query:vla",
+          "matched_query_text": "Vision language action models for robot manipulation",
+          "matched_requirement_id": "req-1",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.30686v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.31958v1",
+          "source": "arxiv",
+          "title": "Adapting Generalist Robot Policies with Semantic Reinforcement Learning",
+          "abstract": "Generalist robot policies learn a diverse repertoire of behaviors from large-scale pretraining. In principle, this makes them excellent priors for downstream adaptation via reinforcement learning (RL). In practice, however, standard RL methods leveraging this prior optimize directly over robot actions, requiring the base policy's action distribution to be close to that of a performant policy from the start. This assumption breaks down for complex or long-horizon tasks that fall outside the pretraining distribution. Our key insight is that, for sufficiently expressive generalist policies, language prompts are an effective alternative space for learning to solve such tasks: modulating language inputs elicits skills already within the policy's repertoire, which can be composed to solve tasks beyond its zero-shot capabilities. We propose Semantic Action Reinforcement Learning (SARL), which learns to optimize this prompt space through online interaction, treating the generalist policy as a controllable skill prior. Importantly, leveraging pretrained skills rather than learning new ones from scratch yields structured, semantically meaningful exploration and highly efficient online improvement, and learning to modulate prompts through experience grounds them in induced real-world behaviors for robust task-solving. Across real-world settings and simulated benchmarks, we show SARL unlocks fundamentally new capabilities -- adapting VLA behavior to solve complex, long-horizon tasks -- and significantly outperforms existing approaches for improving robot behavior in deployment.",
+          "authors": [
+            "Jagdeep Singh Bhatia",
+            "Andrew Wagenmaker",
+            "William Chen",
+            "Sergey Levine"
+          ],
+          "primary_category": "cs.RO",
+          "categories": [
+            "cs.RO"
+          ],
+          "published": "2026-06-30T17:00:33+00:00",
+          "link": "https://arxiv.org/pdf/2606.31958v1",
+          "tags": [
+            "keyword:vla",
+            "query:vla"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Adapting generalist robot policies using language prompts as an alternative action space via semantic RL",
+          "llm_evidence_cn": "通过语义强化学习，将语言提示作为策略适应空间来调整通用机器人策略",
+          "llm_evidence": "通过语义强化学习，将语言提示作为策略适应空间来调整通用机器人策略",
+          "canonical_evidence": "通过语义强化学习，将语言提示作为策略适应空间来调整通用机器人策略",
+          "llm_tldr_en": "Proposes semantic RL that modulates language inputs to elicit skills from generalist policies, enabling adaptation to complex tasks outside pretraining distribution.",
+          "llm_tldr_cn": "通用机器人策略难以通过直接强化学习适应复杂任务。本文提出语义强化学习框架，将语言提示作为动作空间，通过调整语言输入来激发策略库中已有的技能。实验表明该方法在长时域和复杂任务上显著优于基线，为语言条件策略学习开辟了新途径。",
+          "llm_tldr": "通用机器人策略难以通过直接强化学习适应复杂任务。本文提出语义强化学习框架，将语言提示作为动作空间，通过调整语言输入来激发策略库中已有的技能。实验表明该方法在长时域和复杂任务上显著优于基线，为语言条件策略学习开辟了新途径。",
+          "llm_tags": [
+            "query:vla"
+          ],
+          "matched_query_tag": "query:vla",
+          "matched_query_text": "Language conditioned policy learning for robots",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.31958v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2607.02501v1",
+          "source": "arxiv",
+          "title": "Embodied.cpp: A Portable Inference Runtime of Embodied AI Models on Heterogeneous Robots",
+          "abstract": "Embodied AI models now span vision-language-action (VLA) models and world-action models (WAMs), but practical deployment remains fragmented across model-specific Python stacks, backend assumptions, and robot-side glue code, especially on heterogeneous edge devices. Existing inference runtimes are designed mainly for request-response serving and therefore do not satisfy the runtime contract of embodied deployment: multi-rate execution inside closed-loop control, latency-first batch-1 inference on heterogeneous hardware, and extensible embodied interfaces beyond fixed token I/O. We present Embodied.cpp, a portable C++ inference runtime for embodied models. Based on an architectural analysis of representative VLA models and WAMs, Embodied.cpp captures a shared execution path and organizes it into five layers: input adapters, sequence builders, backbone execution, head plugins, and deployment adapters. The runtime provides modular multi-rate execution, latency-first fused inference, and extensible operator and I/O support, enabling deployment across heterogeneous devices, robots, and simulators through one backend abstraction. We evaluate Embodied.cpp on two VLA models, HY-VLA and pi0.5, and on a preliminary WAM benchmark using a LingBot-VA Transformer block. The VLA deployments achieve successful closed-loop execution with 100.0% and 91.0% task success rates, respectively. The WAM benchmark reduces block memory from 312.2 MiB to 88.1 MiB. These results show that Embodied.cpp improves deployment efficiency while preserving high accuracy across diverse embodied model architectures.",
+          "authors": [
+            "Ling Xu",
+            "Chuyu Han",
+            "Borui Li",
+            "Hao Wu",
+            "Shiqi Jiang",
+            "Ting Cao",
+            "Chuanyou Li",
+            "Sheng Zhong",
+            "Shuai Wang"
+          ],
+          "primary_category": "cs.RO",
+          "categories": [
+            "cs.RO",
+            "cs.CV",
+            "cs.OS"
+          ],
+          "published": "2026-07-02T17:58:28+00:00",
+          "link": "https://arxiv.org/pdf/2607.02501v1",
+          "tags": [
+            "keyword:vla",
+            "query:vla"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "portable C++ runtime for embodied VLA models on heterogeneous robots",
+          "llm_evidence_cn": "面向异构机器人的嵌入式VLA模型可移植C++推理运行时",
+          "llm_evidence": "面向异构机器人的嵌入式VLA模型可移植C++推理运行时",
+          "canonical_evidence": "面向异构机器人的嵌入式VLA模型可移植C++推理运行时",
+          "llm_tldr_en": "Embodied.cpp provides a portable C++ inference runtime for VLA and world-action models, enabling closed-loop multi-rate execution on heterogeneous edge hardware.",
+          "llm_tldr_cn": "现有嵌入式AI模型部署依赖碎片化的Python栈和后台假设，难以在异构边缘设备上满足闭环控制的多速率执行需求。本文提出Embodied.cpp，一个面向VLA和世界-动作模型的可移植C++推理运行时，通过架构分析实现延迟优先的批量1推理和可扩展的嵌入式接口。该运行时支持异构硬件上的有效部署，填补了嵌入式AI系统实际落地的关键空白。",
+          "llm_tldr": "现有嵌入式AI模型部署依赖碎片化的Python栈和后台假设，难以在异构边缘设备上满足闭环控制的多速率执行需求。本文提出Embodied.cpp，一个面向VLA和世界-动作模型的可移植C++推理运行时，通过架构分析实现延迟优先的批量1推理和可扩展的嵌入式接口。该运行时支持异构硬件上的有效部署，填补了嵌入式AI系统实际落地的关键空白。",
+          "llm_tags": [
+            "query:vla"
+          ],
+          "matched_query_tag": "query:vla",
+          "matched_query_text": "Embodied AI with vision language action models",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.02501v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2607.02417v1",
+          "source": "arxiv",
+          "title": "LIME: Learning Intent-aware Camera Motion from Egocentric Video",
+          "abstract": "Autonomous robots often need to move their camera before they can act: to inspect an object, reveal an occluded region, or obtain a view that responds to a user's intent. While vision-language navigation translates instructions to base motion and vision-language-action policies map instructions to manipulation actions, language-conditioned camera motion remains comparatively underexplored as a first-class action. We formulate language-conditioned camera motion generation: given a current RGB observation and a free-form natural-language intent, predict a relative target camera pose for the next observation. This task is inherently non-trivial: viewpoint changes are driven by latent perceptual intentions, and a valid motion may operate at different semantic granularity, from entering a room to looking around a corner, inspecting a visible object, or revealing an occluded detail. To model this structure, we mine multi-intention camera-motion supervision from egocentric video, pairing plausible intents and observation-gain descriptions with relative SE(3) target poses. We propose LIME, a vision-language camera-motion generator that combines an auto-regressive observation-gain output with a continuous flow-matching pose head. This design lets the model jointly predict what the next view should reveal while representing multi-hypothesis target views. Across experiments and downstream robotic tasks, we show that LIME can learn to actively choose camera poses from passive human video, turning ordinary egocentric recordings into supervision for intent-aware active perception.",
+          "authors": [
+            "Boyang Sun",
+            "Jiajie Li",
+            "Yung-Hsu Yang",
+            "Chenyangguang Zhang",
+            "Tim Engelbracht",
+            "Sunghwan Hong",
+            "Cesar Cadena",
+            "Marc Pollefeys",
+            "Hermann Blum"
+          ],
+          "primary_category": "cs.RO",
+          "categories": [
+            "cs.RO",
+            "cs.CV",
+            "cs.LG"
+          ],
+          "published": "2026-07-02T16:48:43+00:00",
+          "link": "https://arxiv.org/pdf/2607.02417v1",
+          "tags": [
+            "keyword:vla",
+            "query:vla"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "language-conditioned camera motion generation for embodied AI",
+          "llm_evidence_cn": "语言条件相机运动生成，用于具身AI",
+          "llm_evidence": "语言条件相机运动生成，用于具身AI",
+          "canonical_evidence": "语言条件相机运动生成，用于具身AI",
+          "llm_tldr_en": "Formulates language-conditioned camera motion generation as predicting target camera pose from current RGB observation and free-form natural-language intent, addressing viewpoint changes driven by latent perceptual intentions.",
+          "llm_tldr_cn": "针对语言条件相机运动生成这一新兴问题，提出将当前RGB观察和自由形式自然语言意图映射到相对目标相机姿态，通过数据驱动方式学习意图驱动的视点变化，填补了语言条件动作策略中相机运动作为一级动作的空白。",
+          "llm_tldr": "针对语言条件相机运动生成这一新兴问题，提出将当前RGB观察和自由形式自然语言意图映射到相对目标相机姿态，通过数据驱动方式学习意图驱动的视点变化，填补了语言条件动作策略中相机运动作为一级动作的空白。",
+          "llm_tags": [
+            "query:vla"
+          ],
+          "matched_query_tag": "query:vla",
+          "matched_query_text": "Language conditioned policy learning for robots",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.02417v1",
+          "carry_days": 1
+        }
+      ]
+    },
+    "d-mesh": {
+      "updated_date": "20260627-20260706",
+      "carryover_days": 9,
+      "items": [
+        {
+          "id": "2607.00522v1",
+          "source": "arxiv",
+          "title": "Restore3D: Breathing Life into Broken Objects with Shape and Texture Restoration",
+          "abstract": "Restoring incomplete or damaged 3D objects is crucial for cultural heritage preservation, occluded object reconstruction, and artistic design. Existing methods primarily focus on geometric completion, often neglecting texture restoration and struggling with relatively complex and diverse objects. We introduce Restore3D, a novel framework that simultaneously restores both the shape and texture of broken objects using multi-view images. To address limited training data, we develop an automated data generation pipeline that synthesizes paired incomplete-complete samples from large-scale 3D datasets. Central to Restore3D is a multi-view model, enhanced by a carefully designed Mask Self-Perceiver module with a Depth-Aware Mask Rectifier. The rectified masks learned by the self-perceiver guide an image integration and enhancement phase, helping retain observed shape and texture patterns while refining the generated regions and mitigating the low-resolution limitations of the base model, yielding high-resolution, semantically coherent, and view-consistent multi-view images. A coarse-to-fine reconstruction strategy is then employed to recover detailed textured 3D meshes from refined multi-view images. Experiments on synthetic and real broken-object benchmarks show that Restore3D improves multi-view restoration quality and textured-mesh reconstruction over representative inpainting, completion, and reconstruction baselines in the evaluated settings. Project Page: restore3dx.github.io",
+          "authors": [
+            "Xiaolong Shen",
+            "Zongxin Yang",
+            "Yi Yang"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-07-01T07:08:23+00:00",
+          "link": "https://arxiv.org/pdf/2607.00522v1",
+          "tags": [
+            "keyword:d-mesh",
+            "query:d-mesh"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "3D shape and texture restoration from images",
+          "llm_evidence_cn": "从图像恢复3D形状和纹理",
+          "llm_evidence": "从图像恢复3D形状和纹理",
+          "canonical_evidence": "从图像恢复3D形状和纹理",
+          "llm_tldr_en": "Restore3D simultaneously restores shape and texture of broken objects from multi-view images using a Mask Self-Perceiver and depth-aware rectifier, outperforming geometry-only methods.",
+          "llm_tldr_cn": "针对破损物体恢复中现有方法忽略纹理的问题，本文提出Restore3D，通过多视图图像同时恢复形状和纹理。设计Mask Self-Perceiver模块和深度感知掩码矫正器，并利用自动数据生成管道解决训练数据不足。实验证明该方法在复杂破损物体上显著优于仅几何补全的方法。",
+          "llm_tldr": "针对破损物体恢复中现有方法忽略纹理的问题，本文提出Restore3D，通过多视图图像同时恢复形状和纹理。设计Mask Self-Perceiver模块和深度感知掩码矫正器，并利用自动数据生成管道解决训练数据不足。实验证明该方法在复杂破损物体上显著优于仅几何补全的方法。",
+          "llm_tags": [
+            "query:d-mesh"
+          ],
+          "matched_query_tag": "query:d-mesh",
+          "matched_query_text": "3D mesh reconstruction techniques",
+          "matched_requirement_id": "req-10",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.00522v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.30608v2",
+          "source": "arxiv",
+          "title": "UnfoldArt: Zero-Shot Recovery of Full Articulated 3D Objects from Text or Image",
+          "abstract": "Articulated 3D objects are essential for interactive environments in embodied AI, robotics, and virtual reality, but reconstructing their structure and motion from sparse observations remains challenging. Existing approaches remain largely constrained by lack of supervised data or lack the priors needed to reliably recover articulation, hidden geometry, and internal object structure. We present the first debate-driven agentic approach to articulated 3D object reconstruction from text or image inputs that both grounds articulation reasoning in concrete motion and exposes the occluded geometry revealed under articulation. High-level agents reason about object semantics and motion using knowledge from vision-language and video models, while low-level agents estimate articulation parameters and interaction points; together, they engage in a two-round structured debate that first exploits global--local disagreement and then grounds the agents in freely generated video. The same video prior, conditioned on the agreed articulation, then drives each part through its motion to expose occluded interiors and geometry that cannot be inferred from a single static view. By combining agentic reasoning with a video generative prior, our approach jointly infers articulation and reconstructs complete 3D articulated objects, producing high-fidelity geometry, internal structure, and motion-consistent states beyond directly observed surfaces.",
+          "authors": [
+            "Mohamed el Amine Boudjoghra",
+            "Ivan Laptev",
+            "Angela Dai"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-06-29T17:44:53+00:00",
+          "link": "https://arxiv.org/pdf/2606.30608v2",
+          "tags": [
+            "keyword:d-mesh",
+            "keyword:vla",
+            "query:d-mesh",
+            "query:vla"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Zero-shot recovery of articulated 3D objects from text or image using debate-driven agentic approach",
+          "llm_evidence_cn": "通过辩论驱动的智能体方法从文本或图像零样本重建可展开3D物体",
+          "llm_evidence": "通过辩论驱动的智能体方法从文本或图像零样本重建可展开3D物体",
+          "canonical_evidence": "通过辩论驱动的智能体方法从文本或图像零样本重建可展开3D物体",
+          "llm_tldr_en": "First debate-driven agentic approach for articulated 3D object reconstruction from text/image, grounding articulation reasoning in motion and revealing occluded geometry.",
+          "llm_tldr_cn": "从稀疏观察重建可展开3D物体因缺乏监督数据而困难。本文提出首个辩论驱动智能体方法，利用视觉语言模型和视频模型推理语义与运动，通过高阶智能体辩论来暴露被遮挡的几何结构。在多个物体类别上实现了零样本重建，为3D网格生成提供了新思路。",
+          "llm_tldr": "从稀疏观察重建可展开3D物体因缺乏监督数据而困难。本文提出首个辩论驱动智能体方法，利用视觉语言模型和视频模型推理语义与运动，通过高阶智能体辩论来暴露被遮挡的几何结构。在多个物体类别上实现了零样本重建，为3D网格生成提供了新思路。",
+          "llm_tags": [
+            "query:d-mesh"
+          ],
+          "matched_query_tag": "query:d-mesh",
+          "matched_query_text": "how to generate 3D meshes from images",
+          "matched_requirement_id": "req-16",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.30608v2",
+          "carry_days": 1
+        },
+        {
+          "id": "2607.02515v1",
+          "source": "arxiv",
+          "title": "PointDiT: Pixel-Space Diffusion for Monocular Geometry Estimation",
+          "abstract": "State-of-the-art single-image 3D reconstruction methods often rely on complex hybrid architectures and loss functions, or compress geometry into latent spaces in order to leverage pre-trained latent diffusion models. In this work, we show that such architectural overhead and intricate loss formulations are unnecessary. We introduce a minimalist pixel-space Diffusion Transformer, built on a plain ViT, that operates directly on raw 3D point map patches and is conditioned on image tokens from a pre-trained DINOv3. Unlike existing latent diffusion approaches, we train our diffusion backbone entirely from scratch, eliminating the need for point map tokenizers. Despite its simplicity, our approach surpasses complex latent-based diffusion models while remaining significantly simpler than hybrid alternatives. Notably, it produces sharper geometric structure and is more robust in highly ambiguous regions, such as transparent objects.",
+          "authors": [
+            "Haofei Xu",
+            "Rundi Wu",
+            "Philipp Henzler",
+            "Nikolai Kalischek",
+            "Michael Oechsle",
+            "Fabian Manhardt",
+            "Marc Pollefeys",
+            "Andreas Geiger",
+            "Federico Tombari",
+            "Michael Niemeyer"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-07-02T17:59:56+00:00",
+          "link": "https://arxiv.org/pdf/2607.02515v1",
+          "tags": [
+            "keyword:d-mesh",
+            "query:d-mesh"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "monocular geometry estimation generates 3D point maps useful for mesh creation",
+          "llm_evidence_cn": "单图像几何估计生成3D点图，可用于网格创建",
+          "llm_evidence": "单图像几何估计生成3D点图，可用于网格创建",
+          "canonical_evidence": "单图像几何估计生成3D点图，可用于网格创建",
+          "llm_tldr_en": "Proposes PointDiT, a pixel-space diffusion transformer for monocular geometry estimation, directly predicting 3D point maps from a single image without latent compression, outperforming complex latent methods.",
+          "llm_tldr_cn": "现有单图像3D重建方法常依赖复杂的混合架构或潜在空间扩散。本文提出PointDiT，一种基于纯ViT的像素空间扩散Transformer，直接在原始3D点图块上操作，以DINOv3图像令牌为条件，无需点图分词器。从零训练扩散骨干，超越了复杂的潜在扩散模型。该方法简洁高效，为从图像生成3D网格提供了新途径。",
+          "llm_tldr": "现有单图像3D重建方法常依赖复杂的混合架构或潜在空间扩散。本文提出PointDiT，一种基于纯ViT的像素空间扩散Transformer，直接在原始3D点图块上操作，以DINOv3图像令牌为条件，无需点图分词器。从零训练扩散骨干，超越了复杂的潜在扩散模型。该方法简洁高效，为从图像生成3D网格提供了新途径。",
+          "llm_tags": [
+            "query:d-mesh"
+          ],
+          "matched_query_tag": "query:d-mesh",
+          "matched_query_text": "how to generate 3D meshes from images",
+          "matched_requirement_id": "req-16",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.02515v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2607.01222v1",
+          "source": "arxiv",
+          "title": "Ink3D: Sculpting 3D Assets with Extremely Complex Textures via Video Generative Models",
+          "abstract": "Recent 3D generative models can synthesize high-quality geometry but often struggle to reproduce intricate textures from reference images, largely due to the scarcity of large-scale 3D training data with rich surface appearance. In contrast, visual generative models are trained on datasets several orders of magnitude larger and excel at modeling complex visual patterns. Motivated by this gap, we introduce Ink3D, a framework that bridges 3D generation with large-scale video generative models to synthesize extremely complex textures. Ink3D first reconstructs a white-mesh geometry using an off-the-shelf 3D generation model. It then employs OrbitPainter, a conditional video generative model, to produce dense orbit-scan videos capturing object appearance across viewpoints. To convert these views into coherent textures, we introduce TextureOptimizer, a neural baking module that integrates dense multi-view observations while mitigating geometry inconsistencies arising from video generation. By decoupling geometry and texture synthesis and leveraging large-scale pretrained video priors, Ink3D enables significantly richer and more faithful texture generation than prior approaches.",
+          "authors": [
+            "Yue Han",
+            "Chong Li",
+            "Zhening Liu",
+            "Cong Huang",
+            "Fang Deng",
+            "Yong Liu",
+            "Fangyun Wei",
+            "Yan Lu"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-07-01T17:56:39+00:00",
+          "link": "https://arxiv.org/pdf/2607.01222v1",
+          "tags": [
+            "keyword:d-mesh",
+            "query:d-mesh"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "3D mesh generation with texture synthesis using video models",
+          "llm_evidence_cn": "利用视频生成模型进行3D网格生成与纹理合成",
+          "llm_evidence": "利用视频生成模型进行3D网格生成与纹理合成",
+          "canonical_evidence": "利用视频生成模型进行3D网格生成与纹理合成",
+          "llm_tldr_en": "Ink3D bridges 3D generation with video generative models to produce complex textures on 3D meshes from white-mesh geometry.",
+          "llm_tldr_cn": "现有3D生成模型难以复现复杂纹理，而视频生成模型擅长建模精细视觉模式。Ink3D先重建白色网格几何，再使用条件视频生成模型生成稠密轨道扫描视频，从中提取纹理映射到网格，实现极具复杂纹理的3D资产创建。实验展示了高质量纹理合成效果。",
+          "llm_tldr": "现有3D生成模型难以复现复杂纹理，而视频生成模型擅长建模精细视觉模式。Ink3D先重建白色网格几何，再使用条件视频生成模型生成稠密轨道扫描视频，从中提取纹理映射到网格，实现极具复杂纹理的3D资产创建。实验展示了高质量纹理合成效果。",
+          "llm_tags": [
+            "query:d-mesh"
+          ],
+          "matched_query_tag": "query:d-mesh",
+          "matched_query_text": "3D mesh reconstruction techniques",
+          "matched_requirement_id": "req-10",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.01222v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.30608v1",
+          "source": "arxiv",
+          "title": "UnfoldArt: Zero-Shot Recovery of Full Articulated 3D Objects from Text or Image",
+          "abstract": "Articulated 3D objects are essential for interactive environments in embodied AI, robotics, and virtual reality, but reconstructing their structure and motion from sparse observations remains challenging. Existing approaches remain largely constrained by lack of supervised data or lack the priors needed to reliably recover articulation, hidden geometry, and internal object structure. We present the first debate-driven agentic approach to articulated 3D object reconstruction from text or image inputs that both grounds articulation reasoning in concrete motion and exposes the occluded geometry revealed under articulation. High-level agents reason about object semantics and motion using knowledge from vision-language and video models, while low-level agents estimate articulation parameters and interaction points; together, they engage in a two-round structured debate that first exploits global--local disagreement and then grounds the agents in freely generated video. The same video prior, conditioned on the agreed articulation, then drives each part through its motion to expose occluded interiors and geometry that cannot be inferred from a single static view. By combining agentic reasoning with a video generative prior, our approach jointly infers articulation and reconstructs complete 3D articulated objects, producing high-fidelity geometry, internal structure, and motion-consistent states beyond directly observed surfaces.",
+          "authors": [
+            "Mohamed el amine boudjoghra",
+            "Ivan Laptev",
+            "Angela Dai"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-06-29T17:44:53+00:00",
+          "link": "https://arxiv.org/pdf/2606.30608v1",
+          "tags": [
+            "keyword:d-mesh",
+            "keyword:vla",
+            "query:d-mesh",
+            "query:vla"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "3D articulated object reconstruction from text/image",
+          "llm_evidence_cn": "从文本或图像重建铰接3D物体",
+          "llm_evidence": "从文本或图像重建铰接3D物体",
+          "canonical_evidence": "从文本或图像重建铰接3D物体",
+          "llm_tldr_en": "A debate-driven agentic approach for zero-shot reconstruction of full articulated 3D objects from text or image inputs, grounding articulation reasoning in concrete motion.",
+          "llm_tldr_cn": "针对从文本或图像输入零样本重建完整铰接3D物体的挑战，提出首个辩论驱动代理方法，通过高层代理利用视觉-语言和视频模型推理对象语义和运动，底层代理暴露遮挡几何，实现强大的零样本泛化能力。",
+          "llm_tldr": "针对从文本或图像输入零样本重建完整铰接3D物体的挑战，提出首个辩论驱动代理方法，通过高层代理利用视觉-语言和视频模型推理对象语义和运动，底层代理暴露遮挡几何，实现强大的零样本泛化能力。",
+          "llm_tags": [
+            "query:d-mesh"
+          ],
+          "matched_query_tag": "query:d-mesh",
+          "matched_query_text": "3D mesh reconstruction techniques",
+          "matched_requirement_id": "req-10",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.30608v1",
+          "carry_days": 1
+        }
+      ]
+    }
+  }
 }
