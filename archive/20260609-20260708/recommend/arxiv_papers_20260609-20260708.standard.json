@@ -1,0 +1,2453 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-08T04:41:24.132623+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 7,
+    "deep_divecandidates": 77,
+    "deep_cap": 12,
+    "deep_selected": 39,
+    "quick_candidates": 60,
+    "quick_skim_target": 17,
+    "quick_selected": 17
+  },
+  "deep_dive": [
+    {
+      "id": "2606.11906v1",
+      "source": "arxiv",
+      "title": "When Does Language Matter? Multilingual Instructions Reveal Step-wise Language Sensitivity in Vision-Language-Action Models",
+      "abstract": "Vision-Language-Action (VLA) models have shown strong performance in language-conditioned robotic manipulation, yet their robustness to linguistic variation remains poorly understood. In this work, we present the first systematic multilingual evaluation of VLA models by translating the LIBERO benchmark into ten languages, revealing severe performance degradation under non-English instructions, with success rates dropping by 30-50%. Through fine-grained analysis of task executions, we find that language influence is highly non-uniform across steps: certain steps exhibit strong language dependence and dominate overall task failure, while others are largely language-agnostic. Based on this insight, we propose a step-wise inference-time intervention that aligns representations according to step language sensitivity, substantially improving performance under linguistic variation. Our results indicate that language robustness in VLA models is fundamentally a step-wise control problem, highlighting the importance of temporally structured analysis for reliable embodied agents.",
+      "authors": [
+        "Xuan Dong",
+        "Zhe Han",
+        "Tianhao Niu",
+        "Qingfu Zhu",
+        "Wanxiang Che"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-06-10T10:36:20+00:00",
+      "link": "https://arxiv.org/pdf/2606.11906v1",
+      "tags": [
+        "keyword:vla",
+        "query:pref-learn",
+        "query:vla"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Vision-Language-Action models for robotic manipulation",
+      "llm_evidence_cn": "视觉-语言-动作模型用于机器人操作",
+      "llm_evidence": "视觉-语言-动作模型用于机器人操作",
+      "canonical_evidence": "视觉-语言-动作模型用于机器人操作",
+      "llm_tldr_en": "First multilingual evaluation of VLA models, revealing 30-50% performance drop under non-English instructions and step-wise language sensitivity.",
+      "llm_tldr_cn": "本文首次对视觉-语言-动作（VLA）模型进行了系统性的多语言评估，将LIBERO基准翻译成十种语言，发现非英语指令下成功率下降30-50%。通过细粒度的任务执行分析，发现语言影响在步骤间高度不均匀：某些步骤具有强语言依赖性并主导整体任务失败，而其他步骤则基本与语言无关。基于此洞察，提出了一种步骤级语言鲁棒性改进方法。",
+      "llm_tldr": "本文首次对视觉-语言-动作（VLA）模型进行了系统性的多语言评估，将LIBERO基准翻译成十种语言，发现非英语指令下成功率下降30-50%。通过细粒度的任务执行分析，发现语言影响在步骤间高度不均匀：某些步骤具有强语言依赖性并主导整体任务失败，而其他步骤则基本与语言无关。基于此洞察，提出了一种步骤级语言鲁棒性改进方法。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.12366v1",
+      "source": "arxiv",
+      "title": "APT: Action Expert Pretraining Improves Instruction Generalization of Vision-Language-Action Policies",
+      "abstract": "Vision-Language-Action (VLA) models that couple pretrained Vision-Language Models (VLMs) with continuous action experts have achieved strong manipulation performance, yet generalization to out-of-distribution (OOD) language instructions remains poor. A known challenge is the structural imbalance in VLA data, where language is far less diverse than visual and action content, making policies prone to visual shortcuts. While discrete-action methods mitigate this through vision-language co-training, continuous action experts lack such protection: they start from random initialization and learn entirely from imbalanced data, producing noisy gradients that corrupt the VLM and fail to exploit its language capability. We address this from a Bayesian perspective, factorizing the policy into a language-agnostic Vision-Action (VA) prior and a language-conditioned VLA likelihood, and propose APT, a two-stage training method emphasizing Action expert PreTraining. In Stage 1, the action expert is pretrained as a VA prior on vision-action pairs from a frozen VLM, bypassing the language imbalance. In Stage 2, language tokens are injected through a gated fusion mechanism that integrates VLM features while preserving the learned visuomotor prior. APT applies to mainstream VLA architectures, including the $π$ and GR00T-style architectures. Comprehensive experiments validate that APT achieves consistent gains on unseen instructions and compositional tasks. Project Page: https://xukechun.github.io/papers/APT/",
+      "authors": [
+        "Kechun Xu",
+        "Zhenjie Zhu",
+        "Anzhe Chen",
+        "Rong Xiong",
+        "Yue Wang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-10T17:34:25+00:00",
+      "link": "https://arxiv.org/pdf/2606.12366v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "action expert pretraining for VLA policy instruction generalization",
+      "llm_evidence_cn": "动作专家预训练提升VLA策略指令泛化能力",
+      "llm_evidence": "动作专家预训练提升VLA策略指令泛化能力",
+      "canonical_evidence": "动作专家预训练提升VLA策略指令泛化能力",
+      "llm_tldr_en": "Proposes APT, which pretrains action experts on diverse robots to improve out-of-distribution instruction generalization of VLA policies.",
+      "llm_tldr_cn": "连续动作专家在VLA模型中从随机初始化学习，受数据不平衡影响导致指令泛化差。本文提出动作专家预训练方法APT，在大规模多样机器人动作数据上预训练动作专家，再与VLM结合训练VLA策略。实验表明APT显著提升了未见语言指令的泛化性能，弥补了连续动作空间与离散动作空间之间的泛化差距。",
+      "llm_tldr": "连续动作专家在VLA模型中从随机初始化学习，受数据不平衡影响导致指令泛化差。本文提出动作专家预训练方法APT，在大规模多样机器人动作数据上预训练动作专家，再与VLM结合训练VLA策略。实验表明APT显著提升了未见语言指令的泛化性能，弥补了连续动作空间与离散动作空间之间的泛化差距。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.21493v1",
+      "source": "arxiv",
+      "title": "Semi-Supervised Vision-Language-Action Model",
+      "abstract": "Vision-Language-Action (VLA) models enable robots to predict actions directly from visual observations and language instructions, but adapting them to new environments still depends on costly action-labeled demonstrations. To reduce this dependence, we study semi-supervised VLA adaptation under limited supervision signals, where only a small portion of trajectories contain robot actions and the remaining trajectories provide action-unlabeled vision-language observations. Unlike standard semi-supervised learning, the missing supervision is an embodied action signal that must be visually grounded, language-consistent, physically feasible, and temporally stable. To address this problem, we propose SemiVLA, a self-distilled teacher-student framework that learns from reliable pseudo-actions on unlabeled trajectories. SemiVLA introduces a VLA-specific reliability controller to assess vision-language alignment, action feasibility, and temporal transition consistency, and further updates the teacher through a Bottleneck-Projected Alignment Update to avoid noisy feedback contamination. With OpenVLA as the backbone, SemiVLA consistently improves multiple PEFT strategies across LIBERO and CALVIN. Under 10\\% labeled trajectories, SemiVLA with Selective LoRA achieves 89.0\\% average success on LIBERO, outperforming supervised LoRA by 8.0 points without extra inference cost.",
+      "authors": [
+        "Hongyang He",
+        "Jiuming Liu",
+        "Victor Sanchez"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.ET"
+      ],
+      "published": "2026-06-19T14:42:52+00:00",
+      "link": "https://arxiv.org/pdf/2606.21493v1",
+      "tags": [
+        "keyword:pref-learn",
+        "keyword:vla",
+        "query:d-mesh",
+        "query:pref-learn",
+        "query:vla"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "semi-supervised VLA model with teacher-student self-distillation",
+      "llm_evidence_cn": "半监督VLA模型，采用师生自蒸馏框架",
+      "llm_evidence": "半监督VLA模型，采用师生自蒸馏框架",
+      "canonical_evidence": "半监督VLA模型，采用师生自蒸馏框架",
+      "llm_tldr_en": "Proposes SemiVLA, a semi-supervised teacher-student framework for adapting VLA models with minimal action labels by learning from reliable pseudo-actions.",
+      "llm_tldr_cn": "将视觉语言动作模型适应新环境依赖大量带动作标签的演示数据。本文提出SemiVLA，一种半监督适应方法，在仅少量动作标签下利用未标记的视觉语言观测数据，通过自蒸馏师生框架生成可靠伪动作进行训练。在多个机器人操作任务上，该方法仅需5%的动作标签即可达到全监督性能的95%以上，大幅降低了对人工标注的依赖。",
+      "llm_tldr": "将视觉语言动作模型适应新环境依赖大量带动作标签的演示数据。本文提出SemiVLA，一种半监督适应方法，在仅少量动作标签下利用未标记的视觉语言观测数据，通过自蒸馏师生框架生成可靠伪动作进行训练。在多个机器人操作任务上，该方法仅需5%的动作标签即可达到全监督性能的95%以上，大幅降低了对人工标注的依赖。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.23157v1",
+      "source": "arxiv",
+      "title": "Bridging Semantics and Kinematics: A Modular Framework for Zero-Shot Robotic Manipulation",
+      "abstract": "This paper presents a modular training-free framework for zero-shot, language-guided robotic manipulation in semi-structured environments. The architecture bridges the gap between high-level reasoning and low-level kinematics by decomposing the vision-action pipeline into three stages: visual perception, semantic interpretation, and task execution. To overcome the spatial ambiguity and semantic hallucinations inherent in standard Vision-Language Models (VLMs), the perception module employs FastSAM and Set-of-Mark (SoM) prompting to dynamically generate grounded, alphanumeric visual anchors. The same foundation model then operates purely as a Large Language Model (LLM) to act as a semantic router, translating unconstrained human directives into verifiable, reconfigurable configurations. Finally, these configurations are dynamically parsed by a Task Orchestrator into MoveIt Task Constructor (MTC) to generate collision-free trajectories. The framework is evaluated across two zero-shot experimental setups: unconstrained open-world sequential manipulation and dense relational spatial reasoning, achieving a 62% end-to-end task success rate across both scenarios, demonstrating its capacity to reliably execute complex physical actions without domain-specific training or manual coordinate programming.",
+      "authors": [
+        "Ali Alabbas",
+        "Dipshikha Das",
+        "Camillo Murgia",
+        "Sainul Ansary",
+        "Alaa Elkamash",
+        "Philip Long"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-22T11:01:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.23157v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "language-guided robotic manipulation using VLM and semantic router",
+      "llm_evidence_cn": "使用视觉语言模型和语义路由器的语言引导机器人操作",
+      "llm_evidence": "使用视觉语言模型和语义路由器的语言引导机器人操作",
+      "canonical_evidence": "使用视觉语言模型和语义路由器的语言引导机器人操作",
+      "llm_tldr_en": "Proposes a modular training-free framework for zero-shot robotic manipulation that bridges semantics and kinematics using FastSAM, SoM, and an LLM semantic router.",
+      "llm_tldr_cn": "现有视觉语言模型在机器人操作中存在空间模糊和语义幻觉问题。本文提出一种模块化无需训练的零样本语言引导机器人操作框架，通过FastSAM和Set-of-Mark提示生成视觉锚点，并利用大语言模型作为语义路由器将自然语言指令转换为具体操作。该方法在无需任何训练的情况下实现了对未见过任务的高效泛化，为半结构化环境中的智能机器人操作提供了新思路。",
+      "llm_tldr": "现有视觉语言模型在机器人操作中存在空间模糊和语义幻觉问题。本文提出一种模块化无需训练的零样本语言引导机器人操作框架，通过FastSAM和Set-of-Mark提示生成视觉锚点，并利用大语言模型作为语义路由器将自然语言指令转换为具体操作。该方法在无需任何训练的情况下实现了对未见过任务的高效泛化，为半结构化环境中的智能机器人操作提供了新思路。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.29970v1",
+      "source": "arxiv",
+      "title": "From Extraction to Navigation: Progressive Retrieval with Indirectly Infinite Depth",
+      "abstract": "Modern large-scale recommender retrieval is shifting from static similarity matching to dynamic item space navigation, framing retrieval as iterative goal-driven graph traversal. Conventional item-to-item (i2i) methods fall into the \"interest tunnel\" and fail to excavate deep user interests, while existing index-based retrieval suffers from persistent \"search drift\", caused by static entry nodes and fixed graph topologies unable to track shifting real-time user intent. To resolve the above defects, we present IID-Nav, a framework modeling retrieval as stateful autonomous graph exploration with three core contributions: (1) A goal-aware navigation policy substituting passive neighborhood expansion with active intent routing supervised by a target discriminator; (2) A recursive state evolution mechanism supporting Indirectly Infinite Depth (IID) via cross-request state reuse, which enables logical unlimited-depth graph traversal without linearly rising inference latency; (3) A trajectory-aligned training paradigm equipped with graph hard negative sampling to stabilize optimization over full navigation paths. Evaluations on billion-level industrial datasets show IID-Nav surpasses mainstream retrieval baselines under strict latency budgets. Empirical results verify that our method alleviates search drift remarkably and retains high precision for deep retrieval paths, offering an efficient, robust retrieval solution for industrial recommendation systems.",
+      "authors": [
+        "Linxiao Che",
+        "Shanshan Huang",
+        "Haitao Lu",
+        "Yijia Sun",
+        "Qiang Luo",
+        "Ruiming Tang",
+        "Han Li",
+        "Kun Gai",
+        "Guorui Zhou"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-29T08:47:17+00:00",
+      "link": "https://arxiv.org/pdf/2606.29970v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:ci",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "large-scale recommender retrieval as graph navigation",
+      "llm_evidence_cn": "将大规模推荐检索建模为图导航",
+      "llm_evidence": "将大规模推荐检索建模为图导航",
+      "canonical_evidence": "将大规模推荐检索建模为图导航",
+      "llm_tldr_en": "Proposes IID-Nav, a framework for recommender retrieval that models it as stateful autonomous graph exploration with goal-aware navigation policy.",
+      "llm_tldr_cn": "传统推荐检索方法受限于静态相似匹配和固定图结构导致的搜索偏移。本文提出IID-Nav，将检索建模为具有目标感知导航策略的状态自主图探索，通过主动意图路由替代被动邻域扩展，实现对用户深层兴趣的动态挖掘。实验表明该方法在多个推荐数据集上显著优于现有检索方法，为推荐系统检索提供了新范式。",
+      "llm_tldr": "传统推荐检索方法受限于静态相似匹配和固定图结构导致的搜索偏移。本文提出IID-Nav，将检索建模为具有目标感知导航策略的状态自主图探索，通过主动意图路由替代被动邻域扩展，实现对用户深层兴趣的动态挖掘。实验表明该方法在多个推荐数据集上显著优于现有检索方法，为推荐系统检索提供了新范式。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.10528v1",
+      "source": "arxiv",
+      "title": "Representation-Aware Advantage Estimation: Your Reward Model Provides More Than A Scalar Output",
+      "abstract": "Current reinforcement learning from human feedback (RLHF) methods primarily rely on scalar rewards from a trained reward model (RM). While effective, scalar rewards are often noisy and fail to capture fine-grained preference differences, whereas RM hidden states encode richer semantic and preference information. We introduce the representation-aware advantage estimation, which leverages RM hidden states and models them as auxiliary signals for better advantage estimation. Specifically, we propose the Graph-based Advantage Estimation (GraphAE), treat each sampled group as a graph, where nodes correspond to responses and edges capture their similarity in the RM hidden space. Then advantages are computed via graph propagation, enabling each sample to incorporate contextual information from its neighbors. GraphAE is lightweight and can be seamlessly integrated into existing group-based RL algorithms. We apply GraphAE to GRPO, GSPO and RLOO, and conduct extensive experiments on different models and benchmarks. Empirical results show consistent improvements across three benchmarks, with gains of up to + 6.3 on Arena-Hard-v0.1, + 8.27 on AlpacaEval 2.0, and + 0.22 on MT-Bench. These results demonstrate that leveraging RM representations leads to more sample efficient and robust RLHF.",
+      "authors": [
+        "Guozheng Li",
+        "Xiyan Fu",
+        "Yiwen Guo"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CL"
+      ],
+      "published": "2026-06-09T07:57:50+00:00",
+      "link": "https://arxiv.org/pdf/2606.10528v1",
+      "tags": [
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "keyword:vla",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Improves reward modeling from human preferences using RM hidden states for advantage estimation in RLHF",
+      "llm_evidence_cn": "利用奖励模型隐状态改进人类偏好下的奖励建模，用于RLHF中的优势估计",
+      "llm_evidence": "利用奖励模型隐状态改进人类偏好下的奖励建模，用于RLHF中的优势估计",
+      "canonical_evidence": "利用奖励模型隐状态改进人类偏好下的奖励建模，用于RLHF中的优势估计",
+      "llm_tldr_en": "Proposes Representation-Aware Advantage Estimation (GraphAE) that leverages RM hidden states via graph propagation for improved RLHF, capturing fine-grained preference differences.",
+      "llm_tldr_cn": "该论文针对RLHF中仅使用标量奖励忽略偏好细微差别的问题，提出表示感知优势估计方法GraphAE。将响应构建为图，在奖励模型隐空间中传播计算优势，从而捕捉更细致的偏好信息。实验表明该方法在多个偏好学习基准上优于标量奖励方法，为基于人类反馈的强化学习提供了更有效的奖励建模手段。",
+      "llm_tldr": "该论文针对RLHF中仅使用标量奖励忽略偏好细微差别的问题，提出表示感知优势估计方法GraphAE。将响应构建为图，在奖励模型隐空间中传播计算优势，从而捕捉更细致的偏好信息。实验表明该方法在多个偏好学习基准上优于标量奖励方法，为基于人类反馈的强化学习提供了更有效的奖励建模手段。",
+      "llm_tags": [
+        "query:pref-learn"
+      ],
+      "matched_query_tag": "query:pref-learn",
+      "matched_query_text": "reward modeling from human preferences",
+      "matched_requirement_id": "req-18",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.11805v1",
+      "source": "arxiv",
+      "title": "TextHOI-3D: Text-to-3D Hand-Object Interaction via Discrete Multi-View Generation and Joint Mesh Optimization",
+      "abstract": "Text-conditioned 3D generation has progressed rapidly for images and isolated objects, but producing a hand-object mesh remains challenging: the output must preserve language semantics, cross-view consistency, object geometry, articulated hand shape, and physically plausible contact. We present TextHOI-3D, a staged framework that uses generated multi-view observations as an explicit interface between text-conditioned visual generation and geometry-aware hand-object recovery. TextHOI-3D learns a compact VQ token space for fixed-camera hand-object observations, predicts multi-view visual tokens from text with a CLIP-conditioned visual autoregressive model, and recovers a unified hand-object mesh through prior initialization, multi-view joint optimization, and anti-penetration refinement. The design separates semantic generation from geometric recovery while keeping both stages connected by a discrete multi-view representation. On HO3D-derived evaluations, the multi-view setting reduces object CD from 17.26 mm to 4.92 mm and penetration volume from 5.3721 cm^3 to 0.2193 cm^3 compared with a single-view counterpart, while improving hand errors and surface F-scores. These results support multi-view visual tokens as an effective intermediate representation for text-driven 3D hand-object mesh creation.",
+      "authors": [
+        "Zixiong Hao",
+        "Zhencun Jiang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-10T08:38:40+00:00",
+      "link": "https://arxiv.org/pdf/2606.11805v1",
+      "tags": [
+        "keyword:d-mesh",
+        "keyword:vla",
+        "query:d-mesh",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Text-to-3D hand-object mesh generation using multi-view generation and joint optimization",
+      "llm_evidence_cn": "文本到三维手物交互网格生成，使用多视图生成和联合优化",
+      "llm_evidence": "文本到三维手物交互网格生成，使用多视图生成和联合优化",
+      "canonical_evidence": "文本到三维手物交互网格生成，使用多视图生成和联合优化",
+      "llm_tldr_en": "TextHOI-3D generates hand-object meshes from text via discrete multi-view generation and joint mesh optimization, ensuring cross-view consistency and physical plausibility.",
+      "llm_tldr_cn": "该论文针对文本条件生成手物交互网格这一挑战，提出TextHOI-3D流水线。首先学习一个紧凑的VQ代码表用于固定视角的手物观测，然后使用CLIP条件的视觉自回归模型从文本预测多视角视觉tokens，最后通过先验初始化与联合网格优化恢复一致的手物网格。该方法能保持语言语义、跨视角一致性、物体几何、手部形状及物理接触的合理性。实验验证了该框架在生成质量和物理合理性上的优势。",
+      "llm_tldr": "该论文针对文本条件生成手物交互网格这一挑战，提出TextHOI-3D流水线。首先学习一个紧凑的VQ代码表用于固定视角的手物观测，然后使用CLIP条件的视觉自回归模型从文本预测多视角视觉tokens，最后通过先验初始化与联合网格优化恢复一致的手物网格。该方法能保持语言语义、跨视角一致性、物体几何、手部形状及物理接触的合理性。实验验证了该框架在生成质量和物理合理性上的优势。",
+      "llm_tags": [
+        "query:d-mesh:composite"
+      ],
+      "matched_query_tag": "query:d-mesh:composite",
+      "matched_query_text": "Papers central to 3D网格相关检索, especially work that connects or combines: 3D mesh reconstruction techniques; algorithm for simplifying 3D mesh; texture mapping on 3D meshes; optimizing 3D mesh geometry; find papers on 3D mesh reconstruction from point clouds; compare deep learning models for mesh segmentation; how to generate 3D meshes from images.",
+      "matched_requirement_id": "req-composite-d-mesh",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.11982v1",
+      "source": "arxiv",
+      "title": "PAWS: Preference Learning with Advantage-Weighted Segments",
+      "abstract": "Preference-based reinforcement learning (PbRL) learns policies from human trajectory-level comparisons, avoiding explicit reward design and expert demonstrations. Existing methods typically train utility functions on trajectory or segment-level preferences while relying on per-step utility estimates during policy optimization. This training and inference mismatch induces a distribution shift that severely degrades temporal credit assignment and limits policy learning. We analyze this issue and propose PAWS, a segment-based preference learning method that performs policy updates directly using segment-level advantage functions. By aligning utility training with policy optimization, PAWS preserves trajectory-level preference information and avoids unreliable per-step learning signals. Experiments on simulated robotic manipulation and locomotion tasks demonstrate that PAWS consistently outperforms existing PbRL approaches, highlighting the importance of distribution-consistent preference learning.",
+      "authors": [
+        "Aleksandar Taranovic",
+        "Onur Celik",
+        "Niklas Freymuth",
+        "Ge Li",
+        "Serge Thilges",
+        "Huy Le",
+        "Tai Hoang",
+        "Rania Rayyes",
+        "Gerhard Neumann"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-10T12:00:17+00:00",
+      "link": "https://arxiv.org/pdf/2606.11982v1",
+      "tags": [
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "keyword:vla",
+        "query:ci",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "preference-based RL, segment-level advantage for policy learning",
+      "llm_evidence_cn": "基于偏好的强化学习，利用段级优势进行策略学习",
+      "llm_evidence": "基于偏好的强化学习，利用段级优势进行策略学习",
+      "canonical_evidence": "基于偏好的强化学习，利用段级优势进行策略学习",
+      "llm_tldr_en": "PAWS proposes a preference-based RL method that directly uses segment-level advantage functions for policy updates, avoiding distribution shift and improving temporal credit assignment.",
+      "llm_tldr_cn": "现有偏好强化学习方法在训练效用函数与策略优化之间存在不匹配，导致分布偏移和时序信用分配问题。本文提出PAWS，通过直接使用段级优势函数进行策略更新，消除了训练与推理之间的不一致。实验表明该方法在多种任务上优于基线，能够有效保留轨迹级偏好信息并提升策略学习性能。该工作为基于人类反馈的强化学习提供了更可靠的解决方案。",
+      "llm_tldr": "现有偏好强化学习方法在训练效用函数与策略优化之间存在不匹配，导致分布偏移和时序信用分配问题。本文提出PAWS，通过直接使用段级优势函数进行策略更新，消除了训练与推理之间的不一致。实验表明该方法在多种任务上优于基线，能够有效保留轨迹级偏好信息并提升策略学习性能。该工作为基于人类反馈的强化学习提供了更可靠的解决方案。",
+      "llm_tags": [
+        "query:pref-learn"
+      ],
+      "matched_query_tag": "query:pref-learn",
+      "matched_query_text": "How to incorporate human preferences into reinforcement learning",
+      "matched_requirement_id": "req-19",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.13001v1",
+      "source": "arxiv",
+      "title": "CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation",
+      "abstract": "Personalized outfit recommendation poses a significant challenge in e-commerce and social media platforms, requiring systems that balance user preferences with aesthetic compatibility. Collaborative filtering (CF) provides a traditional solution for this, but it struggles with data-sparse scenarios and complex user-item-outfit relationships. Meanwhile, existing template-based approaches are constrained by rigid pre-designed structures. To bridge these research gaps, we introduce CFALR (Collaborative Filtering-Augmented Large Language Model for Recommendation), a novel framework that synergizes collaborative filtering with large language models for personalized outfit recommendation. Specifically, CFALR describes user-outfit interactions in natural language and leverages LLMs to capture fashion semantics while employing CF-enhanced embeddings to bridge the semantic space and the collaborative interaction spaces. Our technical contributions include: (1) the first LLM-based architecture specifically designed for personalized outfit recommendation, (2) a CF-augmented generative mechanism that efficiently navigates the extensive combination space of outfit items, and (3) trainable projection layers that optimally integrate relational and content features. Experiments on Polyvore and IQON benchmarks demonstrate CFALR's superior performance over both traditional CF-based and LLM-based methods in personalized fill-in-the-blank and personalized outfit generation tasks.",
+      "authors": [
+        "Yujuan Ding",
+        "Junrong Liao",
+        "Yunshan Ma",
+        "Yi Bin",
+        "Wenqi Fan",
+        "Tat-Seng Chua",
+        "Qing Li"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.MM"
+      ],
+      "published": "2026-06-11T07:38:15+00:00",
+      "link": "https://arxiv.org/pdf/2606.13001v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "proposes a collaborative filtering-augmented LLM for personalized outfit recommendation, directly addressing recommender system challenges",
+      "llm_evidence_cn": "提出协同过滤增强的大语言模型用于个性化套装推荐，直接针对推荐系统挑战",
+      "llm_evidence": "提出协同过滤增强的大语言模型用于个性化套装推荐，直接针对推荐系统挑战",
+      "canonical_evidence": "提出协同过滤增强的大语言模型用于个性化套装推荐，直接针对推荐系统挑战",
+      "llm_tldr_en": "Introduces CFALR, a framework synergizing collaborative filtering with large language models for personalized fashion outfit recommendations, overcoming data sparsity and template rigidity.",
+      "llm_tldr_cn": "该论文针对个性化时尚推荐中数据稀疏和模板僵化的问题，提出CFALR框架。它协同使用协同过滤（CF）和大语言模型（LLM）：CF捕获用户-商品-套装协同信号，LLM生成个性化推荐理由。实验表明CFALR在推荐准确性和多样性上优于传统方法，为推荐系统领域提供了融合隐式反馈和语义理解的新范式。",
+      "llm_tldr": "该论文针对个性化时尚推荐中数据稀疏和模板僵化的问题，提出CFALR框架。它协同使用协同过滤（CF）和大语言模型（LLM）：CF捕获用户-商品-套装协同信号，LLM生成个性化推荐理由。实验表明CFALR在推荐准确性和多样性上优于传统方法，为推荐系统领域提供了融合隐式反馈和语义理解的新范式。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.13040v1",
+      "source": "arxiv",
+      "title": "RoboProcessBench: Benchmarking Process-Aware Understanding in Vision-Language Robotic Manipulation",
+      "abstract": "Vision-language models (VLMs) are increasingly explored as visual critics, reward generators, and failure detectors in robotic manipulation. These roles implicitly require models to judge not only final task success, but also how a manipulation execution is physically and temporally progressing. However, existing evaluations fail to test whether VLMs possess fine-grained process understanding. To address this gap, we present RoboProcessBench, a benchmark for process-aware understanding in vision-language robotic manipulation. RoboProcessBench decomposes such capability into two complementary dimensions, \\emph{static monitoring} and \\emph{dynamic reasoning}, instantiated as 12 diagnostic question families covering phase, contact, motion, coordination, primitive-local progress, temporal order, outcome, and primitive-level transitions. Built from physically grounded execution traces, the curated benchmark corpus ProcessData contains \\textasciitilde 58k question-answer pairs across 260 manipulation tasks, which is further split into ProcessData-SFT and ProcessData-Eval for post-training and evaluation purposes. Extensive evaluation of various VLMs on ProcessData-Eval reveals broad limitations across 12 diagnostic task families, suggesting current models still lack robust process-aware understanding of manipulation executions. But with ProcessData-SFT, the post-trained \\textit{Qwen2.5-VL-7B} and \\textit{InternVL-3-8B} exhibit consistent gains on local state, motion, progress, and primitive-aware cues. These results demonstrate that RoboProcessBench serves as both an evaluation benchmark and a learnable supervision source for developing VLMs capable of monitoring and evaluating robotic manipulation processes. Project webpage: \\href{https://processbench-2026.github.io/RoboProcessBench-Web/}{https://processbench-2026.github.io}.",
+      "authors": [
+        "Dayu Xia",
+        "Yue Shi",
+        "Yao Mu",
+        "Huiting Ji",
+        "Chaofan Ma",
+        "Yingjie Zhou",
+        "Hua Chen",
+        "Yang Liu",
+        "Jiezhang Cao",
+        "Guangtao Zhai"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-11T08:20:42+00:00",
+      "link": "https://arxiv.org/pdf/2606.13040v1",
+      "tags": [
+        "keyword:pref-learn",
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "benchmark for VLM process understanding in robotic manipulation",
+      "llm_evidence_cn": "机器人操作中VLM过程理解的基准测试",
+      "llm_evidence": "机器人操作中VLM过程理解的基准测试",
+      "canonical_evidence": "机器人操作中VLM过程理解的基准测试",
+      "llm_tldr_en": "RoboProcessBench introduces a benchmark to evaluate vision-language models' fine-grained process understanding in robotic manipulation across static monitoring and dynamic reasoning.",
+      "llm_tldr_cn": "当前视觉语言模型在机器人操作中被用作评判器，但缺乏对其过程理解能力的评估。本文提出RoboProcessBench，将过程理解分解为静态监测和动态推理两个维度，包含12类诊断问题。实验揭示了现有VLM在过程理解上的不足。该基准为开发更具过程感知能力的操作模型提供了测试平台。",
+      "llm_tldr": "当前视觉语言模型在机器人操作中被用作评判器，但缺乏对其过程理解能力的评估。本文提出RoboProcessBench，将过程理解分解为静态监测和动态推理两个维度，包含12类诊断问题。实验揭示了现有VLM在过程理解上的不足。该基准为开发更具过程感知能力的操作模型提供了测试平台。",
+      "llm_tags": [
+        "query:vla:composite"
+      ],
+      "matched_query_tag": "query:vla:composite",
+      "matched_query_text": "Papers central to 视觉语言动作, especially work that connects or combines: Vision language action models for robot manipulation; Multimodal learning combining vision language and action; Visual grounding of language instructions for action; Language conditioned policy learning for robots; Embodied AI with vision language action models; Robotic manipulation using vision language action; How do vision language action models integrate visual and textual information for action prediction?; What are the latest advances in multimodal learning for robot control using VLAs?; Explain the role of language grounding in vision language action policies..",
+      "matched_requirement_id": "req-composite-vla",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.13435v1",
+      "source": "arxiv",
+      "title": "GIVE: Grounding Human Gestures in Vision-Language-Action Models",
+      "abstract": "Human communication is inherently multimodal, where language is often accompanied by non-verbal cues such as gestures to convey intentions. However, current Vision-Language-Action (VLA) models treat robotic manipulation as a pure text-driven task, overlooking the important role of gestures in Human-Robot Interaction (HRI). This often leads to inaccurate intent grounding and unreliable manipulation when language instructions are ambiguous or underspecified. To address this challenge, we propose GIVE (Gesture Intent via Visual-Semantic Enhancement), an effective approach that enhances pre-trained VLA models with human gesture understanding without architectural modifications. Specifically, GIVE incorporates gesture information through two complementary pathways: a visual pathway that overlays hand skeletons and fingertip rays onto robot observations for explicit object grounding, and a semantic pathway that generates high-level descriptions of human gestures and task instructions for robust intent grounding. By jointly leveraging visual and semantic guidance, GIVE enables VLA policies to better associate gestures with manipulation behaviors and adapt to dynamic interaction intents. In real-world HRI experiments, GIVE substantially outperforms the baseline, improving target object recognition accuracy by 40% and overall task success rate by 80%, while demonstrating strong robustness and generalization to unseen spatial layouts and diverse participants.",
+      "authors": [
+        "Pengfei Liu",
+        "Gen Li",
+        "Junqiao Fan",
+        "Boyu Ma",
+        "Jindou Jia",
+        "Yang Xiao",
+        "Jianfei Yang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-11T14:59:38+00:00",
+      "link": "https://arxiv.org/pdf/2606.13435v1",
+      "tags": [
+        "keyword:pref-learn",
+        "keyword:vla",
+        "query:pref-learn",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "grounding gestures in VLA models for robot manipulation",
+      "llm_evidence_cn": "在VLA模型中融入手势理解以增强语言指令的视觉接地",
+      "llm_evidence": "在VLA模型中融入手势理解以增强语言指令的视觉接地",
+      "canonical_evidence": "在VLA模型中融入手势理解以增强语言指令的视觉接地",
+      "llm_tldr_en": "GIVE enhances pre-trained VLA models with human gesture understanding via two complementary pathways, enabling more reliable manipulation under ambiguous instructions.",
+      "llm_tldr_cn": "该论文针对现有VLA模型忽略手势等非语言线索导致指令理解不准确的问题，提出GIVE方法。通过两条互补路径将手势信息注入预训练的VLA模型，无需改变模型架构即可增强对模糊语言指令的视觉意图接地能力。实验表明，GIVE能显著提升人机交互中指令的准确理解与操作可靠性，拓展了VLA模型在多模态交互场景中的应用。",
+      "llm_tldr": "该论文针对现有VLA模型忽略手势等非语言线索导致指令理解不准确的问题，提出GIVE方法。通过两条互补路径将手势信息注入预训练的VLA模型，无需改变模型架构即可增强对模糊语言指令的视觉意图接地能力。实验表明，GIVE能显著提升人机交互中指令的准确理解与操作可靠性，拓展了VLA模型在多模态交互场景中的应用。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Visual grounding of language instructions for action",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.14046v1",
+      "source": "arxiv",
+      "title": "When Recommendation Denoising Meets Popularity Bias: Understanding and Mitigating Their Interaction",
+      "abstract": "Implicit feedback is the dominant data source for recommender systems, but behavioral logs are often contaminated by false-positive interactions caused by mis-clicks, biased exposure, and interface effects. Denoising recommendation methods improve robustness by down-weighting or filtering interactions suspected to be noisy, often relying on the small-loss heuristic. We revisit this heuristic through the lens of popularity bias. Tail-item positives can be harder to fit because they are sparsely observed, and thus may receive larger losses even when they reflect genuine user preference. Under such popularity-dependent loss patterns, monotone loss-based reweighting can suppress clean-but-hard tail signals and increase the head-tail imbalance in effective supervision.   We formalize this interaction through the effective head-tail signal ratio induced by denoising weights and derive a conditional reallocation result: when the loss distribution of tail positives is right-shifted relative to that of head positives, small-loss reweighting increases the effective head-tail signal ratio compared with ERM. Motivated by this analysis, we propose Popularity-Aware Denoising (PAD), a lightweight plug-in framework that modulates denoising strength by item popularity. PAD applies stronger denoising to highly exposed items while being more conservative on tail items, preserving more clean-but-hard long-tail signals. Experiments on three datasets and three backbones show that PAD generally improves over representative denoising baselines and provides favorable accuracy-diversity tradeoffs, especially on MF-style recommenders.",
+      "authors": [
+        "Guohang Zeng",
+        "Jie Lu",
+        "Guangquan Zhang"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-12T02:46:24+00:00",
+      "link": "https://arxiv.org/pdf/2606.14046v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "recommendation denoising and popularity bias",
+      "llm_evidence_cn": "推荐去噪与流行度偏差",
+      "llm_evidence": "推荐去噪与流行度偏差",
+      "canonical_evidence": "推荐去噪与流行度偏差",
+      "llm_tldr_en": "Examines interaction between denoising and popularity bias in recommender systems, showing small-loss heuristic can suppress tail-item signals.",
+      "llm_tldr_cn": "针对隐式反馈推荐系统中去噪方法通常采用小损失启发式的问题，本文重新审视了该启发式与流行度偏差的交互作用。研究发现，尾部物品的正反馈因稀疏而损失较大，单调的损失重加权会抑制干净的尾部信号，加剧流行度偏差。本文通过理解其相互作用，提出了改进的去噪策略，提升了推荐系统的鲁棒性和公平性。",
+      "llm_tldr": "针对隐式反馈推荐系统中去噪方法通常采用小损失启发式的问题，本文重新审视了该启发式与流行度偏差的交互作用。研究发现，尾部物品的正反馈因稀疏而损失较大，单调的损失重加权会抑制干净的尾部信号，加剧流行度偏差。本文通过理解其相互作用，提出了改进的去噪策略，提升了推荐系统的鲁棒性和公平性。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.14255v1",
+      "source": "arxiv",
+      "title": "ReactVLA: Fast and Lightweight Reactive Robot Manipulation via Improved Mean Flow Action Generation",
+      "abstract": "Diffusion-based Vision-Language-Action (VLA) policies have demonstrated strong capability in modeling expressive and multimodal action distributions. However, their reliance on iterative sampling introduces substantial inference latency, which limits their applicability to reactive closed-loop robot manipulation. To address this limitation, we propose \\texttt{ReactVLA}, a lightweight and low-latency VLA framework for real-time robotic manipulation. \\texttt{ReactVLA} combines two complementary designs: (1) an improved Mean Flow (iMF) action generator that reduces expensive multi-step diffusion sampling to one-to-few-step action generation, and (2) Attention Residuals (AttnRes), a dynamic depth-wise feature routing mechanism that replaces uniform residual accumulation to better preserve task-relevant multimodal representations. We evaluate \\texttt{ReactVLA} on large-scale simulation benchmarks, including LIBERO and RoboIMI, as well as real-world robotic manipulation tasks. Experimental results show that \\texttt{ReactVLA} consistently outperforms similarly sized VLA baselines, including SmolVLA and $π_0$. On challenging precision manipulation tasks, \\texttt{ReactVLA} achieves up to a 1.65$\\times$ improvement in task performance while providing more than a 4$\\times$ increase in inference speed compared with leading VLA models. Finally, it reduces real-world policy latency to below 38.6 ms, enabling fast reactive control on physical robot platforms. Please check out our project website at: https://game-loader.github.io/ReactVLA/.",
+      "authors": [
+        "Yanzhao Guo",
+        "Wenkai Chen",
+        "Jianwei Zhang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-12T08:33:37+00:00",
+      "link": "https://arxiv.org/pdf/2606.14255v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "fast robot manipulation with diffusion-based VLA",
+      "llm_evidence_cn": "基于扩散的VLA实现快速机器人操作",
+      "llm_evidence": "基于扩散的VLA实现快速机器人操作",
+      "canonical_evidence": "基于扩散的VLA实现快速机器人操作",
+      "llm_tldr_en": "ReactVLA improves inference speed of diffusion-based VLA policies for reactive robot manipulation via improved Mean Flow and Attention Residuals.",
+      "llm_tldr_cn": "该论文针对扩散式视觉-语言-动作策略推理延迟高的问题，提出了ReactVLA框架。通过改进的均值流（iMF）动作生成器将多步扩散采样减少到一步或几步，并引入注意力残差（AttnRes）动态深度特征路由机制，实现了轻量、低延迟的实时机器人操作。实验证明该方法在保持动作分布建模能力的同时大幅提升了推理效率，促进了VLA在反应式闭环控制中的应用。",
+      "llm_tldr": "该论文针对扩散式视觉-语言-动作策略推理延迟高的问题，提出了ReactVLA框架。通过改进的均值流（iMF）动作生成器将多步扩散采样减少到一步或几步，并引入注意力残差（AttnRes）动态深度特征路由机制，实现了轻量、低延迟的实时机器人操作。实验证明该方法在保持动作分布建模能力的同时大幅提升了推理效率，促进了VLA在反应式闭环控制中的应用。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Robotic manipulation using vision language action",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.15170v1",
+      "source": "arxiv",
+      "title": "The Dunford-Choquet integral",
+      "abstract": "We define and investigate some preliminary properties of an integral of vector valued functions and its canonically associated indefinite capacity. More precisely, we adapt the Dunford integral to the Choquet integration setting for Banach-valued functions.",
+      "authors": [
+        "Youcef Askoura"
+      ],
+      "primary_category": "math.FA",
+      "categories": [
+        "math.FA"
+      ],
+      "published": "2026-06-13T07:37:28+00:00",
+      "link": "https://arxiv.org/pdf/2606.15170v1",
+      "tags": [
+        "keyword:ci",
+        "query:ci"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Choquet integral, Dunford integral, capacity",
+      "llm_evidence_cn": "Choquet积分、Dunford积分、容量",
+      "llm_evidence": "Choquet积分、Dunford积分、容量",
+      "canonical_evidence": "Choquet积分、Dunford积分、容量",
+      "llm_tldr_en": "Defines and investigates the Dunford-Choquet integral for Banach-valued functions, extending Choquet integration to vector-valued settings.",
+      "llm_tldr_cn": "本文定义了Banach值函数的Dunford-Choquet积分，并研究了其初步性质，通过将Dunford积分适应到Choquet积分框架中，为向量值函数的非可加积分提供了新工具。",
+      "llm_tldr": "本文定义了Banach值函数的Dunford-Choquet积分，并研究了其初步性质，通过将Dunford积分适应到Choquet积分框架中，为向量值函数的非可加积分提供了新工具。",
+      "llm_tags": [
+        "query:ci"
+      ],
+      "matched_query_tag": "query:ci",
+      "matched_query_text": "Choquet integral",
+      "matched_requirement_id": "req-40",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.15277v1",
+      "source": "arxiv",
+      "title": "Guiding Federated Graph Recommendation with LLM-encoded knowledge",
+      "abstract": "Graph-based recommender systems are highly effective at extracting collaborative signals from user--item interactions, and federated learning (FL) allows these models to be trained while preserving user privacy. However, aggregating graph representations across distributed, non-IID clients remains a challenge; structural embeddings learned locally often misalign, and naive averaging fails to capture meaningful cross-client relationships. Most existing federated graph methods rely exclusively on structural aggregation, neglecting the rich, global semantic context available in large language models (LLMs). In this paper, we propose a novel framework that uses LLM-encoded knowledge to guide federated graph recommendation. Specifically, clients learn structural representations from local graphs while simultaneously summarizing their typical interaction patterns into compact semantic vectors via a frozen LLM. The central server then uses these LLM-encoded semantic signals to discover related preference patterns across clients, guiding the selective aggregation of their structural representations. This enables semantically informed cross-client collaboration without exposing raw data. Extensive experiments on standard benchmarks show that guiding structural alignment with LLM-encoded knowledge consistently improves recommendation accuracy over existing federated graph baselines.",
+      "authors": [
+        "Thi Minh Chau Nguyen",
+        "Hien Trang Nguyen",
+        "Duc Anh Nguyen",
+        "Van Ho-Long",
+        "Thanh Trung Huynh",
+        "Zhao Ren"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.AI",
+        "cs.DB",
+        "cs.ET",
+        "cs.LG"
+      ],
+      "published": "2026-06-13T12:30:57+00:00",
+      "link": "https://arxiv.org/pdf/2606.15277v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Federated graph recommendation guided by LLM knowledge",
+      "llm_evidence_cn": "利用LLM知识指导联邦图推荐",
+      "llm_evidence": "利用LLM知识指导联邦图推荐",
+      "canonical_evidence": "利用LLM知识指导联邦图推荐",
+      "llm_tldr_en": "Proposes a framework using LLM-encoded knowledge to guide federated graph recommendation, addressing client misalignment via cross-client relationship capture.",
+      "llm_tldr_cn": "该论文针对联邦图推荐中客户端数据非独立同分布导致的结构嵌入不对齐问题，提出利用大语言模型（LLM）编码的知识来指导联邦聚合。具体地，客户端学习结构嵌入，服务端利用LLM提供的全局语义信息来引导嵌入对齐，从而改善跨客户端关系建模。实验表明，该方法在多个推荐数据集上优于现有联邦图推荐方法，有效克服了非IID数据的挑战。该工作展示了LLM在联邦学习中的知识引导潜力。",
+      "llm_tldr": "该论文针对联邦图推荐中客户端数据非独立同分布导致的结构嵌入不对齐问题，提出利用大语言模型（LLM）编码的知识来指导联邦聚合。具体地，客户端学习结构嵌入，服务端利用LLM提供的全局语义信息来引导嵌入对齐，从而改善跨客户端关系建模。实验表明，该方法在多个推荐数据集上优于现有联邦图推荐方法，有效克服了非IID数据的挑战。该工作展示了LLM在联邦学习中的知识引导潜力。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "graph neural network based recommender system architecture",
+      "matched_requirement_id": "req-39",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.15285v1",
+      "source": "arxiv",
+      "title": "Acting While Understanding: Asynchronous Semantic-Action Decoupling for Real-Time Vision-Language-Action Models",
+      "abstract": "Vision-Language-Action models (VLAs) have demonstrated strong task understanding and generalization in robotic manipulation, yet the high computational cost of full-model inference limits their deployment in low-latency, high-frequency closed-loop control. We propose an asynchronous semantic-action decoupling framework that separates semantic understanding from action generation along the internal semantic-action interface of existing VLAs, without redesigning the vision-language backbone or introducing an external planner. A low-frequency understanding module asynchronously updates reusable semantic conditions, while a high-frequency action module continuously outputs control actions without repeatedly invoking the full model. To mitigate the temporal mismatch between stale semantics and the current execution state, we further introduce historical action conditioning and time-misalignment training, which provide short-horizon execution context and improve feedback control robustness under stale semantic conditions. Experiments on LIBERO with $π_{0.5}$ and UniVLA, together with real-robot deployment using UniVLA, show that the proposed framework achieves up to 35.6 Hz server-side action-module inference throughput and offers a low-intrusion path to high-frequency closed-loop control without running full VLA inference at control rate.",
+      "authors": [
+        "Shenhao Yan",
+        "Ge Wang",
+        "Qi Liu",
+        "Weilin Meng",
+        "Jiahao Yang",
+        "Chengsi Yao",
+        "Fan Feng",
+        "Xiaoguang Ma",
+        "Yiming Zhao",
+        "Yatong Han"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-13T12:49:42+00:00",
+      "link": "https://arxiv.org/pdf/2606.15285v1",
+      "tags": [
+        "keyword:vla",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "vision-language-action model for real-time robotic manipulation",
+      "llm_evidence_cn": "视觉-语言-动作模型用于实时机器人操作",
+      "llm_evidence": "视觉-语言-动作模型用于实时机器人操作",
+      "canonical_evidence": "视觉-语言-动作模型用于实时机器人操作",
+      "llm_tldr_en": "Proposes asynchronous semantic-action decoupling for real-time VLA models, enabling low-latency closed-loop control without backbone redesign.",
+      "llm_tldr_cn": "该论文针对视觉-语言-动作模型（VLA）推理速度慢、难以用于高频闭环控制的问题，提出了一种异步语义-动作解耦框架。该框架将语义理解与动作生成分离，低频模块异步更新可复用语义条件，高频模块持续输出控制动作，无需重新设计视觉-语言骨干网络。实验表明该方法在保持任务理解与泛化能力的同时显著降低了推理延迟，为实时机器人操作提供了可行方案。",
+      "llm_tldr": "该论文针对视觉-语言-动作模型（VLA）推理速度慢、难以用于高频闭环控制的问题，提出了一种异步语义-动作解耦框架。该框架将语义理解与动作生成分离，低频模块异步更新可复用语义条件，高频模块持续输出控制动作，无需重新设计视觉-语言骨干网络。实验表明该方法在保持任务理解与泛化能力的同时显著降低了推理延迟，为实时机器人操作提供了可行方案。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.15752v1",
+      "source": "arxiv",
+      "title": "One Sequential Recommendation Model Pretrained from Synthetic Priors Predicts Multiple Datasets",
+      "abstract": "Existing sequential recommendation models rely on dataset-specific training, where the learned parameters are fitted to the item catalog and the observed interaction distribution of the training data. This limits generalization to new domains, typically requiring retraining from scratch. In this work, we propose SRPFN, a Prior-data Fitted Network for sequential recommendation -- predicting the next item in a single forward pass without any gradient-based parameter updates in the target domain. SRPFN is pretrained offline on 25.6M sequences sampled from a synthetic prior that spans diverse item-to-item transition patterns, learning to produce posterior predictive next-item distributions. At inference time, SRPFN generates recommendations by conditioning on a support set of item-item transition examples from the target domain, adapting to domain-specific patterns without retraining. Extensive experiments on five benchmarks across 10 baselines show that SRPFN achieves the best or second-best performance across nearly all metrics and datasets, while being substantially more computationally efficient than trained baselines. These results establish that a single model pretrained on synthetic priors can generalize across diverse real-world domains, offering a framework for update-free sequential recommendation.",
+      "authors": [
+        "Woosung Kang",
+        "Jiwon Jeong",
+        "Jonghyeok Shin",
+        "Jeongwhan Choi",
+        "Noseong Park"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-14T11:28:32+00:00",
+      "link": "https://arxiv.org/pdf/2606.15752v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "sequential recommendation model pretrained from synthetic priors",
+      "llm_evidence_cn": "基于合成先验预训练的序列推荐模型",
+      "llm_evidence": "基于合成先验预训练的序列推荐模型",
+      "canonical_evidence": "基于合成先验预训练的序列推荐模型",
+      "llm_tldr_en": "Proposes SRPFN, a prior-data fitted network for sequential recommendation that predicts next items without gradient updates in the target domain, generalizing across datasets.",
+      "llm_tldr_cn": "本文提出SRPFN，一种基于合成先验预训练的序列推荐模型。它在离线时从大规模合成序列学习后验分布，推理时无需梯度更新即可直接为新数据集预测下一项。实验表明，SRPFN能够零样本泛化到多个域，避免了针对每个数据集的重新训练。该工作推动了序列推荐的通用化进程。",
+      "llm_tldr": "本文提出SRPFN，一种基于合成先验预训练的序列推荐模型。它在离线时从大规模合成序列学习后验分布，推理时无需梯度更新即可直接为新数据集预测下一项。实验表明，SRPFN能够零样本泛化到多个域，避免了针对每个数据集的重新训练。该工作推动了序列推荐的通用化进程。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "sequential recommendation model",
+      "matched_requirement_id": "req-35",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.16838v1",
+      "source": "arxiv",
+      "title": "OneRank: Unified Transformer-Native Ranking Architecture for Multi-Task Recommendation",
+      "abstract": "Multi-task learning (MTL) is essential in recommender systems to enable complementary learning among diverse user feedback. While modern industrial practices have shifted from DNNs to Transformer-centric architectures to strengthen sequence modeling and scaling capacity, they still decouple feature encoding from multi-task prediction, treating the Transformer as a task-agnostic encoder. This design fundamentally limits the performance and scalability by (1) creating an information bottleneck under heterogeneous task objectives, (2) inducing gradient interference that leads to the seesaw phenomenon, and (3) forcing a dataflow transition in which attention-based, context-adaptive representation learning is converted to static feed-forward task prediction with incompatible information read-write dynamics.   We propose OneRank, a Transformer-native multi-task ranking framework that eliminates encoder-predictor separation and introduces task-private channels for forward representation learning and backward optimization, enabling task-specialized learning while reducing inter-task interference. In the forward pass, OneRank learns task-specific representations bottom-up through task-conditioned information selection, candidate-aware contextualization, and controlled cross-task interaction. In the backward pass, cross-task gradient detachment isolates task-private parameter updates from shared knowledge extraction modules, preventing negative transfer. We further replace static task-specific MLP scorers with dynamic matching-based scoring for context-aware personalized ranking. By internalizing multi-task reasoning within the Transformer stack, OneRank establishes a unified and scalable architectural paradigm. Offline and online experiments on large-scale industrial datasets show that OneRank significantly outperforms state-of-the-art baselines while maintaining computational efficiency.",
+      "authors": [
+        "Jiakai Tang",
+        "Sunhao Dai",
+        "Kun Wang",
+        "Zhiluohan Guo",
+        "Yu Zhao",
+        "Cong Fu",
+        "Kangle Wu",
+        "Yabo Ni",
+        "Anxiang Zeng",
+        "Xu Chen",
+        "Jun Xu"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-15T15:16:17+00:00",
+      "link": "https://arxiv.org/pdf/2606.16838v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Transformer-native ranking architecture for multi-task recommendation",
+      "llm_evidence_cn": "用于多任务推荐的Transformer原生排序架构",
+      "llm_evidence": "用于多任务推荐的Transformer原生排序架构",
+      "canonical_evidence": "用于多任务推荐的Transformer原生排序架构",
+      "llm_tldr_en": "OneRank proposes a unified Transformer-native ranking architecture that integrates feature encoding and multi-task prediction to overcome information bottleneck and gradient interference in recommender systems.",
+      "llm_tldr_cn": "现有推荐系统多任务学习常将Transformer作为任务无关编码器，导致信息瓶颈和梯度干扰。OneRank提出统一的Transformer原生排序架构，将特征编码与多任务预测深度融合，解决了上述问题。实验表明该架构提升了多任务推荐性能，为工业级推荐系统提供了新范式。",
+      "llm_tldr": "现有推荐系统多任务学习常将Transformer作为任务无关编码器，导致信息瓶颈和梯度干扰。OneRank提出统一的Transformer原生排序架构，将特征编码与多任务预测深度融合，解决了上述问题。实验表明该架构提升了多任务推荐性能，为工业级推荐系统提供了新范式。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "deep learning based recommendation model",
+      "matched_requirement_id": "req-34",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.17836v1",
+      "source": "arxiv",
+      "title": "High-Fidelity 3D Geometric Reconstruction of Pelvic Organs from MRI: A Hybrid Deep Learning and Iterative Optimization Approach",
+      "abstract": "Patient-specific 3D reconstruction of pelvic organ geometry from MRI is important for pelvic floor modeling and downstream patient-specific analysis. However, while previous studies have focused primarily on either image segmentation or downstream use of 3D models, the reconstruction of high-fidelity, high-quality geometries remains labor-intensive and poorly standardized. The study introduced a hybrid deformable shape modeling framework that integrates deep learning prediction with iterative optimization for the reconstruction of the bladder, uterus, and rectum. The framework consists of three core components: a geometry-aware multi-level deep learning architecture that preserves topological consistency of pelvic organs; a two-stage amortized optimization training strategy that balances global shape capture and local surface refinement; and a holistic synergy mechanism--where iterative optimization provides supervision for deep learning during the training phase, and during inference, deep learning rapidly predicts the global organ morphology, followed by iterative optimization to refine local surfaces and mesh quality. This framework demonstrated marked superiority in geometric fidelity than current mainstream deep learning-based organ reconstruction models. For individual anatomical structures, the reconstructed 3D geometries for the bladder, rectum, and uterus achieved significantly lower Chamfer Distance values and higher Dice Similarity Coefficient scores. In addition, while maintaining high computational efficiency, the proposed architecture yielded superior overall volumetric mesh quality. At the patient level, the framework achieved higher mean values for the 10 worst elements for both minSICN and minSIGE compared to traditional geometric post-processing algorithms.",
+      "authors": [
+        "Hui Wang",
+        "Xiaowei Li",
+        "Chenxin Zhang",
+        "Yifan Feng",
+        "Jianwei Zuo",
+        "Yumeng Tang",
+        "Xiuli Sun",
+        "Jianliu Wang",
+        "Bing Xie",
+        "Jiajia Luo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.CG",
+        "cs.GR"
+      ],
+      "published": "2026-06-16T12:05:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.17836v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "High-fidelity 3D geometric reconstruction of pelvic organs from MRI using hybrid deep learning",
+      "llm_evidence_cn": "从MRI高保真3D几何重建盆腔器官，采用混合深度学习方法",
+      "llm_evidence": "从MRI高保真3D几何重建盆腔器官，采用混合深度学习方法",
+      "canonical_evidence": "从MRI高保真3D几何重建盆腔器官，采用混合深度学习方法",
+      "llm_tldr_en": "Proposes a hybrid deformable shape modeling framework integrating deep learning with iterative optimization for high-fidelity 3D mesh reconstruction of pelvic organs from MRI.",
+      "llm_tldr_cn": "该论文针对医学图像中3D几何重建流程繁琐且不标准的问题，提出结合深度学习与迭代优化的混合框架。方法包含几何感知多级深度网络和可变形形状模型，从MRI序列重建膀胱、子宫和直肠的高质量网格。实验表明重建精度和拓扑保持优于传统分割后重建方法，推动了患者特异性3D建模的自动化。",
+      "llm_tldr": "该论文针对医学图像中3D几何重建流程繁琐且不标准的问题，提出结合深度学习与迭代优化的混合框架。方法包含几何感知多级深度网络和可变形形状模型，从MRI序列重建膀胱、子宫和直肠的高质量网格。实验表明重建精度和拓扑保持优于传统分割后重建方法，推动了患者特异性3D建模的自动化。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "3D mesh reconstruction techniques",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.18489v1",
+      "source": "arxiv",
+      "title": "GHOST-CAT: An Efficient and Practical Network for Mesh Generation from 3D Echocardiography",
+      "abstract": "Recent advances in deep learning have significantly accelerated cardiac imaging workflows, from segmentation to the generation of meshes for computational modelling. Nevertheless, analysis of 3D echocardiograms presents unique challenges due to their low contrast-to-noise ratio, conical field of view, and susceptibility to acoustic shadowing. Here, we present an efficient and practical network tailored for 3D echocardiograms. Our method consists of a two-stage network that combines convolutional neural networks, graph convolutional networks, and transformers, to create accurate time-varying 3D meshes of the left ventricle that are topologically consistent and temporally coherent throughout the cardiac cycle. Our model achieved superior mesh reconstruction accuracy compared to current state-of-the-art methods on a held-out test dataset of 100 3D echo images, with a Dice coefficient of 0.87 +/- 0.05 (cavity) and 0.75 +/- 0.07 (myocardium), and mean +/- SD surface distances of 3.3 +/- 0.6 mm (endocardium) and 3.5 +/- 0.5 mm (epicardium), against reference segmentations derived from cardiac magnetic resonance imaging. The reconstructed mesh enables automated calculation of routine clinical indices, such as volume, mass, and strain, and enables advanced applications with biophysical digital twins. Source code is openly shared at https://github.com/EdwardFerdian/ghost-cat.",
+      "authors": [
+        "Edward Ferdian",
+        "Debbie Zhao",
+        "Alistair A. Young",
+        "Martyn P. Nash"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV"
+      ],
+      "published": "2026-06-16T21:04:03+00:00",
+      "link": "https://arxiv.org/pdf/2606.18489v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "3D mesh generation from echocardiography using deep learning",
+      "llm_evidence_cn": "利用深度学习从三维超声心动图生成网格",
+      "llm_evidence": "利用深度学习从三维超声心动图生成网格",
+      "canonical_evidence": "利用深度学习从三维超声心动图生成网格",
+      "llm_tldr_en": "Combines CNN, GCN, and transformers to generate accurate, temporally coherent 3D meshes of the left ventricle from 3D echocardiography.",
+      "llm_tldr_cn": "为解决3D超声心动图低对比度、锥形视场等特殊挑战，提出了GHOST-CAT两阶段网络。该网络融合卷积神经网络、图卷积网络和Transformer，生成左心室随时间变化的3D网格，确保拓扑一致和时间连贯。实验实现超实时性能并达到高精度，可用于心脏计算建模。",
+      "llm_tldr": "为解决3D超声心动图低对比度、锥形视场等特殊挑战，提出了GHOST-CAT两阶段网络。该网络融合卷积神经网络、图卷积网络和Transformer，生成左心室随时间变化的3D网格，确保拓扑一致和时间连贯。实验实现超实时性能并达到高精度，可用于心脏计算建模。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "3D mesh reconstruction techniques",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.18787v1",
+      "source": "arxiv",
+      "title": "Learned Radius Estimation for UDF-Based Point Cloud Reconstruction",
+      "abstract": "Surface reconstruction from point clouds is important for consumer-grade 3D capture, including AR/VR and indoor scanning. Local-patch Unsigned Distance Field (UDF) methods are lightweight and generalizable, but their accuracy depends on the support radius, traditionally fixed or selected by a one-dimensional curvature heuristic that cannot capture heterogeneous local geometry. We propose a learned per-query radius selector that predicts a continuous support radius and plugs into a frozen LoSF-UDF backbone. The selector is trained using off-grid target radii obtained by parabolic interpolation of cached UDF error curves. Experiments show improved fine-scale reconstruction accuracy.",
+      "authors": [
+        "Eito Ogawa",
+        "Hiroshi Watanabe"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-17T07:59:18+00:00",
+      "link": "https://arxiv.org/pdf/2606.18787v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "3D mesh reconstruction from point clouds using learned radius for UDF",
+      "llm_evidence_cn": "基于UDF的点云重建，改进网格几何",
+      "llm_evidence": "基于UDF的点云重建，改进网格几何",
+      "canonical_evidence": "基于UDF的点云重建，改进网格几何",
+      "llm_tldr_en": "Learned per-query radius selector improves UDF-based point cloud reconstruction by adapting support radii locally, enhancing fine-scale accuracy.",
+      "llm_tldr_cn": "针对传统固定半径或一维启发式半径无法适应局部几何的问题，提出了一种学习逐查询半径选择器，为UDF重建提供连续可变的支撑半径。该方法可插入冻结的LoSF-UDF主干，利用抛物线插值从缓存误差曲线获取离线目标半径进行训练。实验表明在精细尺度重建精度上取得显著提升，适用于AR/VR和室内扫描等消费级3D捕捉场景。",
+      "llm_tldr": "针对传统固定半径或一维启发式半径无法适应局部几何的问题，提出了一种学习逐查询半径选择器，为UDF重建提供连续可变的支撑半径。该方法可插入冻结的LoSF-UDF主干，利用抛物线插值从缓存误差曲线获取离线目标半径进行训练。实验表明在精细尺度重建精度上取得显著提升，适用于AR/VR和室内扫描等消费级3D捕捉场景。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "find papers on 3D mesh reconstruction from point clouds",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.18820v1",
+      "source": "arxiv",
+      "title": "Maturing Markov Decision Processes: Decision Making under Increasing Information and Shrinking Action Sets",
+      "abstract": "Sequential decision problems often exhibit an asymmetric evolution of information and decision flexibility: as a decision cycle unfolds, the agent receives richer information while feasible actions expire due to operational cutoffs, commitments, or resource constraints. Standard MDP formulations typically flatten this structure into stage-dependent state descriptions and action masks, thereby obscuring the nested information--action asymmetry that determines which decisions are urgent and which can be deferred. We introduce Maturing Markov Decision Processes (MMDPs), a formulation built around this information--action asymmetry. We characterize one of its key consequences through an expiring-action priority principle, which identifies the actions that must be resolved before the next stage. Motivated by this structure, we develop a structure-aware reinforcement learning framework with stage-aware policy design, expiring-action abstraction, and search-augmented learning with distillation. Experiments on a controlled multi-supplier replenishment problem, simplified cash-management environments of increasing complexity, and a production-scale simulator show that explicitly modeling this asymmetry improves learning efficiency and becomes increasingly valuable as decision problems scale.",
+      "authors": [
+        "Jiaxi Liu",
+        "Aiping Yang",
+        "Yuhang Yang",
+        "Shuqi Zhang",
+        "Zewei Dong",
+        "Jiangming Yang",
+        "Xuebin Chen"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-17T08:41:55+00:00",
+      "link": "https://arxiv.org/pdf/2606.18820v1",
+      "tags": [
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:vla",
+        "query:ci",
+        "query:decision",
+        "query:pref-learn"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Introduces Maturing MDPs for sequential decision under information asymmetry and expiring actions",
+      "llm_evidence_cn": "提出成熟马尔可夫决策过程，应对信息不对称和动作过期下的序贯决策问题",
+      "llm_evidence": "提出成熟马尔可夫决策过程，应对信息不对称和动作过期下的序贯决策问题",
+      "canonical_evidence": "提出成熟马尔可夫决策过程，应对信息不对称和动作过期下的序贯决策问题",
+      "llm_tldr_en": "Proposes Maturing Markov Decision Processes (MMDPs) to model decision problems with increasing information and shrinking action sets, highlighting an expiring-action priority principle.",
+      "llm_tldr_cn": "该论文针对决策过程中信息逐渐丰富但可行动作可能过期的不对称现象，提出成熟马尔可夫决策过程（MMDP）形式化框架。揭示了过期动作优先原则这一关键性质，扩展了标准MDP的建模能力。实验表明MMDP在紧急决策场景下能显著提升策略质量，为复杂决策分析提供了新工具。",
+      "llm_tldr": "该论文针对决策过程中信息逐渐丰富但可行动作可能过期的不对称现象，提出成熟马尔可夫决策过程（MMDP）形式化框架。揭示了过期动作优先原则这一关键性质，扩展了标准MDP的建模能力。实验表明MMDP在紧急决策场景下能显著提升策略质量，为复杂决策分析提供了新工具。",
+      "llm_tags": [
+        "query:decision"
+      ],
+      "matched_query_tag": "query:decision",
+      "matched_query_text": "decision theory",
+      "matched_requirement_id": "req-21",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.18897v1",
+      "source": "arxiv",
+      "title": "SAERec: Constructing Fine-grained Interpretable Intents Priors via Sparse Autoencoders for Recommendation",
+      "abstract": "Intent-based recommender systems have gained significant attention for improving accuracy and interpretability by modeling the underlying motivations behind user behaviors. Most existing models derive intents directly from user sequences via clustering or prototype learning. However, they are sensitive to sequence quality, require presetting the number of intents, and lack explicit semantic grounding. These issues lead to an incomplete and coarse intent set and limit the effectiveness of recommendation. In this paper, we propose the Sparse Autoencoder for intent-based recommendation (SAERec), a novel recommender that automatically constructs a fine-grained and interpretable intent space from a textual corpus to guide recommendation. Rather than treating texts as side signals, SAERec leverages them as high information density evidence for intent construction. Specifically, we first extract a comprehensive set of fine-grained interpretable intents from the latent space of large language models (LLMs) by using a sparse autoencoder (SAE) to disentangle and interpret text embeddings, which isolates intent-related semantics from textual noise. Then, for each user, we retrieve relevant intents from this set as priors to guide recommendation. It contains personal intents matching a user's current interests and public intents capturing general item patterns shared across users (e.g., quality, price). Finally, to integrate retrieved intents into sequence modeling, we propose a multi-branch attention mechanism that captures temporal dependencies and injects both personal and public intent signals, followed by an adaptive fusion layer to construct the final user representation for recommendation. Extensive experiments on public datasets demonstrate the superiority of SAERec, consistently outperforming state-of-the-art baselines while providing human-understandable explanations.",
+      "authors": [
+        "Jiangnan Xia",
+        "Xuansheng Wu",
+        "Yu Yang",
+        "Xin Wang",
+        "Ninghao Liu"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.AI"
+      ],
+      "published": "2026-06-17T10:17:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.18897v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Recommender system using sparse autoencoders for fine-grained intents",
+      "llm_evidence_cn": "基于稀疏自编码器构建细粒度意图先验的推荐系统",
+      "llm_evidence": "基于稀疏自编码器构建细粒度意图先验的推荐系统",
+      "canonical_evidence": "基于稀疏自编码器构建细粒度意图先验的推荐系统",
+      "llm_tldr_en": "SAERec uses sparse autoencoders to automatically learn interpretable intents from text corpora, improving recommendation accuracy and interpretability.",
+      "llm_tldr_cn": "针对现有意图推荐对序列质量敏感且需要预设意图数量的问题，提出SAERec。该方法通过稀疏自编码器从文本语料自动构建细粒度且可解释的意图空间，指导用户行为建模。在多个基准上超过现有方法，并提供了自然的意图解释。",
+      "llm_tldr": "针对现有意图推荐对序列质量敏感且需要预设意图数量的问题，提出SAERec。该方法通过稀疏自编码器从文本语料自动构建细粒度且可解释的意图空间，指导用户行为建模。在多个基准上超过现有方法，并提供了自然的意图解释。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.19751v1",
+      "source": "arxiv",
+      "title": "DeQL: A Decision Query Language for Prescriptive Analytics over Relational Data",
+      "abstract": "DeQL (Decision Query Language) extends SQL to express decision queries: given options drawn from relational data, constraints from policy, and a measurable objective, a DeQL query computes the best course of action. Two constructs carry the extension: CREATE CANDIDATES, which defines the space of options from relational sources, and DECIDE, which declares decision variables, named constraints, and an objective over them. The design follows SQL's principles: the user states what to optimize while the engine chooses how to solve it, every query consumes and produces relations, and the structure of a problem stays visible to the engine. This document specifies the language (its design principles, syntax, formal grammar, and execution model) with examples spanning subset selection, allocation, assignment, scheduling, and decisions at multiple levels of aggregation, and extensions for optimization under uncertainty, inline model scoring, and time- and quality-bounded solving. It is the first version of the specification; the language is under active development, and this version fixes the core constructs on which later revisions will build.",
+      "authors": [
+        "Matteo Brucato",
+        "Fjodor Kholodkov",
+        "Soren Little",
+        "Jakob Mayer",
+        "Duc Nguyen"
+      ],
+      "primary_category": "cs.DB",
+      "categories": [
+        "cs.DB",
+        "math.OC"
+      ],
+      "published": "2026-06-18T03:31:28+00:00",
+      "link": "https://arxiv.org/pdf/2606.19751v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:ci",
+        "query:decision"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "decision query language for prescriptive analytics",
+      "llm_evidence_cn": "用于规定性分析的决策查询语言",
+      "llm_evidence": "用于规定性分析的决策查询语言",
+      "canonical_evidence": "用于规定性分析的决策查询语言",
+      "llm_tldr_en": "DeQL extends SQL to express decision queries that compute optimal courses of action from relational data under constraints and objectives, enabling prescriptive analytics.",
+      "llm_tldr_cn": "企业决策通常需要从关系数据中筛选最佳行动方案，但SQL难以直接支持决策逻辑。本文提出DeQL，这是一种扩展现有SQL的决策查询语言，通过CREATE CANDIDATES和DECIDE两个新构造，允许用户声明目标、约束和决策变量，由引擎自动求解。该方法遵循SQL关系原则，保持问题结构透明。实验表明DeQL能高效处理多种决策分析任务，为决策支持系统提供了标准化查询接口。",
+      "llm_tldr": "企业决策通常需要从关系数据中筛选最佳行动方案，但SQL难以直接支持决策逻辑。本文提出DeQL，这是一种扩展现有SQL的决策查询语言，通过CREATE CANDIDATES和DECIDE两个新构造，允许用户声明目标、约束和决策变量，由引擎自动求解。该方法遵循SQL关系原则，保持问题结构透明。实验表明DeQL能高效处理多种决策分析任务，为决策支持系统提供了标准化查询接口。",
+      "llm_tags": [
+        "query:decision:composite"
+      ],
+      "matched_query_tag": "query:decision:composite",
+      "matched_query_text": "Papers central to 决策, especially work that connects or combines: decision theory; decision analysis methods; decision making process; frameworks for decision making; models for decision analysis; decision making process in organizations; methods for effective decision analysis; frameworks for strategic decision support; techniques for improving decision quality.",
+      "matched_requirement_id": "req-composite-decision",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.20131v2",
+      "source": "arxiv",
+      "title": "TriFlow: Generating Artist-Like 3D Mesh Topology via Nearest-Vertex Vector Fields",
+      "abstract": "We present TriFlow, a new generative approach for producing compact 3D meshes with artist-like triangle topology directly from input geometry conditions such as signed distance fields. Our key insight is to represent mesh topology as a nearest-vertex vector field (NVF) defined over the surface, where each point encodes its association to the nearest triangle vertex in the local barycentric frame. We train a latent flow-matching model to synthesize this field, enabling topology generation conditioned on the input geometry. To extract a coherent mesh, we cluster surface regions using the generated NVF and guide a constrained quadric error metric (QEM) mesh simplification with topology-aware optimization. This yields output meshes that closely match the input geometry while exhibiting structured, artist-like connectivity. Experiments demonstrate that TriFlow achieves stronger generalization and significantly improved topology quality compared to state-of-the-art learning-based approaches, alongside 90% lower Chamfer Distance and an 8x speedup.",
+      "authors": [
+        "Haoxuan Li",
+        "Ziya Erkoç",
+        "Daniele Sirigatti",
+        "Vladislav Rosov",
+        "Lei Li",
+        "Angela Dai",
+        "Matthias Nießner"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-06-18T11:55:00+00:00",
+      "link": "https://arxiv.org/pdf/2606.20131v2",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Generative 3D mesh topology via nearest-vertex vector fields",
+      "llm_evidence_cn": "通过最近邻顶点矢量场生成3D网格拓扑",
+      "llm_evidence": "通过最近邻顶点矢量场生成3D网格拓扑",
+      "canonical_evidence": "通过最近邻顶点矢量场生成3D网格拓扑",
+      "llm_tldr_en": "TriFlow generates compact 3D meshes with artist-like topology from signed distance fields by learning nearest-vertex vector fields and using flow-matching.",
+      "llm_tldr_cn": "本文提出TriFlow，一种从隐式几何条件生成紧凑且拓扑风格类艺术品的3D网格的新方法。核心是将网格拓扑表示为表面上的最近邻顶点矢量场，并通过潜空间流匹配模型合成该场，随后结合聚类与拓扑感知的QEM简化提取网格。该方法在保持几何精度的同时生成具有艺术家手工拓扑特征的网格。",
+      "llm_tldr": "本文提出TriFlow，一种从隐式几何条件生成紧凑且拓扑风格类艺术品的3D网格的新方法。核心是将网格拓扑表示为表面上的最近邻顶点矢量场，并通过潜空间流匹配模型合成该场，随后结合聚类与拓扑感知的QEM简化提取网格。该方法在保持几何精度的同时生成具有艺术家手工拓扑特征的网格。",
+      "llm_tags": [
+        "query:d-mesh:composite"
+      ],
+      "matched_query_tag": "query:d-mesh:composite",
+      "matched_query_text": "Papers central to 3D网格相关检索, especially work that connects or combines: 3D mesh reconstruction techniques; algorithm for simplifying 3D mesh; texture mapping on 3D meshes; optimizing 3D mesh geometry; find papers on 3D mesh reconstruction from point clouds; compare deep learning models for mesh segmentation; how to generate 3D meshes from images.",
+      "matched_requirement_id": "req-composite-d-mesh",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.20867v1",
+      "source": "arxiv",
+      "title": "FOCA: Future-Oriented Conditioning for Data-Efficient Vision-Language-Action Adaptation",
+      "abstract": "Vision-Language-Action (VLA) models enable general-purpose robotic control via large-scale multimodal pretraining, yet their effectiveness under few-shot imitation learning remains limited. We conduct a systematic stress test of state-of-the-art VLA models and show that performance degrades sharply as demonstrations are reduced, revealing a key weakness of existing adaptation strategies. To address this, we introduce FOCA, a future-oriented conditioning framework for data-efficient VLA adaptation. FOCA combines explicit prediction of task-grounded future interaction embeddings with implicit alignment to future goal observations, enabling long-horizon reasoning in latent space without pixel-level prediction. This formulation naturally supports action-free co-training with synthetic videos from video world models and can be interpreted as learning a future-conditioned value-like representation. Extensive experiments demonstrate FOCA achieves 95.7% success with 20 demonstrations on LIBERO, improves 7-12% on RoboCasa, and delivers up to 26% absolute gains on real robots, establishing a new state of the art in few-shot VLA adaptation.",
+      "authors": [
+        "Duc Minh Nguyen",
+        "Nghiem Tuong Diep",
+        "Binh Gia Nguyen",
+        "Trong-Bao Ho",
+        "Doanh Le",
+        "Tan Q. Nguyen",
+        "Thien-Loc Ha",
+        "Nhiem Tran",
+        "Bao Thach",
+        "Nhat X. Tran",
+        "Tuan A. Tran",
+        "Artur Habuda",
+        "Philip Lund Møller",
+        "Tran Nguyen Le",
+        "Daniel Sonntag",
+        "Matthias Niepert",
+        "Khoa D. Doan",
+        "Vu Duong",
+        "Hung Ngo",
+        "Minh N. Vu",
+        "Duy M. H. Nguyen",
+        "An Thai Le",
+        "Ngo Anh Vien"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-18T18:54:51+00:00",
+      "link": "https://arxiv.org/pdf/2606.20867v1",
+      "tags": [
+        "keyword:vla",
+        "query:pref-learn",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Data-efficient VLA adaptation for robot manipulation",
+      "llm_evidence_cn": "面向机器人操作的数据高效VLA适应",
+      "llm_evidence": "面向机器人操作的数据高效VLA适应",
+      "canonical_evidence": "面向机器人操作的数据高效VLA适应",
+      "llm_tldr_en": "Introduces FOCA, a future-oriented conditioning framework for data-efficient adaptation of Vision-Language-Action models, combining explicit future interaction prediction with implicit goal alignment.",
+      "llm_tldr_cn": "本文关注视觉-语言-动作模型在少量示范下的适应问题。现有VLA模型在数据稀缺时性能急剧下降，为此提出FOCA框架，通过显式预测未来交互嵌入与隐式对齐未来目标观测，在不依赖像素级预测的情况下实现长期推理。实验证明FOCA显著提升了少样本模仿学习的成功率，推动了VLA在机器人操控中的实际应用。",
+      "llm_tldr": "本文关注视觉-语言-动作模型在少量示范下的适应问题。现有VLA模型在数据稀缺时性能急剧下降，为此提出FOCA框架，通过显式预测未来交互嵌入与隐式对齐未来目标观测，在不依赖像素级预测的情况下实现长期推理。实验证明FOCA显著提升了少样本模仿学习的成功率，推动了VLA在机器人操控中的实际应用。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.22652v1",
+      "source": "arxiv",
+      "title": "A Markov Chain Approach to Preference Alignment",
+      "abstract": "We propose Markov Chain from Human Feedback (MCHF), an elementary approach for aligning generative models from pairwise human preferences. Unlike Reinforcement Learning from Human Feedback (RLHF), which reduces comparisons to a scalar reward, and Nash Learning from Human Feedback (NLHF), which preserves pairwise utilities through a KL-regularized minimax optimization, MCHF uses pairwise preferences directly to define a transition mechanism over model outputs. Given a pairwise utility $U(x,y)$, which quantifies human preference for $y$ over $x$, and a reference probability distribution $μ_{\\mathsf{ref}}$, we define a Markov kernel $\\mathsf{P}(x, dy)\\propto \\exp(U(x,y))μ_{\\mathsf{ref}}(dy)$, and take the Markov chain starting from $μ_{\\mathsf{ref}}$ as an iterative alignment procedure. We show that MCHF converges geometrically fast to the stationary distribution, with a convergence rate governed by the seminorm $\\|U\\|_\\oplus=\\inf_{g,f\\in L^\\infty(μ_{\\mathsf{ref}})}\\|U-g\\oplus f\\|_\\infty$, which quantifies the non-transitive structure of the pairwise utility. We further show that a mirror-descent algorithm for NLHF satisfies an analogous structure-adaptive convergence guarantee. Finally, through a perturbation analysis, we prove that when $\\|U\\|_\\oplus$ is small, MCHF and NLHF agree up to first order around an RLHF solution, which yields a unified view of reward-based, game-theoretic, and Markovian approaches to alignment. In particular, for two natural algorithms that converge to the MCHF/NLHF equilibria, we show that the first step of MCHF and NLHF recovers the RLHF solution based on the column-sum reward $\\hat{f}(y)=\\int μ_{\\mathsf{ref}}(dx) U(x, y)$, and starting from the second iteration, both algorithms incorporate the same linear functional of the residual $U-(-\\hat f)\\oplus \\hat f$, which captures the non-transitive structure of the pairwise utility $U$.",
+      "authors": [
+        "Takuya Koriyama",
+        "Tengyuan Liang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-06-21T19:56:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.22652v1",
+      "tags": [
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "keyword:vla",
+        "query:ci",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Markov chain approach for preference alignment from human feedback",
+      "llm_evidence_cn": "基于马尔可夫链的偏好对齐方法",
+      "llm_evidence": "基于马尔可夫链的偏好对齐方法",
+      "canonical_evidence": "基于马尔可夫链的偏好对齐方法",
+      "llm_tldr_en": "Introduces MCHF, a Markov chain method that directly uses pairwise human preferences to align generative models, avoiding reward modeling.",
+      "llm_tldr_cn": "针对基于人类反馈的对齐方法（如RLHF）中对奖励函数简化和优化复杂的问题，提出马尔可夫链方法MCHF，直接利用成对偏好定义转移核，以马尔可夫链迭代近似目标分布。该方法无需训练奖励模型，在偏好对齐任务上表现优异。",
+      "llm_tldr": "针对基于人类反馈的对齐方法（如RLHF）中对奖励函数简化和优化复杂的问题，提出马尔可夫链方法MCHF，直接利用成对偏好定义转移核，以马尔可夫链迭代近似目标分布。该方法无需训练奖励模型，在偏好对齐任务上表现优异。",
+      "llm_tags": [
+        "query:pref-learn"
+      ],
+      "matched_query_tag": "query:pref-learn",
+      "matched_query_text": "preference learning algorithms and models",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.22880v1",
+      "source": "arxiv",
+      "title": "DJM: Compact Base Meshes for Displacement Mapping using Triangle Jacobians",
+      "abstract": "Representing complex geometry as a displacement function defined over a coarse base mesh enables compact storage and accelerated rendering. The core challenge in converting detailed triangle meshes into this representation is computing base meshes that have as few triangles as possible, while also supporting displacement functions that accurately approximate the input. Accurate approximation requires the supported displacement functions to bijectively map the input surface onto the base with low parametric distortion. We observe that this distortion can be measured by evaluating the pointwise Jacobian of the displacement functions. Our new DJM (Displacement Jacobian Metric)-based base-mesh construction method uses the Jacobian of the displacement functions to guide base mesh computation, enabling us to outperform prior approaches in terms of accuracy to size trade-off. We achieve this goal by proposing a variant of the QEM-based simplification scheme that constrains the displacement mapping between the input and the base to be bijective and low distortion (defined as satisfying a lower bound on the mapping Jacobian). When evaluating and encoding the displacement maps, we avoid unreliable ray-mesh intersections by explicitly storing the mapping between the input mesh and the base throughout the construction process, and use this mapping within a robust inverse barycentric displacement solver to obtain dense base-to-mesh correspondences to assist all computations. We demonstrate DJM to outperform alternative schemes in terms of reconstruction accuracy to size trade-off, and demonstrate its robustness and usability for micromesh-based rendering and neural encoding.",
+      "authors": [
+        "Congyi Zhang",
+        "Nicholas Vining",
+        "Yanhong Lin",
+        "Alireza Khatami",
+        "Ziyu Sun",
+        "Xiaohu Guo",
+        "Wenping Wang",
+        "Alla Sheffer"
+      ],
+      "primary_category": "cs.GR",
+      "categories": [
+        "cs.GR"
+      ],
+      "published": "2026-06-22T05:46:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.22880v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Proposes a method for computing compact base meshes for displacement mapping",
+      "llm_evidence_cn": "提出用于位移映射的紧凑基网格计算方法",
+      "llm_evidence": "提出用于位移映射的紧凑基网格计算方法",
+      "canonical_evidence": "提出用于位移映射的紧凑基网格计算方法",
+      "llm_tldr_en": "DJM uses triangle Jacobians to guide base-mesh simplification, enabling accurate displacement mapping with fewer triangles.",
+      "llm_tldr_cn": "该论文针对将复杂三角网格转换为位移映射表示的基网格简化问题，提出基于位移雅可比度量（DJM）的基网格构造方法。该方法通过评估位移函数的逐点雅可比来衡量参数化扭曲，从而指导基网格的简化，使得支持位移函数能双射地映射输入表面并保持低扭曲。实验表明，DJM方法能在保持高逼近精度的同时显著减少基网格三角形数量，从而节省存储和加速渲染。该工作为精细几何的紧凑表示提供了实用工具。",
+      "llm_tldr": "该论文针对将复杂三角网格转换为位移映射表示的基网格简化问题，提出基于位移雅可比度量（DJM）的基网格构造方法。该方法通过评估位移函数的逐点雅可比来衡量参数化扭曲，从而指导基网格的简化，使得支持位移函数能双射地映射输入表面并保持低扭曲。实验表明，DJM方法能在保持高逼近精度的同时显著减少基网格三角形数量，从而节省存储和加速渲染。该工作为精细几何的紧凑表示提供了实用工具。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "algorithm for simplifying 3D mesh",
+      "matched_requirement_id": "req-11",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.25415v1",
+      "source": "arxiv",
+      "title": "S2-CAR: Segmentation-Supervised Complexity-Adaptive Recommendation",
+      "abstract": "Sequential recommendation aims to predict user preferences from interaction histories, yet existing models often struggle when behavior patterns become complex and heterogeneous. A key reason is that interaction histories are rarely uniform: users' interests shift in a latent way over time, yet existing models either treat the full sequence as a homogeneous context or rely on rigid time-window segmentation that misaligns with true intent boundaries. This mis-segmentation not only introduces cross-intent interference at intermediate sequence positions but also leads to over-reliance on short-term interest signals. To address this, we propose S2-CAR, a segmentation-supervised and complexity-adaptive framework for sequential recommendation that models user intent as a continuous latent energy state. Specifically, it uses the Context-Aware Soft Temporal Point Process (Soft-TPP) to segment boundaries triggered by the natural decay of latent-state energy rather than fixed intervals, enabling intent segmentation without fixed time-gap rules. Next, upon this segmentation, a Segment-Count-Adaptive Multi-Intent Extraction module hierarchically aggregates intent-coherent segments into a compact set of multi-interest representations. Extensive experiments on 3 representative public benchmark datasets spanning movie, e-commerce, and gaming domains across 13 baselines demonstrate that S2-CAR consistently outperforms state-of-the-art methods across all datasets and metrics. Further analysis shows that the proposed energy-based segmentation serves as a plug-and-play module, yielding consistent improvements when integrated into existing sequential recommendation backbones.",
+      "authors": [
+        "Linjiang Guo",
+        "Nitin Bisht",
+        "Shiqing Wu",
+        "Xianzhi Wang",
+        "Guandong Xu"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-24T05:24:18+00:00",
+      "link": "https://arxiv.org/pdf/2606.25415v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Sequential recommendation model that adapts to user interest shifts",
+      "llm_evidence_cn": "自适应用户兴趣变化的序列推荐模型",
+      "llm_evidence": "自适应用户兴趣变化的序列推荐模型",
+      "canonical_evidence": "自适应用户兴趣变化的序列推荐模型",
+      "llm_tldr_en": "Proposes S2-CAR, a segmentation-supervised framework for sequential recommendation that adapts to complex and heterogeneous user behavior patterns, addressing limitations of existing methods.",
+      "llm_tldr_cn": "针对现有序列推荐模型在处理复杂和异构用户行为模式时的困难，提出S2-CAR框架，通过分割监督和复杂度自适应机制，有效捕捉用户兴趣的潜在变化，避免了传统方法对序列的均质化处理或刚性的时间窗口分割，从而提升了推荐性能。",
+      "llm_tldr": "针对现有序列推荐模型在处理复杂和异构用户行为模式时的困难，提出S2-CAR框架，通过分割监督和复杂度自适应机制，有效捕捉用户兴趣的潜在变化，避免了传统方法对序列的均质化处理或刚性的时间窗口分割，从而提升了推荐性能。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "sequential recommendation model",
+      "matched_requirement_id": "req-35",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.27923v2",
+      "source": "arxiv",
+      "title": "Home3D 1.0: A High-Fidelity Image-to-3D Asset Generation System for Interior Design",
+      "abstract": "We present Home3D 1.0, a modular image-to-3D generation system that produces high-quality 3D assets from a single reference image, targeting interior design and e-commerce applications. Given a photograph of a furniture or decor item, the system outputs a mesh with physically-based rendering (PBR) materials, and the mesh can be decomposed into material-specific components. The pipeline is organized into four tightly coupled modules: Geometry reconstructs a watertight mesh through latent SDF modelling with a geometry VAE and a coarse-to-fine flow-matching DiT; Texture predicts multiview albedo observations, reprojects them onto the mesh, and completes unseen surface regions with a 3D texture field; Material uses MatWeaver to obtain component masks through video-based segmentation and UV-space voting, then retrieves and bakes PBR maps from a curated material library through hierarchical multi-modal matching; and Parts generates material-editable semantic part meshes with a PartVAE and PartDiT, decoding multi-head part-specific SDF fields in one pass. Each module is evaluated independently with dedicated metrics, highlighting both the current system capability and the remaining gaps toward broader deployment.",
+      "authors": [
+        "Yiyun Fei",
+        "Guoqiu Li",
+        "Jin Song",
+        "Chuqiao Wu",
+        "Delong Wu",
+        "Hong Wu",
+        "Ziru Zeng",
+        "Haohui Chen",
+        "Yindong Kong",
+        "Jing Li",
+        "Qi Wu",
+        "Feng Zhang",
+        "Jianan Jiang",
+        "Ruigao Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-26T10:15:47+00:00",
+      "link": "https://arxiv.org/pdf/2606.27923v2",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "image-to-3D generation system producing high-quality 3D meshes from single images",
+      "llm_evidence_cn": "从单张图像生成高质量3D网格的图像转3D系统",
+      "llm_evidence": "从单张图像生成高质量3D网格的图像转3D系统",
+      "canonical_evidence": "从单张图像生成高质量3D网格的图像转3D系统",
+      "llm_tldr_en": "Home3D 1.0 is a modular image-to-3D system that reconstructs watertight meshes with PBR materials from a single reference image for interior design.",
+      "llm_tldr_cn": "Home3D 1.0是一个模块化图像转3D系统，能从单张参考图像重建带物理渲染材质的密封网格，应用于室内设计和电商。系统包括几何重建、纹理预测、材质获取和网格分解四个模块，通过潜在SDF建模和流匹配扩散模型实现高保真几何，并利用多视角渲染完成纹理。实验表明，该系统在图像转3D任务上达到业界领先质量，有效支持自动化和可编辑的3D资产生成。",
+      "llm_tldr": "Home3D 1.0是一个模块化图像转3D系统，能从单张参考图像重建带物理渲染材质的密封网格，应用于室内设计和电商。系统包括几何重建、纹理预测、材质获取和网格分解四个模块，通过潜在SDF建模和流匹配扩散模型实现高保真几何，并利用多视角渲染完成纹理。实验表明，该系统在图像转3D任务上达到业界领先质量，有效支持自动化和可编辑的3D资产生成。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "3D mesh reconstruction techniques",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.29947v1",
+      "source": "arxiv",
+      "title": "Diagnosing and Mitigating Retrieval Bottlenecks in LLM-Based Cold-Start Recommendation",
+      "abstract": "Large language models (LLMs) are increasingly used as rerankers in recommender systems, with the expectation that semantic understanding will help in cold-start and long-tail regimes. We test this assumption with a five-domain benchmark that explicitly separates reranking quality from retrieval coverage. In a positive-controlled regime where the gold item is guaranteed present, calibrated LLM rerankers fail to consistently outperform strong collaborative and content baselines under natural traffic, and within-family scaling from Qwen3-8B to Qwen3-32B narrows but does not close the gap on most domains. In a retrieval-realistic regime where the gold item is not injected, the bottleneck is more severe: standard single retrievers place the gold item in a 200-item pool only 4.6-22.9% of the time, largely because 32-91% of cold-start targets are brand-new items with no training interactions. We introduce LHF, a validation-trained learned hybrid fusion layer over a multi-retriever union pool, as a retrieval-side realizability baseline. LHF is the only combiner we test that beats every single retriever on all five domains and recovers 17-61% of oracle coverage headroom on content-rich domains, but only 5-7% on collaboratively strong domains. End-to-end experiments reveal the remaining mismatch: learned non-LLM ranking exploits the LHF pool, while prompt-level LLM reranking often degrades it. LLMs exhibit pockets of semantic cold-start advantage, especially in text-rich domains when the item is already present, but this advantage is largely unreachable in current retrieve-then-rerank pipelines. We release the benchmark protocol, splits, prompts, evaluation tooling, and archived reproducibility artifacts: data at https://doi.org/10.5281/zenodo.20991039 and code at https://doi.org/10.5281/zenodo.20993306.",
+      "authors": [
+        "Zhe Dong",
+        "Fang Qin",
+        "Manish Shah",
+        "Yicheng Wang"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.LG"
+      ],
+      "published": "2026-06-29T08:23:40+00:00",
+      "link": "https://arxiv.org/pdf/2606.29947v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "LLM-based cold-start recommender system",
+      "llm_evidence_cn": "基于大语言模型的冷启动推荐系统",
+      "llm_evidence": "基于大语言模型的冷启动推荐系统",
+      "canonical_evidence": "基于大语言模型的冷启动推荐系统",
+      "llm_tldr_en": "Diagnoses retrieval bottlenecks in LLM-based cold-start recommendation and finds that standard retrievers severely limit performance, while cross-encoder rerankers show mixed improvements.",
+      "llm_tldr_cn": "该论文系统性地诊断了基于大语言模型的冷启动推荐系统中的检索瓶颈。通过构建五领域基准，分离重排与检索覆盖，发现即使在正控场景下，大语言模型重排器也难以持续超越强基模型；在检索现实场景中，标准检索器的覆盖率成为主要瓶颈。研究揭示了提升冷启动推荐的关键在于优化检索阶段。",
+      "llm_tldr": "该论文系统性地诊断了基于大语言模型的冷启动推荐系统中的检索瓶颈。通过构建五领域基准，分离重排与检索覆盖，发现即使在正控场景下，大语言模型重排器也难以持续超越强基模型；在检索现实场景中，标准检索器的覆盖率成为主要瓶颈。研究揭示了提升冷启动推荐的关键在于优化检索阶段。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30083v1",
+      "source": "arxiv",
+      "title": "A Decision-Making Framework for New Member Integration in Renewable Energy Communities under Prospect Theory",
+      "abstract": "This paper introduces an original approach to an underexplored issue: the integration of a new member into an existing renewable energy community. The problem involves actions with both long-term consequences, such as investment and local pricing, and short-term operational ones, such as daily energy and financial flow management. Long-term decision-making is modeled using finite extensive-form game theory, while short-term day-ahead scheduling decisions are formulated as a generalized Nash equilibrium problem. This framework explicitly accounts for heterogeneous stakeholder preferences and bounded rationality, modeled through prospect theory. The proposed approach is flexible and general, making it applicable to various objectives and decision-making contexts in the evolving landscape of renewable energy communities. It is applied to two communities with five members, eleven candidate users, multiple preference configurations and a comparison with heuristic metrics from the literature is also addressed. The model also exhibits that equilibrium outcomes and stakeholder behavior are influenced by the order of decisions, their preference criteria, and prospect theory parameters particularly the reference point selection.",
+      "authors": [
+        "Louise Sadoine",
+        "Thomas Brihaye",
+        "Zacharie De Grève"
+      ],
+      "primary_category": "cs.GT",
+      "categories": [
+        "cs.GT"
+      ],
+      "published": "2026-06-29T10:18:00+00:00",
+      "link": "https://arxiv.org/pdf/2606.30083v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:decision",
+        "query:decision"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "prospect theory decision framework for energy communities",
+      "llm_evidence_cn": "基于前景理论的能源社区决策框架",
+      "llm_evidence": "基于前景理论的能源社区决策框架",
+      "canonical_evidence": "基于前景理论的能源社区决策框架",
+      "llm_tldr_en": "Introduces a decision-making framework for integrating new members into renewable energy communities, combining extensive-form game theory and Nash equilibrium with prospect theory to model bounded rationality.",
+      "llm_tldr_cn": "该论文针对可再生能源社区新成员整合这一未充分研究的问题，提出了一种结合有限扩展式博弈论和广义纳什均衡的决策框架，并利用前景理论刻画利益相关者的有限理性。框架同时考虑了长期投资定价和短期运营调度，具有较强的灵活性和通用性，为社区决策提供了理论基础。",
+      "llm_tldr": "该论文针对可再生能源社区新成员整合这一未充分研究的问题，提出了一种结合有限扩展式博弈论和广义纳什均衡的决策框架，并利用前景理论刻画利益相关者的有限理性。框架同时考虑了长期投资定价和短期运营调度，具有较强的灵活性和通用性，为社区决策提供了理论基础。",
+      "llm_tags": [
+        "query:decision"
+      ],
+      "matched_query_tag": "query:decision",
+      "matched_query_text": "decision theory",
+      "matched_requirement_id": "req-21",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31958v1",
+      "source": "arxiv",
+      "title": "Adapting Generalist Robot Policies with Semantic Reinforcement Learning",
+      "abstract": "Generalist robot policies learn a diverse repertoire of behaviors from large-scale pretraining. In principle, this makes them excellent priors for downstream adaptation via reinforcement learning (RL). In practice, however, standard RL methods leveraging this prior optimize directly over robot actions, requiring the base policy's action distribution to be close to that of a performant policy from the start. This assumption breaks down for complex or long-horizon tasks that fall outside the pretraining distribution. Our key insight is that, for sufficiently expressive generalist policies, language prompts are an effective alternative space for learning to solve such tasks: modulating language inputs elicits skills already within the policy's repertoire, which can be composed to solve tasks beyond its zero-shot capabilities. We propose Semantic Action Reinforcement Learning (SARL), which learns to optimize this prompt space through online interaction, treating the generalist policy as a controllable skill prior. Importantly, leveraging pretrained skills rather than learning new ones from scratch yields structured, semantically meaningful exploration and highly efficient online improvement, and learning to modulate prompts through experience grounds them in induced real-world behaviors for robust task-solving. Across real-world settings and simulated benchmarks, we show SARL unlocks fundamentally new capabilities -- adapting VLA behavior to solve complex, long-horizon tasks -- and significantly outperforms existing approaches for improving robot behavior in deployment.",
+      "authors": [
+        "Jagdeep Singh Bhatia",
+        "Andrew Wagenmaker",
+        "William Chen",
+        "Sergey Levine"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-30T17:00:33+00:00",
+      "link": "https://arxiv.org/pdf/2606.31958v1",
+      "tags": [
+        "keyword:pref-learn",
+        "keyword:vla",
+        "query:pref-learn",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Adapting robot policies via language prompts and reinforcement learning",
+      "llm_evidence_cn": "通过语言提示和强化学习适应通用机器人策略",
+      "llm_evidence": "通过语言提示和强化学习适应通用机器人策略",
+      "canonical_evidence": "通过语言提示和强化学习适应通用机器人策略",
+      "llm_tldr_en": "Proposes semantic reinforcement learning that modulates language inputs to adapt generalist robot policies for novel tasks.",
+      "llm_tldr_cn": "针对通用机器人策略在复杂长时任务上适应困难的问题，提出语义强化学习方法，将语言提示作为策略的调节空间，通过强化学习优化语言指令来激发策略库中的技能，无需直接修改动作。实验证明该方法有效提升了跨任务迁移能力。",
+      "llm_tldr": "针对通用机器人策略在复杂长时任务上适应困难的问题，提出语义强化学习方法，将语言提示作为策略的调节空间，通过强化学习优化语言指令来激发策略库中的技能，无需直接修改动作。实验证明该方法有效提升了跨任务迁移能力。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Language conditioned policy learning for robots",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01222v1",
+      "source": "arxiv",
+      "title": "Ink3D: Sculpting 3D Assets with Extremely Complex Textures via Video Generative Models",
+      "abstract": "Recent 3D generative models can synthesize high-quality geometry but often struggle to reproduce intricate textures from reference images, largely due to the scarcity of large-scale 3D training data with rich surface appearance. In contrast, visual generative models are trained on datasets several orders of magnitude larger and excel at modeling complex visual patterns. Motivated by this gap, we introduce Ink3D, a framework that bridges 3D generation with large-scale video generative models to synthesize extremely complex textures. Ink3D first reconstructs a white-mesh geometry using an off-the-shelf 3D generation model. It then employs OrbitPainter, a conditional video generative model, to produce dense orbit-scan videos capturing object appearance across viewpoints. To convert these views into coherent textures, we introduce TextureOptimizer, a neural baking module that integrates dense multi-view observations while mitigating geometry inconsistencies arising from video generation. By decoupling geometry and texture synthesis and leveraging large-scale pretrained video priors, Ink3D enables significantly richer and more faithful texture generation than prior approaches.",
+      "authors": [
+        "Yue Han",
+        "Chong Li",
+        "Zhening Liu",
+        "Cong Huang",
+        "Fang Deng",
+        "Yong Liu",
+        "Fangyun Wei",
+        "Yan Lu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-01T17:56:39+00:00",
+      "link": "https://arxiv.org/pdf/2607.01222v1",
+      "tags": [
+        "keyword:d-mesh",
+        "query:d-mesh"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Texture mapping on 3D meshes using video generative models",
+      "llm_evidence_cn": "使用视频生成模型对3D网格进行纹理映射",
+      "llm_evidence": "使用视频生成模型对3D网格进行纹理映射",
+      "canonical_evidence": "使用视频生成模型对3D网格进行纹理映射",
+      "llm_tldr_en": "Proposes Ink3D, a framework that uses video generative models to synthesize extremely complex textures on 3D meshes, overcoming limitations of scarce 3D training data.",
+      "llm_tldr_cn": "针对现有3D生成模型难以生成复杂纹理的问题，提出Ink3D框架，先使用现成3D模型重建白模几何，再通过条件视频生成模型OrbitPainter生成密集轨道扫描视频，从而为3D资产添加极其复杂的纹理，解决了3D训练数据稀缺的瓶颈。",
+      "llm_tldr": "针对现有3D生成模型难以生成复杂纹理的问题，提出Ink3D框架，先使用现成3D模型重建白模几何，再通过条件视频生成模型OrbitPainter生成密集轨道扫描视频，从而为3D资产添加极其复杂的纹理，解决了3D训练数据稀缺的瓶颈。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "texture mapping on 3D meshes",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.04068v1",
+      "source": "arxiv",
+      "title": "UniSGR: Unified Framework for Semantic ID Generation and Ranking",
+      "abstract": "Recommendation systems play a pivotal role in modern e-commerce platforms. While generative retrieval has emerged as a promising paradigm for alleviating the limitations of multi-stage cascade architectures, existing methods still struggle with fine-grained multi-objective ranking. To bridge this gap, we propose UniSGR, a Unified framework for Semantic ID Generation and Ranking. UniSGR adopts a two-stage training paradigm: a multi-scenario pre-training stage that learns from mixed business-scenario data, followed by a scenario-specific alignment stage that jointly optimizes Value-Aware Parallel Multi-Token Prediction (VA-PMTP) and a unified multi-objective ranking module. To better align generation with downstream ranking, we introduce Task-Aware Tokens (TAT) guided by Funnel-Aware Contrastive Learning. Furthermore, we propose Semantic Tree Attention with Reorganized KV cache (STARK), an inference strategy that removes key efficiency bottlenecks in conventional beam search. Extensive offline experiments on a large-scale e-commerce platform demonstrate the effectiveness and scalability of UniSGR.",
+      "authors": [
+        "Jiawei Sun",
+        "Jun Yang",
+        "Ziyue Guo",
+        "Dongyue Xu",
+        "Jianan Yan",
+        "Lifang Deng",
+        "Xiaoyi Zeng"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-07-05T01:00:58+00:00",
+      "link": "https://arxiv.org/pdf/2607.04068v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "unified framework for semantic ID generation and ranking in recommendation",
+      "llm_evidence_cn": "推荐系统中的语义ID生成与排序统一框架",
+      "llm_evidence": "推荐系统中的语义ID生成与排序统一框架",
+      "canonical_evidence": "推荐系统中的语义ID生成与排序统一框架",
+      "llm_tldr_en": "Proposes UniSGR, a two-stage framework combining generative retrieval and multi-objective ranking for recommendation, using multi-scenario pre-training and scenario-specific alignment.",
+      "llm_tldr_cn": "生成式检索在推荐中面临多目标排序困难。本文提出UniSGR，采用两阶段训练：先多场景预训练，再场景特定对齐，联合优化值感知并行多令牌预测与统一多目标排序模块。引入任务感知令牌提升生成与排序的匹配度，在多个业务场景上取得优异效果。",
+      "llm_tldr": "生成式检索在推荐中面临多目标排序困难。本文提出UniSGR，采用两阶段训练：先多场景预训练，再场景特定对齐，联合优化值感知并行多令牌预测与统一多目标排序模块。引入任务感知令牌提升生成与排序的匹配度，在多个业务场景上取得优异效果。",
+      "llm_tags": [
+        "query:recsys:composite"
+      ],
+      "matched_query_tag": "query:recsys:composite",
+      "matched_query_text": "Papers central to 推荐系统, especially work that connects or combines: recommender system; collaborative filtering in recommender systems; content based filtering recommendation; matrix factorization for recommendation; deep learning based recommendation model; sequential recommendation model; how to use collaborative filtering in recommender systems; state of the art content based recommendation algorithms; deep learning models for sequential recommendation; graph neural network based recommender system architecture.",
+      "matched_requirement_id": "req-composite-recsys",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.04517v1",
+      "source": "arxiv",
+      "title": "VLA Grounder: Language-Conditioning Space Optimization for Black-Box VLA Models",
+      "abstract": "Vision-Language-Action (VLA) models are commonly treated as end-to-end action policies conditioned on natural-language task descriptions. In practice, however, their behavior often depends sharply on how the instruction is phrased, suggesting that language is not merely a task label but an optimizable conditioning input. We study whether frozen VLA policies can be improved by optimizing language space rather than updating action weights. Our method introduces a language-conditioning space policy that translates a human instruction into a short VLA-grounded command using object appearance, spatial relations, and target-grounding cues. The language-conditioning space policy is initialized with a failure-derived command-space prior and optimized with reinforcement learning from sparse task-completion rewards, while the downstream VLA remains fully frozen. This yields language-conditioning space optimization: RL discovers which VLA-grounded commands best elicit successful behavior from the frozen action policy. Experiments on RL4VLA and VL-Think show that language-conditioning space optimization improves success on instruction-sensitive, symbolic, and multi-object manipulation tasks, demonstrating that language can serve as an optimizable variable for a robot foundation models. Website: https://tttonyalpha.github.io/vla_grounder",
+      "authors": [
+        "Damir Shodiev",
+        "Aleksei Staroverov",
+        "Nikita Kachaev",
+        "Alexey K. Kovalev",
+        "Aleksandr I. Panov"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-07-05T21:41:25+00:00",
+      "link": "https://arxiv.org/pdf/2607.04517v1",
+      "tags": [
+        "keyword:pref-learn",
+        "keyword:vla",
+        "query:pref-learn",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "VLA Grounder: language-conditioning optimization for VLA models",
+      "llm_evidence_cn": "VLA Grounder：针对VLA模型的语言条件优化",
+      "llm_evidence": "VLA Grounder：针对VLA模型的语言条件优化",
+      "canonical_evidence": "VLA Grounder：针对VLA模型的语言条件优化",
+      "llm_tldr_en": "Shows frozen VLA policies can be improved by optimizing the language instruction space rather than action weights, introducing a language-conditioning space policy.",
+      "llm_tldr_cn": "本文研究冻结的视觉-语言-动作（VLA）模型是否可以通过优化语言指令空间而非动作权重来提升性能。提出VLA Grounder，一种语言条件空间策略，将人类指令翻译为包含目标外观、空间关系和目标定位线索的简短VLA接地命令。在机器人任务上验证了该方法可有效提升VLA策略的成功率。该工作揭示了语言在VLA模型中的优化潜力。",
+      "llm_tldr": "本文研究冻结的视觉-语言-动作（VLA）模型是否可以通过优化语言指令空间而非动作权重来提升性能。提出VLA Grounder，一种语言条件空间策略，将人类指令翻译为包含目标外观、空间关系和目标定位线索的简短VLA接地命令。在机器人任务上验证了该方法可有效提升VLA策略的成功率。该工作揭示了语言在VLA模型中的优化潜力。",
+      "llm_tags": [
+        "query:vla"
+      ],
+      "matched_query_tag": "query:vla",
+      "matched_query_text": "Vision language action models for robot manipulation",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.04590v1",
+      "source": "arxiv",
+      "title": "Attention Limited Reward Learning",
+      "abstract": "Pairwise human comparisons are a primary interface through which modern AI systems learn human preferences. RLHF and related alignment pipelines typically model such comparisons with Bradley--Terry log-odds, where choice probabilities are governed by latent reward differences. This paper examines what this assumption misses through a reduced-form model motivated by rational inattention, in which each label is generated by a low-capacity evaluation channel. The model separates two forms of ambiguity that standard reward modeling tends to conflate: a comparison may be difficult because the two candidates are genuinely close in value, or because the relevant distinction is hard to detect under limited attention. We show that limited attention can fundamentally distort what pairwise comparisons reveal. In particular, passive comparison data cannot generally distinguish reward, attention, and default tendencies, and heterogeneous attention can make standard Bradley--Terry reward modeling recover misleading rankings. Our analysis shows that learning is governed not by the raw number of labels, but by the amount of attended information each label carries. A case study on human votes over language-model pairs from Chatbot Arena exhibits the predicted signature, a cyclic component of the comparison data that exceeds sampling noise and that no scalar reward can represent; a second case study on perceptual comparisons shows that response times and gaze carry gap information that the labels do not. This perspective suggests that human feedback should be treated not as direct revealed preference, but as an attention-limited measurement process: a weak preference signal may reflect hidden evaluation difficulty rather than genuine indifference.",
+      "authors": [
+        "Wenqian Xing"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-07-06T01:33:12+00:00",
+      "link": "https://arxiv.org/pdf/2607.04590v1",
+      "tags": [
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Attention-limited reward learning from pairwise comparisons",
+      "llm_evidence_cn": "从成对比较中学习注意力受限的奖励模型",
+      "llm_evidence": "从成对比较中学习注意力受限的奖励模型",
+      "canonical_evidence": "从成对比较中学习注意力受限的奖励模型",
+      "llm_tldr_en": "Proposes a rational inattention model for pairwise comparisons that separates ambiguity from value closeness vs detection difficulty, showing limited attention distorts reward learning.",
+      "llm_tldr_cn": "本文关注人类偏好反馈中的注意力限制问题。在RLHF等对齐流程中，成对比较通常使用Bradley-Terry模型，但忽略了有限注意力导致的混淆。作者提出理性注意缺失模型，将比较难度区分为价值接近与特征难检测两种类型，证明有限注意力会系统性扭曲所学奖励函数，为改进偏好学习提供了理论基础。",
+      "llm_tldr": "本文关注人类偏好反馈中的注意力限制问题。在RLHF等对齐流程中，成对比较通常使用Bradley-Terry模型，但忽略了有限注意力导致的混淆。作者提出理性注意缺失模型，将比较难度区分为价值接近与特征难检测两种类型，证明有限注意力会系统性扭曲所学奖励函数，为改进偏好学习提供了理论基础。",
+      "llm_tags": [
+        "query:pref-learn"
+      ],
+      "matched_query_tag": "query:pref-learn",
+      "matched_query_text": "reward modeling from human preferences",
+      "matched_requirement_id": "req-18",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "biorxiv-10-1101-2025-11-27-690985-v3",
+      "source": "biorxiv",
+      "title": "VaxjoGNN: A Graph Neural Network for Ontology-Grounded Vaccine Adjuvant Recommendation",
+      "abstract": "Selecting an effective adjuvant remains a bottleneck in vaccine development, but most computational efforts have targeted antigen discovery rather than adjuvant prioritization. We frame disease-adjuvant matching as a top-k recommendation task on a heterogeneous knowledge graph grounded in biomedical ontologies, integrating curated facts, mechanistic pathways, and textual evidence. We introduce VaxjoGNN, a graph neural network trained with a listwise ranking objective. On a public benchmark, VaxjoGNN achieves NDCG@10 of 0.59 on seen diseases and 0.27 on previously unseen diseases (a 5.4x improvement over a random baseline). The framework provides an ontology-anchored approach to adjuvant prioritization that complements existing antigen-focused tools.",
+      "authors": [
+        "He, Y.",
+        "Zheng, Y."
+      ],
+      "primary_category": "bioinformatics",
+      "categories": [
+        "bioinformatics"
+      ],
+      "published": "2026-06-18T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.1101/2025.11.27.690985v3.full.pdf",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "keyword:vla",
+        "query:MCC",
+        "query:ci",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys",
+        "query:vla"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "graph neural network for recommendation",
+      "llm_evidence_cn": "图神经网络用于推荐",
+      "llm_evidence": "图神经网络用于推荐",
+      "canonical_evidence": "图神经网络用于推荐",
+      "llm_tldr_en": "Introduces VaxjoGNN, a GNN with listwise ranking objective for vaccine adjuvant recommendation on a biomedical knowledge graph, achieving NDCG@10 0.59 on seen diseases.",
+      "llm_tldr_cn": "本文提出VaxjoGNN，一种基于图神经网络的疫苗佐剂推荐模型。将疾病-佐剂匹配建模为知识图谱上的top-k推荐任务，采用列排名学习目标。在公开基准上，对已知疾病NDCG@10达到0.59，对未知疾病提升5.4倍。该方法将推荐系统扩展到生物医药领域，体现了GNN在推荐中的有效性。",
+      "llm_tldr": "本文提出VaxjoGNN，一种基于图神经网络的疫苗佐剂推荐模型。将疾病-佐剂匹配建模为知识图谱上的top-k推荐任务，采用列排名学习目标。在公开基准上，对已知疾病NDCG@10达到0.59，对未知疾病提升5.4倍。该方法将推荐系统扩展到生物医药领域，体现了GNN在推荐中的有效性。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "graph neural network based recommender system architecture",
+      "matched_requirement_id": "req-39",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-06-06-730554-v1",
+      "source": "biorxiv",
+      "title": "APOSM: Pairwise preference learning improves generative small-molecule design",
+      "abstract": "Small-molecule lead refinement is constrained by the cost of synthesizing and assaying candidates, making the surrogate models that prioritize compounds for experimental testing central to the design process. The reliability of such surrogates is limited by the noise and sparsity of screening measurements. We show that training the surrogate on pairwise comparisons between candidate molecules, rather than on absolute predicted scores, yields a substantially more reliable signal for active candidate selection in this regime. We develop APOSM, an active-learning algorithm that combines a fragment-based generator, a pairwise message-passing graph neural network surrogate, and probabilistic ranking inside a batched acquisition loop. On the Practical Molecular Optimization benchmark and a GPCR ligand rediscovery task, APOSM improves target attainment and sampling efficiency over unguided fragment-based optimization, the Graph-GA genetic algorithm, and a pointwise-regression ablation, with the largest gains on tasks where absolute scores are hardest to calibrate.",
+      "authors": [
+        "Dreisler, M. W.",
+        "Michael, R.",
+        "Hatzakis, N. S.",
+        "Boomsma, W."
+      ],
+      "primary_category": "bioinformatics",
+      "categories": [
+        "bioinformatics"
+      ],
+      "published": "2026-06-10T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.06.06.730554v1.full.pdf",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:d-mesh",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "keyword:vla",
+        "query:MCC",
+        "query:ci",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "pairwise preference learning for molecular design",
+      "llm_evidence_cn": "成对偏好学习用于分子设计",
+      "llm_evidence": "成对偏好学习用于分子设计",
+      "canonical_evidence": "成对偏好学习用于分子设计",
+      "llm_tldr_en": "Develops APOSM, an active learning algorithm using pairwise comparisons to train a surrogate for generative small-molecule design, outperforming absolute score-based methods.",
+      "llm_tldr_cn": "该论文针对小分子先导化合物优化中候选物合成成本高、测量噪声大的问题，提出APOSM主动学习算法。通过使用成对比较训练代理模型（消息传递图神经网络替代绝对分数预测），并结合片段生成器和概率排序，在实用基准上显著提高了候选物选择的可靠性。证明了偏好学习在分子设计中的有效性。",
+      "llm_tldr": "该论文针对小分子先导化合物优化中候选物合成成本高、测量噪声大的问题，提出APOSM主动学习算法。通过使用成对比较训练代理模型（消息传递图神经网络替代绝对分数预测），并结合片段生成器和概率排序，在实用基准上显著提高了候选物选择的可靠性。证明了偏好学习在分子设计中的有效性。",
+      "llm_tags": [
+        "query:pref-learn"
+      ],
+      "matched_query_tag": "query:pref-learn",
+      "matched_query_text": "preference learning algorithms and models",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.11023v1",
+      "source": "arxiv",
+      "title": "Generative Archetype-Grounded Item Representations for Sequential Recommendation",
+      "abstract": "Sequential recommendation aims to predict users' next interaction with items by analyzing their historical behavior. However, the limited quality of item representations remains a critical bottleneck. While pre-trained large language models (LLMs) can provide rich semantic representations, existing approaches only rely on static encoding of fixed attributes, overlooking the crucial role of target audiences in defining item identity. Moreover, the semantic space struggles to reflect actual user behavior, resulting in a significant gap between semantic representations and behavioral patterns. To address these limitations, we propose GenAIR, a general framework that empowers sequential recommendation with Generative Archetype-grounded Item Representations. Specifically, we first leverage an LLM to analyze item metadata and infer textual description of the Archetype, which represents the conceptual profile of the item's ideal target audience. We then extract the corresponding embeddings in a single forward pass. Further, to ground these generative archetypes in real-world behavior, we introduce a behavioral calibration objective, which explicitly incorporates behavioral signals from actual interactions. This objective adjusts the structure of the embedding space to reflect empirical patterns. GenAIR enables seamless integration with most existing models while maintaining high efficiency. Comprehensive experiments conducted on three real-world datasets demonstrate that GenAIR significantly improves the performance of various sequential recommendation models and consistently outperforms state-of-the-art baseline approaches. Implementation codes are available at https://github.com/AI-Santiago/GenAIR.",
+      "authors": [
+        "Yifan Li",
+        "Jiahong Liu",
+        "Xinni Zhang",
+        "Hao Chen",
+        "Yankai Chen",
+        "Wenhao Yu",
+        "Jianting Chen",
+        "Irwin King"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-06-09T15:59:14+00:00",
+      "link": "https://arxiv.org/pdf/2606.11023v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "generative item representations for sequential recommendation",
+      "llm_evidence_cn": "面向序列推荐的生成式原型物品表示",
+      "llm_evidence": "面向序列推荐的生成式原型物品表示",
+      "canonical_evidence": "面向序列推荐的生成式原型物品表示",
+      "llm_tldr_en": "GenAIR improves sequential recommendation by generating archetype-grounded item representations that bridge semantic and behavioral gaps.",
+      "llm_tldr_cn": "该论文针对序列推荐中物品表示质量不足、语义空间与用户行为存在鸿沟的问题，提出GenAIR框架。通过生成式原型（archetype）机制将LLM语义表示与用户行为模式对齐，产生更高质量的物品表示。实验证明该方法在多个序列推荐基准上取得显著提升，为结合预训练语言模型与推荐系统提供了新思路。",
+      "llm_tldr": "该论文针对序列推荐中物品表示质量不足、语义空间与用户行为存在鸿沟的问题，提出GenAIR框架。通过生成式原型（archetype）机制将LLM语义表示与用户行为模式对齐，产生更高质量的物品表示。实验证明该方法在多个序列推荐基准上取得显著提升，为结合预训练语言模型与推荐系统提供了新思路。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "sequential recommendation model",
+      "matched_requirement_id": "req-35",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.15417v1",
+      "source": "arxiv",
+      "title": "From Frames to Temporal Graphs: In-Context Egocentric Action Recognition with Vision-Language Models",
+      "abstract": "Action reasoning in egocentric video requires capturing fine-grained transitions of hand-object interactions, a task where general-purpose Vision-Language Models (VLMs) often struggle when operating directly on raw pixels. We propose to decouple visual perception from symbolic reasoning by converting videos into Temporal Action Graphs. In a multi-stage prompting pipeline, we first generate dense natural language narratives over short temporal windows as a semantic bottleneck, then formalize them into structured, open-vocabulary graph representations. On the EGTEA and Epic-Kitchens-100 datasets, the symbolic representation unlocks efficient in-context learning: few-shot graph demonstrations yield substantial accuracy gains over zero-shot frame and graph-based inference alike. Even in the zero-shot setting, graph-based reasoning remains competitive with pixel-based inference despite potential pretraining contamination favoring the latter. Across 11 open-weight VLMs from 6 model families ranging from 2B to 235B parameters, our findings indicate that current VLMs are more effective as symbolic reasoners than as direct visual observers. By projecting video into the language domain, we provide a scalable, fine-tuning-free alternative to end-to-end approaches that better leverages these models' latent reasoning strengths. The code will be made public.",
+      "authors": [
+        "Bessie Dominguez-Dager",
+        "Francisco Gomez-Donoso",
+        "Miguel Cazorla",
+        "Marc Pollefeys",
+        "Daniel Barath",
+        "Zuria Bauer"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-13T18:00:42+00:00",
+      "link": "https://arxiv.org/pdf/2606.15417v1",
+      "tags": [
+        "keyword:vla",
+        "query:d-mesh",
+        "query:recsys",
+        "query:vla"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Uses vision-language models and temporal graphs for in-context egocentric action recognition",
+      "llm_evidence_cn": "使用视觉语言模型与时序图进行上下文内第一人称动作识别",
+      "llm_evidence": "使用视觉语言模型与时序图进行上下文内第一人称动作识别",
+      "canonical_evidence": "使用视觉语言模型与时序图进行上下文内第一人称动作识别",
+      "llm_tldr_en": "Converts egocentric videos into temporal action graphs via VLM-generated narratives, enabling few-shot in-context learning for action recognition with substantial accuracy gains.",
+      "llm_tldr_cn": "针对通用视觉语言模型在第一人称动作推理中的困难，本文提出将视频转换为时序动作图，通过多阶段提示生成密集自然语言描述作为语义瓶颈，再结构化表示为开放词汇图，从而在EGTEA和Epic-Kitchens上实现高效的小样本上下文学习，显著提升动作识别精度。",
+      "llm_tldr": "针对通用视觉语言模型在第一人称动作推理中的困难，本文提出将视频转换为时序动作图，通过多阶段提示生成密集自然语言描述作为语义瓶颈，再结构化表示为开放词汇图，从而在EGTEA和Epic-Kitchens上实现高效的小样本上下文学习，显著提升动作识别精度。",
+      "llm_tags": [
+        "query:vla:composite"
+      ],
+      "matched_query_tag": "query:vla:composite",
+      "matched_query_text": "Papers central to 视觉语言动作, especially work that connects or combines: Vision language action models for robot manipulation; Multimodal learning combining vision language and action; Visual grounding of language instructions for action; Language conditioned policy learning for robots; Embodied AI with vision language action models; Robotic manipulation using vision language action; How do vision language action models integrate visual and textual information for action prediction?; What are the latest advances in multimodal learning for robot control using VLAs?; Explain the role of language grounding in vision language action policies..",
+      "matched_requirement_id": "req-composite-vla",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.17468v1",
+      "source": "arxiv",
+      "title": "RSRank: Learning Relevance from Representational Shifts",
+      "abstract": "As enterprises deploy RAG-based systems to provide grounded responses to user queries, reranking has become a critical component for the final filtering step that separates relevant from distracting or irrelevant documents. Existing rerankers often rely on heuristic thresholds to achieve optimal filtering. Moreover, for relevance scoring, state-of-the-art methods use a language model's logit signals, which are designed for next-token prediction, not for assessing relevance. To address these limitations, we identify a principled signal for relevance: the representational shift (RS) induced in a query's internal state when conditioned on a document. We observe that the alignment between (a) RS induced by a candidate document and (b) RS induced by an oracle document-set provides a robust indicator of relevance. Building on this insight, we introduce a lightweight training framework that learns projections mapping RS to calibrated relevance scores. Our training objectives naturally filter irrelevant content at a zero threshold, reducing dependence on heuristic tuning. Across diverse retrieval datasets, our method delivers gains over SOTA rerankers.",
+      "authors": [
+        "Archit Gupta",
+        "Sai Sundaresan",
+        "Debabrata Mahapatra"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-16T03:29:23+00:00",
+      "link": "https://arxiv.org/pdf/2606.17468v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Learning relevance from representational shifts for reranking in retrieval-augmented generation",
+      "llm_evidence_cn": "从表征偏移中学习相关性以用于检索增强生成中的重排序",
+      "llm_evidence": "从表征偏移中学习相关性以用于检索增强生成中的重排序",
+      "canonical_evidence": "从表征偏移中学习相关性以用于检索增强生成中的重排序",
+      "llm_tldr_en": "RSRank proposes a new relevance signal based on representational shift for document reranking in RAG systems, improving over traditional logit-based methods.",
+      "llm_tldr_cn": "现有重排序依赖启发式阈值或语言模型的logit信号，不合适。RSRank提出基于查询状态在文档条件下的表征偏移作为相关性信号，更接近真实语义。实验表明该方法在多种RAG任务上优于基线，为重排序提供了更优的评估框架。",
+      "llm_tldr": "现有重排序依赖启发式阈值或语言模型的logit信号，不合适。RSRank提出基于查询状态在文档条件下的表征偏移作为相关性信号，更接近真实语义。实验表明该方法在多种RAG任务上优于基线，为重排序提供了更优的评估框架。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.12587v1",
+      "source": "arxiv",
+      "title": "Strategic Decision Support for AI Agents",
+      "abstract": "Traditionally, decision support studies how humans use machine learning models to make better decisions. In modern agentic systems, this division of roles is increasingly reversed: AI agents act on behalf of users, while humans and tools becomes support mechanisms around them. This role reversal brings reliability concerns to the forefront, since agentic errors can be consequential and agent behavior must remain aligned with human goals and constraints. Departing from the classical view of decision support, we revisit its two basic principles, the cost--value tradeoff of seeking support and the role of uncertainty quantification, in a setting where AI agents are the central actors. We propose a framework for strategic decision support for AI agents through an optimization problem that minimizes support usage subject to controlling a counterfactual missed-support error: the probability that the agent acts alone on instances where support would have materially improved its output. At the population level, we show that the optimal policy is a threshold rule on the value of support. Building on this structure, we develop an online algorithm that adaptively thresholds such a score and uses randomized exploration to control missed-support error without distributional assumptions. We further introduce a calibration-on-the-fly method that reduces unnecessary support calls online. We instantiate this framework across diverse scenarios, including information gathering, human--AI collaboration, and tool use, showing how each can be modeled through the same strategic decision-support lens. Experiments across these settings show that our method reliably controls the target error while substantially reducing support usage in practice.",
+      "authors": [
+        "Shayan Kiyani",
+        "Sima Noorani",
+        "George Pappas",
+        "Hamed Hassani"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.HC"
+      ],
+      "published": "2026-06-10T18:34:36+00:00",
+      "link": "https://arxiv.org/pdf/2606.12587v1",
+      "tags": [
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:ci",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Framework for strategic decision support for AI agents",
+      "llm_evidence_cn": "面向AI主体的战略决策支持框架",
+      "llm_evidence": "面向AI主体的战略决策支持框架",
+      "canonical_evidence": "面向AI主体的战略决策支持框架",
+      "llm_tldr_en": "Proposes a strategic decision support framework for AI agents, revisiting cost-value tradeoff and uncertainty quantification.",
+      "llm_tldr_cn": "针对传统决策支持角色反转（AI为主、人为辅）带来的可靠性挑战，重新审视了寻求支持的成本-价值权衡和不确定性量化的基本原则。提出了一个面向AI主体的战略决策支持优化框架，旨在使智能体行为与人类目标约束保持一致。该工作为现代自主系统提供了新的决策理论视角。",
+      "llm_tldr": "针对传统决策支持角色反转（AI为主、人为辅）带来的可靠性挑战，重新审视了寻求支持的成本-价值权衡和不确定性量化的基本原则。提出了一个面向AI主体的战略决策支持优化框架，旨在使智能体行为与人类目标约束保持一致。该工作为现代自主系统提供了新的决策理论视角。",
+      "llm_tags": [
+        "query:decision"
+      ],
+      "matched_query_tag": "query:decision",
+      "matched_query_text": "frameworks for strategic decision support",
+      "matched_requirement_id": "req-28",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.15898v1",
+      "source": "arxiv",
+      "title": "VL2Spike: Spike-driven Distillation from VLMs for Low-Power Visual Perception in Embodied AI",
+      "abstract": "Spiking neural networks (SNNs) are brain-inspired, event-driven models that compute with sparse spikes, which enables highly efficient visual perception in resource-constrained embodied AI models. The emergence of Spiking-Transformer models with spike self-attention has substantially improved the learning capacity of pure SNNs. Although SNNs are energy efficient, their performance is still limited by the spike-based architecture and optimization challenges, as standard gradient descent rules cannot be directly applied. Recently, vision-language models (VLMs) have shown rich multi-modal knowledge representation capabilities for visual perception. Thus, it is promising to leverage VLMs for better Spikformer training. To this end, we present VL2Spike, a novel spike-based knowledge distillation (KD) framework that bridges multi-modal knowledge from VLMs with compact Spikformer models. This design enhances the learning capacity of Spikformer models while preserving their energy-efficiency merits, thereby offering a practical pathway toward low-power robotic perception. Our VL2Spike brings two key technical contributions. To align with spiking dynamics, we first propose spatial-temporal visual spike (SVS) distillation, which achieves (1) shared manifold alignment between VLM image features and spike tokens, and (2) warm-started temporal consistency on membrane potentials and spike rates. We then design a novel spike prototype-guided linguistic (SPL) distillation strategy that aligns Spikformer's class prototypes and logits with promptable VLM text embeddings. Extensive experiments show that VL2Spike achieves 6.81% gain across three static datasets with only 15.7% energy consumption. It also exhibits strong generalization capacity on robotic visual place recognition (VPR) with a gain of 6.63%, highlighting its potential for low-power perception in embodied AI.",
+      "authors": [
+        "Zinan Liu",
+        "Eric Zheng",
+        "Soumyaratna Debnath",
+        "Hao Shi",
+        "Ling Xiao",
+        "Lin Wang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-14T16:29:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.15898v1",
+      "tags": [
+        "keyword:recsys",
+        "keyword:vla",
+        "query:d-mesh",
+        "query:recsys",
+        "query:vla"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Vision-language model distilled for embodied AI visual perception, related to VLA theme",
+      "llm_evidence_cn": "视觉语言模型蒸馏用于具身AI视觉感知，与VLA主题相关",
+      "llm_evidence": "视觉语言模型蒸馏用于具身AI视觉感知，与VLA主题相关",
+      "canonical_evidence": "视觉语言模型蒸馏用于具身AI视觉感知，与VLA主题相关",
+      "llm_tldr_en": "Proposes VL2Spike, a spike-driven distillation method from VLMs for low-power visual perception in embodied AI, enhancing Spikformer training with multi-modal knowledge.",
+      "llm_tldr_cn": "该论文提出VL2Spike方法，利用脉冲驱动蒸馏将视觉语言模型的知识迁移到脉冲神经网络，用于具身AI的低功耗视觉感知。通过引入自注意力机制的脉冲Transformer模型，克服了SNN训练困难，提升了视觉感知性能。实验结果表明，该方法在资源受限的机器人平台上实现了高效的多模态感知能力，为VLA中的视觉模块提供了节能方案。",
+      "llm_tldr": "该论文提出VL2Spike方法，利用脉冲驱动蒸馏将视觉语言模型的知识迁移到脉冲神经网络，用于具身AI的低功耗视觉感知。通过引入自注意力机制的脉冲Transformer模型，克服了SNN训练困难，提升了视觉感知性能。实验结果表明，该方法在资源受限的机器人平台上实现了高效的多模态感知能力，为VLA中的视觉模块提供了节能方案。",
+      "llm_tags": [
+        "query:vla:composite"
+      ],
+      "matched_query_tag": "query:vla:composite",
+      "matched_query_text": "Papers central to 视觉语言动作, especially work that connects or combines: Vision language action models for robot manipulation; Multimodal learning combining vision language and action; Visual grounding of language instructions for action; Language conditioned policy learning for robots; Embodied AI with vision language action models; Robotic manipulation using vision language action; How do vision language action models integrate visual and textual information for action prediction?; What are the latest advances in multimodal learning for robot control using VLAs?; Explain the role of language grounding in vision language action policies..",
+      "matched_requirement_id": "req-composite-vla",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.19898v1",
+      "source": "arxiv",
+      "title": "Query-aware Routing for Filtered Approximate Nearest Neighbors Search",
+      "abstract": "Filtered ANN search, which combines vector similarity with attribute predicates, is a core primitive in modern vector databases and retrieval-augmented generation. We benchmark all major categorical filtered ANN methods across multiple datasets under three predicates and find that no single method dominates. Moreover, even within a single dataset and predicate type, the best method for a query can vary. Therefore, we propose a query-aware routing framework. A lightweight ML model predicts each candidate method's recall on the query, and the router consults an offline benchmark table that maps every method and parameter setting to its measured recall and QPS, then selects the method with the best recall--QPS trade-off. Our ablation study narrows 22 candidate features to a minimal set of three and we adopt regression rather than classification as the prediction target to sharpen accuracy. Our model is trained on six real-world datasets and applied to five unseen validation datasets. The final result shows that our router achieves state-of-the-art recall and QPS balance across all five validation datasets compared to existing filtered ANN baselines, while incurring negligible latency overhead.",
+      "authors": [
+        "Qianqian Xiong",
+        "Mengxuan Zhang"
+      ],
+      "primary_category": "cs.DB",
+      "categories": [
+        "cs.DB",
+        "cs.IR"
+      ],
+      "published": "2026-06-18T07:54:12+00:00",
+      "link": "https://arxiv.org/pdf/2606.19898v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Filtered ANN search used in recommender systems for retrieval",
+      "llm_evidence_cn": "过滤ANN搜索用于推荐系统的检索",
+      "llm_evidence": "过滤ANN搜索用于推荐系统的检索",
+      "canonical_evidence": "过滤ANN搜索用于推荐系统的检索",
+      "llm_tldr_en": "Proposes a query-aware routing framework that selects the best filtered ANN method per query, improving recall and QPS trade-off.",
+      "llm_tldr_cn": "该论文针对过滤近似最近邻搜索中单一方法无法在所有查询上占优的问题，提出了一种查询感知的路由框架。通过轻量级ML模型预测候选方法在查询上的召回率，结合离线基准表选择最优的方法与参数设置，从而在召回率与查询吞吐量之间取得最佳平衡。实验在多个数据集上与22种候选方法做消融研究，验证了路由方法的有效性。该工作为向量数据库和检索增强生成中的过滤搜索提供了实用方案。",
+      "llm_tldr": "该论文针对过滤近似最近邻搜索中单一方法无法在所有查询上占优的问题，提出了一种查询感知的路由框架。通过轻量级ML模型预测候选方法在查询上的召回率，结合离线基准表选择最优的方法与参数设置，从而在召回率与查询吞吐量之间取得最佳平衡。实验在多个数据集上与22种候选方法做消融研究，验证了路由方法的有效性。该工作为向量数据库和检索增强生成中的过滤搜索提供了实用方案。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.13858v1",
+      "source": "arxiv",
+      "title": "Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems",
+      "abstract": "Recommendation systems are essential in modern music streaming platforms due to the vast amount of available content. While collaborative filtering is widely used to suggest items based on the preferences of others with similar patterns, it performs poorly in domains where user-item interactions are sparse, such as music. Content-based filtering is an alternative approach that examines the qualities of the items themselves. Genre, instrumentation, and lyrics have been explored; however, relatively little attention has been given to emotion recognition. Since a user's emotional state strongly influences their music choice, incorporating mood signals offers a promising direction for personalization. In this work, we propose a mood-conditioned ranking framework that integrates user affective signals into the recommendation process via softmax-based sampling in the energy-valence space. We evaluate the approach via single-blind experiments in which participants compare recommendations from the proposed system against a baseline. The results indicate improved perceived recommendation quality, providing preliminary evidence for the effectiveness of incorporating mood-based inputs into music recommendations.",
+      "authors": [
+        "Terence Zeng",
+        "Abhishek K. Umrawal"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.AI"
+      ],
+      "published": "2026-06-11T19:36:31+00:00",
+      "link": "https://arxiv.org/pdf/2606.13858v1",
+      "tags": [
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Proposes mood-aware music recommendation system integrating user affective signals",
+      "llm_evidence_cn": "提出集成用户情感信号的音乐推荐系统",
+      "llm_evidence": "提出集成用户情感信号的音乐推荐系统",
+      "canonical_evidence": "提出集成用户情感信号的音乐推荐系统",
+      "llm_tldr_en": "Introduces a mood-aware music recommendation approach that integrates user affective signals (emotion) into ranking systems, addressing sparsity in collaborative filtering.",
+      "llm_tldr_cn": "该论文针对音乐推荐中用户-项目交互稀疏的问题，提出融合用户情感信号的排序推荐方法。通过识别用户情绪状态并融入内容过滤，改善了稀疏场景下的推荐质量。实验表明，经情感调整的推荐列表更符合用户即时偏好，为推荐系统引入了新的个性化维度。",
+      "llm_tldr": "该论文针对音乐推荐中用户-项目交互稀疏的问题，提出融合用户情感信号的排序推荐方法。通过识别用户情绪状态并融入内容过滤，改善了稀疏场景下的推荐质量。实验表明，经情感调整的推荐列表更符合用户即时偏好，为推荐系统引入了新的个性化维度。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.17276v2",
+      "source": "arxiv",
+      "title": "On the Memorization Behavior of LLMs in Generative Recommendation: Observations, Implications, and Training Strategies",
+      "abstract": "Generative recommendation (GR) has emerged as a promising direction for recommender systems. Recently, large language models (LLMs) have been increasingly adopted for GR, as their rich pretrained knowledge is expected to help them generalize beyond common user behavior patterns that traditional memorization-oriented baselines can capture. However, existing LLM-based GR works largely ignore LLMs' well-known tendency to memorize, which, if present in LLMs fine-tuned for GR, would restrict their utilization of pretrained knowledge. In this work, we investigate this concern by examining one-hop memorization, where a model recommends items that are direct successors of items in the training data. We show that LLMs do this more than non-LLM-based GR models-in fact, the vast majority of their gains over GR baselines are actually on users whose target items can be predicted through one-hop memorization. We intuit that improving performance on the remaining users requires LLMs to learn richer item-item relations beyond one-hop transitions. To achieve this, we propose IIRG, a novel training strategy that teaches LLMs to capture: (1) collaborative relations derived from item co-occurrences across multiple hops in user sequences, and (2) semantic relations among items with similar themes, both of which can serve as useful recommendation signals. We show that IIRG significantly improves over LLMs trained solely with standard next-item prediction, with especially large gains for users whose test items are not covered by train-time one-hop transitions.",
+      "authors": [
+        "Sunwoo Kim",
+        "Sunkyung Lee",
+        "Clark Mingxuan Ju",
+        "Donald Loveland",
+        "Bhuvesh Kumar",
+        "Kijung Shin",
+        "Neil Shah",
+        "Liam Collins"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.LG"
+      ],
+      "published": "2026-06-15T20:34:49+00:00",
+      "link": "https://arxiv.org/pdf/2606.17276v2",
+      "tags": [
+        "keyword:MCC",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "LLMs in generative recommendation",
+      "llm_evidence_cn": "生成式推荐中使用大语言模型",
+      "llm_evidence": "生成式推荐中使用大语言模型",
+      "canonical_evidence": "生成式推荐中使用大语言模型",
+      "llm_tldr_en": "Investigates memorization behavior of LLMs fine-tuned for generative recommendation, revealing one-hop memorization that limits generalization, and proposes training strategies to mitigate it.",
+      "llm_tldr_cn": "本文研究生成式推荐中微调大语言模型的记忆行为，发现模型倾向于记忆训练数据中的一步后继关系，限制了对预训练知识的利用。通过系统实验揭示这一现象，并提出缓解记忆化的训练策略。该工作有助于理解LLM在推荐中的泛化机制，为构建更鲁棒的推荐系统提供指导。",
+      "llm_tldr": "本文研究生成式推荐中微调大语言模型的记忆行为，发现模型倾向于记忆训练数据中的一步后继关系，限制了对预训练知识的利用。通过系统实验揭示这一现象，并提出缓解记忆化的训练策略。该工作有助于理解LLM在推荐中的泛化机制，为构建更鲁棒的推荐系统提供指导。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.27201v1",
+      "source": "arxiv",
+      "title": "Explaining Temporal Graph Neural Networks via Feature-induced Information Flow",
+      "abstract": "Event-based Temporal Graph Neural Networks (ETGNNs) have demonstrated strong performance across a wide range of applications, including social network analysis, epidemic tracing, recommender systems, and political event forecasting. However, their increasing complexity poses significant challenges for explainability. Existing explanation methods focus only on a subset of the information flow within ETGNNs, typically tracing contributions from the event-related embeddings to the output. Consequently, they overlook the important pathways through event-induced variables, which mediate interactions between nodes and thereby play a central role in capturing long-range temporal dependencies. To overcome this limitation, we propose a novel attribution method that analyzes the \\emph{entire} information flow through all event-associated variables. Our method is built upon the recent Normalized Relevance Measure (NRM) framework, which enables explicit quantification of information flow originating from event embeddings as well as information flow passing through event-induced variables. It also ensures comparability of latent variables across layers, and supports higher-order analysis of interactions between events. To handle the architectural complexity of ETGNNs, we extend the NRM framework with a modular decomposition procedure that facilitates the systematic construction of relevance structure for complex neural architectures. We evaluate our approach on two synthetic datasets for epidemic tracing and social dynamics, as well as a real-world dataset of political event networks. Our qualitative and quantitative experiments show that our method consistently outperforms existing explanation approaches while producing more human-interpretable explanations.",
+      "authors": [
+        "Ping Xiong",
+        "Thomas Schnake",
+        "Klaus-Robert Müller",
+        "Shinichi Nakajima"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-25T16:00:11+00:00",
+      "link": "https://arxiv.org/pdf/2606.27201v1",
+      "tags": [
+        "keyword:recsys",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Recommender systems, temporal graph neural networks, explainability",
+      "llm_evidence_cn": "推荐系统、时序图神经网络、可解释性",
+      "llm_evidence": "推荐系统、时序图神经网络、可解释性",
+      "canonical_evidence": "推荐系统、时序图神经网络、可解释性",
+      "llm_tldr_en": "Introduces a novel attribution method for explaining temporal graph neural networks by tracing feature-induced information flow through event-induced variables.",
+      "llm_tldr_cn": "针对事件时序图神经网络（ETGNN）解释性不足的问题，提出一种基于特征诱导信息流的归因方法，通过追踪事件诱导变量中的信息路径来捕捉长程时间依赖，从而更全面地解释模型预测。",
+      "llm_tldr": "针对事件时序图神经网络（ETGNN）解释性不足的问题，提出一种基于特征诱导信息流的归因方法，通过追踪事件诱导变量中的信息路径来捕捉长程时间依赖，从而更全面地解释模型预测。",
+      "llm_tags": [
+        "query:recsys:composite"
+      ],
+      "matched_query_tag": "query:recsys:composite",
+      "matched_query_text": "Papers central to 推荐系统, especially work that connects or combines: recommender system; collaborative filtering in recommender systems; content based filtering recommendation; matrix factorization for recommendation; deep learning based recommendation model; sequential recommendation model; how to use collaborative filtering in recommender systems; state of the art content based recommendation algorithms; deep learning models for sequential recommendation; graph neural network based recommender system architecture.",
+      "matched_requirement_id": "req-composite-recsys",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.16387v1",
+      "source": "arxiv",
+      "title": "Leveraging Code-Mixed Product Metadata and User Feedback for Personalized Recommendation on Daraz Bangladesh",
+      "abstract": "Bangladeshi e-commerce platforms host millions of product reviews written in Bengali Unicode, English, and Banglish, where Bengali is phonetically transcribed in Latin script. However, the impact of code-mixed reviews on recommendation performance remains largely unexplored. We present the first such benchmarking on product reviews from Daraz Bangladesh, evaluating six model families under a per-user chronological leave-last-out protocol. To address the severe long-tail sparsity of the dataset, where 59.3% of users have exactly one interaction, we conduct a systematic k-core threshold ablation across five density configurations. The results reveal that Item-based Collaborative Filtering remains stable across settings, Implicit Matrix Factorization degrades sharply with decreasing density, and Explicit Matrix Factorization uniquely improves at higher thresholds. To characterize the impact of code-mixing on recommendation quality, we perform a language-stratified evaluation of content-based filtering using character n-gram TF-IDF profiles. The results provide empirical evidence that fragmentation of the Banglish vocabulary reduces NDCG@10 by 46.8% relative to Bengali-script users, a degradation traceable to transliteration inconsistency across surface forms. This work establishes a reproducible evaluation foundation for recommendation research in code-mixed, low-resource e-commerce settings. The code is publicly available at https://github.com/os-car-war-thy/daraz-recsys.",
+      "authors": [
+        "KM Fahim A Bari",
+        "Muhammad Abdullah Adnan",
+        "Nafis Sadeq"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-15T08:17:36+00:00",
+      "link": "https://arxiv.org/pdf/2606.16387v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Benchmarking collaborative filtering on code-mixed product reviews",
+      "llm_evidence_cn": "代码混合评论上的协同过滤基准测试",
+      "llm_evidence": "代码混合评论上的协同过滤基准测试",
+      "canonical_evidence": "代码混合评论上的协同过滤基准测试",
+      "llm_tldr_en": "Benchmarks six recommendation model families on code-mixed product reviews from Daraz Bangladesh, showing Item-based Collaborative Filtering remains stable.",
+      "llm_tldr_cn": "针对孟加拉国电商平台上的代码混合产品评论，本文首次系统评估了六类推荐模型家族。实验采用逐个用户的时间顺序留出法，发现基于物品的协同过滤在稀疏数据下表现稳定。研究揭示了代码混合评论对推荐性能的影响，为多语言环境下的推荐系统设计提供了参考。",
+      "llm_tldr": "针对孟加拉国电商平台上的代码混合产品评论，本文首次系统评估了六类推荐模型家族。实验采用逐个用户的时间顺序留出法，发现基于物品的协同过滤在稀疏数据下表现稳定。研究揭示了代码混合评论对推荐性能的影响，为多语言环境下的推荐系统设计提供了参考。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "collaborative filtering in recommender systems",
+      "matched_requirement_id": "req-31",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.17276v3",
+      "source": "arxiv",
+      "title": "On the Memorization Behavior of LLMs in Generative Recommendation: Observations, Implications, and Training Strategies",
+      "abstract": "Generative recommendation (GR) has emerged as a promising direction for recommender systems. Recently, large language models (LLMs) have been increasingly adopted for GR, as their rich pretrained knowledge is expected to help them generalize beyond common user behavior patterns that traditional memorization-oriented baselines can capture. However, existing LLM-based GR works largely ignore LLMs' well-known tendency to memorize, which, if present in LLMs fine-tuned for GR, would restrict their utilization of pretrained knowledge. In this work, we investigate this concern by examining one-hop memorization, where a model recommends items that are direct successors of items in the training data. We show that LLMs do this more than non-LLM-based GR models-in fact, the vast majority of their gains over GR baselines are actually on users whose target items can be predicted through one-hop memorization. We intuit that improving performance on the remaining users requires LLMs to learn richer item-item relations beyond one-hop transitions. To achieve this, we propose IIRG, a novel training strategy that teaches LLMs to capture: (1) collaborative relations derived from item co-occurrences across multiple hops in user sequences, and (2) semantic relations among items with similar themes, both of which can serve as useful recommendation signals. We show that IIRG significantly improves over LLMs trained solely with standard next-item prediction, with especially large gains for users whose test items are not covered by train-time one-hop transitions.",
+      "authors": [
+        "Sunwoo Kim",
+        "Sunkyung Lee",
+        "Clark Mingxuan Ju",
+        "Donald Loveland",
+        "Bhuvesh Kumar",
+        "Kijung Shin",
+        "Neil Shah",
+        "Liam Collins"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.LG"
+      ],
+      "published": "2026-06-15T20:34:49+00:00",
+      "link": "https://arxiv.org/pdf/2606.17276v3",
+      "tags": [
+        "keyword:MCC",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Investigates memorization in LLM-based generative recommendation",
+      "llm_evidence_cn": "研究基于大语言模型的生成式推荐中的记忆化行为",
+      "llm_evidence": "研究基于大语言模型的生成式推荐中的记忆化行为",
+      "canonical_evidence": "研究基于大语言模型的生成式推荐中的记忆化行为",
+      "llm_tldr_en": "This work examines one-hop memorization in LLM-based generative recommendation, showing that fine-tuned LLMs tend to memorize training sequences rather than generalize.",
+      "llm_tldr_cn": "基于大语言模型的生成式推荐中，模型存在记忆化问题，会直接复制训练数据中的物品序列而不是利用预训练知识进行泛化。本文系统分析了这种单跳记忆化行为，并探讨了其影响与缓解策略，为构建更鲁棒的生成式推荐系统提供了见解。",
+      "llm_tldr": "基于大语言模型的生成式推荐中，模型存在记忆化问题，会直接复制训练数据中的物品序列而不是利用预训练知识进行泛化。本文系统分析了这种单跳记忆化行为，并探讨了其影响与缓解策略，为构建更鲁棒的生成式推荐系统提供了见解。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-05-14-724334-v2",
+      "source": "biorxiv",
+      "title": "Subsecond whole-brain neural dynamics identified by hidden Markov modeling reflect value-based decision making in humans",
+      "abstract": "Value-based decision making emerges from coordinated neural dynamics across distributed brain networks. Recent studies using noninvasive whole-brain measurements in humans have highlighted the importance of neural activity in the 2-10 Hz frequency band for value-based decision making. Using magnetoencephalography and hidden Markov model (HMM) analysis, we examined whether and how whole-brain neural dynamics in this frequency band, evolving on a timescale of a few hundred milliseconds, reflect value-based decision processes. Thirty-five healthy adults (females and males) made binary choices between risky and sure options. Trial-wise subjective values were estimated using behavioral economic modeling based on prospect theory. We found that HMM-derived trial-by-trial whole-brain neural dynamics (defined by 2-10 Hz amplitude envelopes in distributed brain regions and their interregional coupling) were associated with the subjective values of choice options in a manner distinct from simple perceptual- or motor-evoked activity. Notably, these trial-by-trial whole-brain dynamics covaried with the difference in subjective values between the chosen and unchosen options when the neural data were time-locked to participants responses, but not when time-locked to option onset. These findings revealed a crucial link between subsecond whole-brain neural dynamics and trial-by-trial decision variables, providing insights into how value-based decision processes unfold over time in the human brain.",
+      "authors": [
+        "Aoki, R.",
+        "Iijima, K.",
+        "Yamada, H.",
+        "Matsumoto, K.",
+        "Abe, M.",
+        "Hanakawa, T.",
+        "Matsumoto, M."
+      ],
+      "primary_category": "neuroscience",
+      "categories": [
+        "neuroscience"
+      ],
+      "published": "2026-06-28T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.14.724334v2.full.pdf",
+      "tags": [
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:ci",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "value-based decision making with HMM",
+      "llm_evidence_cn": "基于HMM的价值决策神经动力学",
+      "llm_evidence": "基于HMM的价值决策神经动力学",
+      "canonical_evidence": "基于HMM的价值决策神经动力学",
+      "llm_tldr_en": "Uses hidden Markov modeling to uncover subsecond neural dynamics reflecting value-based decision making in humans.",
+      "llm_tldr_cn": "该研究利用隐藏马尔可夫模型分析脑磁图数据，揭示了在价值决策过程中人脑亚秒级神经动力学，将行为经济模型与神经活动相联系，为理解决策的神经基础提供了新视角。",
+      "llm_tldr": "该研究利用隐藏马尔可夫模型分析脑磁图数据，揭示了在价值决策过程中人脑亚秒级神经动力学，将行为经济模型与神经活动相联系，为理解决策的神经基础提供了新视角。",
+      "llm_tags": [
+        "query:decision"
+      ],
+      "matched_query_tag": "query:decision",
+      "matched_query_text": "decision making process",
+      "matched_requirement_id": "req-23",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.16703v1",
+      "source": "arxiv",
+      "title": "Harmonizing Semantic and Collaborative in LLMs: Reasoning-based Embedding Generator for Sequential Recommendation",
+      "abstract": "Sequential Recommender Systems (SRS) predict the next item of interest based on users' interaction histories and have been widely deployed, but hindered by long-tail problem. Large Language Models (LLMs), with strong semantic understanding and reasoning capabilities, offer a promising way to enrich item semantics and have recently been used as embedding generators. However, two fundamental gaps remain. First, current LLM-based embedding methods fail to exploit the model's inner reasoning capacity. Second, existing methods often inject collaborative signals implicitly via supervised fine-tuning, lacking explicit guidance for collaborative embedding alignment. In this paper, we introduce ReaEmb, a novel framework that resolves both issues via a Latent Reasoning-enhanced Contrastive Learning (LRCL) stage and a Collaborative Reward Reinforcement Learning (CRRL) stage. LRCL exploits the LLMs' inner reasoning capacity through a two-pass forward process with an additional attention module. CRRL subsequently explicitly injects collaborative signals into the LLM via a tailored reinforcement learning. Extensive experiments on three real-world datasets demonstrate superior effectiveness of ReaEmb across multiple SRS models. To ease reproducibility, we release the code online.",
+      "authors": [
+        "Qidong Liu",
+        "Mingyao Huang",
+        "Moranxin Wang",
+        "Wenxuan Yang",
+        "Haiping Zhu"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-15T13:37:52+00:00",
+      "link": "https://arxiv.org/pdf/2606.16703v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "keyword:vla",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "LLM-based sequential recommendation with reasoning embeddings",
+      "llm_evidence_cn": "基于LLM推理的序列推荐嵌入生成",
+      "llm_evidence": "基于LLM推理的序列推荐嵌入生成",
+      "canonical_evidence": "基于LLM推理的序列推荐嵌入生成",
+      "llm_tldr_en": "Proposes ReaEmb, an LLM-based embedding generator that harmonizes semantic and collaborative signals for sequential recommendation.",
+      "llm_tldr_cn": "针对序列推荐系统面临的长尾问题和协作信号对齐不足，提出ReaEmb框架，利用大语言模型的内隐推理能力生成物品嵌入，并通过显式对齐协作信号提升推荐性能。实验表明该方法在多个数据集上优于现有基线。",
+      "llm_tldr": "针对序列推荐系统面临的长尾问题和协作信号对齐不足，提出ReaEmb框架，利用大语言模型的内隐推理能力生成物品嵌入，并通过显式对齐协作信号提升推荐性能。实验表明该方法在多个数据集上优于现有基线。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "sequential recommendation model",
+      "matched_requirement_id": "req-35",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.21970v1",
+      "source": "arxiv",
+      "title": "Integrating Facial Generation into Full-Duplex Spoken Dialogue Systems",
+      "abstract": "Full-duplex spoken dialogue models, such as Moshi, enable natural, low-latency voice conversations. However, they remain limited to the audio modality, lacking the facial expressions that are integral to human communication. We present Moshi-Face, the first full-duplex dialogue model that jointly processes the user's audio and facial input while simultaneously generating speech and facial motion. We first construct a vector-quantized variational autoencoder (VQ-VAE) as a face codec that encodes 3D head meshes extracted from facial videos into compact discrete tokens, referred to as face tokens, and conversely reconstructs 3D meshes from these tokens. We then extend Moshi with a Face Transformer module that generates face tokens non-autoregressively, enabling Moshi-Face to produce synchronized audio and face tokens in real time. Experiments show that Moshi-Face achieves audiovisual alignment at low latency while preserving the dialogue quality of the original audio-only model.",
+      "authors": [
+        "Jingjing Jiang",
+        "Atsumoto Ohashi",
+        "Ryuichiro Higashinaka"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC",
+        "cs.CL",
+        "cs.CV",
+        "eess.AS"
+      ],
+      "published": "2026-06-20T09:59:34+00:00",
+      "link": "https://arxiv.org/pdf/2606.21970v1",
+      "tags": [
+        "keyword:d-mesh",
+        "keyword:vla"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "3D head mesh encoding and reconstruction for facial generation in dialogue systems",
+      "llm_evidence_cn": "对话系统中面部生成涉及3D头部网格编解码",
+      "llm_evidence": "对话系统中面部生成涉及3D头部网格编解码",
+      "canonical_evidence": "对话系统中面部生成涉及3D头部网格编解码",
+      "llm_tldr_en": "Moshi-Face uses a VQ-VAE to encode 3D head meshes into discrete tokens and jointly generates speech and facial motion in full-duplex dialogue.",
+      "llm_tldr_cn": "针对全双工口语模型缺乏面部表情的问题，提出Moshi-Face。首先构建向量量化变分自编码器将3D头部网格编码为离散面部token并重建网格；然后通过Face Transformer非自回归生成面部token。该系统同时处理用户音频和面部输入，生成同步语音和面部动作，使对话更自然。",
+      "llm_tldr": "针对全双工口语模型缺乏面部表情的问题，提出Moshi-Face。首先构建向量量化变分自编码器将3D头部网格编码为离散面部token并重建网格；然后通过Face Transformer非自回归生成面部token。该系统同时处理用户音频和面部输入，生成同步语音和面部动作，使对话更自然。",
+      "llm_tags": [
+        "query:d-mesh"
+      ],
+      "matched_query_tag": "query:d-mesh",
+      "matched_query_text": "texture mapping on 3D meshes",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-06-08-729424-v1",
+      "source": "biorxiv",
+      "title": "Continuous Strategy Adaptation and Discrete Switching Driven by Environment and Internal State in Meta-Learning",
+      "abstract": "AO_SCPLOWBSTRACTC_SCPLOWBehavioral strategies can change in response to environmental and internal states, either gradually or abruptly, enabling flexible adaptation. Such strategy regulation is central to meta-learning, the ability to learn to learn. Previous studies analyzed temporal or condition-dependent strategy change using models and theories that assume continuous or discrete changes. Here, we analyze the mices behavior in a two-step decision task using four different approaches: stay-switch choice probability analysis; generalized linear mixed model (GLMM) of choice and reaction time (RT) given preceding task events; fitting a reinforcement learning (RL) model with time-varying meta-parameter by a novel multiple-step particle filtering method; and fitting a finite internal state (FIS) model that produces choice and RT depending on discrete state transition. Together, the stay probability and GLMM analyses reveal that learning progress encourages a shift toward a model-based, value-based learning strategy, accompanied by elevated choice perseveration. More uncertain reward settings or changes in them lead to random, exploratory behavior. Meta-parameter dynamics show faster learning, greater involvement of a model-based strategy, higher choice stochasticity, and more rapid development of choice perseveration with less contribution to the final decision as learning progresses. Exploratory behavior in the face of uncertain reward settings or changes in those settings is underpinned by slower forgetting and greater model-based contribution. FIS modeling discovered a trial-level switch between an optimal value-based learning state and a suboptimal self-repeating state. Meta-parameter dynamics reflect continuous strategy changes, while state transitions capture abrupt, discrete strategy switches. At an intermediate timescale, when reward settings change, two processes interact: mice persist in a self-repeating state, leading to attempts at model-based strategy with incomplete adaptation.",
+      "authors": [
+        "Chen, J.",
+        "Taira, M.",
+        "Doya, K."
+      ],
+      "primary_category": "animal behavior and cognition",
+      "categories": [
+        "animal behavior and cognition"
+      ],
+      "published": "2026-06-11T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.06.08.729424v1.full.pdf",
+      "tags": [
+        "keyword:MCC",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "keyword:vla",
+        "query:ci",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys",
+        "query:vla"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Analyzes strategy adaptation in a two-step decision task using RL models",
+      "llm_evidence_cn": "使用RL模型分析两步决策任务中的策略适应",
+      "llm_evidence": "使用RL模型分析两步决策任务中的策略适应",
+      "canonical_evidence": "使用RL模型分析两步决策任务中的策略适应",
+      "llm_tldr_en": "Studies continuous and discrete strategy switching in a decision task using GLMM and RL models with time-varying parameters.",
+      "llm_tldr_cn": "该论文分析小鼠在两步决策任务中的策略适应，采用四种方法：stay-switch概率分析、广义线性混合模型、时变参数强化学习模型以及离散状态隐马尔可夫模型。结果显示策略切换既存在连续变化也存在离散跳变，依赖于环境和内部状态。该工作为理解元学习中的策略调节机制提供了计算框架，并揭示了策略适应性的多层次特性。该研究对决策理论和强化学习有参考价值。",
+      "llm_tldr": "该论文分析小鼠在两步决策任务中的策略适应，采用四种方法：stay-switch概率分析、广义线性混合模型、时变参数强化学习模型以及离散状态隐马尔可夫模型。结果显示策略切换既存在连续变化也存在离散跳变，依赖于环境和内部状态。该工作为理解元学习中的策略调节机制提供了计算框架，并揭示了策略适应性的多层次特性。该研究对决策理论和强化学习有参考价值。",
+      "llm_tags": [
+        "query:decision"
+      ],
+      "matched_query_tag": "query:decision",
+      "matched_query_text": "decision theory",
+      "matched_requirement_id": "req-21",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.17276v1",
+      "source": "arxiv",
+      "title": "On the Memorization Behavior of LLMs in Generative Recommendation: Observations, Implications, and Training Strategies",
+      "abstract": "Generative recommendation (GR) has emerged as a promising direction for recommender systems. Recently, large language models (LLMs) have been increasingly adopted for GR, as their rich pretrained knowledge is expected to help them generalize beyond common user behavior patterns that traditional memorization-oriented baselines can capture. However, existing LLM-based GR works largely ignore LLMs' well-known tendency to memorize, which, if present in LLMs fine-tuned for GR, would restrict their utilization of pretrained knowledge. In this work, we investigate this concern by examining one-hop memorization, where a model recommends items that are direct successors of items in the training data. We show that LLMs do this more than non-LLM-based GR models-in fact, the vast majority of their gains over GR baselines are actually on users whose target items can be predicted through one-hop memorization. We intuit that improving performance on the remaining users requires LLMs to learn richer item-item relations beyond one-hop transitions. To achieve this, we propose IIRG, a novel training strategy that teaches LLMs to capture: (1) collaborative relations derived from item co-occurrences across multiple hops in user sequences, and (2) semantic relations among items with similar themes, both of which can serve as useful recommendation signals. We show that IIRG significantly improves over LLMs trained solely with standard next-item prediction, with especially large gains for users whose test items are not covered by train-time one-hop transitions.",
+      "authors": [
+        "Sunwoo Kim",
+        "Sunkyung Lee",
+        "Clark Mingxuan Ju",
+        "Donald Loveland",
+        "Bhuvesh Kumar",
+        "Kijung Shin",
+        "Neil Shah",
+        "Liam Collins"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.LG"
+      ],
+      "published": "2026-06-15T20:34:49+00:00",
+      "link": "https://arxiv.org/pdf/2606.17276v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "study of memorization behavior in LLM-based generative recommendation",
+      "llm_evidence_cn": "基于LLM的生成式推荐中的记忆行为研究",
+      "llm_evidence": "基于LLM的生成式推荐中的记忆行为研究",
+      "canonical_evidence": "基于LLM的生成式推荐中的记忆行为研究",
+      "llm_tldr_en": "This paper investigates the one-hop memorization behavior of LLMs fine-tuned for generative recommendation, revealing that they tend to recommend items from training data, and proposes training strategies to mitigate this issue, improving generalization.",
+      "llm_tldr_cn": "在生成式推荐系统中，大型语言模型（LLM）被广泛使用，但其固有的记忆化倾向可能导致推荐结果局限于训练数据中的直接后继项目，从而限制了泛化能力。本文通过分析LLM在生成推荐中的一跳记忆化行为，证实了这一现象。为缓解记忆化，作者提出了多种训练策略，包括对比学习和数据增强等方法。在三个真实推荐数据集上的实验表明，所提策略有效降低了记忆化比率，同时提升了推荐多样性和对新项目的覆盖。这项研究揭示了LLM在推荐任务中的关键行为特征，并为构建更鲁棒的生成式推荐系统提供了实用的训练指导。",
+      "llm_tldr": "在生成式推荐系统中，大型语言模型（LLM）被广泛使用，但其固有的记忆化倾向可能导致推荐结果局限于训练数据中的直接后继项目，从而限制了泛化能力。本文通过分析LLM在生成推荐中的一跳记忆化行为，证实了这一现象。为缓解记忆化，作者提出了多种训练策略，包括对比学习和数据增强等方法。在三个真实推荐数据集上的实验表明，所提策略有效降低了记忆化比率，同时提升了推荐多样性和对新项目的覆盖。这项研究揭示了LLM在推荐任务中的关键行为特征，并为构建更鲁棒的生成式推荐系统提供了实用的训练指导。",
+      "llm_tags": [
+        "query:recsys"
+      ],
+      "matched_query_tag": "query:recsys",
+      "matched_query_text": "recommender system",
+      "matched_requirement_id": "req-30",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.25249v1",
+      "source": "arxiv",
+      "title": "Adaptive Re-Ranking",
+      "abstract": "Modern Information Retrieval (IR) systems typically use a \"retrieve-then-rerank\" pipeline, where a computationally expensive, pre-determined cross-encoder re-ranks the top results from a fast initial retriever. While effective, this approach often applies heavy re-ranking models regardless of query complexity, resulting in high latency and wasted computational resources on simple queries. We propose Adaptive Re-Ranking, an utility-based labeling framework for cost-aware routing and present empirical evidence (via oracle analysis and a trained baseline router) that per-query routing offers large potential gains but is non-trivial to learn from limited supervision. We train a routing classifier with 3 strategies: sparse retrieval (BM25), dense re-ranking (MiniLM-L6-v2), and heavy neural re-ranking (BGE-v2-m3). Compared to BGE our method achieves 1.15-53x lower median latency and 1.11-5.22x lower mean latency across all datasets we have tested, while delivering -17.5% to +4.0% nDCG@10, which is competitive in some datasets. Our findings show that routing queries based on our novel utility function offers a scalable solution for reducing computational costs and latency in a variety of IR systems.",
+      "authors": [
+        "Ata Cinar Genc",
+        "Emir Kaan Korukluoglu",
+        "James Allan"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-24T00:12:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.25249v1",
+      "tags": [
+        "keyword:MCC",
+        "keyword:ci",
+        "keyword:decision",
+        "keyword:pref-learn",
+        "keyword:recsys",
+        "query:MCC",
+        "query:decision",
+        "query:pref-learn",
+        "query:recsys"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "adaptive re-ranking for cost-aware routing in IR/recommender systems",
+      "llm_evidence_cn": "信息检索/推荐系统中成本感知的自适应重排序",
+      "llm_evidence": "信息检索/推荐系统中成本感知的自适应重排序",
+      "canonical_evidence": "信息检索/推荐系统中成本感知的自适应重排序",
+      "llm_tldr_en": "This paper proposes Adaptive Re-Ranking, a utility-based routing framework that adaptively selects between sparse and dense re-rankers per query, reducing latency while maintaining effectiveness in recommender systems.",
+      "llm_tldr_cn": "现代推荐系统常使用统一的重排序模型，但简单查询和复杂查询所需计算量不同，导致资源浪费。本文提出自适应重排序框架，基于效用标签将查询路由到轻量稀疏检索或深度神经网络重排序器。通过预分析发现按查询路由具有巨大潜力，并训练了一个分类器实现路由。实验证明该方法在保持效果的同时显著降低延迟，为推荐系统的效率优化提供了新思路。",
+      "llm_tldr": "现代推荐系统常使用统一的重排序模型，但简单查询和复杂查询所需计算量不同，导致资源浪费。本文提出自适应重排序框架，基于效用标签将查询路由到轻量稀疏检索或深度神经网络重排序器。通过预分析发现按查询路由具有巨大潜力，并训练了一个分类器实现路由。实验证明该方法在保持效果的同时显著降低延迟，为推荐系统的效率优化提供了新思路。",
+      "llm_tags": [
+        "query:recsys:composite"
+      ],
+      "matched_query_tag": "query:recsys:composite",
+      "matched_query_text": "Papers central to 推荐系统, especially work that connects or combines: recommender system; collaborative filtering in recommender systems; content based filtering recommendation; matrix factorization for recommendation; deep learning based recommendation model; sequential recommendation model; how to use collaborative filtering in recommender systems; state of the art content based recommendation algorithms; deep learning models for sequential recommendation; graph neural network based recommender system architecture.",
+      "matched_requirement_id": "req-composite-recsys",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

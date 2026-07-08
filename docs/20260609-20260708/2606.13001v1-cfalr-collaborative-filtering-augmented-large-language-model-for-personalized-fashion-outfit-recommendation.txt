@@ -1,0 +1,840 @@
+Title: CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation
+
+URL Source: https://arxiv.org/pdf/2606.13001v1
+
+Published Time: Fri, 12 Jun 2026 00:37:11 GMT
+
+Number of Pages: 29
+
+Markdown Content:
+# CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation 
+
+## YUJUAN DING, The Hong Kong Polytechnic University, Hong Kong SAR, China 
+
+## JUNRONG LIAO, University of Electronic Science and Technology of China, China 
+
+## YUNSHAN MA, Singapore Management University, Singapore 
+
+## YI BIN, Tongji University, China 
+
+## WENQI FAN, The Hong Kong Polytechnic University, Hong Kong SAR, China 
+
+## TAT-SENG CHUA, National University of Singapore, Singapore 
+
+## QING LI, The Hong Kong Polytechnic University, Hong Kong SAR, China 
+
+Personalized outfit recommendation poses a significant challenge in e-commerce and social media platforms, requiring systems that balance user preferences with aesthetic compatibility. Collaborative filtering (CF) provides a traditional solution for this, but it struggles with data-sparse scenarios and complex user-item-outfit relationships. Meanwhile, existing template-based approaches are constrained by rigid pre-designed structures. To bridge these research gaps, we introduce CFALR (Collaborative Filtering-Augmented Large Language Model for Recommendation), a novel framework that synergizes collaborative filtering with large language models for personalized outfit recommendation. Specifically, CFALR describes user-outfit interactions in natural language and leverages LLMs to capture fashion semantics while employing CF-enhanced embeddings to bridge the semantic space and the collaborative interaction spaces. Our technical contributions include: (1) the first LLM-based architecture specifically designed for personalized outfit recommendation, (2) a CF-augmented generative mechanism that efficiently navigates the extensive combination space of outfit items, and (3) trainable projection layers that optimally integrate relational and content features. Experiments on Polyvore and IQON benchmarks demonstrate CFALR’s superior performance over both traditional CF-based and LLM-based methods in personalized fill-in-the-blank and personalized outfit generation tasks. Additional Key Words and Phrases: Fashion Recommendation, Fashion Outfit Generation, Large Language Model, Personalized Recommendation 
+
+ACM Reference Format: 
+
+Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li. 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation. 1, 1 (June 2026), 29 pages. https://doi.org/XXXXXXX.XXXXXXX 
+
+1 Introduction 
+
+Fashion is not only an essential part of people’s daily life but also an important way of self-expression [ 9, 34 ]. Among millions of fashion options, recommender systems can help people to discover items they may like or be 
+
+Authors’ Contact Information: Yujuan Ding, dingyujuan385@gmail.com, The Hong Kong Polytechnic University, Hong Kong SAR, China; Junrong Liao, University of Electronic Science and Technology of China, China; Yunshan Ma, Singapore Management University, Singapore; Yi Bin, Tongji University, China; Wenqi Fan, The Hong Kong Polytechnic University, Hong Kong SAR, China; Tat-Seng Chua, National University of Singapore, Singapore; Qing Li, The Hong Kong Polytechnic University, Hong Kong SAR, China. Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from permissions@acm.org. 
+
+© 2026 ACM. ACM XXXX-XXXX/2026/6-ART https://doi.org/XXXXXXX.XXXXXXX , Vol. 1, No. 1, Article . Publication date: June 2026.   
+
+> arXiv:2606.13001v1 [cs.IR] 11 Jun 2026 2•Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li
+
+suitable to match together, providing personalized services. Therefore, personalized outfit recommendation has become a particularly critical area in e-commerce, as it enhances user satisfaction by tailoring recommendations to individual tastes. Beyond recommending single items, there is growing demand for generating complete and personalized outfits that consider both individual user preferences and aesthetic compatibility of fashion items. Existing methods for personalized outfit recommendation face several limitations. Most approaches rely heavily on collaborative filtering (CF) to explore interaction patterns from training data [ 5 , 11 , 27 , 42 ], while theis type of approaches are sensitive to the quality of user-item interaction data. For example, in scenarios where only sparse or even no interactions (cold-start items) are available, such CF-based approaches will be ineffective or even unusable [ 42 ]. Additionally, unlike general personalized recommendation methods that only focus on suggesting individual items, personalized outfit recommendation requires generating complete outfits for different users, involving modeling complex interaction patterns among users, outfits, and items [ 11 , 59 ]. For this problem, previous methods are mostly based on pre-defined outfits [ 27 , 33 , 60 ], which cannot keep up with the fast-evolving fashion trends or include new products. In comparison, personalized outfit generation methods are able to generate new outfits tailored for different users [ 5 , 12 ]. For example, an existing method [ 12 ]incorporates pre-defined or statistically derived outfit templates as a bridge between personal taste and item compatibility. However, these template-based methods are constrained by their reliance on fixed template sets, which are often incomplete and prone to out-of-distribution issues. In parallel, recent advances in Large Language Models (LLMs) have revolutionized natural language under-standing and generation [ 1, 57 ], offering unique capabilities in recommendation in terms of discerning nuanced semantics, exploring diverse user interests, and generalizing to rare or unseen instances [ 4 , 48 , 64 , 65 ]. These strengths position LLMs as promising tools for fashion recommendation. By leveraging pre-trained knowledge from massive datasets, LLMs can effectively capture subtle differences in the functional and aesthetic attributes of fashion items. This capability is particularly valuable for addressing cold-start and data-sparse challenges in the fashion domain, where new items emerge much faster than in most other domains [ 8 ]. Furthermore, LLMs offer a unique advantage in tailoring recommendations to individual users, as well as the creation of diverse and creative outfit suggestions. They can analyze users’ functional needs or aesthetic tastes for fashion through the natural language description of user behavior or item content. However, despite their potential, LLM-based recommendation methods still face inherent limitations. Specifically, although LLMs excel at tasks involving semantic understanding and language generation, their learned semantic space, which is based on token IDs, is fundamentally misaligned with the user-item interaction spaces required for recommendation tasks, which is typically based on item IDs [ 66 ]. This misalignment hinders their ability to capture key interaction patterns, often leading to inferior performance compared with traditional CF-based methods. Recent studies have attempted to address this issue by improving the integration of LLMs and CF models, enabling LLM-based recommendation methods to better predict user-item interactions [ 23 , 51 ]. However, these methods are still mainly designed for general personalized recommendation and lack the specific capabilities required for personalized outfit genera-tion, such as outfit-level compatibility modeling and strategic item composition. Therefore, existing LLM-based recommendation methods cannot be directly used as off-the-shelf solutions for our target task. To overcome these challenges and leverage LLMs’ capability and inherent knowledge of fashion understanding for fashion outfit generation, we propose CF -Augmented LLM for Recommendation ( CFALR ). By converting user-outfit interaction behavior into descriptive instances in natural language, we frame the task as a Personalized Fill-In-The-Blank (P-FITB) problem. CFALR bridges the gap between CF-based and LLM-based approaches by employing an open-sourced language model as its backbone recommender and leveraging relational and content features of users and items, which are extracted using foundation visual and CF models. Each non-textual feature is embedded as a single token and embodied in the LLM recommender using a trainable linear projection layer, with separate layers applied for different feature types. We fine-tune the model with the P-FITB objective for tailoring a fashion outfit-specific recommendation model. To address another key challenge in outfit generation,   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation •3
+
+namely the extensive search space and combination set [ 12 ], we propose a CF-augmented generation scheme for inference. The augmentation is implemented by an output-layer integration, specifically, combining the output probabilities of the CF and language models [ 14 , 22 ]. Experimental results on two benchmark fashion outfit recommendation datasets, i.e. Polyvore and IQON, demonstrate the effectiveness of the proposed CFALR method, which outperforms both traditional CF-based and off-the-shelf LLM-based fashion recommendation models on both the personalized fill-in-the-blank (P-FITB) and personalized outfit generation (POG) tasks. The main contributions of this paper are as follows: 
+
+• This paper proposes CFALR, an LLM-based personalized fashion outfit recommendation model. To the best of our knowledge, this is the first time LLMs being applied within this specialized domain of personalized outfit-level modeling. By combining the strengths of LLMs and CF models, the proposed model is able to handle complex user-item-outfit relationships and semantic nuances in the fashion domain. 
+
+• A CF-augmented generative mechanism is further proposed to facilitate the outfit generation during inference. By synergistically integrating collaborative signals into the LLM-based reasoning results, this design ensures that the generated outfits are not only semantically and stylistically coherent but also strictly grounded in item-level user preferences, effectively bridging the gap between generative flexibility and recommendation accuracy. 
+
+• Experimental results on two benchmark fashion outfit datasets demonstrate that the proposed method outperforms existing methods for both the Personalized Fill-In-The-Blank (P-FITB) and Personalized Outfit Generation (POG) tasks. 
+
+2 Related Work 
+
+We review three lines of related work: CF-based recommendation, LLM-based recommendation methods, and fashion outfit recommendation. 
+
+2.1 CF-based Recommendation 
+
+Recommender systems have evolved significantly over the years, yet CF-based methods continue to serve as foundational approaches for most application scenarios. Traditional CF methods, such as matrix factorization (MF) [ 41 ], effectively model user-item interactions by learning latent representations from historical user-item interaction data. With the development of Deep Neural Networks (DNNs), DNN-based CF methods enable more expressive modeling of users and items as well as their interactions [ 10 , 19 ]. However, these methods often struggle with cold-start problems and lack the ability to incorporate contextual information. Later development on hybrid recommendation methods has tried to address these challenges by integrating CF with content features. For example, the Factorization Machine (FM) [ 40 ] method leverages attribute factors of users or items on top of IDs, and models attribute-level interactions. Another effective solution to this issue is incorporating multimedia features to enhance item modeling [ 17 , 26 ]. From another perspective, previous research has applied Graph Neural Networks to improve the exploration of complex interactive relationships. For example, NGCF [ 49 ] and LightGCN [ 18 ] model high-order connectivity between users and items based on the bipartite user-item graph. In general, traditional CF-based recommendation methods are effective in fitting interaction patterns but are unable to encode detailed semantic information of users or items. Therefore, they are less effective in scenarios where observed interactions are sparse. Furthermore, CF methods are inadequate for complex recommendation scenarios, such as those involving combinatorial recommendations or complex conditions, as they lack both the flexibility and generalization ability required to handle such tasks effectively.   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. 4•Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li
+
+2.2 LLMs for Recommendation 
+
+In recent years, with the development of LLMs, there has been a growing interest in leveraging LLMs for recommender system development [ 14 , 28 , 61 ]. Pioneering studies on LLM-based recommendation relied on In-Context Learning, which directly asks LLMs to make recommendations by using natural language-based prompts [ 7, 15 , 38 , 43 ]. However, language models pre-trained on NLP data cannot align well with recommendation tasks [ 63 ], therefore, more recent methods fine-tune the models on recommendation tasks by transferring user-item interaction data into natural language-described instances. These pipelines, however, fail to explicitly model user-item interaction patterns, which are critical for capturing contextual relevance and personalization in recommendation tasks. To tackle this problem, Zhu et al. [ 67 ] proposed CLLM4Rec, which extends the vocabulary of pretrained LLMs with user/item ID tokens to model user/item collaborative and content semantics. With a soft+hard prompting strategy, their model learns the token embeddings via language modeling on RS-specific corpora. Furthermore, early-stage LLM-based recommendation models heavily rely on semantic priors and tend to overlook collaborative information, making them fall short of traditional methods [ 29 , 50 ]. To this end, researchers have tried to combine LLMs with collaborative models, for example, integrating collaborative information into the LLM generation process [ 3, 23 , 63 , 67 ]. Another line of work tries to use LLMs to offer additional information or knowledge to a standard recommender system. For example, LLM-CF [ 44 ] operates on an offline Chain-of-Thought (CoT) generation paradigm. It utilizes an LLM (specifically RecGen-LLaMA) as an offline component to produce CoT data. This data then serves to augment and enhance a separate, traditional Collaborative Filtering (CF)-based recommendation model, primarily for user-item interaction prediction. In essence, the LLM acts as an enhancer for an existing CF framework. KAR [ 52 ] transforms open-world knowledge into dense vectors in the recommendation space, compatible with any recommendation models. Despite the great success achieved, existing LLM-based methods primarily focus on the general personalized recommendation problem, which typically examines simple second-order user-item interaction, while the research problem in this paper involves complex relationships among users, items, and fashion outfits, therefore cannot be easily addressed by available methods. For instance, CLLM4Rec [ 67 ] proposes extending the LLM vocabulary with user/item ID tokens for semantic and collaborative understanding, while LLMRec [ 51 ] utilizes LLMs to enhance standard recommender systems by reinforcing user-item edges, improving item attribute understanding, and aiding user profiling. In contrast, our problem involves more complex relationships among users, items, and fashion outfits. CFALR’s objective is to leverage the LLM’s inherent prior knowledge of outfit composition alongside CF models’ ability to explore hidden interaction patterns from data, integrating multimodal features that depict fashion items. We specifically focus on the challenging problem of applying our fine-tuned LLM to generate new outfits for users given very limited input conditions, an area where LLMs typically struggle, as evidenced in our experimental results and discussions in Section 4.3 and 5.8. 
+
+2.3 Fashion Outfit Recommendation 
+
+Previous research in the area of fashion recommendation has been reviewed systematically and comprehen-sively [ 8 ]. Existing methods for personalized outfit recommendation mostly rely on the idea of collaborative filtering. For example, HFGN [ 27 ] employed graph neural network to encode the hierarchical structure of user-outfit interactions and outfit-item mappings. POG [ 5] connects users’ preferences regarding individual items and outfits with Transformer architecture. GPBPR [ 42 ] models item-wise compatibility and personal preference based on the MF-BPR framework. CPTM [ 11 ] integrates the two parts of pattern modeling by applying a single-component translation operation on third-order interactions among the user and item pairs. To facilitate efficient personalized outfit generation, Ding et al [ 12 ] proposed incorporating outfit templates into CF models, leveraging users’ template preferences as a bridge between personal taste and item compatibility, which also enables to 
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026.
+
+CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation • 5Non-textual Feature Extraction     
+
+> Fashion outfit recommendation data Multi-relational fashion matching graph (CF model)
+> Visual content Visual model CF features Visual features
+> LLM tokenizing & Embedding (for textural input)
+> Feature projection (for non-textual input)
+> CF Textual Visual CF
+> User Tokenizer Item Tokenizer
+> ...
+> Picked Items
+> User (X) Anchor items (Y) Candidate items (Z)
+> Large Language Model (LLM) LoRA
+> i2
+> i1
+> Prompt
+
+User-Outfit Interaction Modeling  
+
+> out fi tuser item
+> CF-augmented Outfit Generation
+> "You are a fashion shopping assistant..Now you are given a target customer <user>, who has already chose several items <anchor_items>, select one item from the following options <candidate_items> to complete the partial outfits ..."
+
+Fig. 1. Overview of the CFALR model, which includes four major procedures: 1) non-textual feature extraction, 2) hybrid user and item encoding, 3) user-outfit interaction modeling and 4) LLM recommending. 
+
+narrow the search space for item combinations. However, it heavily depends on pre-defined or statistically derived template sets dictated by the training data. It also needs to be mentioned that another group of outfit generation methods actually focus on image generation instead of item-wise combination [ 54 , 58 ], which is out of this paper’s scope. Another relevant line of work, bundle generation [ 13 , 32 , 35 , 36 , 56 ], aims to provide a bundle of items for the user, which is similar to outfit generation. However, existing bundle generation methods are designed for general purpose, therefore, failing to consider the special characteristics of fashion domain. For example, one recent method is proven to be less effective in outfit generation [ 45 ], while it’s very capable for large-scale bundles such as music list. In addition, most methods focus only on uncovering the combination patterns between items, while ignoring user preference [21]. To summarize, although fashion recommendation has developed over the years, critical gaps remain. Existing outfit generation methods either fail to consider user preferences or rely on pre-defined templates, limiting their ability to deliver personalized and creative outfits. From another perspective, integrating the generative capabilities of LLMs with the structured interaction modeling of CF methods has not been fully explored in previous research. Our work addresses these gaps by proposing a novel personalized outfit recommendation 
+
+, Vol. 1, No. 1, Article . Publication date: June 2026. 6 • Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li 
+
+model that combines CF and LLMs. By introducing a CF-augmented generation mechanism, our approach bridges the strengths of both methods, enabling both recommendation and generation of fashion outfits. 
+
+3 Problem Formulation 
+
+In this paper we address the personalized fashion outfit recommendation problem, which aims to provide combinative recommendation of fashion items tailored to individual users. Formally, we are given a set of fashion outfits, denoted as O = {𝑜 }, where each outfit 𝑜 = {𝑖 1, 𝑖 2, ...𝑖 |𝑜 | } consists of multiple fashion items, typically from different categories for functional purposes. Additionally, there is a set of items I = {𝑖 } and a set of users U = {𝑢 }.Each user 𝑢 interacts with multiple outfits, forming an affiliated outfit set O𝑢 and an affiliated item set I𝑢 . These interactions are represented by the user-outfit interaction matrix 𝑋 = {𝑥 𝑢,𝑜 |𝑢 ∈ U , 𝑜 ∈ O} . Furthermore, each user-outfit interaction can be further decomposed into interactions between the user and individual items within the outfit, expressed as 𝑥 𝑢,𝑜 = {𝑥 𝑢,𝑖 1 , 𝑥 𝑢,𝑖 2 , ..., 𝑥 𝑢,𝑖 |𝑜 | }. Each item 𝑖 is also associated with an image 𝑉 𝑖 , providing rich visual information. Based on the interaction records between users and outfits, as well as the item combinations within outfits, we aim to develop a personalized fashion outfit recommendation model. Specifically, the problem can be formulated under two common settings: Personalized Fill-In-The-Blank (P-FITB) and Personalized Outfit Generation (POG). 
+
+• Personalized Fill-In-The-Blank (P-FITB): In this setting, a target user 𝑢 ∈ U and a partial outfit I𝑝 =
+
+{𝑖 𝑝  
+
+> 1
+
+, 𝑖 𝑝  
+
+> 2
+
+, ... }, composed of multiple items, are given. The task is to predict the most suitable item 𝑖 𝑡 from a candidate set I𝑐 to complete the partial outfit while accounting for the personal preferences of 𝑢 . This requires ensuring that 𝑖 𝑡 ∈ I 𝑢 and 𝑜 𝑝 ∪ { 𝑖 𝑡 } ∈ O .
+
+• Personalized Outfit Generation (POG): In this scenario, only the target user 𝑢 ∈ U and a single anchor item 
+
+𝑖 𝑎 ∈ I are provided. The goal is to select multiple items from the candidate set I𝑐 to construct a complete outfit for 𝑢 , satisfying the requirements established in the P-FITB task. 
+
+4 Method 
+
+In this section, we present the proposed Collaborative Filtering (CF)-Augmented LLM for Recommendation (CFALR ). We begin by detailing the core architecture of the model, which is built on large language models (LLMs) and integrates collaborative filtering and content features. Next, we describe the learning strategy employed for training CFALR. Finally, we introduce the CF-augmented generation mechanism utilized during the inference stage for outfit generation. 
+
+4.1 LLM-based fashion recommender architecture 
+
+As introduced in Section 1, LLMs have been evaluated to have extraordinary capability in context understanding and problem solving at text level. They has also been work that effectively employed as the basic model for different recommendation tasks [ 4 , 16 , 31 ]. To solve our problem of personalized outfit generation and recommendation, we follow previous LLM-based recommendation models and apply LLM to build the basic recommender architecture. As illustrated in Figure 1, the proposed CFALR model consists of a language model backbone, the hybrid item encoder and the user encoder. 
+
+4.1.1 LLM as Personalized Outfit Recommender. We utilize fixed prompt templates to assemble training samples of user-outfit interaction to transform the recommendation problem into a natural language modeling problem which can be processed by an LLM, similar to previous work [ 4 , 63 ]. The specific prompt template is illustrated at the left-top part in Figure. 1.   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation •7
+
+Prompt Template ( 𝑝 0): You are a fashion shopping assistant whose mission is to help the customers to create their favored fashion outfits. You need to pick one item among the given candidates. Now you are given a target customer <user>, who has already chose several items <anchor_items>. Please leverage all the information and make a proper choice from the candidate list <candidate_items> to recommend an item for the customer. The chosen item needs to not only meet the customer’s personal preference, but also match well together (with the given items chose by the customer) to make a fine outfit. In the prompt, we describe conditions (input) and the objectives (output) for the specific task. There are three parts of placeholders leaving for the given user, partial outfit and candidate item lists respectively. Specifically, the three placeholders will be filled with hybrid descriptions of corresponding parts respectively: 𝑧 𝑧 𝑧 𝑢 for <user ( 𝑢 )>, 
+
+{𝑧 𝑧 𝑧 𝑖 𝑝 }𝑖 𝑝 ∈ I 𝑝 for <anchor_items ( I𝑝 )>, and ( {𝑧 𝑧 𝑧 𝑖 𝑐 }𝑖 𝑐 ∈ I 𝑐 for <candidate_items ( I𝑐 )>. We introduce hybrid encoding below to obtain these hybrid descriptions. 
+
+4.1.2 Hybrid encoding for items and users. Describing items with natural language and directly applying the textual encoder on it can integrate the item with the language model backbone easily, which is also early approach to designing LLM-based recommendation method. However, there have been studies pointed out that in many cases [ 31 ], textual information is not enough to describe the visual details of the item, especially for fashion items with a lot of visual details that cannot be fully expressed by text. Therefore, from a multimedia perspective, our item encoder will incorporate both visual and textual input to fully explore the semantic information of a fashion item. For item 𝑖 , the visual representation can be achieved by 𝑣 𝑣 𝑣 𝑖 = 𝑉 (𝑖 ; Θ), where 𝑉 (; Θ) is the visual feature extraction model with Θ as parameters. However, restricted by the semantic encoding efficiency and always limited input being given, solely semantic encoding is still unable to achieve comprehensive depiction of items. Inspired by related work [ 62 , 63 ], we propose to leverage multi-relational collaborative filtering encoding to further enhance the modeling of items. Specifically, we adopt a multi-relational CF model, CPTM [ 11 ] to obtain both the item and user representations. We firstly train the CPTM model with triplet data (user-item-item interaction) adapted by the user-outfit interaction data and then adopt the latent embeddings of users and items as the CF features applied in this model. CPTM optimizes the following objective by updating user and item embeddings: 
+
+L = 𝐿 𝐵𝑃𝑅 (𝑠 (𝑢, 𝑖, 𝑗 ), 𝑠 (𝑢, 𝑖, 𝑘 )) , (1) where 𝐿 𝐵𝑃𝑅 denotes the BPR loss and 𝑠 (𝑢, 𝑖, 𝑗 ) denotes the personalized matching score for the user 𝑢 and a pair of items 𝑖 and 𝑗 .
+
+𝑠 (𝑢, 𝑖, 𝑗 ) = 𝛽 𝑗 − || 𝑒 𝑒 𝑒 𝑢 + 𝑒 𝑒 𝑒 𝑖 − 𝑒 𝑒 𝑒 𝑗 || 2, (2) in which 𝑒 𝑒 𝑒 𝑢 , 𝑒 𝑒 𝑒 𝑖 and 𝑒 𝑒 𝑒 𝑗 are latent embeddings to encode its implicit collaborative features, 𝛽 𝑗 is the bias attached to the target item. After training the CPTM model, the latent embeddings of user 𝑒 𝑒 𝑒 𝑢 and item 𝑒 𝑒 𝑒 𝑖 are applied as the CF features of user and item respectively to represent them partially in our CFALR model. Overall, as illustrated in Figure 1, the hybrid feature list of item 𝑖 in our method is composed by three parts, 
+
+textual , visual and CF , ending up as 
+
+𝑥 𝑖 = [𝑡 𝑖, 1, 𝑡 𝑖, 2, ..., 𝑡 𝑖,𝐾 , 𝑣 𝑣 𝑣 𝑖 ,𝑒 𝑒 𝑒 𝑖 ], (3) where 𝑡 denotes textual token in the textual description and 𝐾 is the number of tokens of the descriptions. Specifically, to encode an item in such a hybrid way in the language model, we apply the following prompt: 
+
+Hybrid Item Description ( 𝑝 𝑖 ): <text_des>. Additionally, we have its interaction history feature <item_cf_feat> and its vision feature <item_vis_feat>   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. 8•Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li
+
+While the textual descriptions go through the embedding layer of the LLMs 𝑙 () and obtain token embedding list 
+
+[𝑧 𝑧 𝑧 𝑡 𝑖, 1,𝑧 𝑧 𝑧 𝑡 𝑖, 2, ...,𝑧 𝑧 𝑧 𝑡 𝑖,𝐾 ] (𝑧 𝑧 𝑧 = 𝑙 (𝑡 )), non-textual features are mapped with a projection layer as follows: 
+
+𝑧 𝑧 𝑧 𝑣 = 𝑔 𝑣 (𝑣 𝑣 𝑣 ), 𝑧 𝑧 𝑧 𝑐 𝑓 = 𝑔 𝑐 𝑓 (𝑒 𝑒 𝑒 ), (4) where 𝑔 𝑣 ∈ R𝑑 𝑣 ×𝑑 and 𝑔 𝑐 𝑓 ∈ R𝑑 𝑐 𝑓 ×𝑑 are trainable projection layers applying on visual features and collaborative filtering features respectively. 𝑑 𝑣 and 𝑑 𝑐 𝑓 are the dimension of visual and CF features, while 𝑑 is the dimension of the token embedding of the LLM. The final hybrid representation for the item is the concatenation of three parts, which turns into: 
+
+𝑧 𝑧 𝑧 𝑖 = [𝑧 𝑧 𝑧 𝑡 𝑖, 1,𝑧 𝑧 𝑧 𝑡 𝑖, 2, ...,𝑧 𝑧 𝑧 𝑡 𝑖,𝐾 ,𝑧 𝑧 𝑧 𝑣 𝑖 ,𝑧 𝑧 𝑧 𝑐 𝑓 𝑖 ]. (5) For users, similar as items, we apply the latent embedding 𝑒 𝑒 𝑒 𝑢 learned by the CPTM model as the collaborative filtering feature. Furthermore, to help encode user’s personal preference, we include user’s historical interacted items as additional content information. For user 𝑢 and his interacted item set O𝑢 , due to the input limit of the language model, we sample a subset of interacted items 𝑜 𝑜 𝑜 𝑢 = {𝑖 𝑢  
+
+> 1
+
+, 𝑖 𝑢  
+
+> 2
+
+, ..., 𝑖 𝑢 𝑀 } from the whole set, where 𝑀 is the length of the user interacted item set. We specifically apply the following prompt to describe users: 
+
+Hybrid User Description ( 𝑝 𝑢 ): Given a user who has previously picked the following items <item index list>. Additionally, we have her/his interaction history feature <user_cf_feat> For each item in 𝑖 𝑢 ∈ 𝑜 𝑜 𝑜 𝑢 , we can obtain its hybrid embedding 𝑧 𝑧 𝑧 𝑖 𝑢 based on Eq. 5. The final hybrid embedding of the user is the combination of the CF- and interacted item-based embeddings as: 
+
+𝑧 𝑧 𝑧 𝑢 = [𝑧 𝑧 𝑧 𝑖 𝑢  
+
+> 1
+
+,𝑧 𝑧 𝑧 𝑖 𝑢  
+
+> 2
+
+,𝑧 𝑧 𝑧 𝑖 𝑢 𝑀 ,𝑧 𝑧 𝑧 𝑐 𝑓 𝑢 ]. (6) 
+
+4.2 LLM prediction and optimization 
+
+To effectively train the LLM-based model to understand user’s fashion selection and to acquire the capability to capture personal preference and item matching patterns, we reconstruct the personalized outfit recommendation task into the basic conditional choice delivered by textual description, and ask the language model to output the item id they choose in generative language. Specifically, the P-FITB task is applied, with the target user 𝑢 and his/her selected partial outfit I𝑝 = {𝑖 𝑝  
+
+> 1
+
+, 𝑖 𝑝  
+
+> 2
+
+, ... }, and candidate item list I𝑐 = {𝑖 𝑐 
+
+> 1
+
+, 𝑖 𝑐 
+
+> 2
+
+, ... } being the input. Each sample will go through the LLM to generate the prediction results. We adopt Parameter Efficient Fine-Tuning (PEFT) for the efficient optimization of our LLM-based model since the cost of fine-tuning the entire large language model is too expensive. Specifically, we apply the LoRA [ 20 ] method which introduces a small set of additional trainable parameters to the LLM while keeping original LLM parameters fixed. The prediction process thereby is formulated as: 
+
+ˆ𝑦 = ℎ ˆΘ+Θ′+Λ (𝑍 𝑍 𝑍 ), (7) where ˆΘ and Θ′ denote the fixed parameters of the pre-trained LLM ℎ() and trainable LoRA parameters respec-tively, while Λ denotes the trainable parameter of the feature projection layers. ˆ𝑦 denotes the predicted item. 𝑍 𝑍 𝑍 is the final embedding list representing the input training sample, which can be derived as follows: 
+
+𝑍 𝑍 𝑍 = [𝑙 (𝑝 ), [𝑙 (𝑝 𝑢 ),𝑧 𝑧 𝑧 𝑢 ], {[ 𝑙 (𝑝 𝑢 ),𝑧 𝑧 𝑧 𝑖 ], 𝑖 ∈ I 𝑝 ∪ I 𝑐 }] , (8) Our fine-tuning task is to select the most suitable item from the candidate set by comparing the logits of different candidates predicted by the model. Formally, our loss function is defined as a cross-entropy loss: 
+
+𝐿 = − 1
+
+𝑁 
+
+> 𝑁
+
+∑︁ 
+
+> 𝑖 =1
+> 𝐶
+
+∑︁ 
+
+> 𝑐 =1
+
+𝑦 𝑖,𝑐 · log  softmax ( ˆ𝑦 𝑖,𝑐 ) , (9) where 𝑁 represents the number of training samples in the batch size, 𝐶 represents the number of items in the candidate set. 𝑦 𝑖,𝑐 represents the ground-truth label.   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation •9
+
+We apply a multi-stage training strategy to optimize the model considering that directly tuning all modules, including the non-textual projection modules and LoRA parameters, may cause negative interference in the learning process due to the gap between the input feature spaces. 
+
+• First Stage ( S1 ): Finetuning the LoRA module ( optimizing Θ′ only with the objective function max Θ′ 𝐿 (𝐸 𝐸 𝐸 𝑡 ; Θ, Θ′))with text-only segment of the prompt (encoded to 𝐸 𝐸 𝐸 𝑡 by the LLM embedding layer), not including non-textual features or additional parameters. 
+
+• Second Stage ( S2 ): simultaneously finetuning the LoRA and non-textual feature projection parameters, objective function max (Θ′,Λ) 𝐿 (𝐸 𝐸 𝐸 ; Θ, Θ′, Λ). 
+
+4.3 CF-augmented outfit generation 
+
+Through our experiments and analysis, we found that large language models are good for their understanding ability on complex input, while when the input is short and simple, they might not be able to apply such ability, leading to undesirable performance. For example, in the context of personalized outfit generation, only the user or a single item would be given as the conditions for the generation. Even though we have managed to embed collaborative filtering features to enhance the context encoding of both users and items, the capability of LLMs in modeling simple interaction patterns is still limited, which might be worse than traditional CF model targeted at learning that patterns only. For this consideration, we further propose a collaborative filtering-augmentation mechanism in this paper to tackle this challenge, to help with the outfit generation process at the inference stage. More specifically, inspired by the research of Retrieval Augmented Generation (RAG) [ 14 , 22 ], we propose an output layer-augmentation method, which interpolates the predicted distribution of the CF model and LLM using a hyper-parameter 𝜆 to produce the final CFALR distribution: 
+
+𝑦 ∗ = 𝜆 ˆ𝑦 𝐿𝑀 + ( 1 − 𝜆 ) ˆ𝑦 𝐶𝐹 . (10) Such output-layer augmentation enables to feasibly leverage the strength of both CF and Language models, which is also user-friendly and computationally efficient. 
+
+5 Experiments 
+
+We conduct extensive experiments on two benchmark fashion outfit recommendation datasets to evaluation the proposed method. Existing fashion outfit recommendation methods and LLMs serve as baselines for a comprehensive comparison. We also conduct ablation studies to substantiate our claims in designing the model. With these experiments, we try to address the following research questions: 
+
+• RQ1 : How does CFALR perform on two outfit recommendation tasks compared to conventional? From which perspective are LLMs good at the outfit recommendation problem while from which perspectives are not? 
+
+• RQ2 : Are all technical modules designed in the LLM-based method and the learning strategy for optimizing the model effective? 
+
+• RQ3 : How does the proposed CFALR perform for the personalized outfit generation problem and how does the proposed CF augmentation mechanism help with that? 
+
+5.1 Dataset 
+
+Experiments are conducted on two datasets to evaluate the effectiveness of the proposed CFALR model, which are Polyvore [ 12 ] and IQON [ 11 ]. Both datasets are composed of samples of user-outfit interactions. For Polyvore dataset, we apply the Polyvore-519 version, which has relevantly more users and denser interactions. For IQON dataset, since the original version is large-scale, which results in unaffordable training cost, we sample a subset from the original dataset by keeping 10% users and 20% interacted outfits for each user. To construct samples   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. 10 •Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li
+
+Algorithm 1: Personalized Outfit Generation Input: Target User 𝑢 , Initial Anchor Item 𝑖 𝑎 , Candidate Item Set I𝑐 , Maximum Outfit Length 𝐿 𝑜 
+
+Output: Generated Outfit 𝑜 = I𝑦 
+
+Procedure:  
+
+> 1
+
+Obtain hybrid representation 𝑧 𝑧 𝑧 𝑢 𝑧 𝑧 𝑧 𝑖 for the user ( 𝑢 ) and all involved items ( 𝑖 ∈ I 𝑐 ∩ { 𝑖 𝑎 }) with Eqn 6 and Eqn 5 respectively.  
+
+> 2
+
+Outfit Length 𝑑 = 1. 
+
+> 3
+
+Generated Outfit I𝑑 𝑦 = {𝑖 𝑎 }. 
+
+> 4
+
+Generated Outfit Score List 𝑆 0 = [] . 
+
+> 5
+
+while 𝑑 ≤ 𝐿 𝑜 do  
+
+> 6
+
+𝑑 = 𝑑 + 1; 
+
+> 7
+
+Update Anchor Item Set = I𝑑 −1 
+
+> 𝑦
+
+; 
+
+> 8
+
+Prepare hybrid representation for three parts shown in Prompt Template ( 𝑝 0) ;  
+
+> 9
+
+Calculate 𝑦 ∗ 
+
+> 𝑖
+
+for 𝑖 ∈ I 𝑐 with Eqn. 10 and obtain 𝑌 ∗I𝑐 ; 
+
+> 10
+
+Obtain top-ranked candidate item 𝑖 𝑑 = Arg (Max (𝑌 ∗I𝑐 )) ; 
+
+> 11
+
+Update Generated Outfit I𝑑 𝑦 = I𝑑 −1 
+
+> 𝑦
+
+∩ { 𝑖 𝑑 } ; 
+
+> 12
+
+Update Candidate Item Set I𝑐 = I𝑐 \𝑖 𝑑 ; 
+
+> 13
+
+Generated Outfit Score = 𝑦 ∗ 
+
+> 𝑖 𝑑
+
+; 
+
+> 14
+
+Update Generated Outfit Score List 𝑆 𝑜 .𝑎𝑝𝑝𝑒𝑛𝑑 (𝑦 ∗ 
+
+> 𝑖 𝑑
+
+) ; 
+
+> 15
+
+Selected best outfit length 𝑑 ∗ = ArgMax (𝑆 𝑜 ) ; 
+
+> 16
+
+Return Generated Outfit 𝑜 = I𝑑 ∗ 
+
+> 𝑦
+
+;
+
+Table 1. Dataset statistics 
+
+#I #U #O #U-O avg. 𝑙 (𝑜 ) #<𝑢,𝑜 > 
+
+> #𝑢
+> #<𝑢,𝑖 >
+> #𝑢
+> #<𝑢,𝑖 >
+> #𝑖
+
+#train #te 𝑃 −𝐹 𝐼𝑇 𝐵 #te 𝑃𝑂𝐺 
+
+Polyvore 19,968 519 36,011 27,012 2.458 52.046 127.952 3.006 160,781 9,561 9,561 IQON 34,307 699 11,026 6,612 3.703 9.273 34.339 1.136 198,100 4,414 4,414 supporting the training of CFALR with the P-FITB task, given a user-outfit interaction, we sample multiple item sets from the outfit and pair with the user, resulting in multiple samples of interactions of user and item pairs. For example, if the original sample contains the outfit with 𝑛 items, after one item is selected as the target output item, we can construct Í𝑡 ∈ [ 1,𝑛 −2]
+
+  𝑡 𝑛 −1
+
+ combinations of input and lead to in total 𝑛 × Í𝑡 ∈ [ 1,𝑛 −2]
+
+  𝑡 𝑛 −1
+
+ training samples. The statistics of the two datasets can be found in Table 1. 
+
+5.2 Experimental settings 
+
+For training, we leverage the Vicuna-7B-v1.3 model as our large language model backbone and a pre-trained CP-TransMatch [ 11 ] model as our collaborative filtering model. To stay consistent with previous outfit recom-mendation methods for the sake of a fair comparison, we apply ResNet-50 as our visual model to extract visual representations for items. The hidden size of collaborative filtering embeddings is 32, and 2048 for visual embed-dings. We use AdamW optimizer in both tuning stages, with linear warm-up and cosine annealing strategy [ 63 ]. The learning rate starts at 10 −5 and increases linearly to 10 −3 during the warm-up phase. Afterward, it decreases   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation •11
+
+following a cosine curve to the 8−6. Our training batch size is set to 4. For the LoRA module, we set 𝑟 , alpha and 
+
+dropout to 8, 16, 0.05 and the target module “[q proj, v proj]”. For the Polyvore dataset, both training stages (first and second) run for three epochs. For the IQON dataset, the first-stage training takes three epochs while the second-stage training takes one epoch. All experiments are conducted on a server with 8 NVIDIA RTX A6000 GPUs. During inference, for P-FITB, each test sample is composed of one user and an outfit with several items. For each sample, we randomly select one item from the outfit as the prediction target and replace it with a blank mask. Furthermore, we randomly sample 𝑘 − 1 items that the user is not fond of from the whole item set as the negative items to construct the candidate item set with 𝑘 items. We set 𝑘 ∈ { 4, 10 , 20 } so that different levels of selection difficulties can be explored. In comparison, for POG, for each user-outfit interaction record, we select one item from the outfit as the given condition and leave the rest items as targets for generation. Meanwhile, we pair each test sample with multiple negative items and make the candidate item set with the length of 20 . The maximum outfit length is set to 5. Number of historical interacted items are set to 5 for Polyvore and 3 for IQON to optimize balance between accuracy and computational efficiency. 
+
+5.3 Evaluation 
+
+The evaluation of the proposed model includes two tasks: Personalized Fill-in-the-blank (P-FITB) and Personalized Outfit Generation (POG). 
+
+5.3.1 Personalized Fill-in-the-blank. We employ Accuracy ( Acc ) to evaluate the performance of various models for the P-FITB task, which measures the percentage of the correct prediction over all predictions as follows: 
+
+𝐴𝑐𝑐 = 𝑁 𝑟 
+
+𝑁 , (11) where 𝑁 𝑟 and 𝑁 denotes the number of correctly predicted and all testing samples respectively. 
+
+5.3.2 Personalized Outfit Generation. Evaluating Personalized Outfit Generation (POG) presents significant challenges compared to traditional discriminative tasks, primarily due to the open-ended and subjective nature of generative fashion modeling. To rigorously assess the performance of CFALR and baseline models, we establish a multi-dimensional evaluation framework consisting of three complementary methods: (1) Quantitative Overlap Analysis, which measures the alignment with ground-truth outfits to assess recommendation fidelity; (2) LLM-as-a-Judge, leveraging the semantic reasoning of large models to evaluate stylistic quality of outfits; and (3) Human Evaluation, providing a human assessment on the generated results. The specific configurations of these evaluations are detailed below. Given the user 𝑢 and the item 𝑖 , the generated outfits 𝑜 𝑢𝑖 have two-perspective requirements, which corresponds to the two objectives of the generation task. First, the generated outfit needs to meet the personal preference of the given user ( Personalization ), which can be measured by counting the items in the outfit favored by the user, i.e., positive items to the user. We define the metric of Personalization Precision ( PP ) to measure this perspective of performance, which can be calculated as follows: 
+
+𝑃𝑃 (𝑜 𝑢𝑖 ) = |𝑜 𝑢𝑖 ∩ I 𝑢 ||𝑜 𝑢𝑖 | , (12) where I𝑢 is the positive item set to 𝑢 , consisting items that the user likes. Second, items in the generated outfits need to match well with each other and all together ( Compatibility ). We measure this perspective of performance by comparing how much the generated outfit overlaps with the pre-defined ones, which are assumed to be well-matched. This can be further implemented in two levels, outfit-level   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. 12 •Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li
+
+and pairwise-level. The Outfit Compatibility ( OC ) is defined as follows: 
+
+𝑂𝐶 (𝑜 ) = max   
+
+> ˆ𝑜 ∈ O
+
+𝐽 (𝑜, ˆ𝑜 ), (13) where 𝑜 is the generated outfit and ˆ𝑜 is the pre-defined outfit. 𝐽 (·) is the Jacobian Similarity: 
+
+𝐽 (𝐴, 𝐵 ) = |𝐴 Ñ 𝐵 ||𝐴 Ð 𝐵 | , (14) which is usually used to measure the similarity between two sets. The pairwise-level compatibility, i.e., Mean 
+
+Pairwise Compatibility ( MPC ) is defined as the average of pairwise compatibility among an outfit, which based on the matching measurement of two items: 
+
+𝑚 (𝑖, 𝑗 ) = 1 𝑖 𝑓 (𝑖, 𝑗 ) ∈ P 𝑒𝑙𝑠𝑒 0, (15) 
+
+P = {( 𝑘, 𝑙 )} is the positive item pair set in which (𝑘, 𝑙 ) ∈ 𝑜 for 𝑜 ∈ O . Then the MPC is defined as: 
+
+𝑀𝑃𝐶 (𝑜 ) =
+
+Í(𝑖,𝑗 ) ∈ P 𝑜 𝑚 (𝑖, 𝑗 )|P 𝑜 | , (16) where P𝑜 is the pair set of the generated outfit 𝑜 . P𝑜 = {( 𝑖, 𝑗 ) ∈ 𝑜 } ∩ { 𝑖 ≠ 𝑗 } is the item pair set of the outfit 𝑜 .The LLM- and human-based evaluations are designed to complement the quantitative overlap analysis, partic-ularly in assessing the quality of novel generated outfits that may not exist in the ‘ground truth’. Specifically, we task both LLMs and human experts with evaluating a sampled subset of generated outfits across three key dimensions: completeness , compatibility , and aesthetics . For each criterion, a numerical score is assigned within the range of [0, 5] to provide a fine-grained qualitative assessment. In the end, we calculate the average comparable score for each method to obtain its overall performance in terms of generated outfit quality. 
+
+5.4 Baselines 
+
+Our focus is to compare CFALR with models specifically tailored or readily adaptable to the complexities of outfit generation. This approach ensures a more relevant and accurate evaluation of CFALR’s unique contributions to this specific domain. Our experiments included various types of methods to deliver extensive comparison and analysis, including CF-based recommendation methods, off-the-shelf LLM-based methods, advanced Vision-Language Models (VLMs) and bundle recommendation methods. All compared methods are introduced below: 
+
+• GP-BPR [ 42 ] is a personalized item matching method that decomposes the problem into the modeling of personal preference and general item compatibility. These two parts are modeled by MF independently. 
+
+• DGSR [9] is a method originally for sequential fashion recommendation but also for the modeling of third-order interaction data between user and item pair. It is built upon two graphs to enhance the user-item interaction and item-item transition modeling. 
+
+• CPTM (CP-TransMatch) [ 11 ] is a recent personalized item matching method which applies a single-component translation operation to model the user-item pair interaction. 
+
+• Vicuna [6] is an open-sourced LLM fine-tuning LLaMA on user-shared conversations collected from ShareGPT, which is also the backbone of our method. 
+
+• Qwen-VL Series (Qwen2.5-VL [2 ], Qwen3-VL [55 ], and Qwen3.5-VL [39 ]) are state-of-the-art open-sourced MLLMs designed for integrated vision-language understanding. Compared to text-centric LLMs, these models are superior for multimodal tasks as they allow for the direct encoding of item images without the intermediate step of textual attribute extraction. We incorporate three iterations of the Qwen-VL series as baselines to assess the impact of varying multimodal model scales and architectures on our proposed tasks.   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation •13
+> Table 2. Personalized Fill-In-The-Blank (P-FITB) Performance (Acc)
+
+Dataset Polyvore IQON Method Type Method 1/4 1/10 1/20 1/4 1/10 1/20 CF-based Rec GP-BPR [42] 0.4107 0.2599 0.1923 0.3626 0.1772 0.1060 DGSR [9] 0.3538 0.2034 0.1621 0.2626 0.1232 0.0736 CPTM [11] 0.4320 0.2744 0.2064 0.3002 0.1484 0.0940 LLM Vicuna [6] 0.2416 0.0973 0.0513 0.2451 0.0961 0.0496 GPT-4 [1] 0.3873 0.1800 0.0623 0.3795 0.2057 0.1170 VLM Qwen2.5-VL-7B [2] 0.2903 0.1260 0.0687 0.2693 0.0938 0.0679 Qwen3-VL-8B [55] 0.3458 0.1331 0.0732 0.3309 0.1460 0.0623 Qwen3.5-VL-35B [39] 0.4746 0.2041 0.0913 0.5653 0.2661 0.1194 GPT-5.4-mini [37] 0.4426 0.1844 0.0672 0.48258 0.2257 0.0711 Bundle Rec LLMCBR [30] 0.4371 0.2430 0.1611 0.2825 0.1437 0.0920 Bundle-MLLM [32] 0.4775 0.2519 0.1459 0.5214 0.2336 0.1164 Ours CFALR 0.6498 0.3957 0.2459 0.6103 0.3654 0.2018 
+
+• GPT Series (GPT-4 [1 ], GPT-5.4-mini [37 ]) are representative advanced closed-sourced LLMs developed by OpenAI which excels in many tasks. We apply two versions of GPT models, including the text-only GPT-4 and the MLLM version GPT-5.4. 
+
+• LLMCBR [30 ] is a bundle recommendation framework that leverages large language models to get bundle-level semantic representations. It integrates multi-view and multi-grained collaborative information by modeling user-item and user-bundle interactions across different views, enabling the capture of both global and local user preferences. 
+
+• Bundle-MLLM [ 32 ] is a multimodal large language model framework for product bundling that incor-porates textual, visual, and relational features through a hybrid feature fusion strategy. It reformulates bundling as a multiple-choice question and adopts a progressive optimization scheme to enhance both bundle pattern learning and multimodal semantic understanding. 
+
+• TOG [12 ] is a personalized outfit generation method based on pre-defined templates. We only apply this method for POG task in the experiments. It should be noted that our primary objective with CFALR is personalized fashion outfit generation, a distinct and more complex task compared to the general personalized item recommendation problems. Applying item recommendation methods to our task would necessitate substantial adaptation, requiring entirely new modules for outfit-level compatibility modeling and item composition strategies. Such extensive modifications would obscure their true performance, as results would depend heavily on our custom extensions rather than their original design. Therefore, existing LLM-based item recommendation methods were not included as direct baselines, as our focus remained on models specifically tailored or readily adaptable to the complexities of outfit generation, ensuring a relevant and accurate evaluation of CFALR’s unique contributions to this specific domain. 
+
+5.5 Overall Performance 
+
+5.5.1 Personalized Fill-In-The-Blank (P-FITB). We present the experimental results on P-FITB of all compared methods in Table 2, from which we can observe the following results:   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. 14 •Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li
+
+• Among traditional recommendation baselines, CF-based methods still achieve competitive performance, especially on Polyvore. In particular, CPTM performs strongly under the more challenging 1/10 and 1/20 settings on Polyvore, achieving 0.2744 and 0.2064, respectively. This indicates that collaborative filtering and task-specific recommendation signals remain useful for personalized fill-in-the-blank outfit recommendation. However, their performance is less stable across datasets, as their results on IQON are generally weaker than those of more advanced multimodal models. This may be because Polyvore contains denser user-item interaction records. Such denser interaction data can better support CF-based models in discovering reliable interactive patterns from historical behaviors, whereas sparser interactions in IQON may limit their effectiveness. 
+
+• When comparing the performances of Vicuna and GPT-4, it is evident that GPT-4 achieves significantly better results overall. Vicuna, on the other hand, shows the weakest performance among all included methods, which underscores the substantial difference in capability between these two large language models (LLMs). GPT-4’s strong performance demonstrates its ability to handle domain-specific and customized tasks effectively. However, our CFALR model, built upon Vicuna, surpasses GPT-4 for the targeted task due to the integration of effective technical modules and a robust learning process. This showcases CFALR’s ability to significantly enhance the base model’s capacity to address specialized challenges. 
+
+• Advanced VLMs show clear progress compared with earlier LLM baselines. Vicuna performs relatively poorly across all settings, while GPT-4 achieves much stronger results, especially on IQON. More recent VLMs further improve the performance. In particular, Qwen3.5-VL demonstrates strong performance on both datasets and achieves the best baseline results on IQON across all three settings. GPT-5.4-mini also performs competitively, especially under the 1/4 setting. These results suggest that recent advances in multimodal foundation models can substantially benefit personalized outfit recommendation, as stronger visual-language understanding helps the models better capture item compatibility and user-oriented matching signals. 
+
+• Bundle recommendation models, i.e., LLMCBR and Bundle-MLLM, also show strong competitiveness. Bundle-MLLM achieves the best baseline result on Polyvore under the 1/4 setting and performs strongly on IQON as well. LLMCBR also delivers competitive results, particularly on Polyvore. Although these methods are based on LLM backbones that are generally less advanced than the latest VLMs in terms of general multimodal capability, their strong performance indicates the importance of task-specific learning for bundle and outfit recommendation. This suggests that curated learning on recommendation-oriented data can effectively enhance model performance on high-level and complex personalized outfit matching tasks, beyond relying only on general multimodal reasoning ability. 
+
+• The proposed CFALR consistently achieves the best performance across all datasets and evaluation settings. Compared with the strongest baseline in each setting, CFALR achieves clear improvements, especially under the more challenging 1/10 and 1/20 settings. These results demonstrate that CFALR can more effectively model personalized preference and outfit compatibility, confirming its robustness and superiority for personalized fill-in-the-blank outfit recommendation. 
+
+5.5.2 Personalized Outfit Generation (POG). Furthermore, we present the performance of the proposed CFALR and all compared methods on the Personalized Outfit Generation (POG) task in Table 3. This part of experimental results further highlight the effectiveness and versatility of the proposed method in personalized fashion outfit recommendation, which showcase the strengths of proposed CFALR in personalization and compatibility modeling by comparing with both CF-based and LLM-based methods. We specifically have the following observations and analysis. 
+
+• Overall, CFALR achieves the best performance across all datasets and evaluation metrics. These results show that CFALR can effectively capture user preferences while maintaining strong item compatibility,   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation •15
+> Table 3. Personalized Outfit Generation Performance
+
+Dataset Polyvore IQON Method Type Method PP OC MPC PP OC MPC CF-based Rec GP-BPR [42] 0.1649 0.3942 0.2137 0.2608 0.3004 0.2188 DGSR [9] 0.1645 0.4193 0.2457 0.1906 0.2790 0.1801 CPTM [11] 0.2314 0.4506 0.3365 0.2427 0.2934 0.2234 LLM Vicuna [6] 0.0488 0.3621 0.0856 0.1389 0.2662 0.1333 GPT-4 [1] 0.0847 0.2951 0.0794 0.1946 0.2754 0.1204 VLM Qwen2.5-VL-7B [2] 0.0944 0.3800 0.1264 0.1411 0.2660 0.1370 Qwen3-VL-8B [55] 0.1317 0.2750 0.0663 0.1917 0.2594 0.0915 Qwen3.5-VL-35B [39] 0.2106 0.4106 0.2075 0.2524 0.3036 0.1407 GPT-5.4-mini [37] 0.2202 0.4218 0.2192 0.1084 0.2598 0.1085 Bundle Rec LLMCBR [30] 0.2281 0.4331 0.3151 0.2317 0.2774 0.2097 Bundle-MLLM [32] 0.2337 0.4361 0.2869 0.2578 0.2966 0.1933 Outfit Gen TOG [12] 0.1399 0.3894 0.1986 0.1832 0.2612 0.1364 Ours CFALR 0.2428 0.4626 0.3556 0.2883 0.3147 0.2291 
+
+which is crucial for generating high-quality personalized outfits. Compared with the strongest baseline in each setting, CFALR still achieves clear improvements, demonstrating its robustness across both datasets. 
+
+• CF-based recommendation methods remain highly competitive on the POG task. In particular, CPTM performs strongly on Polyvore, achieving 0.2314, 0.4506, and 0.3365 on PP, OC, and MPC, respectively, and also obtains the strongest baseline result on IQON in terms of MPC. GP-BPR also performs well on IQON, especially on PP. This indicates that collaborative filtering methods can effectively exploit historical user-item and item-item interaction patterns for outfit generation. Compared with the P-FITB task, the performance gap between CFALR and CF-based methods is less pronounced in POG. This is because POG provides relatively limited input and focuses more on directly generating a complete outfit composition, where interaction-pattern modeling plays an important role. 
+
+• Pure LLM-based methods, including Vicuna and GPT-4, generally underperform compared with CF-based and specialized recommendation methods. Although LLMs have strong language understanding and reasoning capabilities, the POG task requires direct item selection and outfit composition rather than understanding complex textual or visual input. As a result, pure LLMs are less effective in modeling personalized outfit compatibility and user-item interaction patterns. This observation is consistent with the results of the P-FITB task: LLM-based methods are more useful when rich contextual input needs to be interpreted, while their advantages become less evident when the task mainly requires structured data modeling for recommendation and generation. 
+
+• General-purpose VLMs show stronger performance than pure LLMs, but their results are still inconsistent across datasets and metrics. For example, Qwen3.5-VL achieves competitive performance on both datasets, especially on IQON, where it obtains the strongest OC result among all baselines. GPT-5.4-mini also performs well on Polyvore, achieving strong PP and OC scores. These results suggest that advanced multimodal foundation models can benefit fashion recommendation by leveraging visual-language understanding. However, their performance does not consistently surpass task-specific recommendation models. For   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. 16 •Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li
+
+instance, GPT-5.4-mini performs strongly on Polyvore but is less competitive on IQON, and Qwen3-VL does not always improve over Qwen2.5-VL. This indicates that general multimodal reasoning ability alone is insufficient for fully solving personalized outfit generation, where recommendation-specific learning and compatibility modeling remain essential. 
+
+• Bundle recommendation methods, i.e., LLMCBR and Bundle-MLLM, achieve strong and stable performance across the two datasets. Bundle-MLLM obtains the best baseline PP score on Polyvore and also performs competitively on IQON, while LLMCBR achieves strong MPC performance on Polyvore. Their strong results show that bundle recommendation is highly relevant to personalized outfit generation, as both tasks require modeling a set of items as a coherent whole. Although these methods may not rely on the most advanced general-purpose large model backbones, their task-specific learning enables them to better capture bundle-level compatibility and personalized preference patterns. This further suggests that curated recommendation training is important for high-level outfit generation tasks. 
+
+• The outfit generation baseline TOG achieves reasonable but relatively limited performance compared with CF-based and bundle recommendation methods. This suggests that general outfit generation models can capture certain compatibility signals, but may not sufficiently model personalized preference. Since POG requires both outfit compatibility and user-specific personalization, methods that only focus on general outfit construction are less competitive than models designed to jointly consider user preference and item compatibility. 
+
+• Comparing the two datasets, we observe that CF-based methods are particularly strong on Polyvore, while advanced VLMs and bundle recommendation methods become more competitive on IQON. This may be related to the different characteristics of the two datasets. As shown in Table 1, IQON outfits contain more items on average than Polyvore outfits, meaning that models need to select more items to construct a complete outfit. In our experiments, LLM- and VLM-based methods tend to select more items when composing outfits, which may partially explain their relatively stronger competitiveness on IQON. Nevertheless, CFALR consistently outperforms all baselines on both datasets, showing that it can adapt well to different outfit composition scenarios. We further report LLM-as-a-judge and human evaluation results on a subset of generated outfits (70 samples), assessing overall quality, as shown in Table 4. For the LLM-as-a-judge evaluation, we employ two advanced LLMs, namely Gemini-3 and Qwen-3.6. For human evaluation, we invite three fashion experts to manually score each case for each compared method, and report the averaged results in the table. The results show that CFALR consistently outperforms the two baselines, i.e., CPTM and fine-tuned Vicuna, across all evaluation settings. Its superiority is particularly pronounced in terms of compatibility and aesthetics. 
+
+5.6 On hybrid representation 
+
+In this part, we investigate the effectiveness of the hybrid encoding from both the item and user sides with the P-FITB task on two evaluation datasets. The results of different settings are reported in Table 5, which demonstrate the following key observations: 
+
+• Effectiveness of Hybrid Representations : Experimental results across both datasets demonstrate the effectiveness of incorporating three components of features—historical interaction, visual, and collaborative filtering (CF). Including all these features consistently improves performance, validating the design of the hybrid representation. 
+
+• Polyvore Dataset Discussion : On the Polyvore dataset, CF features play a critical role in enhancing personalized recommendation performance, particularly for more challenging cases like 1/20 selection. Removing CF features results in a substantial performance drop (from 0.2459 to 0.1873, a 28.6% decrease). Visual features of items and historical interaction content for users also contribute, but their effectiveness   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation •17
+> Table 4. Generated Outfit Quality Evaluation by LLMs and Human Expert.
+
+Evaluation Model Outfit Generation Model Completeness Compatibility Aesthetics Overall Gemini-3 CPTM 0.531 0.591 0.491 0.537 Vicuna-T 0.744 0.461 0.399 0.535 CFALR 0.832 0.883 0.811 0.842 
+
+Qwen-3.6 CPTM 0.560 0.493 0.483 0.511 Vicuna-T 0.597 0.635 0.629 0.621 CFALR 0.645 0.696 0.680 0.674 
+
+Human Expert CPTM 0.563 0.501 0.491 0.518 Vicuna-T 0.747 0.709 0.688 0.723 CFALR 0.755 0.747 0.795 0.765       
+
+> Table 5. Ablation study results on CFALR for P-FITB task. Vdenotes visual features, CF denotes collaborative filtering features, UH denotes user’s historical interacted items
+
+Ablation Models Polyvore IQON 1/4 1/10 1/20 1/4 1/10 1/20 CFALR w/o V&CF 0.5820 0.3198 0.1851 0.6051 0.3496 0.2021 CFALR w/o CF 0.5896 0.3279 0.1873 0.6160 0.3692 0.2121 CFALR w/o V 0.6142 0.3788 0.2502 0.6123 0.3679 0.2091 CFALR w/o UH 0.6264 0.3701 0.2207 0.6012 0.3581 0.1991 CFALR 0.6498 0.3957 0.2459 0.6103 0.3654 0.2018 
+
+varies by task difficulty. User’s historical interactions are more impactful for difficult tasks (e.g., 1/20 selection), while item visual features are more relevant for easier tasks (e.g., 1/4 selection). These findings underscore the importance of complementing LLMs with CF information to enhance recommendation performance. Leveraging CF features derived from well-trained CF models is more effective than relying solely on historical interaction records, which would require the language model to infer personal prefer-ences without guidance. This hybrid design not only aids the language model in understanding personal preferences but also provides clues on item compatibility patterns. 
+
+• IQON Dataset Discussion : The hybrid representation’s effectiveness is less pronounced on the IQON dataset compared to Polyvore. Among the additional features, user’s historical interactions have the most impact, whereas visual and CF features show limited effectiveness. This outcome is unsurprising given the extreme sparsity of IQON’s interaction data. Referring to Table 1, each item is interacted with an average of only 1.136 times, indicating that most items appear only once in the training data. Such sparsity hampers traditional CF-based methods from capturing interaction patterns, rendering CF features less effective. However, with LLM as the backbone, the inclusion of user interaction data enhances the model’s ability to capture personal preferences, improving overall performance. These results demonstrate the feasibility of LLM-based recommendation methods in scenarios with extreme data sparsity, where traditional CF-based approaches struggle.   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. 18 •Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li
+> Table 6. P-FITB performance of models with various training objectives
+
+Loss Design Polyvore IQON 1/4 1/10 1/15 1/20 1/4 1/10 1/15 1/20 CFALR loss 0.6329 0.3893 0.3117 0.2411 0.6103 0.3654 0.2680 0.2018 
+
+LM loss 0.6247 0.3803 0.2920 0.2361 0.5779 0.3387 0.2447 0.1846 
+
+> Table 7. P-FITB performance of models with various training strategies
+
+Training Strategy Polyvore IQON 1/4 1/10 1/15 1/20 1/4 1/10 1/15 1/20 
+
+T_1 0.5934 0.3505 0.2738 0.2191 0.6039 0.3384 0.2573 0.1980 
+
+T_2 0.6498 0.3957 0.3088 0.2459 0.6103 0.3654 0.2680 0.2018 
+
+T_3 0.6329 0.3893 0.3117 0.2411 0.5990 0.3425 0.2532 0.2021 
+
+T_4 0.4811 0.0967 0.0606 0.0466 0.5610 0.2961 0.1927 0.1513 
+
+T_5 0.6263 0.3683 0.2871 0.2223 0.5968 0.3449 0.2424 0.1910 
+
+5.7 On learning objective and strategy 
+
+In this part, we investigate the impact of different learning objectives and training strategies on the final performance of the proposed model. Specifically, we tested our model with two types of learning objectives, 1) CFALR loss: discriminative loss in Eq. 9 and 2) LM loss 𝐿 = − Í|𝑦 | 
+
+> 𝑡 =1
+
+log 𝑃 (𝑦 𝑡 |𝑦 <𝑡 , 𝑥 ) and 𝑃 (𝑦 𝑡 ) denotes the probability distribution of the generative token over the whole corpus. The results, presented in Table 6 show that CFALR outperforms LM loss across all selection settings and datasets, particularly excelling in higher-difficulty scenarios (e.g., 1/20 in IQON: 0.2018 vs. 0.1846, a 9.3% improvement). This suggests CFALR’s ability to focus on localized decision-making leads to superior accuracy and robustness. This makes it a more effective objective function for the P-FITB task compared to LM loss. Fundamentally, CFALR is a discriminative loss that applies cross-entropy loss on a restricted candidate item set, focusing the model’s attention on a smaller, contextually relevant subset of items. This targeted optimization allows the model to better capture fine-grained relationships within the candidate set. From this analysis, we can derive that CFALR is well-suited for traditional recommendation tasks, which is fundamentally discriminative tasks such as ranking or item selection within a predefined candidate set (e.g., personalized product recommendations, where the model must choose from a curated set of items). To further investigate training strategy, we arrange different training settings and test the evaluation results, reported in Table 7. Specifically, there are five training strategies tested, which are 
+
+• Two-stage training I ( T_1 ): max Θ′ 𝐿 (𝐸 𝐸 𝐸 𝑡 ) → max Θ′ 𝐿 (𝐸 𝐸 𝐸 )• Two-stage training II ( T_2 ): max Θ′ 𝐿 (𝐸 𝐸 𝐸 𝑡 ) → max Λ 𝐿 (𝐸 𝐸 𝐸 )• Two-stage training III ( T_3 ): max Θ′ 𝐿 (𝐸 𝐸 𝐸 𝑡 ) → max Θ′,Λ 𝐿 (𝐸 𝐸 𝐸 )• Joint one-stage training ( T_4 ): max Θ′,Λ 𝐿 (𝐸 𝐸 𝐸 )• Three-stage training ( T_5 ): max Θ′ 𝐿 (𝐸 𝐸 𝐸 𝑡 ) → max Θ′ 𝐿 (𝐸 𝐸 𝐸 ) → max Λ 𝐿 (𝐸 𝐸 𝐸 )
+
+From the experimental results, we have the following observations. Overall, T_2 and T_3 achieves the best performance among all settings. Such experimental results highlight that these two are the most effective training strategies for recommendation tasks, with T_2 being the preferred choice for balanced performance   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation •19
+
+and simplicity. For high-difficulty or specialized tasks, T_3 performs better. The choice between T_2 and T_3 is heavily influenced by dataset characteristics. Sparse datasets like IQON benefit from simpler strategies with fewer trainable parameters ( T_2 ), while richer datasets like Polyvore can leverage the flexibility of LoRA fine-tuning (T_3 ) to achieve superior performance in challenging scenarios. For the rest of the three settings, while T_5 
+
+applies progressive optimization, which might be effective in some other work, it falls slightly short of T_2 and 
+
+T_3 in this study. Among all settings, T_1 and T_4 perform the worst, showing the importance of our first-stage pre-training on the LLM and the optimization on the projection layers for the non-textual features. The poor performance of joint optimization ( 𝑇 4) stems from a misalignment between the non-textual feature projection module and the LoRA-tuned LLM. In a joint training setup, the projection module must simultaneously learn to map high-dimensional collaborative and content information into the LLM’s semantic space, while the LoRA module attempts to adapt the model to specific recommendation tasks. Because these two modules start from disparate feature spaces, joint optimization leads to negative interference: the LLM essentially tries to learn task-specific reasoning based on unstable features that are in modification from an unanchored projection layer. This interference is particularly pronounced on the Polyvore dataset due to its specific data characteristics. Polyvore outfits are typically composed of a small number of items, which—under our training sample generation strategy—results in significantly fewer Personalized Fill-In-The-Blank (P-FITB) samples compared to other datasets. In this low-sample regime, the model lacks the sufficient gradient density required to resolve the feature-space gap through joint learning, making the two-stage strategy ( 𝑇 2 and 𝑇 3) essential for establishing a stable feature foundation before performing high-level task adaptation. 
+
+5.8 On CF augmentation for outfit generation 
+
+In this section, we evaluate the effectiveness of outfit generation inference in our CFALR model, enhanced with CF augmentation. Using two datasets, IQON and Polyvore, we present a detailed analysis of the outfit generation performance with different levels of CF augmentation. As illustrated in Fig. 2. The experimental results demonstrate that incorporating CF augmentation ( 𝜆 ∈ [ 0, 1]) consistently outperforms the use of the fine-tuned language model alone ( 𝜆 = 1) across both datasets. This aligns with our earlier analysis, which suggests that while LLMs excel at handling tasks with sufficient or complex input data, they tend to struggle with tasks involving short or simple inputs, which they may infer on limited information and cannot fully explore their generalization abilities. In contrast, CF-based methods effectively directly capture interaction patterns between users and items, making them particularly valuable in scenarios where a single user or item is provided, and multiple choices must be inferred from limited information. The experimental results further reveal that optimal performance on both datasets is achieved near 𝜆 = 0.4. This finding suggests that a balanced integration of the two models—LLM and CF—can effectively complement each other, leading to superior performance in our task. 
+
+5.9 Recommendation Prompt Template and User Encoding 
+
+We further discuss the fine-grained configurations of CFALR, specifically focusing on the prompt template for the LLM-based backbone and the number of historical items used for user encoding. Following prior studies, we evaluate four distinct prompt templates: Emotion [ 25 ], Re-reading [53 ], RolePlay-Expert [ 46 ] and our proposed template (detailed in Sec.4.1.1). These compared templates are selected due to their demonstrated competitive performance in fashion-related recommendation tasks and their compatibility with our framework [ 24 ]. As illustrated by the experimental results on P-FITB (Fig. 3), the performance variance across different templates is marginal, highlighting the robustness of CFALR regarding prompt engineering. Notably, while Emotion , RolePlay-Expert and our template yield comparable results, we adopt our proposed template as the default setting for CFALR due to its superior computational efficiency and conciseness.   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. 20 •Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li
+
+0.2805 0.2883 0.2879 0.2794 
+
+0.3107 0.3147 0.3166 0.3149 
+
+0.2219 0.2291 0.2252 0.2128 
+
+0.1 
+
+0.15 
+
+0.2 
+
+0.25 
+
+0.3 
+
+0.35 
+
+0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.8 1.0 
+
+IQON 
+
+PP OC MPC 
+
+0.2428 0.2477 0.2482 0.2388 
+
+0.4626 0.4685 0.4679 0.4621 
+
+0.3556 0.3643 0.3635 0.3475 
+
+0.10 
+
+0.20 
+
+0.30 
+
+0.40 
+
+0.50 
+
+0 0.1 0.2 0.3 0.4 0.5 0.6 0.8 1
+
+Polyvore 
+
+PP OC MPC 
+
+Fig. 2. Personalized Outfit Generation Performance of CFALR model with different 𝜆 settings. 
+
+Fig. 3. Personalized FITB Accuracy of CFALR with regard to different prompt template (Left) and historical item number in user encoding (Right). 
+
+In addition to the prompt template, we investigate the influence of the number of historical interacted items on user encoding, as illustrated in the right panel of Fig. 3. Our experimental results on the P-FITB task indicate a general upward trend in performance as the number of historical items increases, reaching a peak at five   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation •21
+> Table 8. Average inference time per instance for four compared methods.
+
+Method CPTM Vicuna-7B Qwen3-VL-8B CFALR Inference time (s) 0.02 0.12 0.17 0.21 items (accuracy = 0.4029). However, we observe diminishing returns as the history length extends further, for instance, increasing the item number to seven, nine and eleven results in a slight performance plateau or even a marginal decrease. While the absolute difference between using one item (0.3931) and five items (0.4029) is relatively subtle, the increased history length expands the input token count, thereby escalating the computational overhead and inference cost. Nevertheless, historical context remains indispensable to the CFALR framework. As demonstrated by the ablation study in Table 5, removing historical items entirely causes the performance to plummet to 0.3701, which is a significant drop compared to the 0.3931 achieved with even a single historical item. This gap underscores the efficacy of historical data in helping the model identify nuanced personal preferences. To strike an optimal balance between recommendation accuracy and computational efficiency, we ultimately select five historical items as the default configuration for Polyvore and three for IQON. 
+
+5.10 Efficiency Analysis 
+
+To evaluate the practical feasibility of our proposed framework, we conducted a comparative analysis of the inference latency for a single sample on the P-FITB task. As summarized in Table 8, traditional collaborative filtering (CF) methods such as CPTM exhibit the lowest latency (0.02s), benefiting from their lightweight archi-tecture. In contrast, LLM-based models incur higher computational costs due to their massive parameter scales. Specifically, Vicuna-7B and Qwen3-VL-8B report inference times of 0.12s and 0.17s, respectively. Our proposed CFALR achieves an inference latency of 0.21s, which is slightly higher than standalone LLM backbones. This marginal increase is attributed to the multi-stage nature of our framework. Despite the increased overhead relative to traditional CF methods, we contend that a latency of 0.21s (ap-proximately 200ms) remains within the acceptable threshold for near real-time recommendation systems. More importantly, this trade-off is justified by the significant gains in recommendation accuracy, particularly the ability of LLMs to tackle cold-start problem that traditional, efficient models often fail to address. Moreover, with the ongoing optimization of base models and the continuous improvement of computational resources, the additional latency introduced by CFALR will become even less significant in future large-scale applications. 
+
+5.11 Outfit Generation Analysis 
+
+This section evaluates the performance of different outfit generation methods under varying conditions. We analyze how different outfit features—including outfit length, template, and input item category—impact the performance of our method, CFALR, compared to baselines like GPT, CPTM, and Vicuna. Our analysis of outfit length shown in Figure 4 reveals that PP and MPC are more sensitive to outfit length than OC. In our test dataset, outfits with fewer items are generally more challenging, resulting in lower PP and MPC scores. Consistently, our CFALR method outperforms all other methods, while GPT shows the weakest performance. Figure 5 demonstrates the performance of the four methods across various outfit templates. The results highlight that all methods show significant performance variations across different outfit templates. Our CFALR method consistently outperforms all three other models on every single template tested. The PP and MPC metrics are more sensitive to template changes than OC. For all methods, performance is significantly better on certain 
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026.
+
+22 • Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li 1.0            
+
+> 0.8
+> 0.6
+> 0.4
+> 0.2
+> 0.0
+> PP MPC OC
+> 234234234
+> Outfit length Outfit length Outfit length
+> CFALR
+> CPTM
+> GPT
+> Vicuna
+> CFALR
+> CPTM
+> GPT
+> Vicuna
+> CFALR
+> CPTM
+> GPT
+> Vicuna
+
+Fig. 4. Outfit generation performance of four compared methods (our CFALR, GPT, CPTM and Vicuna) with regard to different length of outfit. PP 
+
+MPC 
+
+OC 
+
+1.0 
+
+0.8 
+
+0.6 
+
+0.4 
+
+0.2 
+
+0.0 
+
+1.0 
+
+0.8 
+
+0.6 
+
+0.4 
+
+0.2 
+
+0.0 
+
+1.0 
+
+0.8 
+
+0.6 
+
+0.4 
+
+0.2 
+
+0.0 
+
+> CFALR
+> CPTM
+> GPT
+> Vicuna
+> CFALR
+> CPTM
+> GPT
+> Vicuna
+> CFALR
+> CPTM
+> GPT
+> Vicuna
+
+Outfit Template ID 
+
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 
+
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 
+
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 
+
+Fig. 5. Outfit generation performance of four compared methods (our CFALR, GPT, CPTM and Vicuna) with regard to different template of outfit. 
+
+templates (e.g., templates 7, 13, and 19) and notably worse on others (e.g., templates 6 and 8) 1. It may suggest that 
+
+> 1
+
+template id map are 1: top_pants_shoes, 2: pants_outerwear_shoes, 3: top_skirt_shoes, 4: top_skirt_outerwear, 5: top_skirt_outerwear_shoes, 6: outerwear_one-piece, 7: top_top_pants_shoes, 8: female shirt_female skirt, 9: top_top_pants, 10: top_pants_outerwear, 11: top_outerwear_shoes, 12: top_pants, 13: female pants_female sandals_female top, 14: male bottom_female shirt, 15: female pants_female , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation • 23 PP 
+
+MPC 
+
+> Top
+
+Input item category 
+
+Input item category        
+
+> Skirt Pants Outerwear Shoes One -piece
+> Top Skirt Pants Outerwear Shoes One -piece
+
+1.0 
+
+0.8 
+
+0.6 
+
+0.4 
+
+0.2 
+
+0.0 
+
+Input item category     
+
+> Top Skirt Pants Outerwear Shoes One -piece
+
+1.0 
+
+0.8 
+
+0.6 
+
+0.4 
+
+0.2 
+
+0.0 
+
+OC CFALR 
+
+> CPTM
+> GPT
+> Vicuna
+> CFALR
+> CPTM
+> GPT
+> Vicuna
+> CFALR
+> CPTM
+> GPT
+> Vicuna
+
+1.0 
+
+0.8 
+
+0.6 
+
+0.4 
+
+0.2 
+
+0.0 
+
+Fig. 6. Outfit generation performance of four compared methods (our CFALR, GPT, CPTM and Vicuna) with regard to different input item categories. 
+
+some templates are easier to be comprehend by different models, therefore would achieve better performance. We also notice that for some templates CPTM performs very similar as or even outperforms our CFALR (template 3, 7, 9, 14, 21, 24). We observe that these cases are usually templates that not common or incomplete. CPTM relies more on data fitting, which therefore will not be less affected if the template is problematic. Instead, our CFALR leverages partly the power of LLM, especially its inherent knowledge, which would tend to generate outfits with more reasonable templates. Figure 6 examines the impact of the input item’s category on the performance of each method. The results reveal that while performance varies by input category, the differences are not as significant as those observed for outfit length or template. Overall, our CFALR and CPTM outperform the other two methods, GPT and Vicuna. All methods tend to perform better when the input item is a basic piece like a top, pants, or one-piece. In 
+
+> outerwear, 16: pants_outerwear, 17: female shirt_female other pants, 18: female shirt_female jeans, 19: top_pants_outerwear_shoes, 20: skirt_outerwear_shoes, 21: outerwear_shoes_one-piece, 22: skirt_outerwear, 23: shoes_one-piece, 24: top_skirt , Vol. 1, No. 1, Article . Publication date: June 2026.
+
+24 • Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li vicuna  GPT4  vicuna-T  CPTM  CFALR       
+
+> Target Anchor Personalized recommendation for outfits User_462
+> vicuna GPT4 vicuna-T CPTM CFALR
+> Target Anchor Personalized recommendation for outfits User_380
+
+Fig. 7. Two successful personalized outfit generation (POG) cases showing the results of CFALR and main compared methods. 
+
+conclusion, our analysis confirms that outfit length and template are critical factors influencing the difficulty and performance of outfit generation. Our CFALR method consistently demonstrates superior performance across all tested conditions, whether judged by outfit length, template, or input item category. Its robust performance highlights its effectiveness in generating comprehensive and harmonious fashion outfits. 
+
+, Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation • 25 Target Anchor  Prediction  
+
+> Target Anchor Prediction
+> Fig. 8. Two failure POG cases of CFALR.
+
+5.12 Personalized Outfit Generation Cases 
+
+Figure 7 provides a detailed look at two successful outfit generation (POG) cases produced by our CFALR model, alongside the outputs from major comparative methods. This visual analysis highlights CFALR’s key advantages and the distinct limitations of the competing models. In both cases, CFALR consistently demonstrates a superior ability to generate outfits that not only align with the user’s preferences but also maintain a high degree of consistency and compatibility with the anchor item and other selected pieces. This strength underscores CFALR’s effectiveness in producing complete and coherent outfits that go beyond simple item association. The first case provides a clear example of the efficacy of our CF-augmentation scheme. Here, CFALR correctly predicts two items by strategically integrating probabilities from both the fine-tuned Vicuna and the CPTM model. This successful outcome demonstrates that our approach outperforms individual models by leveraging their complementary strengths. In contrast, the comparative methods reveal significant inherent limitations. For instance, the off-the-shelf Vicuna model struggles with outfit generation, producing incomplete sets containing only a single item. Furthermore, we observe that vanilla LLMs are plagued by positional bias, an inherent issue where models are sensitive to the sequential order of input candidates [ 47 ]. While GPT-4 appears less sensitive based on our empirical observation, Vicuna exhibits a severe preference for selecting the first item from a given list, which compromises the diversity and relevance of its outputs. This is a critical challenge of LLMs for recommendation tasks. Notably, we find that after fine-tuning with the P-FITB (Personalized Fill-In-The-Blank) task, the model effectively addresses this bias. This suggests that P-FITB successfully trains the LLM to prioritize compositional relations between items over their sequential positions. While vanilla Vicuna outputs too few items, the pure CF-based method, CPTM, also tends to generate short outfits. Because CPTM focuses primarily on item-wise and user-item compatibility, it lacks the holistic under-standing required to ensure the completeness of a generated group. Conversely, while GPT-4 and the fine-tuned Vicuna-T generate longer outfits, they often fail to maintain a coherent composition. They frequently produce redundant or nonsensical items—such as two separate footwear items in a single outfit—revealing a lack of hard, rule-based fashion knowledge. Our CF-augmentation mitigates this by restoring these structural constraints, ensuring that CFALR achieves superior accuracy, diversity, and alignment with practical fashion logic. The CF augmentation scheme is particularly impactful, as it significantly enhances the quality and relevance of the generated outfits. Figure 8 provides a candid analysis of two failure cases for our CFALR model, highlighting specific limitations and areas for future improvement. In the first case, the model fails to generate a complete outfit, predicting only   
+
+> , Vol. 1, No. 1, Article . Publication date: June 2026. 26 •Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li
+
+one additional item. While this single item aligns well with the user’s preferences and correctly matches the anchor item, the output ultimately fails to fulfill the primary task of generating a full and coherent outfit. This suggests a potential weakness in the model’s generation strategy, indicating a need for a more robust mechanism to ensure outfit completeness. The second case reveals a different type of failure. Here, CFALR successfully generates multiple items but includes a significant redundancy, such as two distinct pieces of bottom wear. This suggests that while the model can produce a longer sequence of items, it occasionally lacks a strategic understanding of outfit composition and violates fundamental fashion rules. This limitation points to the need for enhanced constraints to ensure better category diversity and overall balance within the generated outfits. Despite these shortcomings, it is important to note that both failure cases still demonstrate a core strength of the CFALR model: its ability to provide appropriate, context-aware item-level suggestions that align with user preferences. The failures are not due to a complete misunderstanding of the user’s intent, but rather to challenges in the final steps of outfit completion and compositional logic. Addressing these issues will be the focus of future work to improve the model’s overall performance and reliability. 
+
+6 Conclusion and Future Work 
+
+This paper presents Collaborative Filtering-Augmented Large Language Model for Recommendation (CFALR), a novel fashion outfit recommendation method and the first LLM-based approach designed to address the limitations of traditional methods that heavily depend on dense user-item interaction data. Built upon the open-source pre-trained LLM Vicuna, CFALR was fine-tuned with outfit recommendation data using a personalized fill-in-the-blank problem formulation. The proposed method leverages the strengths of collaborative filtering to capture implicit interaction patterns by employing a hybrid encoding for users and items. Additionally, a CF augmentation scheme was introduced to integrate the predicted probabilities of the CF and the language model, achieving a balance between interaction pattern modeling and semantic understanding. Experimental results on two benchmark fashion outfit recommendation datasets demonstrate that CFALR excels in delivering personalized and compatible item-level recommendations while also generating cohesive and user-specific outfits. In future work, we aim to focus on several directions to further enhance this study. First, we will enhance the user modeling, trying to develop a more sophisticated way to better capture user’s fashion tastes or intent. Second, instead of simply aligning the visual and collaborative filtering features in the language model backbone through target objective-specific fine-tuning , we will explore better integration method with better understanding of the domain specific data and knowledge. Third, with this model as a foundation, we will develop an interactive outfit recommendation framework that allows user feedback and revision on the recommendation results. 
+
+References                      
+
+> [1] Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ahmad, Ilge Akkaya, Florencia Leoni Aleman, Diogo Almeida, Janko Altenschmidt, Sam Altman, Shyamal Anadkat, et al. 2023. Gpt-4 technical report. arXiv preprint arXiv:2303.08774 (2023). [2] Shuai Bai, Keqin Chen, Xuejing Liu, Jialin Wang, Wenbin Ge, Sibo Song, Kai Dang, Peng Wang, Shijie Wang, Jun Tang, et al .2025. Qwen2. 5-vl technical report. arXiv preprint arXiv:2502.13923 (2025). [3] Keqin Bao, Jizhi Zhang, Wenjie Wang, Yang Zhang, Zhengyi Yang, Yancheng Luo, Chong Chen, Fuli Feng, and Qi Tian. 2023. A bi-step grounding paradigm for large language models in recommendation systems. arXiv preprint arXiv:2308.08434 (2023). [4] Keqin Bao, Jizhi Zhang, Yang Zhang, Wenjie Wang, Fuli Feng, and Xiangnan He. 2023. Tallrec: An effective and efficient tuning framework to align large language model with recommendation. In Proceedings of the 17th ACM Conference on Recommender Systems .1007–1014. [5] Wen Chen, Pipei Huang, Jiaming Xu, Xin Guo, Cheng Guo, Fei Sun, Chao Li, Andreas Pfadler, Huan Zhao, and Binqiang Zhao. 2019. POG: personalized outfit generation for fashion recommendation at Alibaba iFashion. In Proceedings of the 25th ACM SIGKDD international conference on knowledge discovery & data mining . 2662–2670. [6] Wei-Lin Chiang, Zhuohan Li, Zi Lin, Ying Sheng, Zhanghao Wu, Hao Zhang, Lianmin Zheng, Siyuan Zhuang, Yonghao Zhuang, Joseph E Gonzalez, et al .2023. Vicuna: An open-source chatbot impressing gpt-4 with 90%* chatgpt quality. See https://vicuna. lmsys. org (accessed 14 April 2023) 2, 3 (2023), 6. , Vol. 1, No. 1, Article . Publication date: June 2026.
+
+CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation • 27 
+
+[7] Sunhao Dai, Ninglu Shao, Haiyuan Zhao, Weijie Yu, Zihua Si, Chen Xu, Zhongxiang Sun, Xiao Zhang, and Jun Xu. 2023. Uncovering chatgpt’s capabilities in recommender systems. In Proceedings of the 17th ACM Conference on Recommender Systems . 1126–1132. [8] Yujuan Ding, Zhihui Lai, PY Mok, and Tat-Seng Chua. 2023. Computational technologies for fashion recommendation: A survey. Comput. Surveys 56, 5 (2023), 1–45. [9] Yujuan Ding, Yunshan Ma, Lizi Liao, Wai Keung Wong, and Tat-Seng Chua. 2021. Leveraging multiple relations for fashion trend forecasting based on social media. IEEE Transactions on Multimedia 24 (2021), 2287–2299. [10] Yujuan Ding, Yunshan Ma, Wai Keung Wong, and Tat-Seng Chua. 2021. Leveraging two types of global graph for sequential fashion recommendation. In Proceedings of the 2021 International Conference on Multimedia Retrieval . 73–81. [11] Yujuan Ding, PY Mok, Yi Bin, Xun Yang, and Zhiyong Cheng. 2023. Modeling Multi-Relational Connectivity for Personalized Fashion Matching. In Proceedings of the 31st ACM International Conference on Multimedia . 7047–7055. [12] Yujuan Ding, PY Mok, Yunshan Ma, and Yi Bin. 2023. Personalized fashion outfit generation with user coordination preference learning. 
+
+Information Processing & Management 60, 5 (2023), 103434. [13] Xiaoyu Du, Kun Qian, Yunshan Ma, and Xinguang Xiang. 2023. Enhancing item-level bundle representation for bundle recommendation. 
+
+ACM Transactions on Recommender Systems (2023). [14] Wenqi Fan, Yujuan Ding, Liangbo Ning, Shijie Wang, Hengyun Li, Dawei Yin, Tat-Seng Chua, and Qing Li. 2024. A survey on rag meeting llms: Towards retrieval-augmented large language models. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 6491–6501. [15] Yunfan Gao, Tao Sheng, Youlin Xiang, Yun Xiong, Haofen Wang, and Jiawei Zhang. 2023. Chat-rec: Towards interactive and explainable llms-augmented recommender system. arXiv preprint arXiv:2303.14524 (2023). [16] Shijie Geng, Shuchang Liu, Zuohui Fu, Yingqiang Ge, and Yongfeng Zhang. 2022. Recommendation as language processing (rlp): A unified pretrain, personalized prompt & predict paradigm (p5). In Proceedings of the 16th ACM Conference on Recommender Systems .299–315. [17] Ruining He and Julian McAuley. 2016. VBPR: visual bayesian personalized ranking from implicit feedback. In Proceedings of the AAAI conference on artificial intelligence , Vol. 30. [18] Xiangnan He, Kuan Deng, Xiang Wang, Yan Li, Yongdong Zhang, and Meng Wang. 2020. Lightgcn: Simplifying and powering graph convolution network for recommendation. In Proceedings of the 43rd International ACM SIGIR conference on research and development in Information Retrieval . 639–648. [19] Xiangnan He, Lizi Liao, Hanwang Zhang, Liqiang Nie, Xia Hu, and Tat-Seng Chua. 2017. Neural collaborative filtering. In Proceedings of the 26th international conference on world wide web . 173–182. [20] Edward J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. 2021. Lora: Low-rank adaptation of large language models. arXiv preprint arXiv:2106.09685 (2021). [21] Juntong Hu, Shixuan Zhu, Chuan Cui, Qi Shen, Yu Ji, and Zhihua Wei. 2023. Text2bundle: Towards personalized query-based bundle generation. ACM Transactions on Recommender Systems (2023). [22] Urvashi Khandelwal, Omer Levy, Dan Jurafsky, Luke Zettlemoyer, and Mike Lewis. 2019. Generalization through memorization: Nearest neighbor language models. arXiv preprint arXiv:1911.00172 (2019). [23] Sein Kim, Hongseok Kang, Seungyoon Choi, Donghyun Kim, Minchul Yang, and Chanyoung Park. 2024. Large language models meet collaborative filtering: An efficient all-round llm-based recommender system. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 1395–1406. [24] Genki Kusano, Kosuke Akimoto, and Kunihiro Takeoka. 2025. Revisiting prompt engineering: A comprehensive evaluation for llm-based personalized recommendation. In Proceedings of the Nineteenth ACM Conference on Recommender Systems . 832–841. [25] Cheng Li, Jindong Wang, Yixuan Zhang, Kaijie Zhu, Wenxin Hou, Jianxun Lian, Fang Luo, Qiang Yang, and Xing Xie. 2023. Large language models understand and can be enhanced by emotional stimuli. arXiv preprint arXiv:2307.11760 (2023). [26] Jiacheng Li, Ming Wang, Jin Li, Jinmiao Fu, Xin Shen, Jingbo Shang, and Julian McAuley. 2023. Text is all you need: Learning language representations for sequential recommendation. In Proceedings of the 29th ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 1258–1267. [27] Xingchen Li, Xiang Wang, Xiangnan He, Long Chen, Jun Xiao, and Tat-Seng Chua. 2020. Hierarchical fashion graph network for personalized outfit recommendation. In Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval . 159–168. [28] Jiayi Liao, Sihang Li, Zhengyi Yang, Jiancan Wu, Yancheng Yuan, Xiang Wang, and Xiangnan He. 2024. Llara: Large language-recommendation assistant. In Proceedings of the 47th International ACM SIGIR Conference on Research and Development in Information Retrieval . 1785–1795. [29] Jianghao Lin, Rong Shan, Chenxu Zhu, Kounianhua Du, Bo Chen, Shigang Quan, Ruiming Tang, Yong Yu, and Weinan Zhang. 2024. Rella: Retrieval-enhanced large language models for lifelong sequential behavior comprehension in recommendation. In Proceedings of the ACM on Web Conference 2024 . 3497–3508. , Vol. 1, No. 1, Article . Publication date: June 2026. 28 • Yujuan Ding, Junrong Liao, Yunshan Ma, Yi Bin, Wenqi Fan, Tat-Seng Chua, and Qing Li 
+
+[30] Shiqin Liu, Chaozhuo Li, Minjun Zhao, Litian Zhang, and Jiajun Bu. 2025. LLMCBR: Large Language Model-based Multi-View and Multi-Grained Learning for Bundle Recommendation. In Proceedings of the 34th ACM International Conference on Information and Knowledge Management . 1892–1902. [31] Xiaohao Liu, Jie Wu, Zhulin Tao, Yunshan Ma, Yinwei Wei, and Tat-seng Chua. 2024. Harnessing Large Language Models for Multimodal Product Bundling. arXiv preprint arXiv:2407.11712 (2024). [32] Xiaohao Liu, Jie Wu, Zhulin Tao, Yunshan Ma, Yinwei Wei, and Tat-seng Chua. 2025. Fine-tuning multimodal large language models for product bundling. In Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 1 . 848–858. [33] Zhi Lu, Yang Hu, Yan Chen, and Bing Zeng. 2021. Personalized outfit recommendation with learnable anchors. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition . 12722–12731. [34] Yunshan Ma, Yujuan Ding, Xun Yang, Lizi Liao, Wai Keung Wong, and Tat-Seng Chua. 2020. Knowledge enhanced neural fashion trend forecasting. In Proceedings of the 2020 international conference on multimedia retrieval . 82–90. [35] Yunshan Ma, Xiaohao Liu, Yinwei Wei, Zhulin Tao, Xiang Wang, and Tat-Seng Chua. 2024. Leveraging multimodal features and item-level user feedback for bundle construction. In Proceedings of the 17th ACM International Conference on Web Search and Data Mining .510–519. [36] Huy-Son Nguyen, Quang-Huy Nguyen, Duc-Hoang Pham, Duc-Trong Le, Hoang-Quynh Le, Padipat Sitkrongwong, Atsuhiro Takasu, and Masoud Mansoury. 2025. RaMen: Multi-Strategy Multi-Modal Learning for Bundle Construction. arXiv preprint arXiv:2507.14361 
+
+(2025). [37] OpenAI. 2026. Introducing GPT-5.4. OpenAI Official Website. https://openai.com/zh-Hans-CN/index/introducing-gpt-5-4/ Accessed: 2026-04-01. [38] Haohao Qu, Shanru Lin, Yujuan Ding, Yiqi Wang, and Wenqi Fan. 2026. Diffusion generative recommendation with continuous tokens. In Proceedings of the ACM Web Conference 2026 . 7259–7270. [39] Qwen Team. 2026. Qwen3.5: Towards Native Multimodal Agents. https://qwen.ai/blog?id=qwen3.5 [40] Steffen Rendle. 2010. Factorization machines. In 2010 IEEE International conference on data mining . IEEE, 995–1000. [41] Steffen Rendle, Christoph Freudenthaler, Zeno Gantner, and Lars Schmidt-Thieme. 2012. BPR: Bayesian personalized ranking from implicit feedback. arXiv preprint arXiv:1205.2618 (2012). [42] Xuemeng Song, Xianjing Han, Yunkai Li, Jingyuan Chen, Xin-Shun Xu, and Liqiang Nie. 2019. GP-BPR: Personalized compatibility modeling for clothing matching. In Proceedings of the 27th ACM international conference on multimedia . 320–328. [43] Zhu Sun, Kaidong Feng, Jie Yang, Xinghua Qu, Hui Fang, Yew-Soon Ong, and Wenyuan Liu. 2023. Dynamic In-Context Learning from Nearest Neighbors for Bundle Generation. arXiv preprint arXiv:2312.16262 (2023). [44] Zhongxiang Sun, Zihua Si, Xiaoxue Zang, Kai Zheng, Yang Song, Xiao Zhang, and Jun Xu. 2024. Large language models enhanced collaborative filtering. In Proceedings of the 33rd ACM International Conference on Information and Knowledge Management . 2178–2188. [45] Teng Tu, Ai Li, Yunshan Ma, Shuo Xu, Xiaohao Liu, Haokai Ma, Liang Pang, and Tat-Seng Chua. 2026. Discrete Diffusion for Bundle Construction. In The Fourteenth International Conference on Learning Representations .[46] Noah Wang, Zy Peng, Haoran Que, Jiaheng Liu, Wangchunshu Zhou, Yuhan Wu, Hongcheng Guo, Ruitong Gan, Zehao Ni, Jian Yang, et al . 2024. Rolellm: Benchmarking, eliciting, and enhancing role-playing abilities of large language models. In Findings of the Association for Computational Linguistics: ACL 2024 . 14743–14777. [47] Peiyi Wang, Lei Li, Liang Chen, Zefan Cai, Dawei Zhu, Binghuai Lin, Yunbo Cao, Lingpeng Kong, Qi Liu, Tianyu Liu, et al . 2024. Large language models are not fair evaluators. In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) . 9440–9450. [48] Shijie Wang, Chengyi Liu, Yujuan Ding, Shanru Lin, See-Kiong Ng, Xu Xin, and Wenqi Fan. 2026. Mixture-of-Experts Knowledge Graph Retrieval-Augmented Generation for Multi-Agent LLM-based Recommendation. arXiv preprint arXiv:2605.28175 (2026). [49] Xiang Wang, Xiangnan He, Meng Wang, Fuli Feng, and Tat-Seng Chua. 2019. Neural graph collaborative filtering. In Proceedings of the 42nd international ACM SIGIR conference on Research and development in Information Retrieval . 165–174. [50] Jerry Wei, Jason Wei, Yi Tay, Dustin Tran, Albert Webson, Yifeng Lu, Xinyun Chen, Hanxiao Liu, Da Huang, Denny Zhou, et al . 2023. Larger language models do in-context learning differently. arXiv preprint arXiv:2303.03846 (2023). [51] Wei Wei, Xubin Ren, Jiabin Tang, Qinyong Wang, Lixin Su, Suqi Cheng, Junfeng Wang, Dawei Yin, and Chao Huang. 2024. Llmrec: Large language models with graph augmentation for recommendation. In Proceedings of the 17th ACM international conference on web search and data mining . 806–815. [52] Yunjia Xi, Weiwen Liu, Jianghao Lin, Xiaoling Cai, Hong Zhu, Jieming Zhu, Bo Chen, Ruiming Tang, Weinan Zhang, and Yong Yu. 2024. Towards open-world recommendation with knowledge augmentation from large language models. In Proceedings of the 18th ACM Conference on Recommender Systems . 12–22. [53] Xiaohan Xu, Chongyang Tao, Tao Shen, Can Xu, Hongbo Xu, Guodong Long, Jian-Guang Lou, and Shuai Ma. 2024. Re-reading improves reasoning in large language models. In Proceedings of the 2024 conference on empirical methods in natural language processing .15549–15575. , Vol. 1, No. 1, Article . Publication date: June 2026. CFALR: Collaborative Filtering-Augmented Large Language Model for Personalized Fashion Outfit Recommendation • 29 
+
+[54] Yiyan Xu, Wenjie Wang, Fuli Feng, Yunshan Ma, Jizhi Zhang, and Xiangnan He. 2024. Diffusion models for generative outfit rec-ommendation. In Proceedings of the 47th international ACM SIGIR conference on research and development in information retrieval .1350–1359. [55] An Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chang Gao, Chengen Huang, Chenxu Lv, et al .2025. Qwen3 technical report. arXiv preprint arXiv:2505.09388 (2025). [56] Wenchuan Yang, Cheng Yang, Jichao Li, Yuejin Tan, Xin Lu, and Chuan Shi. 2024. Non-autoregressive personalized bundle generation. 
+
+Information Processing & Management 61, 5 (2024), 103814. [57] Zhengyuan Yang, Linjie Li, Kevin Lin, Jianfeng Wang, Chung-Ching Lin, Zicheng Liu, and Lijuan Wang. 2023. The dawn of lmms: Preliminary explorations with gpt-4v (ision). arXiv preprint arXiv:2309.17421 9, 1 (2023), 1. [58] Mingzhe Yu, Yunshan Ma, Lei Wu, Changshuo Wang, Xue Li, and Lei Meng. 2025. FashionDPO: fine-tune fashion outfit generation model using direct preference optimization. In Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval . 212–222. [59] Wenhui Yu, Huidi Zhang, Xiangnan He, Xu Chen, Li Xiong, and Zheng Qin. 2018. Aesthetic-based clothing recommendation. In 
+
+Proceedings of the 2018 world wide web conference . 649–658. [60] Huijing Zhan, Jie Lin, Kenan Emir Ak, Boxin Shi, Ling-Yu Duan, and Alex C Kot. 2021. A3-FKG: Attentive Attribute-Aware Fashion Knowledge Graph for Outfit Preference Prediction. IEEE Transactions on Multimedia 24 (2021), 819–831. [61] Chao Zhang, Shiwei Wu, Haoxin Zhang, Tong Xu, Yan Gao, Yao Hu, and Enhong Chen. 2024. NoteLLM: A Retrievable Large Language Model for Note Recommendation. In Companion Proceedings of the ACM on Web Conference 2024 . 170–179. [62] Yang Zhang, Keqin Bao, Ming Yan, Wenjie Wang, Fuli Feng, and Xiangnan He. 2024. Text-like encoding of collaborative information in large language models for recommendation. In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) . 9181–9191. [63] Yang Zhang, Fuli Feng, Jizhi Zhang, Keqin Bao, Qifan Wang, and Xiangnan He. 2025. Collm: Integrating collaborative embeddings into large language models for recommendation. IEEE Transactions on Knowledge and Data Engineering (2025). [64] Zihuai Zhao, Yujuan Ding, Wenqi Fan, and Qing Li. 2025. WebRec: Enhancing LLM-based Recommendations with Attention-guided RAG from Web. arXiv preprint arXiv:2511.14182 (2025). [65] Zihuai Zhao, Wenqi Fan, Jiatong Li, Yunqing Liu, Xiaowei Mei, Yiqi Wang, Zhen Wen, Fei Wang, Xiangyu Zhao, Jiliang Tang, et al . 2023. Recommender systems in the era of large language models (llms). arXiv preprint arXiv:2307.02046 (2023). [66] Bowen Zheng, Yupeng Hou, Hongyu Lu, Yu Chen, Wayne Xin Zhao, Ming Chen, and Ji-Rong Wen. 2024. Adapting large language models by integrating collaborative semantics for recommendation. In 2024 IEEE 40th International Conference on Data Engineering (ICDE) . IEEE, 1435–1448. [67] Yaochen Zhu, Liang Wu, Qi Guo, Liangjie Hong, and Jundong Li. 2024. Collaborative large language model for recommender systems. In Proceedings of the ACM on Web Conference 2024 . 3162–3172. , Vol. 1, No. 1, Article . Publication date: June 2026.

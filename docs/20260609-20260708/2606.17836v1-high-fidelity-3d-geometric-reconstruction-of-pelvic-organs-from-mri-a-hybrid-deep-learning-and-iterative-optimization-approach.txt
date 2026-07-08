@@ -1,0 +1,945 @@
+Title: 2606.17836v1.pdf
+
+URL Source: https://arxiv.org/pdf/2606.17836v1
+
+Published Time: Wed, 17 Jun 2026 00:56:31 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+PAPER 
+
+# High -Fidelity 3D Geometric Reconstruction of Pelvic Organs from MRI: A Hybrid Deep Learning and Iterative Optimization Approach 
+
+Hui Wang 1,2,# , Xiaowei Li 3,# , Chenxin Zhang 1,2 , Yifan Feng 3 , Jianwei Zuo 1,2 , Yumeng Tang 1,2 , Xiuli Sun 3 , Jianliu Wang 3 , Bing Xie 3,* and Jiajia Luo 1,2,*       
+
+> 1Institute of Medical Technology, Peking University Health Science Center, Peking University, Beijing, People’s Republic of China
+> 2Biomedical Engineering Department, Institute of Advanced Clinical Medicine, Peking University, Beijing, People’s Republic of China
+> 3Department of Obstetrics and Gynecology, Peking University People’s Hospital, People’s Republic of China
+> #Equal contribution.
+> *Author to whom any correspondence should be addressed.
+> E-mail: bingxie@bjmu.edu.cn and jiajia.luo@pku.edu.cn
+> Keywords: magnetic resonance imaging, deep learning, 3D geometry, pelvic floor, pelvic organ prolapse, patient-specific modeling
+
+Abstract 
+
+Objective. Patient-specific three-dimensional (3D) reconstruction of pelvic organ geometry from pelvic magnetic resonance imaging (MRI) is important for pelvic floor modeling and downstream patient-specific analysis. However, while previous studies have focused primarily on either image segmentation or downstream use of 3D models, the reconstruction of high-fidelity, high-quality geometries remains labor-intensive and poorly standardized. 
+
+Approach. The study introduced a hybrid deformable shape modeling framework that 
+
+integrates deep learning prediction with iterative optimization for the reconstruction of the bladder, uterus, and rectum. The framework consists of three core components: (1) a geometry-aware multi-level deep learning architecture that preserves topological consistency of pelvic organs; (2) a two-stage amortized optimization training strategy that balances global shape capture and local surface refinement; and (3) a holistic synergy mechanism—where iterative optimization provides supervision for deep learning during the training phase, and during inference, deep learning rapidly predicts the global organ morphology, followed by iterative optimization to refine local surfaces and mesh quality. 
+
+Main resu lts. This framework demonstrated marked superiority in geometric fidelity compared 
+
+with current mainstream deep learning-based organ reconstruction models. For individual anatomical structures, the reconstructed 3D geometries for the bladder, rectum, and uterus achieved significantly lower Chamfer Distance values and higher Dice Similarity Coefficient scores. In addition, while maintaining high computational efficiency, the proposed architecture yielded superior overall volumetric mesh quality. At the patient level, the framework achieved higher mean values for the 10 worst elements for both minSICN and minSIGE compared to traditional geometric post-processing algorithms. 
+
+Significance. We present an efficient 3D geometric reconstruction framework that successfully 
+
+bridges the gap between image-domain segmentation and structural-domain analysis in pelvic floor imaging research. By enabling rapid generation of high-fidelity, high-quality geometries, this framework provides key support for patient-specific pelvic floor modeling and analysis in pelvic organ prolapse. 2
+
+1. Introduction 
+
+Pelvic organ prolapse (POP) is a prevalent gynecological disorder characterized by anatomical displacement of pelvic organs from weakened pelvic floor support (Jelovsek et al 
+
+2007). Driven by global population aging, the incidence of POP continues to rise (Wu et al 
+
+2009). In the United States alone, approximately 200,000 women undergo surgical intervention annually, with associated healthcare expenditures exceeding $1 billion each year (Boyles et al 
+
+2003, Subak 2001). This condition significantly compromises both physical function and overall quality of life in affected women. 
+
+Magnetic resonance imaging (MRI), by virtue of its excellent soft-tissue contrast and the absence of ionizing radiation, has become an important diagnostic modality for evaluating POP (Woodfield et al 2010). However, conventional MRI sequences provide only a limited representation of the intricate three-dimensional (3D) spatial relationships within the pelvic floor, hindering the precise quantification of organ deformation, support defects, and complex spatial interactions. 
+
+Consequently, high-fidelity 3D geometric reconstruction of pelvic organs from MRI has become increasingly relevant for patient-specific pelvic floor modeling and analysis. These models facilitate objective quantification of anatomical heterogeneity, supporting morphological assessment and etiological analysis (Larson et al 2012a, Hong et al 2023, Martin 
+
+et al 2025, Larson et al 2012b). Furthermore, they serve as an essential prerequisite for patient-specific biomechanical simulations (Luo et al 2015, Gordon et al 2019). By leveraging 3D geometries to construct finite element representations of the pelvic floor, clinicians can further obtain critical quantitative evidence to predict disease progression, optimize individualized surgical planning, and evaluate postoperative outcomes. 
+
+In conventional workflows, constructing these 3D models remains a highly labor-intensive and operator-dependent process. Specialized radiologists are required to perform slice-by-slice manual or semi-automated segmentation, followed by time-consuming geometric refinement and post-processing. Given the anatomical complexity of the pelvic floor and substantial inter-patient variability, generating high-quality 3D geometries demands extensive expertise, taking hours to days per case. Moreover, operator subjectivity inevitably introduces inter-observer variability in reconstruction outcomes. This low-efficiency, high-burden, and poorly standardized workflow substantially limits the broader use of patient-specific pelvic floor modeling and analysis in larger clinical and research cohorts (Hoyte and Damaser 2016). 
+
+Deep learning (DL)-driven analytical tools have reached a high level of maturity within the domain of MRI, demonstrating exceptional efficacy in semantic segmentation and automated diagnosis across diverse anatomical regions (Ma et al 2024, Sun et al 2024). Within the domain of pelvic floor medicine, research is also progressively advancing. These AI-based techniques have been extended to include automated anatomical segmentation and precision landmark localization (Feng et al 2020). Furthermore, segmentation robustness under data-scarce conditions has been enhanced through semi-supervised learning paradigms (Zuo et al 2026). 
+
+Despite these advancements, current research paradigms remain predominantly confined to voxel-wise image processing. While achieving high voxel-level accuracy for pelvic organ segmentation (Kuş and Aydin 2024, Isensee et al 2021, Ma et al 2024) , the resulting segmentation masks often suffer from rough surfaces, non-physiological distortions, and poor structural smoothness when converted into 3D geometries due to the lack of explicit 3D geometric and topological constraints (He et al 2019, Feng et al 2020, Zuo et al 2026). 
+
+Consequently, these geometries often require extensive manual repair involving complex geometric processing within specialized software, which substantially limits workflow efficiency and standardization. The transition from discrete segmentation masks to continuous, high-fidelity 3D geometries—essential for clinical research and biomechanical modeling—still necessitates labor-intensive and often inconsistent post-processing workflows. This "technical gap" is particularly pronounced in biomechanical simulations, which impose stringent requirements on the topological integrity and surface smoothness of the mesh representations (Sbriglio et al 2026, Feng et al 2025). 3
+
+To address these issues, DL -based 3D geometric reconstruction has been developed to map 
+
+2D images or 2D segmentation masks to continuous and anatomically consistent 3D organ 
+
+shapes. By learning the nonlinear mapping between image features and spatial geome try, this paradigm can alleviate topological discontinuities and geometric abnormalities with anatomical priors (Chen et al 2024, Lin et al 2025, McMillian et al 2025, Kong et al 2021, Beetz et al 2023, Meng et al 2024, Laumer et al 2025, Ma et al 2023, Bongratz et al 2024, Hu et al 2024, Qian et al 
+
+2025). Nevertheless, direct application to the pelvic floor remains challenging due to large inter-individual anatomical variations and the extreme scarcity of high-quality 3D annotated datasets, leading to limited generalization of existing DL models. 
+
+Therefore, in this work, we aimed to develop a hybrid framework specifically tailored for high-quality 3D geometric reconstruction of pelvic organs. Our proposed method integrates deep learning with iterative optimization to overcome the bottleneck of rapidly synthesizing high-fidelity 3D pelvic organ geometries with improved mesh-quality proxy performance, starting from discrete mask representations. The main contributions of this study are as follows: 
+
+• We propose a geometry-aware multi-level deep learning architecture that fuses dual-branch graph features via geometric convolution and cross-attention, preserving topological consistency while capturing global and fine-grained geometry from point clouds. 
+
+• We develop a two-stage amortized optimization training strategy that first learns global shape via supervised full amortization, then refines geometric quality via semi-amortization, decoupling reconstruction fidelity and quality constraints to enhance training stability. 
+
+• We introduce a synergistic mechanism between deep learning and iterative optimization, where iterative optimization supervises training via pseudo-labels, and deep learning provides hot-start initialization for rapid iterative refinement during inference, achieving both high fidelity and efficiency. 
+
+2. Materials and Methods 
+
+> 2.1. Datasets
+
+The study cohort comprised 100 female participants, with a total of 1,994 MR images analyzed. Each subject underwent sagittal (SAG) MR imaging using a T2-weighted fast spin-echo sequence (repetition time, 3072 ms; echo time, 70 ms; slice thickness, 4 mm; slice gap, 1 mm; field of view, 24 ×24 cm; and matrix, 344 ×262). The MR data were acquired at Peking University People’s Hospital using a 3T scanner (Philips Healthcare, Bothell, WA, USA) and the study was approved by the institutional ethics committee (#2020PHB092-01). Considering the unique anatomical challenges of the female pelvic floor, this study focuses on three clinically relevant organs in female pelvic MRI: the bladder, the uterus, and the rectum. 
+
+> 2.2. Hybrid deformable shape modeling framework
+
+We developed a hybrid deformable shape modeling framework that integrates DL-based prediction with an iterative optimization module. As illustrated in Figure 1, the architecture comprises four sequential stages: 
+
+1) Initial geometry extraction and canonical normalization: Target organ regions are first delineated from MRI-derived segmentation masks (Feng et al 2020). Subsequently, the Marching Cubes algorithm (Lorensen and Cline 1987) is employed to generate initial geometries from the segmentation masks. 
+
+2) DL-driven deformation prediction: This stage focuses on learning the complex nonlinear morphological mapping between segmentation-derived geometry and organ morphology using deep neural networks. The network extracts point cloud features and predicts a global displacement field that deforms a canonical spherical template (Wang et al 2021) into organ-4
+
+specific target morphologies, thereby enabling rapid construction of anatomically coherent 3D 
+
+geometries. 
+
+3) Geometry-constrained iterative refinement: While DL effectively captures global organ morphology, its ability to ensure surface smoothness and fine-detail preservation is often limited. Therefore, the DL-generated geometry is used as an informed initialization for an iterative optimization module. By incorporating anatomical priors and explicit geometric constraints into the objective function, this module further optimizes mesh vertices to correct local distortions, improve boundary conformity, and maintain topological consistency, ultimately producing 3D geometries with both high anatomical fidelity and geometric quality. 
+
+4) Spatial registration: Finally, to ensure anatomical alignment with the source MRI, an inverse normalization procedure is performed. Using the archived scaling factors and rigid transformation parameters, the optimized geometry is registered back to the native spatial coordinate system of the original MRI, yielding the final anatomically aligned 3D geometry. 
+
+To delineate synergy between the DL and iterative optimization modules, we designed distinct implementation strategies for the training and inference phases. 
+
+During training, the framework adopts a "learning-from-optimization" strategy. For each training sample, the iterative optimization module performs an exhaustive search in the deformation space to identify an optimal displacement field. The resulting optimal displacement fields, obtained through computationally intensive optimization, are treated as pseudo-labels and used as supervisory signals to guide training of the DL model. The architecture of the proposed DL model is illustrated in Figure 2. The network employs a geometry-aware, multi-level architecture designed to learn a precise displacement field mapping. By integrating hierarchical feature fusion, the model captures both global shape contexts and fine-grained geometric signatures from unstructured point clouds to accurately reconstruct organ-specific morphologies. 
+
+During inference, the trained DL model provides an informed, hot-start initialization. Unlike conventional methods that use uninformed cold-start optimization from a generic spherical template, our model rapidly generates an initial displacement field closely matching the target anatomy from input point clouds. A lightweight iterative optimization module then refines the results, correcting residual errors to improve boundary fitting and surface smoothness. 
+
+> 2.3. Deep learning model
+> 2.3.1. Model architecture
+
+The deep learning model consists of four main functional stages: 
+
+1) Dual-Branch graph construction: The network first constructs a graph by capturing local spatial relationships within the input point clouds using the K-nearest neighbor algorithm  
+
+> Figure 1. Overview of the hybrid framework for pelvic organ 3D geometric reconstruction. From left to right, pelvic MR images are segmented to obtain organ masks, which are then sampled and normalized into point clouds for deep learning-based displacement prediction. The predicted geometry is further refined by iterative optimization, followed by inverse scale transformation to generate the final patient-specific geometry.
+
+5
+
+(Cover and Hart 1967) . In parallel, a predefined graph structure is established by leveraging the inherent vertex connectivity of the spherical template, enabling consistent topological correspondence during deformation learning. 
+
+2) Feature extraction and interaction: EdgeConv (Wang et al 2019) layers are employed to extract high-dimensional spatial embeddings from both the input point cloud graph and the template mesh graph. Subsequently, a multi-head cross-attention module (Vaswani et al 2017) is introduced to deeply fuse the dual-path features, in which the template features act as the Query (Q) and the point cloud features serve as the Key (K) and Value (V). This design is intended to explicitly model spatial correspondences between the canonical template and the patient-specific point cloud, thereby aiming to capture the morphological variation across anatomical structures. The fused features are then further processed through additional EdgeConv layers to effectively aggregate complex, nonlinear spatial contexts. 
+
+3) Geometry-aware encoder-decoder: To aggregate multi-scale geometric information, the network adopts a specialized encoder-decoder architecture integrated with geometry-aware convolutional layers. Inspired by the U-Net (Ronneberger et al 2015) hierarchical paradigm, this symmetric structure is designed to enable progressive feature abstraction and reconstruction. The intent of this configuration is to enhance the model’s sensitivity to localized anatomical nuances, while preserving global topological stability and reducing non-physical mesh distortions during deformation. 
+
+4) Spatial transformation and displacement field output: Finally, the aggregated features are mapped through the terminal EdgeConv layer to generate a vertex-wise displacement field. By applying this displacement field to the original spherical template, the template is deformed into the target organ-specific 3D geometry, completing the mapping from a canonical sphere to the patient-specific anatomical structure. 
+
+> 2.3.2. Geometry-aware convolutional layer
+
+To capture multi-scale geometric features and address the limitations of conventional 1D convolutional neural networks (1D Conv) (Kiranyaz et al 2021) when modeling intricate pelvic floor deformations, we developed a geometry-aware convolutional layer. This layer enhances  
+
+> Figure 2. Architecture of the deep learning model for pelvic organ 3D geometric reconstruction. The model reconstructs high-fidelity organ meshes from segmentation-derived point clouds through four stages. Stage 1 constructs graphs from the input point clouds and the spherical template to encode local topology. Stage 2 uses multi-head cross-attention to fuse point-cloud features with template features. Stage 3 applies a geometry-aware encoder-decoder to learn hierarchical shape representations. Stage 4 predicts vertex-wise displacement vectors that deform the spherical template into the final patient-specific organ mesh.
+
+6
+
+model robustness to anatomical morphological vari ability by introducing explicit spatial priors. 
+
+Specifically, the architecture employs a dynamic geometric weight generation mechanism that 
+
+computes vertex -wise Euclidean distances, which are subsequently mapped to adaptive convolutional weights 𝑤𝑤 𝑖𝑖𝑗𝑗 𝑔𝑔𝑒𝑒𝑒𝑒 via a Gaussian radial basis function (RBF) (Hastie et al 2017): 
+
+𝑤𝑤 𝑖𝑖𝑗𝑗 𝑔𝑔𝑒𝑒𝑒𝑒 = exp ( − ∥ 𝑣𝑣 𝑖𝑖 − 𝑣𝑣 𝑗𝑗 ∥ 22
+
+2𝜎𝜎 2 )
+
+(1) 
+
+where 𝜎𝜎 denotes the hyperparameter regulating the bandwidth of the Gaussian Kernel. Building upon this formulation, we define a geometry-aware convolution operator. Given the input features of a neighboring node 𝐱𝐱 𝑗𝑗 ∈ ℝ 𝐶𝐶 𝑖𝑖𝑖𝑖 and learnable kernel parameters 𝐖𝐖 ∈ ℝ 𝐶𝐶 𝑜𝑜𝑜𝑜𝑜𝑜 ×𝐶𝐶 𝑖𝑖𝑖𝑖 , the output feature 𝑦𝑦 𝑖𝑖 is formulated as: 
+
+𝐲𝐲 𝑖𝑖 = exp ( − ∥ 𝑣𝑣 𝑖𝑖 − 𝑣𝑣 𝑗𝑗 ∥ 22
+
+2𝜎𝜎 2 ) � 𝐖𝐖 𝑗𝑗 ∙ �𝑤𝑤 𝑖𝑖 𝑗𝑗  
+
+> 𝑔𝑔 𝑒𝑒𝑒𝑒
+
+⋅ 𝐱𝐱 𝑗𝑗 � +
+
+> 𝑗𝑗∈𝒩𝒩 (𝑖𝑖 )
+
+𝐛𝐛 
+
+(2) 
+
+In this configuration, 𝑤𝑤 𝑖𝑖𝑗𝑗 𝑔𝑔𝑒𝑒𝑒𝑒 acts as a dynamic spatial attention gate. By assigning higher importance to features from spatially proximal vertices, the operator adaptively calibrates the receptive field to local physical geometry, even under severe mesh compression or elongation. This mechanism helps suppress non-physical geometric distortions during deformation. Building upon this operator, we further extend the design into a multi-scale, U-Net-like hierarchical encoder-decoder architecture, enabling progressive mapping from global anatomical contours to local fine-scale geometric details through the fusion of deep contextual features and shallow geometric cues. 
+
+> 2.4. Training strategy and loss functions
+
+Following the establishment of the network architecture, the primary challenge lies in enabling the model to effectively internalize complex geometric deformation patterns. To address this challenge, we designed a two-stage amortized optimization (Amos 2023) training strategy. The core rationale is to leverage data-driven learning to transform the originally time-consuming iterative geometric optimization process into a parameterized neural network mapping, thereby enabling rapid prediction of high-fidelity displacement fields during inference. The training procedure is divided into two distinct phases: 
+
+Stage 1: Supervised full-amortized learning. In this stage, the model performs a regression task analogous to expert demonstration. The optimal displacement fields obtained via iterative optimization serve as ground-truth supervision. The objective of this stage is to endow the network with fundamental shape reconstruction capability and to rapidly establish a global perception of the organ anatomy. The loss function is as follows: 
+
+ℒ𝑓𝑓 𝑖𝑖 𝑓𝑓𝑓𝑓𝑓𝑓 _𝑓𝑓𝑓𝑓 𝑠𝑠 𝑔𝑔𝑒𝑒  = 1
+
+𝑁𝑁 �|𝑦𝑦 �𝑖𝑖 − 𝑦𝑦 𝑖𝑖 |
+
+> 𝑁𝑁 𝑖𝑖=1
+
++ 1
+
+𝑁𝑁 �(𝑦𝑦 �𝑖𝑖 − 𝑦𝑦 𝑖𝑖 )2𝑁𝑁 𝑖𝑖=1 
+
+(3) 
+
+where 𝑦𝑦 � denotes the distance between the predicted displacement, and 𝑦𝑦 denotes the ground-truth displacement. 
+
+Stage 2: Objective-driven semi-amortized learning. After establishing baseline shape reconstruction capability, the model enters a geometry-aware fine-tuning stage driven by explicit geometric quality objectives. In this stage, training no longer relies on predefined displacement labels; instead, geometric quality loss functions (Wang et al 2021)—including edge length consistency, Laplacian smoothness, and normal consistency—are directly used as gradient supervision. The purpose of this stage is to leverage physical and geometric priors to correct residual prediction errors, thereby enhancing both boundary fidelity and surface quality of the reconstructed 3D geometry, particularly in regions with complex anatomical curvature. The loss function for this stage is defined as: 7
+
+Edge Loss: Given an edge set 𝜀𝜀 and vertex pairs (𝑣𝑣 𝑖𝑖 , 𝑣𝑣 𝑗𝑗 ) ∈ 𝜀𝜀 
+
+𝑙𝑙 ‾ = 1|ℰ| � ∥
+
+> (𝑖𝑖 ,𝑗𝑗 )∈ℰ
+
+𝑣𝑣 𝑖𝑖 − 𝑣𝑣 𝑗𝑗 ∥ 2, ℒ edge = � �∥ 𝑣𝑣 𝑖𝑖 − 𝑣𝑣 𝑗𝑗 ∥ 2 − 𝑙𝑙 ‾� 2
+
+> (𝑖𝑖 ,𝑗𝑗 )∈ℰ
+
+(4) 
+
+Laplacian Smoothness Loss: For each vertex 𝑣𝑣 𝑖𝑖 with neighbors 𝒩𝒩 (𝑖𝑖 )
+
+ℒ lap = �∥∥∥∥∥𝑣𝑣 𝑖𝑖 − 1|𝒩𝒩 (𝑖𝑖 )| � 𝑣𝑣 𝑗𝑗 𝑗𝑗∈𝒩𝒩 (𝑖𝑖 ) ∥
+
+∥
+
+∥
+
+∥
+
+∥
+
+> 22𝑖𝑖
+
+(5) 
+
+Normal Loss: For predicted and ground truth face normals 𝑛𝑛 𝑖𝑖 𝑝𝑝 𝑓𝑓𝑒𝑒 𝑟𝑟 and 𝑛𝑛 𝑖𝑖 𝑔𝑔 𝑓𝑓 
+
+ℒ normal = � � 1 − �𝑛𝑛 𝑖𝑖 pred , 𝑛𝑛 𝑖𝑖 gt �� 𝑖𝑖 
+
+(6) 
+
+The total loss for the second stage, ℒ s𝑒𝑒𝑒𝑒𝑒𝑒𝑒𝑒 𝑟𝑟 _𝑓𝑓𝑓𝑓 𝑠𝑠 𝑔𝑔𝑒𝑒 , is defined as a weighted combination of three loss terms: 
+
+ℒ𝑓𝑓𝑒𝑒𝑒𝑒𝑒𝑒𝑒𝑒𝑒𝑒𝑟𝑟 _𝑓𝑓𝑓𝑓 𝑠𝑠 𝑔𝑔𝑒𝑒  = 𝛼𝛼ℒ 𝑒𝑒 𝑟𝑟𝑔𝑔 𝑒𝑒 + 𝛽𝛽ℒ 𝐿𝐿 𝑠𝑠𝑝𝑝 𝐿𝐿 𝑠𝑠𝑒𝑒𝑖𝑖𝑠𝑠𝑒𝑒  + 𝛾𝛾ℒ 𝑒𝑒𝑒𝑒𝑓𝑓 𝑛𝑛 𝑠𝑠𝐿𝐿 
+
+(7) 
+
+where ℒ 𝑒𝑒 𝑟𝑟𝑔𝑔 𝑒𝑒 denotes the edge loss, ℒ 𝐿𝐿 𝑠𝑠𝑝𝑝 𝐿𝐿 𝑠𝑠𝑒𝑒𝑖𝑖𝑠𝑠𝑒𝑒  denotes the Laplacian smoothness loss, and 
+
+ℒ𝑒𝑒𝑒𝑒𝑓𝑓 𝑛𝑛 𝑠𝑠𝐿𝐿  denotes the normal loss. The chosen hyperparameters are 𝛼𝛼 = 1.0, 𝛽𝛽 = 0.1 and 𝛾𝛾 =0.01 .
+
+The underlying rationale of the two-stage training strategy is to temporally decouple global morphological learning from localized geometric refinement, thereby aiming to reduce optimization instability and minimize mutual interference between coarse shape convergence and fine-scale feature fitting during early stages of training. 
+
+2.5. Evaluation metrics 
+
+To evaluate the proposed framework, geometric fidelity—defined as the fidelity of anatomical restoration—was measured via Chamfer Distance (CD) and Dice Similarity Coefficient (DSC), while geometric quality—defined as the preservation of surface details and smoothness—was assessed via Normal Consistency (NC), Edge Loss Consistency (ELC), and Laplacian Smoothing (LS). CD measures the spatial alignment between point clouds sampled from the reconstructed geometric surface and the reference surface, with lower CD values indicating closer geometric correspondence. To ensure an unbiased and consistent evaluation, 5,000 points are uniformly sampled from each 3D surface, thereby maintaining a standardized sampling density across all models. CD is defined as: 
+
+𝐶𝐶𝐶𝐶 (𝑃𝑃 , 𝑄𝑄 ) = 1|𝑃𝑃 | � min  
+
+> 𝑞𝑞∈𝑄𝑄
+
+‖𝑝𝑝 − 𝑞𝑞‖ 22𝑝𝑝∈𝑃𝑃 
+
++ 1|𝑄𝑄 | � min  
+
+> 𝑝𝑝∈𝑃𝑃
+
+‖𝑞𝑞 − 𝑝𝑝‖ 22𝑞𝑞∈𝑄𝑄 
+
+(8) 
+
+where 𝑃𝑃 and 𝑄𝑄 denote the predicted and ground-truth point sets, respectively, while |𝑃𝑃 |
+
+and |𝑄𝑄 | denote the number of points in each set. The variables 𝑝𝑝 and 𝑞𝑞 refer to individual 3D points within sets 𝑃𝑃 and 𝑄𝑄 .
+
+DSC measures the volumetric overlap between the reconstructed geometry and the ground truth, with higher values indicating better spatial correspondence. For implementation, the reconstructed and reference 3D models are discretized into a 64 3 voxel grid, enabling quantitative evaluation of their volumetric overlap. DSC is computed as follows: 
+
+DSC = 2�𝑌𝑌 � ∩ 𝑌𝑌� �𝑌𝑌 �� + | 𝑌𝑌 | = 2 ∑ 𝑦𝑦 �𝑖𝑖 𝑖𝑖 𝑦𝑦 𝑖𝑖 ∑ 𝑦𝑦 �𝑖𝑖 𝑖𝑖 + ∑ 𝑦𝑦 𝑖𝑖 𝑖𝑖 
+
+.
+
+(9) 8
+
+where 𝑌𝑌 � and 𝑌𝑌 denote the sets of predicted and ground -truth occupied voxels, 
+
+respectively, where |∙| represents the cardinality of each set. The variable 𝑦𝑦 𝚤𝚤 � refers to the predicted occupancy of the 𝑖𝑖 -th voxel, while 𝑦𝑦 𝑖𝑖 denotes its the ground-truth label. 
+
+NC quantifies the local geometric smoothness and structural consistency of the reconstructed surface, with lower values indicating smoother surfaces and fewer local geometric artifacts under the current definition. NC is defined as: 
+
+𝑁𝑁 𝐶𝐶  = 1|𝐸𝐸 | �𝑒𝑒∈𝐸𝐸 �1 − 𝑛𝑛 0 ⋅ 𝑛𝑛 1∥ 𝑛𝑛 0 ∥∥ 𝑛𝑛 1 ∥�
+
+(10) 
+
+where |𝐸𝐸 | denotes the total number of shared edges in the mesh that are incident to at least two faces, and 𝑒𝑒 ∈ 𝐸𝐸 represents an individual shared edge. The variables 𝑛𝑛 0 and 𝑛𝑛 1
+
+represent the unit normal vectors of the two adjacent faces incident to edge 𝑒𝑒 , respectively. 
+
+LS measures the local structural coherence between mesh vertices and their neighboring vertices, with lower values indicating smoother surfaces and more physically plausible local deformations. LS is defined as follows: 
+
+𝐿𝐿𝐿𝐿 = �𝑝𝑝 ∥ 𝛿𝛿 𝑝𝑝 ′ − 𝛿𝛿 𝑝𝑝 ∥ 22
+
+(11) 
+
+where, 
+
+𝛿𝛿 𝑝𝑝 = 𝑝𝑝 − �𝑘𝑘∈𝒩𝒩 (𝑝𝑝 )1
+
+∥ 𝒩𝒩 (𝑝𝑝 ) ∥ 𝑘𝑘 
+
+(12) 
+
+where, for any vertex 𝑝𝑝 , the Laplacian coordinate 𝛿𝛿 𝑝𝑝 is defined as the vector difference between the vertex and the centroid of its 1-ring neighborhood. 𝒩𝒩 (𝑝𝑝 ) denotes the set of adjacent vertices 𝑘𝑘 directly connected to 𝑝𝑝 . The variables 𝛿𝛿 𝑝𝑝 ′ and 𝛿𝛿 𝑝𝑝 correspond to the Laplacian coordinates of the vertex after and before deformation. 
+
+ELC evaluates the uniformity and physical plausibility of the mesh topology, with lower values indicating a more balanced distribution of edge lengths and reduced occurrence of extreme edge stretching or compression. 
+
+𝐸𝐸 𝐿𝐿 𝐶𝐶 = �𝑝𝑝 �𝑘𝑘∈𝒩𝒩 (𝑝𝑝 )
+
+∥ 𝑝𝑝 − 𝑘𝑘 ∥ 22
+
+(13) 
+
+The definitions of all variables are consistent with those in Laplacian smoothness. 
+
+To facilitate a comprehensive comparison across dimensions with disparate units and optimization directions, we introduced a Normalized Performance Score ( 𝐿𝐿 𝑗𝑗 ) for each individual metric 𝑗𝑗 . This metric unifies all indices into a "higher is better" logic by mapping the best observed performance in the experimental cohort to a 100% baseline. Specifically, for a given method 𝑖𝑖 , the normalized score for each metric is defined as: 
+
+𝐿𝐿 𝑖𝑖 ,𝑗𝑗 =
+
+⎩⎪⎨⎪⎧𝑉𝑉 𝑛𝑛𝑖𝑖𝑒𝑒 ,𝑗𝑗 𝑉𝑉 𝑖𝑖 ,𝑗𝑗 
+
+× 100% for 𝑗𝑗 ∈ {CD, NC, ELC, LS} 
+
+𝑉𝑉 𝑖𝑖 ,𝑗𝑗 𝑉𝑉 𝑛𝑛𝑠𝑠 𝑚𝑚 ,𝑗𝑗 
+
+× 100% for 𝑗𝑗 ∈ {DSC} 
+
+(14) 
+
+where 𝑉𝑉 𝑖𝑖 ,𝑗𝑗 represents the observed value of metric 𝑗𝑗 for method 𝑖𝑖 . 𝑉𝑉 𝑛𝑛𝑖𝑖𝑒𝑒 ,𝑗𝑗 and 𝑉𝑉 𝑛𝑛𝑠𝑠 𝑚𝑚 ,𝑗𝑗 
+
+denote the best observed values within the study for each respective metric. To evaluate the overall trade-off between anatomical fidelity and geometric stability, the Weighted Overall Score is then computed as the weighted sum of these individual scores: 9
+
+𝐿𝐿 𝑒𝑒 𝑜𝑜 𝑒𝑒𝑓𝑓𝑠𝑠𝐿𝐿𝐿𝐿  = �𝑗𝑗∈ {CD , DSC, ELC, NC, LS} 
+
+𝑤𝑤 𝑗𝑗 𝐿𝐿 𝑖𝑖 ,𝑗𝑗 
+
+(15) 
+
+The weights 𝑤𝑤 𝑗𝑗 were assigned based on hierarchical priority: 𝑤𝑤 𝐶𝐶𝐷𝐷 = 𝑤𝑤 𝐷𝐷𝑆𝑆 𝐶𝐶  = 0.35 for anatomical fidelity, and 𝑤𝑤 𝑁𝑁𝐶𝐶 = 𝑤𝑤 𝐸𝐸𝐿𝐿 𝐶𝐶  = 𝑤𝑤 𝐿𝐿𝑆𝑆 = 0.1 for geometric quality. This weighting scheme reflects the principle that anatomical fidelity is the fundamental prerequisite for application; any geometric refinement (e.g., surface smoothness) is secondary and meaningful only when structural fidelity is maintained. 
+
+> 2.6. Comparison methods
+
+To evaluate the performance of the DL backbone, we conducted a head-to-head comparison between our model and representative mainstream DL approaches for 3D organ geometric reconstruction, including Voxel2Mesh (Wickramasinghe et al 2020), MeshDeformNet (Kong et al 2021), and DeepCarve (Pak et al 2024). For fair comparison, all methods were provided with manually annotated expert contours as segmentation masks in all experiments. Subsequently, to investigate the coupling mechanism between the DL and iterative optimization modules, we compared a single-path strategy of direct optimization from the original sphere template with a hybrid strategy that combines DL-based hot-start initialization followed by iterative optimization. 
+
+To assess the usability of our framework for downstream biomechanical modeling, we benchmarked the reconstructed geometries against conventional post-processing algorithms, including Laplacian, Taubin, and Humphrey smoothing. Given that finite element simulations require well-defined volumetric elements (Sbriglio et al 2026), the reconstructed surface geometries were further converted into computable volumetric mesh models to support downstream biomechanical analysis. Specifically, we employed Gmsh (Geuzaine and Remacle 2009) in conjunction with the 3D Delaunay algorithm (Watson 1981) to generate tetrahedral meshes from the reconstructed 3D geometries. 
+
+To evaluate the numerical stability and mesh-quality characteristics of the generated 3D geometries, we employed a set of well-established element-wise metrics commonly utilized within the finite element analysis (FEA) community: minSICN (minimal signed inverted condition number), minSIGE (minimal signed inverted gradient error), and Gamma (the ratio of the inscribed to circumscribed sphere radius). These standard benchmarks are specifically chosen for their effectiveness in detecting element inversions and excessive geometric distortions—factors that frequently lead to computational non-convergence in large-deformation biomechanical simulations (Geuzaine and Remacle 2009, Knupp 2001, Shewchuk 2002). Furthermore, as the robustness of FEA is often governed by the "bottleneck" of poor-quality elements, we assessed each sample based on both the lowest element-wise value and the average of the 10 worst-quality elements. This rigorous approach ensures that the reconstructed geometries are suitable for downstream high-fidelity biomechanical applications. 
+
+> 2.7. Implementation details
+
+To evaluate the effectiveness of the proposed method, we adopted a randomized patient-level data splitting strategy. The complete dataset (100 participants) was partitioned into a training set (75 participants, 225 organs), a validation set (5 participants, 15 organs), and an independent test set (20 participants, 60 organs). The test set was strictly isolated from the training and validation processes to preclude any potential data leakage. 
+
+To facilitate reproducibility, we provide the following details: Throughout the training process, we conducted on four NVIDIA A5000 graphics cards equipped with 24GB of computing memory, using the Adam optimizer to accelerate model training convergence; all models were trained for 500 epochs, batch size 8, learning rate 0.0001. 
+
+For statistical analysis, we conducted 2-tailed paired t tests for comparison. All indicators are reported as mean values and 95% confidence intervals (CI), and P < 0.05 was considered statistically significant. Statistical analyses were performed using IBM SPSS (version 23). 10 
+
+3. Results 
+
+3.1. Deep learning results 
+
+Table 1 shows the quantitative comparison results of the proposed DL model and mainstream DL models for 3D organ geometric reconstruction in pelvic floor organ reconstruction tasks. The results demonstrate that our model consistently showed better 
+
+Table 1. CD and DSC comparison with other deep learning models for 3D organ geometric reconstruction. 
+
+Organ  Methods  CD( ↓) P-value  DSC( ↑) P-value 
+
+Bladder  Voxel2Mesh  0.0312** 
+
+(0.0220 -0.0404) 
+
+<0.01  0.586** 
+
+(0.5364 -0.6356) 
+
+<0.01 
+
+MeshDeformNet  0.0280** 
+
+(0.0218 -0.0342) 
+
+<0.01  0.616** 
+
+(0.5725 –0.6595) 
+
+<0.01 
+
+DeepCarve  0.0969** 
+
+(0.0847 –0.1091) 
+
+<0.01  0.331** 
+
+(0.2753 –0.3867) 
+
+<0.01 
+
+Ours  0.0055 
+
+(0.0048 –0.0062) 
+
+-- 0.788 
+
+(0.7506 –0.8254) 
+
+--
+
+Rectum  Voxel2Mesh  0.0258** 
+
+(0.0148 –0.0368) 
+
+<0.01  0.599** 
+
+(0.5602 –0.6378) 
+
+<0.01 
+
+MeshDeformNet  0.0230** 
+
+(0.0097 –0.0363) 
+
+<0.01  0.501** 
+
+(0.4547 –0.5473) 
+
+<0.01 
+
+DeepCarve  0.1725** 
+
+(0.1505 –0.1945) 
+
+<0.01  0.178** 
+
+(0.1167 –0.2393) 
+
+<0.01 
+
+Ours  0.0037 
+
+(0.0027 –0.0047) 
+
+-- 0.839 
+
+(0.8189 –0.8591) 
+
+--
+
+Uterus  Voxel2Mesh  0.0298** 
+
+(0.0195 –0.0401) 
+
+<0.01  0.726** 
+
+(0.6806 –0.7714) 
+
+<0.01 
+
+MeshDeformNet  0.0255** 
+
+(0.0204 –0.0306) 
+
+<0.01  0.740** 
+
+(0.7124 –0.7676) 
+
+<0.01 
+
+DeepCarve  0.0968** 
+
+(0.0834 –0.1102) 
+
+<0.01  0.446** 
+
+(0.4006 –0.4914) 
+
+<0.01 
+
+Ours  0.0042 
+
+(0.0036 –0.0048) 
+
+-- 0.900 
+
+(0.8930 –0.9070) 
+
+-- 
+
+> Note: The best performance (mean value) is highlighted in bold. The numbers in the parentheses represent the 95% confidence intervals (95% CI). Statistical significance was assessed using a two-tailed paired t-test.
+
+11 
+
+performance across all geometric fidelity metrics. Notably, regarding the CD, our model 
+
+achieved an order -of-magnitude reduction in reconstruction error compared with baseline models. Statistical analysis using a two-tailed paired t-test confirmed that these performance improvements in the geometric fidelity metrics were statistically significant (P<0.05) across all comparative benchmarks. 
+
+Figure 3. Qualitative comparison of 3D pelvic organ geometries reconstructed by different deep learning models. From left to right, the columns show the initial geometries generated by Marching Cubes, the results from Voxel2Mesh, MeshDeformNet, and DeepCarve, the results from our model, and the optimized geometric reference. Representative examples are shown for the bladder, rectum, and uterus. 
+
+Figure 4. Qualitative comparison for 3D reconstruction outcomes between two convolutional architectures using representative cases from the test cohort. From left to right, the columns show (1) Marching Cubes; (2) 1D convolutional layer (1DConv); and (3) the geometry-aware convolutional layer (GeoConv). 12 
+
+Complementing these quantitative findings, Figure 3 illustrates the qualitative visual 
+
+performance for the three pelvic organs. Visual inspection suggests the marked superiority of 
+
+our framework in morphological restoration. Specifically, the reconstructed geometries exhibit high-fidelity alignment with the initial geometries (derived via the Marching Cubes algorithm) in terms of macroscopic topology. Furthermore, our model better captures fine anatomical details, including sharp curvature changes and complex organ boundary transitions, yielding results close to the best-optimized geometries. By contrast, other comparison methods often suffer from severe geometric distortion and loss of key anatomical features under extreme deformations, failing to faithfully represent complex pelvic structures. 
+
+> 3.2. Ablation study
+> 3.2.1. Geometry-aware convolutional layer
+
+Figure 4 illustrates a qualitative comparison of the 3D reconstruction outcomes between the two convolutional architectures using representative cases from the test cohort. It should be noted that this comparison is based on the outputs from the first stage of training. Qualitative analysis suggests that, compared with standard convolutions, the geometry-aware convolution reduces surface roughness and suppresses non-physical geometric noise arising from insufficient spatial feature characterization. 
+
+Table 2 provides a detailed quantitative performance evaluation. This evaluation is also based on the first-stage training outputs. The results indicate that both architectures yield comparable performance regarding geometric fidelity. However, a clear divergence emerges in the metrics evaluating geometric quality. The geometry-aware convolution consistently outperformed the standard convolution across all three geometric quality dimensions. Most notably, the geometry-aware convolution achieved an order-of-magnitude reduction in error metrics associated with normal consistency and Laplacian smoothness. 
+
+> 3.2.2. Semi-amortization
+
+Figure 5 provides a comprehensive visual comparison of different training strategies for the pelvic organ reconstruction task. As demonstrated by the Normalized Performance Scores, our proposed two-stage training strategy achieves a superior overall balance between anatomical fidelity and geometric quality. Quantitative analysis across multiple dimensions suggests that full-amortization does not maintain surface integrity, leading to reduced geometric quality. Conversely, semi-amortization enhances geometric smoothness but at the considerable expense of reconstruction fidelity. In contrast, the two-stage training strategy introduced in this study is designed to achieve high anatomical fidelity while simultaneously maintaining geometric quality at a level comparable to the semi-amortization approach. This pattern is further reflected by the highest Overall Score, suggesting that prioritizing structural fidelity while progressively refining geometric stability provides a strong solution for mesh reconstruction. 
+
+> 3.2.3. Two-stage hybrid framework
+
+Figure 6 illustrates the convergence curves of the DSC with respect to the number of iterations for the three target pelvic organs under the two different inference pathways. Regarding convergence trajectories, the two-stage hybrid framework and the standalone optimization pathway exhibit a pronounced disparity in computational efficiency. Specifically, the hybrid framework attains a steady-state plateau within approximately 100 iterations (approximately 15 seconds), whereas the standalone optimization pathway demonstrates a persistent upward trend at the same number of iterations, indicating slower convergence. Even after reaching 1,000 iterations (approximately 150 seconds), the mean DSC achieved by the hybrid framework across all organs consistently surpassed that of the pure optimization control group. 13 
+
+> Table  2. Model performance comparison using different convolutional layers .
+> Organ  Methods  CD ( ↓) P-
+> value
+> DSC( ↑) P-
+> value
+> ELC( ↓) P-
+> value
+> NC( ↓) P-
+> value
+> LS( ↓) P-
+> value
+> Bladder  1DConv  0.00681
+> (0.00572 –0.00790)
+> 0.772  0.769
+> (0.730 –0.808)
+> 0.768  0.00354**
+> (0.00330– 0.00378)
+> <0.01  0.215**
+> (0.176– 0.254)
+> <0.01  0.0179**
+> (0.0166– 0.0192)
+> <0.01
+> GeoConv  0.00681
+> (0.00567– 0.00795)
+> -- 0.773
+> (0.733 –0.813)
+> -- 0.00280
+> (0.00263– 0.00297)
+> -- 0.035
+> (0.026– 0.0439)
+> -- 0.0069
+> (0.0066– 0.0072)
+> --
+> Rectum  1DConv  0.00439
+> (0.00356– 0.00522)
+> 0.142  0.818
+> (0.791– 0.845)
+> 0.269  0.00276**
+> (0.00253 –0.00299)
+> <0.01  0.243**
+> (0.191– 0.295)
+> <0.01  0.0145**
+> (0.0134– 0.0256)
+> <0.01
+> GeoConv  0.00488
+> (0.00377– 0.00599)
+> -- 0.812
+> (0.786– 0.838)
+> -- 0.00235
+> (0.00213 –0.00257)
+> -- 0.076
+> (0.056– 0.096)
+> -- 0.0067
+> (0.0064– 0.0070)
+> --
+> Uterus  1DConv  0.00596
+> (0.00500 –0.00692)
+> 0.156  0.876
+> (0.866– 0.885)
+> 0.026  0.00330**
+> (0.00305– 0.00355)
+> <0.01  0.136**
+> (0.111– 0.161)
+> <0.01  0.0149**
+> (0.0141– 0.0157)
+> <0.01
+> GeoConv  0.00561
+> (0.00468 –0.00654)
+> -- 0.884
+> (0.875– 0.892)
+> -- 0.00284
+> (0.00260– 0.00308)
+> -- 0.018
+> (0.013– 0.023)
+> -- 0.0059
+> (0.0057– 0.0061)
+> --
+> Note:  The best performance (mean value) is highlighted in bold. The numbers in the parentheses represent the 95% confidence intervals (95% CI). Statistical significance was assessed using a two-tailed paired t-test. 1DConv: 1D convolutional layer; GeoConv: geometry-aware convolutional layer.
+
+14 
+
+Figure 5. Comparative performance of training strategies across three pelvic organs. The bars illustrate the performance of Full-Amortization, Semi-Amortization, and the proposed model (Ours) for Bladder, Rectum, and Uterus. Performance is evaluated across six dimensions: (1) fidelity: Chamfer Distance (CD) and Dice Similarity Coefficient (DSC); (2) geometric quality: Normal Consistency (NC), Edge Loss Consistency (ELC), and Laplacian Smoothing (LS); and (3) overall: a weighted composite score. All results are aggregated from 20 subjects. Metrics are normalized to a percentage of the best-observed mean value (100% denotes the best observed result in each category). Data are presented as mean values (labels) with error bars denoting standard deviation (SD). Significance levels are denoted as * (P < 0.05) and ** (P < 0.01) to indicate statistically significant differences compared with our proposed model. The Overall score is provided as a composite performance index for descriptive comparison and was not subjected to separate statistical inference. 15 
+
+Figure 6. Comparison of Dice metric convergence over iteration numbers for different pelvic organs with and without deep learning assistance. The curves show the geometry reconstruction performance for the bladder (blue), rectum (orange), and uterus (green). Dashed lines represent direct optimization without deep learning initialization, whereas solid lines represent the hybrid pathway with deep learning hot-start initialization. Error bars represent the mean and standard deviation. 
+
+Figure 7. Visual comparison of geometric outcomes at 100 iterations with and without deep learning assistance. From left to right, the columns show the initial mesh generated by Marching Cubes, the result after 100 iterations of direct optimization without deep learning assistance, and the result after 100 iterations with deep learning assistance. Representative examples are shown for the bladder, rectum, and uterus, and the values below each reconstructed geometry indicate the Dice similarity coefficient. 16 
+
+Furthermore, the qualitative comparisons presented in Figure 7 highlight the distinct 
+
+geometric configurations achieved by the two methods at the 100 -iteration checkpoint. At this stage, the two-stage hybrid framework has already generated anatomically plausible geometries with high fidelity, whereas the geometries produced by the standalone optimization 
+
+pathway remain characterized by primitive contours and fail to achieve effective morphological convergence toward the target anatomical structures within the same timeframe. 
+
+3.3. Compared with traditional operators 
+
+The quantitative metrics in Table 3 indicate that our framework improves tetrahedral mesh quality under the evaluated settings. Compared with traditional operators like Laplacian and Taubin smoothing, our approach achieves a multi-fold increase in the mesh quality lower bound. Unlike these traditional operators that risk mesh shrinkage, our geometric module proactively optimizes element distribution based on the learned manifold structure. Consequently, our framework effectively elevates both the Lowest Element-wise Value and the Mean of 10 Worst Elements, indicating improved local element quality during large-deformation analysis. 
+
+Table 3. Performance comparison with different 3D post-processing algorithms. 
+
+Statistics  Methods  minSICN( ↑) P-
+
+value 
+
+minSIGE( ↑) P-
+
+value 
+
+Gamma( ↑) P-
+
+value 
+
+Lowest 
+
+Element-wise Value 
+
+Laplacian  0.0095** 
+
+(0.0062– 0.0128) 
+
+<0.01  0.0112* 
+
+(0.0071– 0.0153) 
+
+<0.05  0.00234 
+
+(0.00013– 0.00455) 
+
+0.052 
+
+Humphrey  0.0028** 
+
+(0.0021– 0.0035) 
+
+<0.01  0.0028** 
+
+(0.0021– 0.0036) 
+
+<0.01  0.00005* 
+
+(0.00003– 0.00007) 
+
+<0.05 
+
+Taubin  0.0097** 
+
+(0.0064– 0.013) 
+
+<0.01  0.0113** 
+
+(0.0072– 0.0154) 
+
+<0.05  0.00237 
+
+(0.00016– 0.00458) 
+
+0.052 
+
+Ours  0.0409 
+
+(0.0303– 0.0515) 
+
+-- 0.0416 
+
+(0.0309– 0.0523) 
+
+-- 0.02275 
+
+(0.01200– 0.03350) 
+
+--
+
+Mean of 10 
+
+Worst Elements 
+
+Laplacian  0.0247** 
+
+(0.0178– 0.0316) 
+
+<0.01  0.0274** 
+
+(0.0199– 0.0349) 
+
+<0.01  0.01105* 
+
+(0.00513– 0.01697) 
+
+<0.05 
+
+Humphrey  0.0081** 
+
+(0.0069– 0.0093) 
+
+<0.01  0.0082** 
+
+(0.0070– 0.0094) 
+
+<0.01  0.00023** 
+
+(0.00016– 0.00030) 
+
+<0.01 
+
+Taubin  0.0261** 
+
+(0.0193– 0.033) 
+
+<0.01  0.0289** 
+
+(0.0214– 0.0364) 
+
+<0.01  0.01185* 
+
+(0.00596– 0.01774) 
+
+<0.05 
+
+Ours  0.0807 
+
+(0.0672– 0.0942) 
+
+-- 0.0844 
+
+(0.0706– 0.0982) 
+
+-- 0.04921 
+
+(0.03417– 0.06424) 
+
+-- 
+
+> Note: The best performance (mean value) is highlighted in bold. The numbers in the parentheses represent the 95% confidence intervals (95% CI). Statistical significance was assessed using a two-tailed paired t-test.
+
+17 
+
+4. Discussion 
+
+This study presents a hybrid deformable shape modeling framework that combines DL prediction with iterative optimization for high -fidelity 3D geometric reconstruction of pelvic organs from pelvic MRI. The approach offers three key innovations. First, the framework employs a geometry-aware multi-level deep learning architecture that fuses dual-branch graph features via geometric convolution and cross-attention, preserving topological consistency while capturing global and fine-grained geometry from point clouds. Second, a two-stage amortized optimization training strategy is introduced, which first learns global shapes through supervised full amortization and then refines local surfaces via semi-amortization, temporally decoupling reconstruction fidelity and physical constraints to enhance training stability. Third, a synergistic mechanism is established between deep learning and iterative optimization: during training, iterative optimization supervises deep learning through pseudo-labels; during inference, deep learning provides a hot-start initialization to guide rapid iterative deformation, thereby achieving both high fidelity and computational efficiency. 
+
+As demonstrated in Table 1 and Figure 3, our model achieves significantly higher geometric fidelity compared to existing approaches. This leap stems from our end-to-end geometric DL architecture, which moves away from conventional image-point cloud multimodal fusion in favor of a streamlined, manifold-oriented pipeline. In the 3D imaging domain, raw voxel data is high-dimensional yet carries a very low density of information relevant to organ surface geometry. This low signal-to-noise ratio often causes models trained on small datasets to capture irrelevant background noise, leading to severe overfitting. 
+
+According to the quantitative evaluation in Table 2, the 3D geometric models generated using geometry-aware convolution are significantly superior to those generated by traditional convolution in terms of mesh quality indicators. From a modeling perspective, while standard 1D convolutions can effectively approximate global spatial coordinates—ensuring macroscopic anatomical accuracy—their lack of explicit spatial priors renders them prone to generating non-physical discrete noise and distortions on the reconstructed surfaces. In contrast, our proposed geometry-aware convolution operator is engineered to adaptively perceive the Euclidean distance between vertices, dynamically recalibrating the receptive field. This mechanism significantly bolsters surface smoothness and manifold integrity while maintaining high reconstruction precision. 
+
+As demonstrated in Figure 5, our proposed two-stage amortized optimization training strategy, viewed through the lens of curriculum learning, achieves superior overall performance by systematically decoupling conflicting gradient signals. In conventional training frameworks, loss terms for anatomical accuracy and those for surface regularization often produce mutually opposing gradients, creating an optimization dilemma between reconstruction fidelity and mesh integrity. Our curriculum-based strategy addresses this by temporally separating these objectives: the model first learns a globally coherent anatomical topology driven by reconstruction objectives. Then, in the second stage, the emphasis on reconstruction performance is set aside, and regularization constraints are introduced to refine the mesh manifold. This staged learning progression effectively disentangles gradient conflicts, allowing the model to bypass energy barriers caused by poor initial geometries and achieve both high-fidelity anatomical restoration and well-regularized mesh surfaces. 
+
+The quantitative metrics in Table 3 underscore our framework’s advantages in refining tetrahedral meshes for downstream biomechanical workflows. Compared to traditional operators like Laplacian and Taubin smoothing, our approach achieves a multi-fold increase in the mesh quality lower bound. Unlike these traditional operators that risk mesh shrinkage, our geometric module proactively optimizes element distribution based on the learned manifold structure. Consequently, our framework effectively elevates both the Minimum Value and the Mean of 10 Worst Elements, indicating improved local element quality under the evaluated settings. 18 
+
+This study provides a new perspective for patient -specific pelvic floor modeling in clinically 
+
+relevant research settings. While current research mostly focuses on voxel -wise segmentation (Wang et al 2025, Ma et al 2024), these methods often neglect topological continuity and geometric integrity, leaving a labor-intensive "technical gap" in post-processing that hinders sophisticated downstream analysis. Our proposed framework bridges this gap by facilitating automated 3D geometric reconstruction directly from segmentation outputs, reducing manual mesh refinement burden and improving the fidelity and efficiency of downstream patient-specific workflows (Peng et al 2015, Silva et al 2021, Mayeur et al 2016). For example, the high-quality, topologically consistent 3D geometries produced by our framework can serve as suitable inputs for downstream biomechanical finite element analysis—an approach widely used to investigate patient-specific structural damage mechanisms in pelvic floor disorders (Luo et al 2014, 2023) and to support the computational evaluation of pelvic floor-related medical devices (Craven et al 2025). By providing a standardized and automated reconstruction pipeline, our framework reduces the manual effort and inter-operator variability that currently limit the scalability of such analyses in both clinical and research settings. From a clinical perspective, our framework establishes a standardized anatomical baseline by employing a unified topological template for all reconstructions. This approach effectively eliminates the structural inconsistencies and variable vertex counts prevalent in traditional modeling, ensuring that all patient-specific models share a precise, point-to-point anatomical correspondence through homeomorphic mapping. Such "spatial normalization" enables clinicians to perform robust, large-scale statistical shape analysis and reliable inter-individual morphological comparisons that were previously hindered by technical gaps. By providing a uniform digital benchmark for pelvic organs, our method not only enhances geometric fidelity but also may support population-based research and the longitudinal monitoring of disease progression. Moving forward, we plan to validate these outcomes across a wider spectrum of patient cohorts and clinical environments to further assess the stability and generalizability of the model in diverse real-world scenarios. 
+
+The primary strength of this study is the proposed hybrid deformable shape modeling framework combining DL and iterative optimization modules, which effectively addresses the time consuming, labor intensive, and difficult to standardize challenges of reconstructing high quality 3D pelvic organ geometries based on pelvic MRI segmentation. However, there are prerequisites and challenges to consider. First, the efficacy of current modeling approaches remains highly dependent on the accuracy of input segmentation labels or trained segmentation models; achieving end-to-end direct mapping from raw MRI images to 3D geometric representations remains a key direction for future improvement. Second, the generalization and robustness of the model when handling multi-center and cross-device imaging data still require further validation with large-scale, heterogeneous clinical cohorts. Finally, the current deformation framework is primarily limited to organ geometries with sphere-like manifolds; moreover, while the current geometric indices indicate improved mesh-quality proxy performance, future studies will incorporate specific boundary conditions to evaluate the mechanical response in dynamic physiological scenarios. 
+
+5. Conclusions 
+
+In this study, we developed a hybrid deformable shape modeling framework that integrates DL-based prediction with iterative optimization to efficiently reconstruct high-fidelity 3D geometries of pelvic organs. By combining a geometry-aware, multi-level DL architecture, the framework predicts displacement fields from a spherical template to complex organ morphologies, followed by targeted iterative refinement of local geometric details. Experimental results demonstrate that the proposed approach achieves both high computational efficiency and superior geometric fidelity, establishing a robust technical foundation for future  patient-specific pelvic floor modeling and analysis. 19 
+
+Acknowledgements 
+
+This study was supported by the National Key R&D Program of China (grant no. 2023YFC2411201); NSFC General Program (grant no. 31870942); Peking University Clinical Medicine Plus X - Young Scholars Project (grant nos. PKU2020LCXQ017 and PKU2021LCXQ028); PKU-Baidu Fund (grant no. 2020BD039). 
+
+Data availability statement 
+
+The data cannot be made publicly available upon publication because they contain sensitive personal information. The data that support the findings of this study are available upon reasonable request from the authors. 
+
+Conflict of interest 
+
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper. 
+
+Author contributions 
+
+Hui Wang 
+
+Conceptualization (equal), Methodology (equal), Data analysis (equal), Writing –original draft (equal), Writing –review and editing (equal). 
+
+Xiaowei Li 
+
+Data curation (equal), Data analysis (equal). 
+
+Chenxin Zhang 
+
+Data analysis (equal). 
+
+Yifan Feng 
+
+Data curation (equal). 
+
+Jianwei Zuo 
+
+Data analysis (equal). 
+
+Yumeng Tang 
+
+Data analysis (equal). 
+
+Xiuli Sun 
+
+Data curation (equal). 
+
+Jianliu Wang 
+
+Methodology (equal), Conceptualization (equal). 
+
+Bing Xie 
+
+Data curation (lead), Data analysis (equal). 
+
+Jiajia Luo 
+
+Conceptualization(lead), Methodology(lead), Data analysis(lead), Writing –original draft (equal), Writing –review and editing (equal). 20 
+
+References 
+
+Amos B 2023 Tutorial on amortized optimization Found. Trends Mach. Learn. 16 592-732 
+
+Beetz M, Banerjee A, Ossenberg-Engels J and Grau V 2023 Multi-class point cloud completion networks for 3D cardiac anatomy reconstruction from cine magnetic resonance images Med. Image Anal. 90 102975 
+
+Bongratz F, Rickmann A-M and Wachinger C 2024 Neural deformation fields for template-based reconstruction of cortical surfaces from MRI Med. Image Anal. 93 103093 
+
+Boyles S H, Weber A M and Meyn L 2003 Procedures for pelvic organ prolapse in the United States, 1979-1997 Am. J. Obstet. Gynecol. 188 108–15 
+
+Chen H, Kumaralingam L, Zhang S, Song S, Zhang F, Zhang H, Pham T-T, Punithakumar K, Lou E H M, Zhang Y, Le L H and Zheng R 2024 Neural implicit surface reconstruction of freehand 3D ultrasound volume with geometric constraints 
+
+Med. Image Anal. 98 103305 
+
+Cover T and Hart P 1967 Nearest neighbor pattern classification IEEE Trans. Inform. Theory. 13 21–7 
+
+Craven B A, Basciano C A, Afshari P, Aycock K I, Ballyns J J, Baumann A P, Bischoff J E, Bodner J, Briant P, Driscoll M, Frangi A, Grant C G J, Guler I, Hoganson D M, Imhauser C W, Knudsen L, Liu X, Lurie B, Pai V M, Palmer M, Pathmanathan P, Quevedo González F J J, Shrivastava D and Voisin E 2025 Computational modeling and simulation for medical devices: a summary of the 2024 FDA/MDIC symposium Prog. Biomed. Eng. 8 013001 
+
+Feng F, Ashton‐Miller J A, DeLancey J O L and Luo J 2020 Convolutional neural network‐based pelvic floor structure 
+
+segmentation using magnetic resonance imaging in pelvic organ prolapse Med. Phys. 47 4281–93 
+
+Feng H, Zhang H, Li Z, Zhou J, Lei P and Liu B 2025 A biomimetic m oving‐ mesh topology optimization method Int. J. Numer. Meth. Eng. 126 e70145 
+
+Geuzaine C and Remacle J 2009 Gmsh: A 3‐D finite element mesh generator with built‐in pre‐ and post‐processing facilities 
+
+Int. J. Numer. Meth. Eng. 79 1309–31 
+
+Gordon M T, DeLancey J O L, Renfroe A, Battles A and Chen L 2019 Development of anatomically based customizable three-dimensional finite-element model of pelvic floor support system: POP-SIM1.0 Interface Focus. 9 20190022 
+
+Hastie T, Tibshirani R and Friedman J H 2017 The elements of statistical learning: data mining, inference, and prediction (New York, NY: Springer) 
+
+He K, Cao X, Shi Y, Nie D, Gao Y and Shen D 2019 Pelvic organ segmentation using distinctive curve guided fully convolutional networks IEEE Trans. Med. Imaging 38 585–95 
+
+Hong C X, Nandikanti L, Shrosbree B, Delancey J O and Chen L 2023 Variations in structural support site failure patterns by prolapse size on stress 3D MRI Int. Urogynecol. J. 34 1923–31 
+
+Hoyte L and Damaser M 2016 Biomechanics of the Female Pelvic Floor (London, UK; San Diego: Academic Press) 
+
+Hu B, Zhan C, Tang B, Wang B, Lei B and Wang S-Q 2024 3-D brain reconstruction by hierarchical shape-perception network from a single incomplete image IEEE Trans. Neural Netw. Lear 
+
+n. Syst. 35 13271–83 
+
+Isensee F, Jaeger P F, Kohl S A A, Petersen J and Maier-Hein K H 2021 nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation Nat. Methods 18 203–11 
+
+Jelovsek J E, Maher C and Barber M D 2007 Pelvic organ prolapse Lancet 369 1027–38 
+
+Kiranyaz S, Avci O, Abdeljaber O, Ince T, Gabbouj M and Inman D J 2021 1D convolutional neural networks and applications: a survey Mech. Syst. Signal Process. 151 107398 
+
+Knupp P M 2001 Algebraic mesh quality metrics SIAM J. Sci. Comput. 23 193–218 
+
+Kong F, Wilson N and Shadden S 2021 A deep-learning approach for direct whole-heart mesh reconstruction Med. Image Anal. 74 102222 
+
+Kuş Z and Aydin M 2024 MedSegBench: A comprehensive benchmark for medical image segmentation in diverse data 
+
+modalities Sci. Data 11 1283 
+
+Larson K A, Luo J, Guire K E, Chen L, Ashton-Miller J A and DeLancey J O L 2012a 3D analysis of cystoceles using magnetic resonance imaging assessing midline, paravaginal, and apical defects Int. Urogynecol. J. 23 285–93 
+
+Larson K A, Luo J, Yousuf A, Ashton-Miller J A and Delancey J O L 2012b Measurement of the 3D geometry of the fascial arches in women with a unilateral levator defect and “architectural distortion” Int. Urogynecol. J. 23 57–63 
+
+Laumer F, Rubi L, Matter M A, Buoso S, Fringeli G, Mach F, Ruschitzka F, Buhmann J M and Matter C M 2025 2D echocardiography video to 3D heart shape reconstruction for clinical application Med. Image Anal. 101 103434 
+
+Lin F, Zakeri A, Xue Y, MacRaild M, Dou H, Zhou Z, Zou Z, Sarrami-Foroushani A, Duan J and Frangi A F 2025 From pixels to polygons: a survey of deep learning approaches for medical image-to-mesh reconstruction (arXiv:2505.03599) 
+
+Lorensen W E and Cline H E 1987 Marching cubes: A high resolution 3D surface construction algorithm SIGGRAPH Comput. Graph. 21 163–9 
+
+Luo J, Chen L, Fenner D E, Ashton-Miller J A and DeLancey J O L 2015 A multi-compartment 3-D finite element model of rectocele and its interaction with cystocele J. Biomech. 48 1580–6 
+
+Luo J, Smith T M, Ashton-Miller J A and DeLancey J O L 2014 In vivo properties of uterine suspensory tissue in pelvic organ prolapse J. Biomech. Eng. 136 021016 
+
+Luo J, Swenson C W, Betschart C, Feng F, Wang H, Ashton-Miller J A and DeLancey J O L 2023 Comparison of in vivo visco-hyperelastic properties of uterine suspensory tissue in women with and without pelvic organ prolapse J. Mech. Behav. Biomed. Mater. 137 105544 21 
+
+Ma J, He Y, Li F, Han L, You C and Wang B 2024 Segment anything in medical images Nat . Commun. 15 654 
+
+Ma Q, Li L, Robinson E C, Kainz B, Rueckert D and Alansary A 2023 CortexODE: learning cortical surface reconstruction by neural ODEs IEEE Trans. Med. Imaging 42 430–43 
+
+Martin L C, Hadizadeh A, Chill H H, Badr D, Abramowitch S D and Rostaminia G 2025 Differences in pelvic muscular shape and thickness in women with and without significant bladder descent Int. Urogynecol. J. 36 1607–15 
+
+Mayeur O, Witz J-F, Lecomte P, Brieu M, Cosson M and Miller K 2016 Influence of geometry and mechanical properties on the accuracy of patient-specific simulation of women pelvic floor Ann. Biomed. Eng. 44 202–12 
+
+McMillian E, Banerjee A and Bueno-Orovio A 2025 From 2D to 3D, deep learning-based shape reconstruction in magnetic resonance imaging: A Review (arXiv:2510.01296) 
+
+Meng Q, Bai W, O’Regan D P and Rueckert D 2024 DeepMesh: mesh-based cardiac motion tracking using deep learning 
+
+IEEE Trans. Med. Imaging 43 1489–500 
+
+Pak D H, Liu M, Kim T, Liang L, Caballero A, Onofrey J, Ahn S S, Xu Y, McKay R, Sun W, Gleason R and Duncan J S 2024 Patient-specific heart geometry modeling for solid biomechanics using deep learning IEEE Trans. Med. Imaging 
+
+43 203-15 
+
+Peng Y, Khavari R, Nakib N A, Stewart J N, Boone T B and Zhang Y 2015 The single-incision sling to treat female stress urinary incontinence: a dynamic computational study of outcomes and risk factors J. Biomech. Eng. 137 091007 
+
+Qian L, Chen J, Ma L, Urakov T, Gu W and Liang L 2025 Attention-based shape-deformation networks for artifact-free geometry reconstruction of lumbar spine from MR images IEEE Trans. Med. Imaging 44 5258–77 
+
+Ronneberger O, Fischer P and Brox T 2015 U-Net: convolutional networks for biomedical image segmentation Medical Image Computing and Computer-Assisted Intervention–MICCAI 2015: 18th Int. Conf., (Munich, Germany, 5-9 October, 2015, Proceedings, Part III 18) (Springer) pp 234–41 
+
+Sbriglio C, Ptak M and Kwiatkowski A 2026 Advances in computational modelling of head injury biomechanics – a comprehensive review Arch. Comput. Methods Eng. 33 5459–501 
+
+Shewchuk J R 2002 Delaunay refinement algorithms for triangular mesh generation Comput. Geom. 22 21–74 
+
+Silva M E T, Bessa J N M, Parente M P L, Mascarenhas T, Natal Jorge R M and Fernandes A A 2021 Effect of mesh anchoring technique in uterine prolapse repair surgery: A finite element analysis J. Biomech. Eng. 127 110649 
+
+Subak L 2001 Cost of pelvic organ prolapse surgery in the United States Obstet. Gynecol. 98 646–51 
+
+Sun Y, Wang L, Li G, Lin W and Wang L 2024 A foundation model for enhancing magnetic resonance images and downstream segmentation, registration and diagnostic tasks Nat. Biomed. Eng. 9 521–38 
+
+Vaswani A, Shazeer N, Parmar N, Uszkoreit J, Jones L, Gomez A N, Kaiser L and Polosukhin I 2017 Attention is all you need (arXiv:1706.03762) 
+
+Wang H, Guo S, Ye J, Deng Z, Cheng J, Li T, Chen J, Su Y, Huang Z, Shen Y, Fu B, Zhang S and He J 2025 SAM-Med3D: a vision foundation model for general-purpose segmentation on volumetric medical images IEEE Trans. Neural Netw. Learn. Syst. 36 17599–612 
+
+Wang N, Zhang Y, Li Z, Fu Y, Yu H, Liu W, Xue X and Jiang Y-G 2021 Pixel2Mesh: 3D mesh model generation via image guided deformation IEEE Trans. Pattern Anal. Mach. Intell. 43 3600–13 
+
+Wang Y, Sun Y, Liu Z, Sarma S E, Bronstein M M and Solomon J M 2019 Dynamic graph CNN for learning on point clouds ACM Trans. Graph. 38 1–12 
+
+Watson D F 1981 Computing the n-dimensional Delaunay tessellation with application to Voronoi polytopes Comput. J. 24 
+
+167–72 
+
+Wickramasinghe U, Remelli E, Knott G and Fua P 2020 Voxel2Mesh: 3D mesh model generation from volumetric data 
+
+Medical Image Computing and Computer Assisted Intervention–MICCAI 2020: 23rd Int. Conf., (Lima, Peru, 4-8 October, 2020, Proceedings, Part IV 10) (Springer) pp 299–308 
+
+Woodfield C A, Krishnamoorthy S, Hampton B S and Brody J M 2010 Imaging pelvic floor disorders: trend toward comprehensive MRI Am. J. Obstet. Gynecol. 194 1640–9 
+
+Wu J M, Hundley A F, Fulton R G and Myers E R 2009 Forecasting the prevalence of pelvic floor disorders in U.S. W omen: 2010 to 2050 Obstet. Gynecol. 114 1278–83 
+
+Zuo J, Feng F, Wang Z, Ashton-Miller J A, DeLancey J O L and Luo J 2026 Semi-supervised deep learning for uterus and bladder segmentation on female pelvic floor magnetic resonance imaging with limited labeled data Am. J. Obstet. Gynecol. 234 461-470

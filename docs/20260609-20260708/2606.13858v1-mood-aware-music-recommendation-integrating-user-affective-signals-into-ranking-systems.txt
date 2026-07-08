@@ -1,0 +1,305 @@
+Title: Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems
+
+URL Source: https://arxiv.org/pdf/2606.13858v1
+
+Published Time: Mon, 15 Jun 2026 00:19:38 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+# Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+Terence Zeng 
+
+University of Illinois Urbana-Champaign, Urbana, Illinois 61801, USA, terence6@illinois.edu 
+
+Abhishek K. Umrawal †
+
+University of Illinois Urbana-Champaign, Urbana, Illinois 61801, USA, aumrawal@illinois.edu 
+
+Recommendation systems are essential in modern music streaming platforms due to the vast amount of available content. While collaborative filtering is widely used to suggest items based on the preferences of others with similar patterns, it performs poorly in domains where user-item interactions are sparse, such as music. Content-based filtering is an alternative approach that examines the qualities of the items themselves. Genre, instrumentation, and lyrics have been explored; however, relatively little attention has been given to emotion recognition. Since a user’s emotional state strongly influences their music choice, incorporating mood signals offers a promising direction for personalization. In this work, we propose a mood-conditioned ranking framework that integrates user affective signals into the recommendation process via softmax-based sampling in the energy–valence space. We evaluate the approach via single-blind experiments in which participants compare recommendations from the proposed system against a baseline. The results indicate improved perceived recommendation quality, providing preliminary evidence for the effectiveness of incorporating mood-based inputs into music recommendations. 
+
+Key words : recommender systems; music recommendation; affective computing; personalized ranking; content-based filtering; user modeling 
+
+## 1. Introduction 
+
+Music recommendation plays a critical role in modern streaming platforms, which host massive catalogs and serve hundreds of millions of users worldwide (International Federation of the Phonographic Industry (IFPI) 2026). Traditional recommender systems rely heavily on collaborative filtering (CF) (Goldberg et al. 1992, Koren et al. 2009), which generates recommendations based on user-interaction data by matching users with similar taste patterns. However, CF suffers from significant limitations in the music domain. Interaction data often exceeds 99.9% sparsity (Dror et al. 2012), platforms suffer from popularity bias (Liu et al. 2025), and there is a lack of explicit feedback, such as numerical ratings (Hu et al. 2008). Content-based filtering provides an alternative by leveraging item attributes, such as audio characteristics, rather than relying solely on user-item interactions. In the music domain, early systems such as MARSYAS  
+
+> †
+
+Abhishek K. Umrawal is the corresponding author. 
+
+1
+
+> arXiv:2606.13858v1 [cs.IR] 11 Jun 2026 Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems
+> 2
+
+(Tzanetakis and Cook 2000) and feature representations based on Mel-frequency Cepstral Coefficients (MFCCs) (Logan and Salomon 2001) laid the foundation for extracting both low-level spectral features and higher-level semantic descriptors. However, standard content-based approaches typically assume static user preferences and do not account for the dynamic and context-dependent nature of music consumption. In practice, listening behavior is shaped by contextual factors such as activity, time, and user emotion. Prior work shows that streaming environments increase exploration and diversity (Datta et al. 2018), motivating the use of mood to capture short-term preference shifts beyond long-term taste profiles. In this work, we propose a mood-aware music recommendation framework that incorporates user-reported affective state into the recommendation process using the energy–valence representation. The core contri-butions are: (1) We introduce a method for incorporating user-reported mood into recommendations using the energy–valence representation and a probabilistic selection mechanism. (2) We implement a working system that integrates behavioral data, semantic similarity, and affective features from multiple real-world APIs. (3) We conduct a preliminary user study showing that mood-aware recommendations improve perceived recommendation quality relative to a similarity-based baseline. More generally, this setting highlights the role of incorporating short-term user context into recommen-dation systems that are typically based on longer-term preference signals. 
+
+## 2. Related Work 
+
+There is a large literature on content-based music recommendation. We focus here on key strands and refer to (Zeng and Umrawal 2025) for a detailed review. 
+
+2.1. Audio Signal Analysis and Perceptual Features 
+
+Content-based music recommendation historically relies on audio signal processing. Early research estab-lished genre classification methods which used timbre, rhythm, and pitch as features (Tzanetakis and Cook 2002, Fix and Hodges 1989). These evolved through time-modulation analysis (Panagakis et al. 2010) and deep learning architectures such as Convolutional Neural Networks (CNNs) (Liu et al. 2021, Duan 2024) and capsule networks (Ba et al. 2025) to achieve high classification accuracy. Similarly, instrument detection in polyphonic audio has progressed from Mel-Frequency Cepstral Coefficients (MFCCs) (Eronen 2001, Rabiner and Juang 1993) to multi-label deep classifiers (Solanki and Pandey 2022). These acoustic qualities are often aggregated into high-level perceptual features such as danceability, valence, and energy (Pastukhov 2022), which correlate strongly with human emotional perception (Gerhard 2003, Panda et al. 2021). In Music Emotion Recognition (MER), models use either categorical taxonomies (Hu et al. 2021, Klimmt et al. 2019) or dimensional spaces, such as Russell’s valence-arousal circumplex (Russell 1980). While Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+> 3
+
+dimensional models enable continuous mapping of emotional expressions, hybrid approaches combining discrete categories with continuous variables have shown superior effectiveness in personalization (Kang and Herremans 2025, Rod` a et al. 2014). 
+
+2.2. Lyrical Semantic Analysis 
+
+Beyond raw audio signals, textual lyrics provide direct semantic context for emotion recognition. Lyrical analysis is computationally lightweight compared to signal processing (Vystrˇ cilov´ a and Peˇ ska 2020), but early bag-of-words and latent semantic indexing methods (Logan et al. 2004) achieved lower accuracy than audio-based approaches. Modern systems leverage hybrid representations combining audio and text embeddings to project songs onto the arousal-valence plane (Zhang et al. 2022, Schaab and Kruspe 2024). Furthermore, Large Language Models (LLMs) have enabled the generation of semantic summaries to bypass length and copyright constraints in recommender pipelines (Tekle et al. 2024), as well as the creation of emotion-aware song lyrics (Ding et al. 2024). 
+
+2.3. Context-Aware and Demographic Personalization 
+
+As user preferences are dynamic, context-aware recommender systems use situational variables such as time of day, current activity, and environment (Kim and Belkin 2002, Kaminskas and Ricci 2011). Streaming frameworks have proposed passive context inference via environmental audio capture (Hulaud 2021) or conversational voice interaction (Wirfs-Brock et al. 2020). Demographic attributes, including age, gender, and nationality, also predict music exploration profiles and preference patterns (Krismayer et al. 2019, Vigliensoni and Fujinaga 2016), with computer-vision models even enabling real-time audience estimation in public spaces (Mammadli et al. 2022). While music emotion recognition is well-studied for labeling tracks, dynamically matching user-reported emotional states to music filtering remains less explored. This work bridges this gap by combining traditional track similarity with mood-based filtering. 
+
+## 3. Methodology 
+
+We consider the problem of recommending songs conditioned on a user’s current mood. We formalize this setting as a probabilistic mood-conditioned ranking problem, where candidate items are scored based on proximity in affective space and sampled via a softmax (Boltzmann) distribution. To personalize recom-mendations according to user affective state, we represent both user mood and audio content in a shared energy–valence space and select candidate songs based on proximity to a target mood. This enables the incorporation of short-term user context into the recommendation process while operating over a fixed candidate pool derived from historical preferences. Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+4
+
+3.1. Energy-Valence Model 
+
+The Energy-Valence Model, proposed by Russell (Russell 1980), defines human emotional state along two orthogonal dimensions in the energy–valence space. Energy (or arousal) measures alertness and stimulation, while valence measures emotional pleasantness. Both attributes are normalized to the range [0, 1]. Following Thayer (Thayer 1990), various mood categories map to distinct regions on this plane (e.g., Excited in high-energy/high-valence, Sad in low-energy/low-valence), as shown in Figure 1. Audio tracks can also be mapped onto this plane using features extracted via signal processing and learning-based models (Yang et al. 2008). 
+
+Sad 
+
+Distressed 
+
+Angry Stimulated Excited 
+
+Happy 
+
+Relaxed Tired 
+
+Neutral 
+
+0 0.5 1
+
+0
+
+0.5
+
+1
+
+Valence  
+
+> Energy
+> Figure 1 Mapping of mood categories onto the energy-valence model, adapted from Thayer (Thayer 1990).
+
+3.2. Song Selection Models 
+
+Given a target user mood (𝑣, 𝑒 ) and a candidate song pool 𝐴 [1, . . . , 𝑛 ] with valence and energy arrays 
+
+𝑉 [1, . . . , 𝑛 ] and 𝐸 [1, . . . , 𝑛 ], we consider two selection methods. Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+5
+
+3.2.1. 𝑘 -Nearest Neighbors (Baseline) Our baseline approach is adapted from the 𝑘 -nearest neighbor algorithm (Peterson 2009). We select the 𝑘 closest songs in the candidate pool to the user’s target mood. Distance is defined as the squared Euclidean distance: 
+
+𝐷 [𝑖 ] = (𝑉 [𝑖 ] − 𝑣 )2 + ( 𝐸 [𝑖 ] − 𝑒 )2 (1) Songs are sorted in ascending order of 𝐷 [𝑖 ], and the top 𝑘 are returned. As shown in Figure 2, an example user’s listening history is distributed across the valence–energy plane. Under a deterministic selection scheme such as KNN, repeated queries for a fixed emotional target will return the same set of songs. This provides limited utility, especially since a user’s short-term mood fluctuates while their overall music collection remains fixed. This limitation motivates a probabilistic approach to introduce recommendation diversity. 
+
+0 0.5 1
+
+0
+
+0.5
+
+1
+
+Valence  
+
+> Energy
+> Figure 2 Distribution of an example user’s top listening history tracks on the energy-valence plane.
+
+3.2.2. Softmax/Boltzmann Selection To balance alignment with the target mood and diversity in rec-ommendations, we propose a Softmax selection method (Algorithm 1) based on the Boltzmann distribution Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+6
+
+(Luce et al. 1959). We compute the squared Euclidean distance 𝐷 [𝑖 ] for all candidates and map them to unnormalized Boltzmann weights: 
+
+𝑊 [𝑖 ] = exp 
+
+
+
+− 𝐷 [𝑖 ]
+
+𝑘 
+
+
+
+(2) where the decay factor 𝑘 controls selection sharpness. We then normalize the weights to form a probability distribution: 
+
+𝑃 [𝑖 ] = 𝑊 [𝑖 ]
+
+Í𝑛 𝑗 =1 𝑊 [ 𝑗 ] (3) Finally, we sample 𝑟 distinct tracks according to 𝑃 . This ensures that songs closer to the target mood are favored, while less similar but novel recommendations retain a non-zero probability of being selected. 
+
+Algorithm 1 Softmax Song Selection 
+
+Require: user mood (𝑣, 𝑒 ), decay factor 𝑘 , number of recommendations 𝑟 , songs 𝐴 [1, . . . , 𝑛 ] with valences 
+
+𝑉 [1, . . . , 𝑛 ] and energies 𝐸 [1, . . . , 𝑛 ]
+
+𝐷 [1, . . . , 𝑛 ] ⊲ distance between each song and user mood 
+
+for all 𝑖 ∈ [ 1, 𝑛 ] do 
+
+𝐷 [𝑖 ] ← ( 𝑉 [𝑖 ] − 𝑣 )2 + ( 𝐸 [𝑖 ] − 𝑒 )2
+
+end for 
+
+𝑊 [1, . . . , 𝑛 ] ⊲ unnormalized Boltzmann weights 
+
+for all 𝑖 ∈ [ 1, 𝑛 ] do 
+
+𝑊 [𝑖 ] ← exp 
+
+
+
+− 𝐷 [𝑖 ]
+
+> 𝑘
+
+
+
+end for 
+
+𝑃 [1, . . . , 𝑛 ] ⊲ normalized probabilities 
+
+𝑍 ← Í𝑛 𝑖 =1 𝑊 [𝑖 ]
+
+for all 𝑖 ∈ [ 1, 𝑛 ] do 
+
+𝑃 [𝑖 ] ← 𝑊 [𝑖 ]/ 𝑍 
+
+end for 
+
+Sample 𝑟 distinct indices according to probability distribution 𝑃 
+
+return corresponding songs from 𝐴 Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+> 7
+
+## 4. Experiments 
+
+To evaluate our mood-assisted recommendation framework against a traditional baseline under realistic conditions, we developed a real-time web application to facilitate data collection and user trials. 
+
+4.1. System Architecture and Data Pipeline 
+
+The recommendation pipeline consists of three sequential stages, as illustrated in Figure 3: 1. User Profiling (Spotify API): Users authenticate via Spotify OAuth. The system queries the Spotify Web API to retrieve the user’s top tracks across short, medium, and long-term listening histories. A random subset of these tracks is selected as “seed songs” representing the user’s base preferences. 2. Candidate Exploration (Last.fm API): For each seed track, we query the Last.fm 
+
+track.getSimilar API to retrieve similar tracks. This step generates a diverse candidate pool of tracks that are semantically aligned with the user’s historical preferences, mitigating cold-start limitations in collab-orative approaches. Since Last.fm identifiers are not directly compatible, candidate track metadata (names and artists) are matched to Spotify IDs using the Spotify search endpoint. 3. Audio Feature Retrieval (ReccoBeats API): For each candidate track, the system retrieves valence and energy values from the ReccoBeats API. Once the candidate pool is populated with features, the system generates two playlists: (1) a control recommendation based on similarity metrics ( 𝑘 -nearest neighbors in the energy–valence space); and (2) a mood-assisted recommendation filtered toward a user-selected target mood using Softmax Song Selection (Algorithm 1). To reduce latency, similarity queries and feature retrieval are executed concurrently using Python’s asynchronous I/O framework. 
+
+4.2. Experimental Design 
+
+We conducted a single-blind user study. Participants logged into the web platform, which automatically retrieved their top tracks and generated candidate pools. Participants then selected their current desired mood from nine options corresponding to Thayer’s mood quadrants. The system presented two anonymous recommendations: one from the baseline control model and one from the mood-assisted model. Participants rated each recommendation on a 5-point Likert scale (1 = Poor, 5 = Excellent) and optionally provided comments. A total of 27 evaluation pairs from 6 participants were collected. 
+
+## 5. Results 
+
+We evaluate the recommendation quality by analyzing user ratings across the control and mood-assisted models. Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+8
+
+Figure 3 Flowchart outlining the experimental data processing and recommendation pipeline. Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+9
+
+1 2 3 4 5
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10 
+
+12 
+
+6
+
+7 7
+
+4
+
+33
+
+1
+
+6
+
+11 
+
+6
+
+Rating 
+
+> Count
+
+Control Mood-Assisted    
+
+> Figure 4 Distribution of participant ratings on a 5-point scale ( 𝑛 =27 ).
+
+5.1. Statistical Analysis 
+
+Across all trials, the mood-assisted recommendation model consistently outperformed the control model. Mood-assisted recommendations received a mean rating of 3.59 (SD = 1.19), whereas control recommen-dations received a mean rating of 2.67 (SD = 1.28). As illustrated in Figure 4, the score distribution for the mood-assisted system shows a clear upward shift, with 63% of recommendations rated as 4 or 5, compared to only 26% for the control system. To evaluate statistical significance, we performed a Mann–Whitney 𝑈 test (Mann and Whitney 1947), appropriate for ordinal, non-normal Likert ratings. With sample sizes 𝑛 1 = 𝑛 2 = 27 , the test yields a 𝑧 -score of 
+
+−2.56 , corresponding to a two-tailed 𝑝 -value of approximately 0.01. This indicates a statistically significant improvement in user-perceived recommendation quality when incorporating mood-based inputs. 
+
+5.2. Discussion 
+
+The results suggest that mapping user-reported moods onto the valence–energy plane provides a meaningful personalization signal beyond track similarity. By combining Last.fm similarity data (capturing preference continuity) with ReccoBeats audio feature filtering (capturing emotional relevance), the system avoids recommending tracks that, while similar in genre or style, conflict with the user’s immediate emotional state. These findings indicate that user preferences in music recommendation are not fully captured by static historical behavior alone, but also depend on transient contextual factors such as mood. Incorporating such signals can therefore meaningfully alter recommendation outcomes, even when the underlying candidate pool remains unchanged. Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+> 10
+
+However, the efficacy of the mood-assisted system varies across specific mood targets (Table 1). The most substantial improvements occur for “Relaxed” (+2.67) and “Sad” (+2.00) moods. Conversely, for “Stimu-lated” and “Distressed” moods, no improvement is observed. This suggests that users seeking high-arousal or high-tension music may have narrower or more variable interpretations of emotional categories, or that baseline recommendations already align sufficiently with these states. This study provides preliminary evi- 
+
+> Table 1 Mean ratings grouped by target mood.
+
+Target Mood Control Mood-Assisted 
+
+Relaxed 2.33 5.00 Sad 2.00 4.00 Tired 2.33 3.67 Distressed 2.67 2.67 Neutral 3.33 3.67 Happy 3.67 4.00 Angry 1.00 2.00 Stimulated 4.67 4.67 Excited 2.00 2.67 dence that incorporating mood-aware filtering improves recommendation quality; future work will validate these findings on a larger scale. While promising, several limitations remain: (1) The user study relies on a small participant cohort (27 evaluation pairs), which limits statistical power and generalizability. (2) Manual self-reporting introduces subjective bias, as users’ perception of their mood and its mapping to discrete labels may vary. (3) Spotify-to-Last.fm track reconciliation is imperfect, occasionally excluding less popular tracks due to missing cross-platform metadata, and thereby constraining the candidate pool. 
+
+## 6. Conclusion and Future Work 
+
+This work demonstrates that incorporating user mood via the energy–valence plane is an effective approach for enhancing personalized music recommendations. By combining similarity-based candidate retrieval with softmax-weighted emotion filtering, our framework aligns recommendations with users’ short-term emotional states while preserving novelty. A user study provides preliminary evidence of improved perceived recommendation quality over baseline methods. These findings highlight the importance of incorporating short-term contextual signals into recommendation systems traditionally driven by long-term preferences. Future work will focus on addressing the limitations of the current study and extending the modeling framework. First, we plan to validate the approach at larger scale through broader user studies and longitudinal evaluation. Second, we aim to extend emotional modeling beyond the two-dimensional energy–valence plane to capture more nuanced affective and cognitive states. Third, we will explore multimodal user signals (e.g., passive sensor data, facial expressions, or contextual cues) to enable automatic mood inference and reduce reliance on self-reported inputs. Finally, improving cross-platform track matching and expanding candidate generation pipelines will further enhance coverage and recommendation diversity. Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+11 
+
+## References 
+
+Ba TC, Le TDT, Van LT (2025) Music genre classification using deep neural networks and data augmentation. 
+
+Entertainment Computing 53:100929, ISSN 1875-9521, URL http://dx.doi.org/https://doi.org/10. 1016/j.entcom.2025.100929 .Datta H, Knox G, Bronnenberg BJ (2018) Changing their tune: How consumers’ adoption of online streaming affects music consumption and discovery. Marketing Science 37(1):5–21. Ding S, Liu Z, Dong X, Zhang P, Qian R, He C, Lin D, Wang J (2024) Songcomposer: A large language model for lyric and melody composition in song generation. URL https://arxiv.org/abs/2402.17645 .Dror G, Koenigstein N, Koren Y, Weimer M (2012) The yahoo! music dataset and kdd-cup’11. Dror G, Koren Y, Weimer M, eds., Proceedings of KDD Cup 2011 , volume 18 of Proceedings of Machine Learning Research ,3–18 (PMLR), URL https://proceedings.mlr.press/v18/dror12a.html .Duan Y (2024) Broadcast swin transformer for music genre classification. Highlights Sci. Eng. Technol. 85:691–699. Eronen A (2001) Comparison of features for musical instrument recognition. Proceedings of the 2001 IEEE Workshop on the Applications of Signal Processing to Audio and Acoustics (Cat. No. 01TH8575) , 19–22 (IEEE). Fix E, Hodges JL (1989) Discriminatory analysis. nonparametric discrimination: Consistency properties. International Statistical Review / Revue Internationale de Statistique 57(3):238–247, ISSN 03067734, 17515823, URL http: //www.jstor.org/stable/1403797 .Gerhard D (2003) Audio signal classification: History and current techniques (Department of Computer Science, University of Regina Regina, SK, Canada). Goldberg D, Nichols DA, Oki BM, Terry DB (1992) Using collaborative filtering to weave an information tapestry. 
+
+Commun. ACM 35:61–70, URL https://api.semanticscholar.org/CorpusID:1591394 .Hu X, Chen J, Wang Y (2021) University students’ use of music for learning and well-being: A qualitative study and design implications. Information Processing & Management 58:102409, URL http://dx.doi.org/10. 1016/j.ipm.2020.102409 .Hu Y, Koren Y, Volinsky C (2008) Collaborative filtering for implicit feedback datasets. 2008 Eighth IEEE international conference on data mining , 263–272 (Ieee). Hulaud S (2021) Identification of taste attributes from an audio signal. https://patents.google.com/patent/ US10891948B2/en , uS10891948B2. International Federation of the Phonographic Industry (IFPI) (2026) Global music report 2026: State of the industry. 
+
+https://www.ifpi.org , accessed: 2026. Kaminskas M, Ricci F (2011) Location-adapted music recommendation using tags. Konstan JA, Conejo R, Marzo JL, Oliver N, eds., User Modeling, Adaption and Personalization , 183–194 (Berlin, Heidelberg: Springer Berlin Heidelberg), ISBN 978-3-642-22362-4. Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+12 Kang J, Herremans D (2025) Towards unified music emotion recognition across dimensional and categorical models. URL https://arxiv.org/abs/2502.03979 .Kim JY, Belkin NJ (2002) Categories of music description and search terms and phrases used by non-music experts. 
+
+ISMIR , volume 2, 209–214. Klimmt C, Possler D, May N, Auge H, Wanjek L, and ALW (2019) Effects of soundtrack music on the video game experience. Media Psychology 22(5):689–713, URL http://dx.doi.org/10.1080/15213269.2018. 1507827 .Koren Y, Bell R, Volinsky C (2009) Matrix factorization techniques for recommender systems. Computer 42(8):30–37. Krismayer T, Schedl M, Knees P, Rabiser R (2019) Predicting user demographics from music listening information. 
+
+Multimedia Tools and Applications 78(3):2897–2920. Liu C, Feng L, Liu G, Wang H, Liu S (2021) Bottom-up broadcast neural network for music genre classification. 
+
+Multimedia Tools and Applications 80:7313–7331. Liu J, Li D, Gu H, Zhang P, Lu T, Shang L, Gu N (2025) Unbiased collaborative filtering with fair sampling. 
+
+Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval , 2555–2559. Logan B, Kositsky A, Moreno P (2004) Semantic analysis of song lyrics. 2004 IEEE International Conference on Multimedia and Expo (ICME)(IEEE Cat. No. 04TH8763) , volume 2, 827–830 (IEEE). Logan B, Salomon A (2001) A music similarity function based on signal analysis. International Conference on Multimedia and Expo URL http://dx.doi.org/10.1109/ICME.2001.1237829 .Luce RD, et al. (1959) Individual choice behavior , volume 4 (Wiley New York). Mammadli R, Bilgin H, Karaca AC (2022) Music recommendation system based on emotion, age and ethnicity. URL 
+
+https://arxiv.org/abs/2212.04782 .Mann HB, Whitney DR (1947) On a Test of Whether one of Two Random Variables is Stochastically Larger than the Other. The Annals of Mathematical Statistics 18(1):50 – 60, URL http://dx.doi.org/10.1214/aoms/ 1177730491 .Panagakis Y, Kotropoulos C, Arce GR (2010) Non-negative multilinear principal component analysis of auditory tem-poral modulations for music genre classification. IEEE Transactions on Audio, Speech, and Language Processing 
+
+18(3):576–588, URL http://dx.doi.org/10.1109/TASL.2009.2036813 .Panda R, Redinho H, Gonc ¸alves C, Malheiro R, Paiva RP (2021) How does the spotify api compare to the music emotion recognition state-of-the-art? URL http://dx.doi.org/10.5281/zenodo.5054146 .Pastukhov D (2022) Inside spotify’s recommender system: A complete guide to spotify recommendation algorithms. 
+
+Music Tomorrow. Preuzeto 9:2024. Peterson LE (2009) K-nearest neighbor. Scholarpedia 4(2):1883. Rabiner L, Juang BH (1993) Fundamentals of speech recognition (Prentice-Hall, Inc.). Mood-Aware Music Recommendation: Integrating User Affective Signals into Ranking Systems 
+
+13 Rod` a A, Canazza S, De Poli G (2014) Clustering affective qualities of classical music: Beyond the valence-arousal plane. IEEE Transactions on Affective Computing 5(4):364–376, URL http://dx.doi.org/10.1109/TAFFC. 2014.2343222 .Russell JA (1980) A circumplex model of affect. Journal of personality and social psychology 39(6):1161. Schaab L, Kruspe A (2024) Joint sentiment analysis of lyrics and audio in music. arXiv preprint arXiv:2405.01988 .Solanki A, Pandey S (2022) Music instrument recognition using deep convolutional neural networks. International Journal of Information Technology 14(3):1659–1668. Tekle N, Ayala A, Haile J, Alshabanah A, Baker C, Annavaram M (2024) Music recommendation through llm song summary. Feedback 114:71–690. Thayer RE (1990) The biopsychology of mood and arousal (Oxford University Press). Tzanetakis G, Cook P (2000) Marsyas: a framework for audio analysis. Organised Sound 4(3):169–175, URL http: //dx.doi.org/10.1017/S1355771800003071 .Tzanetakis G, Cook P (2002) Musical genre classification of audio signals. IEEE Transactions on speech and audio processing 10(5):293–302. Vigliensoni G, Fujinaga I (2016) Automatic music recommendation systems: Do demographic, profiling, and contextual features improve their performance?. ISMIR , 94–100. Vystrˇ cilov´ a M, Peˇ ska L (2020) Lyrics or audio for music recommendation? Proceedings of the 10th International Conference on Web Intelligence, Mining and Semantics , 190–194. Wirfs-Brock J, Mennicken S, Thom J (2020) Giving voice to silent data: Designing with personal music listening history. Proceedings of the 2020 CHI Conference on Human Factors in Computing Systems , 1–11. Yang YH, Lin YC, Su YF, Chen HH (2008) A regression approach to music emotion recognition. IEEE Transactions on audio, speech, and language processing 16(2):448–457. Zeng T, Umrawal AK (2025) Content filtering methods for music recommendation: A review. arXiv preprint arXiv:2507.02282 URL https://arxiv.org/abs/2507.02282 .Zhang Y, Jiang J, Xia G, Dixon S (2022) Interpreting song lyrics with an audio-informed pre-trained language model. 
+
+arXiv preprint arXiv:2208.11671 .

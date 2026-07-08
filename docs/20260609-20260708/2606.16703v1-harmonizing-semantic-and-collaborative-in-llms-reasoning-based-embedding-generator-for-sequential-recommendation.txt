@@ -1,0 +1,556 @@
+Title: Harmonizing Semantic and Collaborative in LLMs: Reasoning-based Embedding Generator for Sequential Recommendation
+
+URL Source: https://arxiv.org/pdf/2606.16703v1
+
+Published Time: Tue, 16 Jun 2026 02:17:55 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+# Harmonizing Semantic and Collaborative in LLMs: Reasoning-based Embedding Generator for Sequential Recommendation 
+
+Qidong Liu *, Mingyao Huang *, Moranxin Wang, Wenxuan Yang, Haiping Zhu 
+
+Xi’an Jiaotong University, Xi’an, China 
+
+{liuqidong,zhuhaiping}@xjtu.edu.cn {2214312088,wangmo,yangwenxuan}@stu.xjtu.edu.cn 
+
+Abstract 
+
+Sequential Recommender Systems (SRS) pre-dict the next item of interest based on users’ interaction histories and have been widely de-ployed, but hindered by long-tail problem. Large Language Models (LLMs), with strong semantic understanding and reasoning capabil-ities, offer a promising way to enrich item se-mantics and have recently been used as embed-ding generators. However, two fundamental gaps remain. First, current LLM-based em-bedding methods fail to exploit the model’s in-ner reasoning capacity. Second, existing meth-ods often inject collaborative signals implic-itly via supervised fine-tuning, lacking explicit guidance for collaborative embedding align-ment. In this paper, we introduce ReaEmb ,a novel framework that resolves both issues via a Latent Reasoning-enhanced Contrastive Learning (LRCL) stage and a Collaborative Reward Reinforcement Learning (CRRL) stage. LRCL exploits the LLM’s inner reasoning ca-pacity through a two-pass forward process with an additional attention module. CRRL subse-quently explicitly injects collaborative signals into the LLM via a tailored reinforcement learn-ing. Extensive experiments on three real-world datasets demonstrate superior effectiveness of ReaEmb across multiple SRS models. To ease reproducibility, we release the code online 1.
+
+1 Introduction 
+
+Sequential Recommender Systems (SRS) aim to predict the next item a user is most likely to in-teract with based on the historical interaction se-quence (Fang et al., 2020; Wang et al., 2019), and have been widely applied in e-commerce (Wang et al., 2020), short-video platforms (Pan et al., 2023), and online education (Zhang et al., 2019). Deep SRS models, e.g., SASRec (Kang and McAuley, 2018) and BERT4Rec (Sun et al., 2019), 
+
+> *
+
+Both authors contributed equally. 
+
+> 1
+
+https://github.com/mingyao-huang/ReaEmb.git LLM         
+
+> LLM
+> LLM
+> Adapter  Adapter
+> PCA
+> （a）Inference-only
+> （b）Single-forward CL + SFT-based Collaborative Signal Injection
+> （c）Reasoning-enhanced CL + RL-based Collaborative Signal Injection
+> collaborative signals
+> SFT
+> RL
+> SRS
+> Embeeding layer
+> SRS
+> Embeeding layer
+> SRS
+> Embeeding layer
+> Highly Co-occurring but Semantically Dissimilar Items:
+> 1. Battlefield 1 2. Call of Duty: Infinite Warfare 3. Titanfall 2 - SteelBook Edition
+> 4. Fallout 4 - Xbox One 5. Deus Ex Human Revolution
+
+Figure 1: Comparison of three paradigms for adapting LLMs into item embedding generators. 
+
+have shown strong capability in capturing users’ dy-namic preferences. However, these models still suf-fer from the long-tail problem (Wang et al., 2019), where a few popular items dominate interactions while most items receive very few. Such a data distribution makes current SRS difficult to learn ex-pressive collaborative representation for long-tail items, leading to degraded accuracy. To alleviate long-tail problem, incorporating item semantics has been shown effective (Liu et al., 2025b; Guo et al., 2020). Large Language Models (LLMs) possess broad semantic knowledge beyond item popularity, making them compelling genera-tors of item embeddings for SRS (Liu et al., 2025a; He et al., 2025; Lee et al., 2025). Following this way, recent works proposed prompting LLMs to output embeddings for SRS models. Despite this promise, two critical gaps persist in existing LLMs-based embedding approaches. • Insufficient Semantic Understanding. Current methods obtain item representations through a 1
+
+> arXiv:2606.16703v1 [cs.IR] 15 Jun 2026
+
+single LLMs forward pass (Liu et al., 2025a; He et al., 2025), treating the LLMs mainly as a text encoder. This paradigm underutilizes the model’s intrinsic reasoning ability (Jaech et al., 2024), limiting its capacity to uncover fine-grained item attributes and implicit semantic relations. • Implicit Collaborative Signal Injection. Col-laborative signals, which reflect item co-occurrence patterns, are essential for recommen-dation (He et al., 2020). However, existing LLM-based embedding methods still incorporate them indirectly. As shown in Figure 1(a), the 
+
+Inference-only Paradigm (Hu et al., 2024) di-rectly learns collaborative signals into LLMs em-beddings by co-training with SRS models. How-ever, as visualized in the t-SNE plot, fine-tuning LLMs embeddings may lead to the loss of se-mantic information, causing highly co-occurring items to cluster together. The SFT-based Injec-tion paradigm in Figure 1(b) adopts supervised fine-tuning on next token prediction tasks to im-plicitly inject collaborative signals, while incor-porating a trainable adapter to prevent semantic loss (He et al., 2025). Nevertheless, LLMs em-beddings are still dominated by semantics, leav-ing co-occurring items far apart in latent space. Such a gap between semantic and collaborative is hard to narrow only by an adapter. In terms of the first issue, LLMs reasoning is a promising solution. However, most reasoning methods require explicit linguistic chains to inspire LLMs, which is difficult to evaluate, especially for embedding task. Such a Linguistic Gap makes existing reasoning methods unsuitable for SRS em-bedding generation. Inspired by recent advances in latent reasoning (Zhang et al., 2025), we introduce an implicit reasoning mechanism that performs rea-soning in the hidden representation space to pro-duce semantic-enriched item embeddings. As for the collaborative signal injection challenge, rein-forcement learning provides a potential solution. However, existing RL designs for LLMs mainly target text retrieval, matching, or generation tasks, where rewards are derived from textual relevance or answer quality, denoted as Mismatch Reward .Such text-oriented rewards cannot directly guide the geometric optimization of item embeddings. To bridge this gap, we design a co-occurrence-based reward that encourages frequently co-occurring items to be closer in the embedding space. Based on the design above, we propose 
+
+ReaEmb , a novel two-stage LLMs training frame-work for high-quality item representation. As shown in the t-SNE visualization in Figure 1(c), ReaEmb aims to generate embeddings that jointly reflect collaborative relations and preserve seman-tic distinguishability. In the first stage, named 
+
+Latent Reasoning-enhanced Contrastive Learning 
+
+(LRCL), we introduce an implicit reasoning mod-ule (Zhang et al., 2025) that simulates latent reason-ing with several reasoning tokens and an additional attention layer. In the second stage, called Collab-orative Reward Reinforcement Learning (CRRL), we apply a GRPO-based (Shao et al., 2024) rein-forcement learning procedure that rewards highly co-occurring items for being closer in the embed-ding space, thereby explicitly injecting collabora-tive signals into the LLMs. The contributions of this paper are as follows: • We propose ReaEmb, a two-stage training frame-work that transforms LLMs into high-quality em-bedding generators. • To address insufficient semantic understanding, we introduce an implicit reasoning module to in-spire LLMs before embedding generation. To explicitly inject collaborative signals, we intro-duce a co-occurrence-based reward for RL. • We conduct extensive experiments on three real-world datasets across multiple SRS backbones, demonstrating the effectiveness of ReaEmb. 
+
+2 Preliminary 
+
+Sequential Recommendation 
+
+Let U and V denote the sets of users and items, respectively. For each user u ∈ U , the chrono-logically ordered interaction sequence is Su =[v(u)1 , v (u)2 , . . . , v (u)
+
+> |Su|
+
+] where v(u) 
+
+> t
+
+∈ V . For sim-plicity, we omit the user-specific superscript (u)
+
+in subsequent notations. The goal of sequential recommendation is to predict the next item the user will interact with: 
+
+ˆv = arg max  
+
+> v∈V
+
+P  v|Su|+1 = v | Su
+
+ . (1) 
+
+Embedding Generator for SRS 
+
+Most sequential recommendation models follow a general Embedding-Sequence framework. The em-bedding function first transforms each item vi ∈ V 
+
+into a dense vector ei = Emb( vi), and correspond-ingly converts the user sequence Su into an em-bedding sequence ˜Su. The resulting embedding sequence is then modeled by an SRS backbone 
+
+Seq( ·) to extract the user’s dynamic preference for 2...  
+
+> Random Dropout
+> <Attri 1><Attri 3>
+
+... <Attri  2><Attri  3> ... 
+
+> +
+
+Batch Group 1 Group B 
+
+... 
+
+... 
+
+...  
+
+> Group 1 Group B
+
+... ... 
+
+...  
+
+> Group 1 Group B
+
+... ... 
+
+Candidate Item Set 
+
+... 
+
+StageI: Latent Reasoning-enhanced Contrastive Learning 
+
+Stage Ⅱ: Collaborative Reward Reinforcement Learning  
+
+> <Attri 1><Attri 2> <Attri k>
+
+... 
+
+... 
+
+> Attention Layer
+
+Large Language Model 
+
+> 12G
+
+Reward Computation Advantage Computation    
+
+> Embedding Updated Frozen Text Embedding Reasoning Embedding
+
+... 
+
+... ...  
+
+> LR
+> +EG
+
+Large Language Model 
+
+> Mean Pooling
+
+Pass1: LR 
+
+Latent  Reasoning Pass2: EG 
+
+Embeeding  Generation 
+
+> Lora
+
+... 
+
+... 
+
+> Attention Layer
+
+... ... 
+
+... 
+
+... 
+
+... ... ... 
+
+> Noi sy Sampli ng
+
+Figure 2: Overview of the proposed ReaEmb framework. 
+
+next-item prediction. In conventional SRS meth-ods, Emb( ·) is often implemented as a randomly initialized ID embedding table and learned from interaction data. In LLMs-based embedding meth-ods (Liu et al., 2025a), each item vi is associated with a textual description Ti, including attributes such as title, category and brand. The embedding function can then be instantiated by encoding Ti
+
+with an LLMs: ei = LLM( Ti). In this paper, we focus on fine-tuning the LLMs to generate high-quality item embeddings that can better support downstream sequential recommendation. 
+
+3 Method 
+
+3.1 Overview 
+
+Figure 2 illustrates the overall workflow of the pro-posed ReaEmb, which aims to first enhance LLMs-derived embeddings with deep semantic reason-ing and then inject collaborative signals for rec-ommendation. Accordingly, ReaEmb is organized as a two-stage training pipeline. The first stage, termed Latent Reasoning-enhanced Contrastive Learning (LRCL), exploits the inner reasoning ca-pacity of LLMs to capture richer item semantics before embedding generation. Specifically, LRCL follows a two-forward-pass process: an attention module first generates reasoning tokens, which are then combined with the original text tokens to pro-duce semantically enriched item embeddings. Sub-sequently, contrastive learning is applied to fur-ther learn item semantic information. The second stage, termed Collaborative Reward Reinforce-ment Learning (CRRL), aims to explicitly inject collaborative signals into the embedding genera-tor. CRRL treats item co-occurrence as reward feedback and optimizes the lightweight reasoning module with a GRPO-style objective (Shao et al., 2024). The reward optimization encourages embed-dings of highly co-occurring item pairs to be closer in embedding space, thereby explicitly reflecting collaborative item-item relations. 33.2 Latent Reasoning-enhanced Contrastive Learning (LRCL) 
+
+This stage aims to improve the semantic quality of LLMs-based item embeddings. Specifically, it first introduces a Reasoning-enhanced Embed-ding Generation module, which employs an ad-ditional attention layer to perform implicit reason-ing over the original item text before embedding generation. Then, it employs Attribute-level Con-trastive Learning to further train the LLMs into an embedding model that captures the reasoning-enhanced item semantics. Through this stage, the LLMs is equipped with deep semantic embedding capability for item representation. 
+
+3.2.1 Reasoning-enhanced Embedding Generation 
+
+This module obtains reasoning-enhanced item em-beddings through two LLMs forward passes. The first pass, called Latent Reasoning , forwards the item text through the LLMs and employs a lightweight attention mechanism to generate latent reasoning vectors. The second pass, called Embed-ding Generation , concatenates these reasoning vectors with the original input embeddings and for-wards them through the LLMs again to produce the final item embedding. 
+
+Latent Reasoning . For each item textual descrip-tion Ti, we first map its tokens into a token em-bedding sequence Ei. Then, we append k special reasoning placeholder embeddings after Ei:
+
+¯Ei = [ Ei; q1, . . . , qk], (2) where {qj }kj=1 denote reasoning placeholder em-beddings and k represents the steps of the latent rea-soning process. Feeding ¯Ei into the frozen LLMs yields the last-layer hidden states Hi. The Hi can be partitioned into original textual section, denoted as HTi = [ hi, 1, . . . , hi,n i ], and reasoning section, 
+
+i.e., HQi = [ hi,n i+1 , . . . , hi,n i+k]. Since the rea-soning process should be linked to each input to-ken, we introduce a lightweight attention module to transform them into a sequence of latent reason-ing tokens. Specifically, the j-th latent reasoning vector is iteratively generated by attending to both input text and generated reasoning vectors: 
+
+rji = δ (hi,n i+j WQ)( Cji WK )⊤
+
+√d
+
+!
+
+(Cji WV ).
+
+(3) where δ(·) denotes the softmax function, Cji =[HTi ; r1 
+
+> i
+
+; . . . ; rj−1 
+
+> i
+
+] denotes the context available at the j-th reasoning step, with C1 
+
+> i
+
+= HTi . WQ,
+
+WK , and WV are learnable parameters of the rea-soning module, and rji is the j-th reasoning vector. 
+
+Embedding Generation . After obtaining the la-tent reasoning vectors Ri = [ r1 
+
+> i
+
+, r2 
+
+> i
+
+, . . . , rki ], we replace the reasoning placeholder embeddings in the Eq. (2) with these reasoning vectors, and feed it into the frozen LLMs. The final item embedding is obtained by applying mean pooling over the output hidden states: 
+
+ei = MeanPool (LLMs ([ Ei; Ri])) . (4) Through this process, a reasoning-enhanced item embedding ei is obtained under the guidance of latent reasoning representations. 
+
+3.2.2 Attribute-level Contrastive Learning 
+
+To further facilitate the LLMs as an embed-ding model for recommendation, LRCL applies attribute-level contrastive learning. For each item 
+
+vi, we randomly drop part of its textual attributes twice and obtain two augmented descriptions T 1
+
+> i
+
+and T 2 
+
+> i
+
+. Following the reasoning-enhanced em-bedding process described above, we obtain their corresponding embeddings e1 
+
+> i
+
+and e2 
+
+> i
+
+. After that, the contrastive loss for one-side augmentation is defined as: 
+
+L1CL = − 1
+
+B
+
+> B
+
+X
+
+> i=1
+
+log exp  sim( e1 
+
+> i
+
+, e2 
+
+> i
+
+)/τ PBk=1 exp  sim( e1 
+
+> i
+
+, e2
+
+> k
+
+)/τ  ,
+
+(5) where B is the batch size, sim( ·, ·) denotes the sim-ilarity function, and τ is the temperature coefficient. Similarly, the other-side contrastive loss L2CL can be obtained by exchanging the positions of e1 and 
+
+e2 in Eq. (5). The final LRCL objective is: 
+
+LLRCL = L1CL + L2CL . (6) 
+
+3.3 Collaborative Reward Reinforcement Learning (CRRL) 
+
+Although LRCL improves the semantic quality of item embeddings, recommendation tasks also de-pend on collaborative relations among items (He et al., 2020). Therefore, this stage aims to in-ject item co-occurrence signals into the embed-ding generator through reward-based optimization. Specifically, it first introduces a Co-occurrence Reward Function . It encourages items with high co-occurrence frequencies with the target item to be closer in the embedding space, thereby explic-itly incorporating collaborative signals. Then, it 4employs Batch Relative Policy Optimization to optimize the lightweight reasoning module with batch-normalized advantages, enableing the gen-erated embeddings to better reflect collaborative item-item relations. 
+
+3.3.1 Co-occurrence Reward Function 
+
+To construct positive and negative candidates for collaborative signal extraction, we first build item-item co-occurrence statistics from user interaction sequences. Let cij denote the times of item vi and item vj co-occur in user histories. For each anchor item vi, we select the top-M items with the highest co-occurrence counts as its positive items: 
+
+Pi = Top _Mvj ∈V , j ̸ =i(cij ), (7) We then sample N − M negative items from the set of items that have not co-occurred with vi, denoted as Ni. Next, the candidate set can be constructed , 
+
+i.e., Ci = Pi ∪ N i, where |C i| = N .Unlike standard reinforcement learning in NLP tasks, sampling the discrete token, our reasoning vectors lie in a continuous space. To obtain a group of samples for vi, we add Gaussian perturbations to latent reasoning vectors Ri with G times to sim-ulate different samples: 
+
+ˆRgi = Ri + ϵg, (8) where ϵg ∼ N (0, σ 2), g ∈ {1, 2, . . . , G } and 
+
+ϵ1 = 0 is used to keep the original noise-free sam-ple, while σ controls the noise strength. Replacing 
+
+Ri with ˆRgi in Eq. (4) , we obtain G sampled em-beddings {ˆegi }Gg=1 for item vi.The reward aim to encourage the sampled em-bedding ˆegi to be closer to highly co-occurring pos-itive items to rank higher within the candidate set. Specifically, each positive item is weighted by its normalized co-occurrence frequency, and the re-ward is defined as: 
+
+rank pi = X
+
+> vc∈C i
+
+I[sim(ˆ egi , ec) > sim(ˆ egi , ep)] ,sgi = X
+
+> vp∈P i
+
+wi,p log 
+
+
+
+1 + 11 + rank pi
+
+
+
+.
+
+(9) where I[ ·] is the indicator function, wi,p =
+
+cip /P  
+
+> vq∈P i
+
+ciq is the co-occurrence weight of pos-itive item vp, ec is the embedding of candidate item 
+
+vc, and ep is the embedding of positive item vp.
+
+3.3.2 Batch Relative Policy Optimization 
+
+After obtaining reward scores, CRRL computes advantages for reinforcement optimization. In stan-dard GRPO, rewards are normalized within each group. However, our group samples are gener-ated by perturbing the same latent reasoning to-kens. Thus, when the original sample is of low quality, group-wise normalization may amplify un-reliable signals. To improve stability, we adopt a batch-normalized advantage by using the noise-free samples as the batch-level reference. Specif-ically, the batch baseline is computed as ¯sB = 
+
+> 1
+> |V B|
+
+P 
+
+> vi∈V B
+
+s1 
+
+> i
+
+, where VB denotes the item set in the current mini-batch. The advantage of the g-th sampled embedding of item vi is: 
+
+Agi = sgi − ¯sB
+
+∥SB − ¯sB∥2 + ϵ , (10) where SB denotes the batch reward scores, ∥ · ∥ 2
+
+denotes L2 normalization and ϵ is a small constant for numerical stability. With the computed advantage, CRRL updates the lightweight reasoning module using a GRPO-style clipped objective. The importance ratio is, 
+
+ηgi (ϕ) = πϕ(ˆ egi | Tvi , ˆrgi )
+
+πϕold (ˆ egi | Tvi , ˆrgi ) . (11) As a result, the CRRL objective is, 
+
+LCRRL = − X
+
+> vi∈V B
+
+1
+
+G
+
+> G
+
+X
+
+> g=1
+
+min 
+
+
+
+ηgi Agi ,
+
+clip( ηgi , 1 − ϵc, 1 + ϵc)Agi
+
+
+
++ βD KL (πϕ∥πref ).
+
+(12) where ϵc is the clipping coefficient, and β con-trols the KL regularization strength. Since the base LLMs is frozen and only the lightweight reason-ing module is updated, the KL regularization term 
+
+DKL evaluates to zero in practice. 
+
+3.4 Training and Inference 
+
+In this section, we detail the training and inference process of ReaEmb. 
+
+Training. During the LRCL stage, we adopt LoRA (Hu et al., 2022) to fine-tune the LLMs in a parameter-efficient manner. Let Λ = {Aℓ, Bℓ}Lℓ=1 
+
+denote the trainable low-rank LoRA matrices in-serted into L transformer layers in LLMs, and 
+
+Φ = {WQ, WK , WV } denote the parameters of the lightweight reasoning attention module. The 5LRCL objective is: 
+
+arg min  
+
+> Λ,Φ
+
+LLRCL . (13) After LRCL converges, we enter the CRRL stage. In this stage, the LoRA parameters Λ learned in the first stage are fixed, and only the reasoning atten-tion module Φ is updated to preserve the semantic representation ability. Thus, the objective is: 
+
+arg min  
+
+> Φ
+
+LCRRL . (14) After the embedding generator is trained, we pre-compute the item embeddings {evi }vi∈V and use them to initialize the item embedding layer of the downstream SRS backbone. The SRS backbone is then trained with pairwise binary cross-entropy loss for next-item prediction. 
+
+Inference. During inference, ReaEmb follows the standard Embedding and Sequence pipeline of SRS. In the Embedding step, all item embed-dings are generated offline and cached in advance, then loaded as the embedding layer of the SRS backbone. In the Sequence step, the backbone con-sumes the cached embedding sequence of a user’s history and outputs the next-item prediction. There-fore, ReaEmb requires no online LLMs computa-tion and introduces no additional inference burden compared to traditional SRS models. 
+
+4 Experiment 
+
+In this section, we present the experimental results to answer the following Research Questions (RQ). • RQ1 : How does the proposed ReaEmb perform compared with existing LLMs-based embedding methods? Can ReaEmb enhance different SRS backbones? • RQ2 : Do the key designs of ReaEmb take effect? • RQ3 : How do important hyper-parameters affect the performance of ReaEmb? • RQ4 : Can ReaEmb alleviate the long-tail prob-lem while maintaining competitive performance on popular items? • RQ5 : Can ReaEmb maintain stable effectiveness across different LLM series? 
+
+4.1 Experimental Settings 4.1.1 Datasets 
+
+We evaluate the proposed ReaEmb framework on three widely used real-world benchmark datasets: Yelp, Amazon CD, and Amazon Games. Yelp is 
+
+Algorithm 1 Training and inference process of ReaEmb                          
+
+> Initialization
+> 1: Initialize the LoRA parameters Λ, reasoning module Φ,and SRS backbone fΘ.2: Construct the co-occurrence statistics {cij }from user sequences.
+> Training Process
+> LRCL stage
+> 3: Build two attribute-dropout views for each item. 4: Generate latent reasoning tokens and reasoning-enhanced embeddings by Eq. (3) and Eq. (4). 5: Optimize LLRCL to update Λand Φ.
+> CRRL stage
+> 6: Perform Latent Reasoning to get latent reasoning tokens of each items. 7: Perturb latent reasoning tokens to obtain group embeddings. 8: Compute rewards and advantages by Eq. (9) and Eq. (10) .9: Optimize LCRRL to update Φ.
+> SRS training stage
+> 10: Precompute item embeddings {evi}vi∈V through the well-trained LLM and cache them for downstream SRS training. 11: Load them as the embedding layer of fΘ, and train the SRS backbone with its original recommendation objective.
+> Inference Process
+> 12: Initial embedding layer of fΘwith the cached item embedding. 13: Feed users’ historical item embedding sequences into
+> fΘto produce next-item prediction.
+
+Table 1: Statistics of the three benchmark datasets.               
+
+> Dataset #Users #Items #Inter. Avg. Len. Sparsity
+> Yelp 35,417 16,401 256,339 7.49 99.95% CD 68,249 23,971 289,018 4.23 99.98% Games 50,207 16,142 364,431 7.26 99.96%
+
+constructed from business reviews in the Yelp Open Dataset 2. Amazon CD and Amazon Games are two representative categories from the Amazon review dataset 3, containing user interactions with music and video game products. Following prior sequential recommendation studies (Kang and McAuley, 2018; Sun et al., 2019), each dataset is preprocessed and orga-nized into user interaction sequences according to timestamps. For preprocessing, we apply dataset-specific filtering strategies to obtain reliable user behavior sequences and avoid the cold-start issue. For the Yelp and Amazon Games datasets, users with fewer than 5 interactions and items with fewer than 3 interaction records are removed. For the Amazon CD dataset, users and items with fewer 
+
+> 2https://www.yelp.com/dataset
+> 3https://cseweb.ucsd.edu/~jmcauley/datasets. html#amazon_reviews
+
+6Table 2: Overall and long-tail performance comparison on three datasets. The best results are highlighted in bold, the second-best results are underlined, and “*” indicates the statistically significant improvements (i.e., two-sided t-test with p < 0.05 ) over the best baseline.                                                                                                                                                                                                                                             
+
+> Yelp CD Games Backbone Model Overall Tail Overall Tail Overall Tail
+> H@10 N@10 H@10 N@10 H@10 N@10 H@10 N@10 H@10 N@10 H@10 N@10 SASRec LLM2Vec 0.7567 0.4785 0.5806 0.3043 0.5117 0.3143 0.4146 0.2353 0.5355 0.3265 0.3520 0.1928 TSLRec 0.7608 0.4969 0.5151 0.2494 0.5103 0.3529 0.2339 0.1336 0.4923 0.2992 0.0072 0.0026 SAID 0.6744 0.3825 0.6157 0.3120 0.4842 0.3280 0.3369 0.2076 0.4400 0.2594 0.3018 0.1523 LLMEmb 0.6752 0.4259 0.4787 0.2619 0.5098 0.3215 0.4048 0.2353 0.5583 0.3493 0.3981 0.2229 LLM2Rec 0.3068 0.1706 0.1675 0.0897 0.4350 0.2602 0.2704 0.1453 0.5498 0.3306 0.2920 0.1452
+> ReaEmb 0.7862 *0.5036 *0.6504 *0.3446 *0.5581 *0.3637 *0.4599 *0.2778 *0.5638 *0.3557 *0.4022 *0.2284 *
+> GRU4Rec LLM2Vec 0.6155 0.3805 0.3877 0.1974 0.4324 0.2662 0.3351 0.1890 0.5121 0.3052 0.3418 0.1842 TSLRec 0.5206 0.3381 0.1554 0.0732 0.4718 0.3183 0.2226 0.1228 0.4908 0.2997 0.0525 0.0228 SAID 0.5124 0.2781 0.3336 0.1708 0.2831 0.1820 0.1511 0.0827 0.4098 0.2336 0.2422 0.1197 LLMEmb 0.6131 0.3748 0.3581 0.1835 0.4619 0.2640 0.3496 0.1820 0.5201 0.3092 0.3473 0.1843 LLM2Rec 0.2308 0.1190 0.1426 0.0697 0.3528 0.2085 0.2216 0.1182 0.4822 0.2848 0.2706 0.1379
+> ReaEmb 0.7566 *0.4749 *0.5663 *0.2812 *0.5390 *0.3293 *0.4295 *0.2401 *0.5237 *0.3140 *0.3608 *0.1941 *
+> BERT4Rec LLM2Vec 0.7011 0.4337 0.4551 0.2119 0.4756 0.2808 0.3563 0.1893 0.5474 0.3323 0.3306 0.1710 TSLRec 0.6819 0.4417 0.3491 0.1465 0.5213 0.3432 0.1837 0.0974 0.5415 0.3408 0.0434 0.0178 SAID 0.2927 0.1673 0.1447 0.0636 0.4735 0.2965 0.3323 0.1895 0.4218 0.2337 0.3037 0.1560 LLMEmb 0.6881 0.4173 0.4858 0.2443 0.5312 0.3277 0.4140 0.2291 0.5576 0.3409 0.3728 0.1972 LLM2Rec 0.2942 0.1607 0.1324 0.0638 0.4174 0.2399 0.2233 0.1095 0.5383 0.3197 0.2496 0.1188
+> ReaEmb 0.7793 *0.4838 *0.6274 *0.3079 *0.5831 *0.3721 *0.4738 *0.2743 *0.5702 *0.3517 *0.3865 *0.2091 *
+
+than 3 interactions are filtered out. For training and evaluation, we adopt the leave-one-out protocol in sequential recommendation. The statistics of the processed datasets are summarized in Table 1. 
+
+4.1.2 Baselines 
+
+To evaluate the effectiveness of the proposed ReaEmb framework, we compare it with the follow-ing representative LLMs-based embedding meth-ods for sequential recommendation: • LLM2Vec (Liu et al., 2025a) adapts decoder-only LLMs into effective text embedding models through bidirectional attention modification and unsupervised contrastive learning. • TSLRec (Liu et al., 2024) injects collaborative information into LLMs through user-level prefer-ence distribution reconstruction and fuses LLM knowledge-enhanced embeddings with randomly initialized item embeddings via gating. • SAID (Hu et al., 2024) aligns item ID embed-dings with semantic representations generated by LLMs through a lightweight projector module. • LLMEmb (Liu et al., 2025a) adopts attribute-level augmentation and contrastive learning to improve LLM-generated item embeddings, fol-lowed by recommendation adaptation training. • LLM2Rec (He et al., 2025) transforms LLMs into recommendation-oriented embedding mod-els through collaborative supervised fine-tuning and item-level embedding optimization. 
+
+4.1.3 Implementation Details 
+
+All experiments are conducted on a Linux server equipped with AMD EPYC 7543 32-Core pro-cessors and four NVIDIA GeForce RTX 3090 GPU with 24GB memory. The implementation is based on Python 3.10.20, PyTorch 2.7.1+cu118, and CUDA 12.9. For LLMs-based embedding gen-eration, we employ Qwen2.5-0.5B as the backbone LLMs to ensure a fair comparison. 
+
+4.1.4 Evaluation Metrics 
+
+We evaluate all models under the standard Top-10 
+
+ranking setting. Specifically, two commonly used metrics are adopted: Hit Rate (H@10 ) and Normal-ized Discounted Cumulative Gain (N@10 ). Fol-lowing (Kang and McAuley, 2018), for each user, we randomly sample 100 items that the user has not interacted with as negative candidates, combined with the ground-truth positive item to compute the evaluation metrics. 
+
+4.2 Overall Performance (RQ1) 
+
+To respond to RQ1, we report both overall and tail-item performance of our method and all base-lines under three sequential recommendation back-bone models on three datasets, as shown in Ta-ble 2. Specifically, according to the Pareto princi-ple (Newman, 2005), items whose popularity ranks fall into the last 80% are divided into the tail group. The results indicate that ReaEmb consistently 7outperforms all competitors in both overall and long-tail recommendation. For a more detailed analysis, TSLRec achieves competitive overall per-formance in several settings because its user-level preference reconstruction task injects collaborative information into LLMs. However, its long-tail per-formance is much weaker, since the preference reconstruction relies on item collaborative infor-mation, which is unfriendly for long-tail items. In contrast, ReaEmb leads overall recommendation while maintaining stronger long-tail performance, better balancing the trade-off between head and tail items. For the other baselines, SAID performs rela-tively weaker since it only uses LLMs semantics to train a projector, which may be insufficient to fully capture item semantics. LLM2Vec and LLMEmb show strong competitiveness, but they still fall be-hind ReaEmb, because they do not explicitly ex-ploit the reasoning capability of LLMs and incorpo-rate collaborative signals into item representations. LLM2Rec performs well on overall recommenda-tion but is less efficient on tail items, since inject-ing collaborative signals through SFT may disturb the original semantic space of the LLMs and thus hurt long-tail item representation. These results demonstrate that ReaEmb can better explore item semantics and effectively incorporate collaborative signals. Furthermore, it can consistently adapt to different SRS backbones. 
+
+4.3 Ablation Study (RQ2)                              
+
+> Table 3: The ablation study conducted on the CD dataset based on the SASRec backbone. The best results are highlighted in bold.
+> Model Overall Tail
+> H@10 N@10 H@10 N@10
+> ReaEmb 0.5581 0.3637 0.4599 0.2778
+> w/o Reasoning 0.5259 0.3387 0.4378 0.2658
+> w/o RL 0.5484 0.3605 0.4528 0.2765
+> w/o atten 0.5362 0.3466 0.4392 0.2677
+> w/o BRPO 0.5490 0.3614 0.4511 0.2756
+
+To respond to RQ2, we conduct the ablation study and show the results in Table 3. To investi-gate the effect of LRCL, w/o Reasoning eliminates the first-stage contrastive learning, which leads to a significant performance degradation. This result demonstrates the necessity of adapting the LLMs into a recommendation-oriented embedding model with reasoning-enhanced item semantics. Then, 
+
+w/o RL removes the second-stage reinforcement learning. The performance drops indicates the ef-fectiveness of explicitly injecting collaborative sig-nals with the co-occurrence-based reward. More-over, w/o atten removes the additional attention module in implicit reasoning. The consistent de-crease shows that the proposed attention module can effectively transform thought placeholders into meaningful latent reasoning tokens. Finally, w/o 
+
+BRPO replaces the proposed batch-level advantage estimation with group-level advantage computation. The decline suggests that group-level normaliza-tion may produce unstable references under noise-injected sampling settings, whereas batch-level ad-vantages offer more reliable reward guidance. 
+
+4.4 Hyper-parameter Analysis (RQ3)    
+
+> Figure 3: The experimental results for the reasoning step kand the number of positive candidate items M
+> based on the Games dataset and SASRec backbone.
+
+To respond to RQ3, we investigate two important hyper-parameters in ReaEmb, i.e., the reasoning step k and the number of positive candidate items 
+
+M . We show their trends in Figure 3. As k in-creases from 0 to 1, the H@10 value rises sharply, demonstrating that introducing latent reasoning to-kens can effectively capture item semantics beyond direct LLMs encoding. When k further increases, the H@10 value tends to remain stable. This indi-cates that one reasoning token is sufficient to cap-ture most of the reasoning information. In terms of M , the N@10 value first increases as M grows from 1 to 3, which demonstrates that more pos-itive collaborative candidates provide richer co-occurrence supervision for reward optimization. When M further increases, the performance drops, since low-ranked co-occurring items may contain noisy or weak collaborative relations and thus mis-lead the reinforcement learning process. 
+
+4.5 Group Analysis (RQ4) 
+
+To respond to RQ4, we further explore the long-tail problem by dividing items into five groups ac-cording to their interaction frequency and report the H@10 results in Figure 4. Compared with 8Figure 4: The experimental results of group analysis based on Yelp dataset and SASRec backbone. 
+
+LLM2Rec, LLMEmb and LLM2Vec, ReaEmb con-sistently achieves better performance across all pop-ularity groups, indicating that it can more effec-tively supplement semantic information and inject collaborative signals. However, ReaEmb under-performs SAID on long-tail groups (i.e., 4–5) and TSLRec on the popular-item group (i.e., 18+). This is because both methods show a clear seesaw ef-fect: SAID emphasizes semantic information but performs poorly on popular items, while TSLRec relies more on collaborative signals and substan-tially weakens long-tail recommendation. In con-trast, ReaEmb achieves strong performance and better balances these two types of signals. 
+
+4.6 LLMs Series Analysis (RQ5) 
+
+To respond to RQ5, we investigate the adaptabil-ity and effectiveness of ReaEmb across different LLMs from two perspectives: model size and model type, as shown in Figure 5. For LLMs of different sizes, we compare Qwen2.5-0.5B and Qwen2.5-1.5B. The results show that ReaEmb con-sistently outperforms LLM2Rec and LLMEmb on both H@10 and N@10, and the larger Qwen2.5-1.5B further improves the performance, indicating that ReaEmb can benefit from stronger semantic modeling ability. For LLMs of different types, we further introduce Llama3.2-1B for compari-son. ReaEmb still achieves the best results, while the baselines show some instability, verifying that ReaEmb maintains stable superiority across differ-ent LLM architectures. 
+
+5 Related Works 
+
+5.1 LLMs as Embedding Generators for Sequential Recommendation 
+
+To address the long-tail problem in ID-based se-quential recommendation (Kang and McAuley, 2018; Sun et al., 2019), a growing body of re-search introduces item semantic information to 
+
+> Figure 5: The experimental results of three LLMs based on Games dataset and SASRec backbone.
+
+complement collaborative signals. With the de-velopment of LLMs, recent studies have explored how to use their semantic understanding ability to generate item embeddings for sequential rec-ommendation. One line of work mainly injects semantic information into item representations. LLM2Vec (BehnamGhader et al., 2024) converts decoder-only LLMs into text encoders through bidirectional attention and contrastive learning; LLM2X (Harte et al., 2023) initializes recom-mender item embeddings with LLM-generated rep-resentations; SAID (Hu et al., 2024) aligns item IDs with the LLM semantic space through projection; and LLMEmb (Liu et al., 2025a) uses attribute aug-mentation and contrastive tuning to generate item embeddings. Another line further incorporates col-laborative information into LLM-based embedding generation. LLM2Rec (He et al., 2025) implic-itly injects collaborative signals by next token pre-diction on item textual sequences; TSLRec (Liu et al., 2024) uses user-level preference reconstruc-tion to incorporate collaborative knowledge. Differ-ent from these methods, ReaEmb introduces latent reasoning before embedding generation to capture deeper semantics and explicitly injects collabora-tive signals based on item co-occurrence statistics. 
+
+5.2 Reinforcement Learning for LLM-based Recommendation 
+
+Recent studies have started to apply reinforcement learning to LLM-based recommendation to opti-mize recommendation feedback beyond supervised imitation. Most existing methods use RL to train LLMs for direct item prediction. Wang et al. (Wang et al., 2024) use LLMs for state, reward, and ac-tion modeling in offline RL; Rec-R1 (Lin et al., 2025) optimizes LLM outputs with rewards from a fixed recommender; RecLLM-R1 (Xie et al., 2025) combines SFT, GRPO, and chain-of-thought rewards for generative recommendation; and La-9tentR3 (Zhang et al., 2025) optimizes item predic-tion with a perplexity-based reward. Despite their effectiveness, they still rely on LLMs to directly generate recommended items, causing high online inference latency. In contrast, ReaEmb uses rein-forcement learning to inject collaborative signals into item embeddings, enabling efficient recom-mendation without online LLM generation. 
+
+6 Conclusion 
+
+In this paper, we propose ReaEmb, a two-stage LLM-based embedding generator for sequential recommendation. We first apply Latent Reasoning-enhanced Contrastive Learning to exploit the inner reasoning capacity of LLMs and strengthen item semantic representations, thus alleviating the insuf-ficient semantic understanding problem. Further, we introduce Collaborative Reward Reinforcement Learning to optimize the lightweight reasoning module with co-occurrence-based rewards, thereby explicitly injecting collaborative signals. Through comprehensive experiments on three real-world datasets, we validate the effectiveness and flexi-bility of ReaEmb. 
+
+References 
+
+Parishad BehnamGhader, Vaibhav Adlakha, Marius Mosbach, Dzmitry Bahdanau, Nicolas Chapados, and Siva Reddy. 2024. Llm2vec: Large language models are secretly powerful text encoders. arXiv preprint arXiv:2404.05961 .Hui Fang, Danning Zhang, Yiheng Shu, and Guibing Guo. 2020. Deep learning for sequential recommen-dation: Algorithms, influential factors, and evalua-tions. ACM Transactions on Information Systems (TOIS) , pages 1–42. Qingyu Guo, Fuzhen Zhuang, Chuan Qin, Hengshu Zhu, Xing Xie, Hui Xiong, and Qing He. 2020. A survey on knowledge graph-based recommender sys-tems. IEEE Transactions on Knowledge and Data Engineering , 34(8):3549–3568. Jesse Harte, Wouter Zorgdrager, Panos Louridas, As-terios Katsifodimos, Dietmar Jannach, and Marios Fragkoulis. 2023. Leveraging large language models for sequential recommendation. In Proceedings of the 17th ACM Conference on Recommender Systems ,pages 1096–1102. Xiangnan He, Kuan Deng, Xiang Wang, Yan Li, Yong-dong Zhang, and Meng Wang. 2020. Lightgcn: Sim-plifying and powering graph convolution network for recommendation. In Proceedings of the 43rd Inter-national ACM SIGIR conference on research and de-velopment in Information Retrieval , pages 639–648. Yingzhi He, Xiaohao Liu, An Zhang, Yunshan Ma, and Tat-Seng Chua. 2025. Llm2rec: Large language mod-els are powerful embedding models for sequential recommendation. In Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 2 , pages 896–907. Edward J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Liang Wang, Weizhu Chen, et al. 2022. Lora: Low-rank adaptation of large language models. Iclr , 1(2):3. Jun Hu, Wenwen Xia, Xiaolu Zhang, Chilin Fu, We-ichang Wu, Zhaoxin Huan, Ang Li, Zuoli Tang, and Jun Zhou. 2024. Enhancing sequential recommenda-tion via llm-based semantic embedding learning. In 
+
+Companion Proceedings of the ACM Web Conference 2024 , pages 103–111. Aaron Jaech, Adam Kalai, Adam Lerer, Adam Richard-son, Ahmed El-Kishky, Aiden Low, Alec Helyar, Aleksander Madry, Alex Beutel, Alex Carney, et al. 2024. Openai o1 system card. arXiv preprint arXiv:2412.16720 .Wang-Cheng Kang and Julian McAuley. 2018. Self-attentive sequential recommendation. In Proc. of ICDM , pages 197–206. Connor Lee, Bin Dong, and Linsey Pang. 2025. Llm powered sequential recommender. In 2025 IEEE International Conference on Data Mining Workshops (ICDMW) , pages 2954–2956. IEEE. Jiacheng Lin, Tian Wang, and Kun Qian. 2025. Rec-r1: Bridging generative large language models and user-centric recommendation systems via reinforcement learning. arXiv preprint arXiv:2503.24289 .Dugang Liu, Shenxian Xian, Xiaolin Lin, Xiaolian Zhang, Hong Zhu, Yuan Fang, Zhen Chen, and Zhong Ming. 2024. A practice-friendly two-stage llm-enhanced paradigm in sequential recommenda-tion. arXiv preprint arXiv:2406.00333 .Qidong Liu, Xian Wu, Wanyu Wang, Yejing Wang, Yuanshao Zhu, Xiangyu Zhao, Feng Tian, and Yefeng Zheng. 2025a. Llmemb: Large language model can be a good embedding generator for sequential recom-mendation. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 39, pages 12183– 12191. Qidong Liu, Xiangyu Zhao, Yuhao Wang, Yejing Wang, Zijian Zhang, Yuqi Sun, Xiang Li, Maolin Wang, Pengyue Jia, Chong Chen, et al. 2025b. Large lan-guage model enhanced recommender systems: Meth-ods, applications and trends. In Proceedings of the 31st ACM SIGKDD Conference on Knowledge Dis-covery and Data Mining V. 2 , pages 6096–6106. Mark EJ Newman. 2005. Power laws, pareto dis-tributions and zipf’s law. Contemporary physics ,46(5):323–351. 
+
+10 Yunzhu Pan, Chen Gao, Jianxin Chang, Yanan Niu, Yang Song, et al. 2023. Understanding and modeling passive-negative feedback for short-video sequential recommendation. In Proceedings of the 17th ACM conference on recommender systems , pages 540–550. Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan Zhang, YK Li, Yang Wu, et al. 2024. Deepseekmath: Pushing the limits of mathematical reasoning in open language models. arXiv preprint arXiv:2402.03300 .Fei Sun, Jun Liu, Jian Wu, Changhua Pei, Xiao Lin, Wenwu Ou, and Peng Jiang. 2019. Bert4rec: Se-quential recommendation with bidirectional encoder representations from transformer. In Proc. of CIKM ,pages 1441–1450. Jianling Wang, Raphael Louca, Diane Hu, Caitlin Cel-lier, James Caverlee, and Liangjie Hong. 2020. Time to shop for valentine’s day: Shopping occasions and sequential recommendation in e-commerce. In Pro-ceedings of the 13th International Conference on Web Search and Data Mining , pages 645–653. Jie Wang, Alexandros Karatzoglou, Ioannis Arapakis, and Joemon M Jose. 2024. Reinforcement learning-based recommender systems with large language models for state reward and action modeling. In 
+
+Proceedings of the 47th International ACM SIGIR conference on research and development in informa-tion retrieval , pages 375–385. Shoujin Wang, Liang Hu, Yan Wang, Longbing Cao, Quan Z Sheng, and Mehmet Orgun. 2019. Sequen-tial recommender systems: challenges, progress and prospects. arXiv preprint arXiv:2001.04830 .Yu Xie, Xingkai Ren, Ying Qi, Yao Hu, and Lian-lei Shan. 2025. Recllm-r1: A two-stage training paradigm with reinforcement learning and chain-of-thought v1. arXiv preprint arXiv:2506.19235 .Jing Zhang, Bowen Hao, Bo Chen, Cuiping Li, Hong Chen, and Jimeng Sun. 2019. Hierarchical reinforce-ment learning for course recommendation in moocs. In Proc. of AAAI , pages 435–442. Yang Zhang, Wenxin Xu, Xiaoyan Zhao, Wenjie Wang, Fuli Feng, Xiangnan He, and Tat-Seng Chua. 2025. Reinforced latent reasoning for llm-based recommen-dation. arXiv preprint arXiv:2505.19092 .
+
+11
