@@ -1,0 +1,384 @@
+Title: Faithful Grounded Visual Reasoning via Learned Proxy-Tokens
+
+URL Source: https://arxiv.org/pdf/2606.23354v1
+
+Published Time: Tue, 23 Jun 2026 03:13:51 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+## FAITHFUL GROUNDED VISUAL REASONING VIA LEARNED PROXY-TOKENS 
+
+## Tom Hodemon Mohamed Chaouch Aboubacar Tuo Angelique Loesch 
+
+## Universit´ e Paris-Saclay, CEA, List, F-91120, Palaiseau, France 
+
+ABSTRACT 
+
+Multimodal Large Language Models (MLLMs) have achieved remarkable success in Visual Question Answering (VQA), yet their ”black-box” nature hinders deployment in critical domains. Grounded Visual Reasoning (GVR) ap-proaches attempt to improve interpretability by explicitly couple textual rationales with visual grounding information, which are typically textual coordinates. This mechanism lacks a learnable semantic link to the visual features, often resulting in a semantic-spatial gap where the model halluci-nates coordinates that do not correspond to image evidences. In this work, we introduce Composer, a MLLM that lever-ages a novel visual grounding mechanism based on learned proxy-tokens to promote faithful interpretability. These dis-crete symbolic pointers explicitly index the image latent space, allowing the model to manipulate visual regions as addressable, semantically manipulable sets. To rigorously validate our novel grounding mechanism, we constructed ComposerGCoT, a dataset synthesized to enable holistic as-sessment of reasoning consistency and grounding accuracy. Experimental results indicate that Composer achieves perfor-mance parity with its coordinate-based counterpart in final answer accuracy, while improving visual grounding accuracy by +9.0 points. By demonstrating that discrete proxy-tokens capture spatial semantics more effectively than typical textual coordinates, we establish that visual grounding mechanisms with learnable semantic links represent a promising path toward trustworthy and reliable MLLMs. 1
+
+Index Terms — MLLMs, Grounded Visual Reasoning, Interpretability 
+
+1. INTRODUCTION 
+
+Multimodal Large Language Models (MLLMs) have achieved remarkable success across diverse vision-language tasks [1, 2, 3], most notably in Visual Question Answering (VQA). However, despite their impressive performance, these models operate under a monolithic paradigm that directly maps vi-sual and textual inputs to a final answer without exposing their decision-making process. This lack of transparency presents a critical barrier to their deployment in critical applications.  
+
+> 1The model weights and dataset annotations are available at https:// github.com/CEA-LIST/Composer .
+
+To address this, recent research has focused on Grounded Visual Reasoning (GVR), aiming to equip MLLMs with the ability to provide interpretable, visually grounded rationales. Existing approaches typically adopt a coordinate regression paradigm, where the model is trained to output textual bound-ing box coordinates (x, y, w, h ) alongside its reasoning [4, 5, 6]. While this offers a layer of interpretability, it suffers from a fundamental limitation: by treating spatial locations as ar-bitrary text strings, these methods lack a learnable semantic link to the visual features. This architectural disconnect cre-ates a ”semantic-spatial gap”, where the model often hallu-cinates coordinates that are visually ungrounded, effectively decoupling the reasoning process from the image evidence. In this work, we argue that faithful interpretability re-quires bridging this gap. We introduce Composer, an MLLM designed to enforce faithful, step-by-step grounded reason-ing. At the core of our approach is a novel visual grounding mechanism based on learned proxy-tokens. Unlike traditional methods that use textual coordinates, Composer represents vi-sual regions using discrete symbolic pointers that are inter-leaved with language tokens and explicitly index the image latent space (see Fig. 1). This design promotes faithful visual grounding by allowing the model to manipulate visual regions as native, addressable elements of its vocabulary, thereby es-tablishing a robust, learnable link between linguistic reason-ing and visual perception. However, a faithful model requires a rigorous evaluation. A major shortcoming in the current literature is that GVR methods are predominantly evaluated on final answer accu-racy alone [7, 8, 6]. This superficial protocol often masks the aforementioned disconnect between the reasoning pro-cess and the image evidence. To overcome this, we intro-duce ComposerGCoT, a specialized dataset synthesized to en-able holistic assessment of model capabilities. By providing fine-grained supervision for every step of the reasoning chain, ComposerGCoT allows us to assess not just the final answer, but the consistency of the entire reasoning path and the fi-delity of the visual grounding. Our contributions can be summarized as follows. We introduces Composer, a Multimodal Large Language Model (MLLM) that leverages a novel visual grounding mechanism based on learned proxy-tokens to promote faithful and pre-cise grounded visual reasoning. To rigorously assess this approach, we present ComposerGCoT, a dataset and eval-              
+
+> arXiv:2606.23354v1 [cs.CV] 22 Jun 2026 LLM
+> Projector
+> What is in front of the bear?
+> ...  ...  ...
+> Visual  Encoder
+> Are there both pillows and
+> candles in the picture?
+> Standard MLLMs
+> Yes
+
+## ✓
+
+> Yes
+> <objectDetection> 1.
+
+## ✓        
+
+> Composer (ours)
+> Is the bagpack on the right
+> is blue?
+> 2. <objectDetection>
+
+## ✓
+
+## ✓  
+
+> Standard MLLMs
+> Yes
+
+## ✗    
+
+> Standard MLLMs
+> Composer (ours)
+> 1. <objectDetection>
+
+## ✓ 
+
+> <spatialLocation>
+> <colorAttribute>
+> 2.
+> 3.
+
+## ✗
+
+## ✓ 
+
+> Yes
+
+## ✗Fig. 1 . (left) Visual Grounding via Proxy-Token Indexing. We introduce a visual grounding mechanism that uses learned proxy-tokens to index the image latent space. Visual tokens V = {v1, v 2, . . . , v N } are mapped to learnable proxy-tokens 
+
+R = {r1, r 2, . . . , r N } that serve as discrete pointers; the model references specific regions by addressing the proxy-tokens that span them. (Right) Holistic Assessment. We introduce Composer, an MLLM that leverages a novel visual grounding mechanism to facilitate faithfulness. Unlike standard approaches, Composer outputs structured reasoning chains that enable rigorous assessment across three axes: answer accuracy, reasoning consistency, and visual grounding accuracy. uation protocol designed to move beyond simple accuracy by enabling a holistic evaluation of reasoning consistency. This benchmark allows us to diagnose model reliability and determine if predictions are truly ”right for the right reasons.” Finally, through extensive experiments, we demonstrate that Composer achieves performance parity with its coordinate-based counterpart in final answer accuracy, while improving visual grounding accuracy by +9.0 points in IoU@0.95. 
+
+2. RELATED WORK Interpretability in the VQA Context. Most existing MLLMs [1, 2, 3] operate under a monolithic paradigm that directly maps visual and textual inputs to a final answer. Conse-quently, such models fail to expose their decision path, a critical deficiency for deployment in high-stakes applica-tions [9]. To address this, several approaches have emerged. One line of research adapts Chain-of-Thought (CoT) [10] to the multimodal domain [11, 12]. While these methods expose reasoning via textual rationales, they often lack explicit refer-ences to where the model is looking. Conversely, tool-driven approaches [13, 14, 15, 16] leverage specialized visual mod-ules [17] to produce visual feedbacks. However, these sys-tems suffer from high computational overhead and error prop-agation. Grounded Visual Reasoning (GVR) [6, 4, 5, 18, 7, 8] is an other line of research. GVR approaches equip models with intrinsic grounding capabilities, enabling such models to explicitly couple textual rationales with visual grounding information. While promising, a limitation of existing ap-proaches is that they often disregard the importance of faith-ful visual grounding by relying on simple coordinate-based mechanisms. Such mechanisms fail to establish a robust, learnable link between reasoning steps and visual evidence. Furthermore, current evaluation protocols predominantly as-sess performance based solely on final answer accuracy. This superficial evaluation masks cases where models rely on lan-guage biases or spurious correlations to guess the correct answer without performing the necessary visual reasoning steps. Our work addresses this gap by introducing a novel vi-sual grounding mechanism designed to promote faithfulness, alongside a benchmark and evaluation protocol designed to assess reasoning capabilities beyond final answer accuracy. 
+
+Visual Grounding Mechanisms. A critical challenge in GVR lies in how the visual grounding information is rep-resented within the language output. Methods such as VIS-TAR [5], LLaVA-GCoT [4], and Volcano [6] treat localization as a regression task, outputting bounding box coordinates as ”plain text” strings. While straightforward, this approach lacks a learnable semantic link to the visual features, often resulting in a ”semantic-spatial gap” where the model hallu-cinates coordinates that do not correspond to image evidence. Our approach is more closely aligned with vision-centric models like Kosmos-2 [19], Florence-2 [20], and Groma [7], which discretize spatial locations into special vocabulary to-kens. We extend this paradigm by explicitly indexing the image latent space with learned proxy-tokens, enabling an image entity to be represented as the set of proxy-tokens it spans. 
+
+3. METHOD 
+
+In standard GVR approaches [4, 5, 6] , the LLM processes spatial coordinates as arbitrary textual coordinates, which lack an explicit, learnable correspondence to the underly-ing image features. This creates a semantic-spatial gap: the model must reason about locations using linguistic symbols that are fundamentally ungrounded in the visual latent space. To bridge this gap, we introduce Composer, an GVR-capable model that leverages a novel visual grounding mechanism based on learned proxy tokens R = {<r 1>, . . . , <r N >}.Composer facilitates visual grounding through discrete sym-bolic pointers that directly index the image latent space. This design treats visual regions as addressable, semantically manipulable sets, aligning naturally with the Transformer’s native token-based architecture (see Fig. 1). 
+
+3.1. Visual Grounding via Learned Proxy-tokens 
+
+Let an image be decomposed into a sequence of N visual tokens V = {v1, v 2, . . . , v N }, where each vi ∈ Rd rep-resents a feature vector output by the multimodal projector. We define a corresponding set of N learnable proxy-tokens 
+
+R = {<r 1>, . . . , <r N >}, where each <r i> is a token added to the LLM’s vocabulary. Thus, each proxy-tokens of R pos-sess a token embedding R = {r1, r 2, . . . , r N }. The input se-quence S is constructed by concatenating the interleaved sets of region tokens R and visual tokens V with the user query 
+
+Q:
+
+S = [ r1, v 1, r 2, v 2, r 3, v 3, . . . , r N , v N , Q ]
+
+With this arrangement, we explicitly index each <r i>
+
+with its corresponding visual token vi, maintaining a strict 1-to-1 correspondence. During training, we teach the model to refer to visual regions addressing the corresponding learn-able proxy-tokens. This novel visual grounding mechanism effectively transform the visual feature space into a set of ”ad-dressable memory slots”, grounding the model’s reasoning directly in the physical structure of the image. This symbolic representation empowers the model to perform implicit set-based operations—such as intersection, union, and subset verification—directly on visual regions. A visual entity O is no longer defined by abstract bounding box coordinates, but by the discrete subset of proxy tokens it spans: SO ⊆ R . By representing entities as proxy-token sets, the LLM can leverage its self-attention layers to map linguistic predicates (e.g., ”inside”, ”overlapping”, ”left of”) directly to set-based operations within the proxy-token set. For instance, as illustrated Fig. 2, to determine if a ”motor-cycle” is ”to the left of the image,” the model identifies the set of tokens for the motorcycle ( Sm) and the set representing the left-hand spatial prior ( Slef t ). The spatial reasoning task is thus reduced to a set-based intersection: IsLeft (m) ⇐⇒ Sm ∩ Slef t ̸ = ∅
+
+Furthermore, this mechanism facilitates recursive rea-soning: to infer an object’s attribute (e.g., color), the model refers back to the proxy tokens generated in previous rea-soning steps, effectively ”shrinking” the visual search space to the relevant indices. We hypothesis that this transition from regression to discrete set manipulation promote a more spatially faithful and logically consistent grounded reasoning. 
+
+Fig. 2 . Spatial reasoning via implicit set-based opera-tion. The visual entity ”motorcycle” Sm and the left-hand spatial prior Slef t are mapped to proxy-token subsets. The model evaluates spatial predicate ”to the left of” by implicitly identifying non-empty intersections between these two sets: 
+
+Sm ∩ Slef t ̸ = ∅.
+
+3.2. Visually Grounded Annotations 
+
+To train Composer, we employ a two-stage data strategy de-signed to first establish spatial alignment and subsequently cultivate multi-step grounded visual reasoning. 
+
+Stage 1: Alignment Pretraining. We first equip the model with fine-grained localization capabilities by aggre-gating a diverse suite of vision-language tasks. To learn global image-text alignment, we utilize captioning data from CC3M [21] and Flickr30K [22]. For region-level precision, we incorporate referring expression comprehension (REC) tasks from COCO [23], RefCOCO/+/g [24], and Visual Genome [25]. Finally, we include Visual Spatial Reason-ing [26] to ensure a robust understanding of object relation-ships. For each sample, bounding box annotation is mapped to our proxy-token R.
+
+Stage 2: Multi-step Reasoning via ComposerGCoT. 
+
+Standard multimodal datasets [4, 5] often lack the interme-diate spatial supervision required for complex reasoning. Fig. 3 . Reasoning consistency. These heatmaps illustrate the logical consistency of B-Composer and P-Composer by cor-relating task sequence accuracy (the model’s ability to follow the ground-truth reasoning chain) with final answer correct-ness. To address this, we introduce ComposerGCoT , a special-ized dataset synthesized by distilling GQA [27]. Leveraging GQA’s scene graphs and functional programs, we employ a rule-based pipeline to decompose SQL-like reasoning paths into discrete, visually grounded steps. Each step is annotated with intermediate answers and visual grounding annotations, resulting in 163K high-quality reasoning chains for 55K im-ages. Examples of sample from ComposerGCoT can be found in Appendix B. 
+
+3.3. Structured Output for Holistic Evaluation 
+
+Evaluating the internal consistency of MLLM reasoning is often hindered by the unstructured nature of free-form text. To address this, Composer adopts a structured output for-mat using lightweight XML-style tags that represent discrete visual capabilities—defined here as atomic visual-reasoning primitives (e.g., object detection, spatial filtering, or attribute recognition). The model encapsulates its reasoning process within a <think> block, where it generates a sequence of these capability tags before producing the final <answer> .We derive these sequences directly from the GQA dataset’s functional programs; for every question, the GQA operational logic (such as select , filter , or relate ) is mapped to its corre-sponding visual capability in our XML schema. Each tag encapsulates proxy-tokens that ground that specific reasoning step within the image. For instance, to answer ”Is the dog on the right white?” , the model decomposes the query into a sequential path of capabilities: first locating the subject (<objectRecognition> ), then applying a spatial con-straint ( <spatialLocation> ), and finally verifying the target property ( <attributeColor> ). This design en-ables a holistic evaluation framework: beyond final accuracy, we can independently verify the spatial and logical valid-ity at step-level. a full taxonomy of tags and corresponding generation examples, refer to Appendices D and C. 
+
+4. EXPERIMENTS 4.1. Implementation Details 
+
+Composer follows the encoder-projector-LLM paradigm. We employ CLIP ViT-L/16 [28] as the visual encoder, coupled with a two-layer MLP projector that maps visual features into the embedding space of Vicuna-v1.5-7B [29]. To maintain a 1-to-1 mapping with the 256 visual tokens produced by CLIP ViT-L/16, we expanded the LLM vocabulary with 256 corresponding proxy tokens. Throughout the training pro-cess, the visual encoder remains frozen to preserve pretrained representations. Optimization is performed using AdamW across two stages using the next-token prediction objective. In the initial alignment stage (Stage 1), we train for 2 epochs with a learning rate of 2e-4. In the subsequent stage (Stage 2), we fine-tune for 1 epoch with a reduced learning rate of 
+
+1e-5. Comprehensive hyperparameters and infrastructure de-tails are provided in Appendix A. 
+
+4.1.1. Benchmark and metrics 
+
+We evaluate on ComposerGCoT-val , a validation set com-prising 3,959 samples across 2,943 images, synthesized from the GQA validation split using our pipeline described Sec. 3.2. Beyond simple accuracy, we assess the model along three complementary axes to provide a more holistic view of its performance. First, we evaluate answer accuracy to deter-mine if the model predicts the correct final answer, which we calculate using exact string matching.To understand how the model reaches those conclusions, we then examine reason-ing consistency via the task sequence accuracy. We leverage our structured output format to parse the generated sequence of visual capabilities produced by the model. We use ex-act match accuracy against the ground-truth reasoning chain to verify that the model follows a logical path. Finally, we measure visual grounding accuracy to ensure the visual ra-tionales themselves are precise. For this, we assess spatial alignment using IoU @k across the entire reasoning sequence; specifically for P-Composer, this IoU is calculated by map-ping proxy-token sets back into bounding boxes. 
+
+4.1.2. Baselines 
+
+To rigorously isolate the impact of our proposed learned proxy-token mechanism, we evaluate two distinct variants of the Composer framework. These variants share the exact same architecture, training budget, and are required to output structured output requirement (see Sec. 3.3) differing only in their visual grounding mechanism: 1. B-Composer (Bounding Box): This variant represents the standard regression-based approach. It treats spa-tial rationales as textual coordinate strings [x, y, w, h ],analogous to methods like GCoT [4]. 2. P-Composer (Proxy-tokens): This variant imple-ments our novel visual grounding via learned proxy-tokens mechanism. 
+
+4.2. Results and Analysis 
+
+4.2.1. Reasoning consistency 
+
+A risk in CoT reasoning is hallucination—where the model arrives at the correct answer despite a flawed reasoning path. While this phenomenon is well-documented, systematically diagnosing it has been challenging due to a lack of bench-marks with fine-grained intermediate supervision. Com-poserGCoT addresses this limitation, enabling us to assess to go beyond the final answer accuracy. Fig. 3 illustrates a strong correlation between task se-quence and final answer accuracy. For P-Composer, a cor-rect reasoning path leads to a correct answer in 76 .08% of cases, while flawed reasoning rarely yields correct predic-tions ( 76 .46% False/False density). This causal link suggests that reasoning steps drive the final prediction rather than serving as post-hoc justifications. While B-Composer ex-hibits slightly higher True/True performance ( 77 .72% vs. 
+
+76 .08% ), the gap likely stems from accumulated noise during P-Composer’s extended proxy-token generation. However, this marginal trade-off is justified by the substantial improve-ments in grounding accuracy detailed in Section 4.2.2. 
+
+4.2.2. Learned proxy-tokens on grounding accuracy 
+
+Our central hypothesis is that learned proxy-tokens (P-Composer) provides better grounding than coordinate re-gression (B-Composer). The results in Table 1 validate this. P-Composer consistently outperforms the bounding-box vari-ant in localization precision. Specifically, the proxy token mechanism improves overall IoU by 2.7 points and achieves a significant 9.0 points gain in strict IoU@0.95. This confirms that establishing an explicit, learned link between vocabulary tokens and visual features enables significantly sharper and more faithful visual grounding than treating coordinates as arbitrary text strings.                                         
+
+> Correct Incorrect Overall Metric BPBPBPIoU 60.0 62.4 38.3 43.5 55.2 57.9 ↑(2.7)
+> IoU@0.5 68.9 69.9 42.6 48.1 63.1 64.7 ↑(1.6)
+> IoU@0.75 43.5 44.9 27.3 30.8 39.9 41.6 ↑(1.7)
+> IoU@0.95 6.9 16.4 4.8 12.3 6.4 15.4 ↑(9.0)
+
+Table 1 . IoU@k scores by answer correctness. Direct com-parison of B-Composer (B) and P-Composer (P). P-Composer consistently outperforms B-Composer across all splits.       
+
+> Visual Capability Accuracy (%)
+> objectRecognition 76.1 spatialRelationship 79.2 attributeColor 66.5 spatialPosition 84.8
+> Overall 76.3
+
+Table 2 . P-Composer Answer Accuracy by Visual Capa-bilities. The model shows the highest performance in spatial positioning and lowest in color attribution. 
+
+4.2.3. Performances per Visual Capabilities 
+
+In Table 2, we report the answer accuracy for questions re-quiring specific reasoning steps. This detailed breakdown is made possible by the richness of our annotations, which al-low us to isolate and evaluate specific visual capabilities de-mands. Each score represents the model’s accuracy on the subset of questions that necessitate at least one operation of the corresponding visual capability (e.g., objectRecognition, spatialLocation). The model achieves its highest accuracy in spatialPosition ( 84 .8% ) and spatialRelationship ( 79 .2% ), while performance is lowest in attributeColor ( 66 .5% ). We hypothesize that this discrepancy stems from the nature of the expected outputs: while spatial and recognition tasks often involve constrained choices or binary (yes/no) answers, color attribution frequently requires open-ended responses, which naturally increases the difficulty of the task. 
+
+5. CONCLUSION 
+
+In this work, we introduce Composer, a GVR-capable model that bridges the gap between reasoning accuracy and faithful interpretability. Central to our approach is a novel visual grounding mechanism based on learned proxy-tokens, which establishes an explicit link between linguistic reasoning and visual features. To rigorously validate this paradigm, we constructed ComposerGCoT, a specialized dataset enabling holistic assessment of reasoning consistency and grounding faithfulness. Our experiments demonstrate that Composer maintains answer accuracy while significantly outperform-ing coordinate-based variant in visual grounding precision, leading to a more faithful grounded reasoning. By proving that discrete learned proxy-tokens capture spatial semantics more effectively than continuous coordinates, we demonstrate that establishing explicit, learnable links between modalities constitutes a promising direction for future research in trust-worthy and interpretable MLLMs. 
+
+Acknowledgments. This publication was made possible by the use of the FactoryIA supercomputer, financially sup-ported by the Ile-de-France Regional Council. 
+
+6. REFERENCES 
+
+[1] Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong Jae Lee, “Visual instruction tuning,” in NeurIPS23’ .[2] Haotian Liu, Chunyuan Li, Yuheng Li, and Yong Jae Lee, “Improved baselines with visual instruction tun-ing,” in CVPR24’ .[3] Junnan Li, Dongxu Li, Silvio Savarese, and Steven Hoi, “Blip-2: Bootstrapping language-image pre-training with frozen image encoders and large language models,” in ICML23’ .[4] Qiong Wu, Xiangcong Yang, Yiyi Zhou, et al., “Grounded chain-of-thought for multimodal large lan-guage models,” arXiv , 2025. [5] Yu Cheng, Arushi Goel, and Hakan Bilen, “Visually interpretable subtask reasoning for visual question an-swering,” in CVPR25’ .[6] Zejun Li, Ruipu Luo, Jiwen Zhang, et al., “Vocot: Un-leashing visually grounded multi-step reasoning in large multi-modal models,” in NAACL25’ .[7] Chuofan Ma, Yi Jiang, Jiannan Wu, Zehuan Yuan, and Xiaojuan Qi, “Groma: Localized visual tokenization for grounding multimodal large language models,” in 
+
+ECCV24’ .[8] Gabriel Herbert Sarch, Snigdha Saha, et al., “Grounded reinforcement learning for visual reasoning,” in 
+
+NeurIPS25’ .[9] Fucai Ke, Joy Hsu, Zhixi Cai, et al., “Explain before you answer: A survey on compositional visual reasoning,” 
+
+arXiv , 2025. [10] Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou, et al., “Chain-of-thought prompting elicits reasoning in large language models,” NeurIPS22’ .[11] Guowei Xu, Peng Jin, Ziang Wu, Hao Li, Yibing Song, Lichao Sun, and Li Yuan, “Llava-cot: Let vision lan-guage models reason step-by-step,” in ICCV25’ .[12] Zhuosheng Zhang, Aston Zhang, Mu Li, hai zhao, George Karypis, and Alex Smola, “Multimodal chain-of-thought reasoning in language models,” TMLR24’ .[13] Tanmay Gupta and Aniruddha Kembhavi, “Visual programming: Compositional visual reasoning without training,” in CVPR23’ .[14] D´ ıdac Sur´ ıs, Sachit Menon, and Carl Vondrick, “Vipergpt: Visual inference via python execution for reasoning,” in CVPR23’ .[15] Wenshan Wu, Shaoguang Mao, Yadong Zhang, Yan Xia, Li Dong, Lei Cui, and Furu Wei, “Mind’s eye of llms: visualization-of-thought elicits spatial reasoning in large language models,” . [16] Yushi Hu, Weijia Shi, Xingyu Fu, et al., “Visual sketch-pad: Sketching as a visual chain of thought for multi-modal language models,” in NeurIPS24’ .[17] Zhaochen Su, Peng Xia, et al., “Thinking with images for multimodal reasoning: Foundations, methods, and future frontiers,” arXiv , 2025. [18] “Visual cot: Advancing multi-modal language models with a comprehensive dataset and benchmark for chain-of-thought reasoning,” in NeurIPS24’ .[19] Zhiliang Peng, Wenhui Wang, Li Dong, Yaru Hao, Shaohan Huang, Shuming Ma, and Furu Wei, “Kosmos-2: Grounding multimodal large language models to the world,” arXiv , 2023. [20] Bin Xiao, Haiping Wu, Weijian Xu, et al., “Florence-2: Advancing a unified representation for a variety of vision tasks,” in CVPR24’ .[21] Piyush Sharma, Nan Ding, Sebastian Goodman, and Radu Soricut, “Conceptual captions: A cleaned, hyper-nymed, image alt-text dataset for automatic image cap-tioning,” in ACL18’ .[22] Bryan A Plummer, Liwei Wang, Chris M Cervantes, et al., “Flickr30k entities: Collecting region-to-phrase correspondences for richer image-to-sentence models,” in CVPR15’ .[23] Tsung-Yi Lin, Michael Maire, Serge Belongie, et al., “Microsoft coco: Common objects in context,” in 
+
+ECCV14’ .[24] Sahar Kazemzadeh, Vicente Ordonez, Mark Matten, and Tamara Berg, “Referitgame: Referring to objects in photographs of natural scenes,” in EMNLP24’ .[25] Ranjay Krishna, Yuke Zhu, Oliver Groth, Justin John-son, et al., “Visual genome: Connecting language and vision using crowdsourced dense image annotations,” 
+
+IJCV17’ .[26] Fangyu Liu, Guy Emerson, and Nigel Collier, “Visual spatial reasoning,” in TACL23’ .[27] Drew A Hudson and Christopher D Manning, “Gqa: A new dataset for real-world visual reasoning and compo-sitional question answering,” in CVPR19’ .[28] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, et al., “Learning transferable visual models from natural language supervision,” in 
+
+ICML21’ .[29] Wei-Lin Chiang, Zhuohan Li, Zi Lin, Ying Sheng, et al., “Vicuna: An open-source chatbot impressing gpt-4 with 90%* chatgpt quality,” arXiv , 2023. A. ADDITIONAL TRAINING DETAILS 
+
+Table 4 summarizes the detailed hyperparameters used for training both Composer variants. Table 3 details the training durations for Composer variants. Both variants were trained on 4 H100 GPUs. For some large-scale datasets, we trained on a sampled subset. The total number of training samples per epoch is reported in Table 4. Variant Stage 1 Stage 2 Bounding Boxes 1.5 days 1 hour Proxy Tokens 2 days 1.5 hour 
+
+Table 3 . Detailed training durations for Composer variants. Configuration Stage 1 Stage 2 optimizer AdamW AdamW epochs 2 1batch size 128 128 learning rate 2e-4 1e-5 weight decay 0 0training samples 2.4m 163k trainable param. MLP, LLM MLP, LLM 
+
+Table 4 . Hyperparameters used to train Composer variants. 
+
+B. EXAMPLES OF COMPOSERGCOT ANNOTATIONS 
+
+Fig. 4 and Fig. 5 present samples from our ComposerGCoT dataset. 
+
+C. EXAMPLES FOR P-COMPOSER GENERATION 
+
+Fig. 6 illustrates the sequences generated by P-Composer (proxy-tokens variant). Question : Are there umpires on the field?     
+
+> <ObjectRecognition>: [0, 196, 570, 380] Step 1
+> Step 2 <ObjectRecognition>: None
+> Step 3 <SpatialRelationship>:
+> [218 , 20, 334, 95]
+> None
+> Anwer : no
+
+1
+
+1
+
+Fig. 4 . Example when an object mentioned in the question does not exist in the image. Question : Which side is the pink tablecloth on? 
+
+> <ObjectRecognition>: [ 0, 409, 161, 167]
+> <AttributeColor>: [ 0, 409, 161, 167 ]
+> <SpatialLocation>: [ 0, 288, 288, 576]
+> Anwer : left
+
+1
+
+1
+
+2
+
+> Step 1
+> Step 2
+> Step 3
+
+Question : Which kind of device is to the left of the shelf? 
+
+> <ObjectRecognition>: [218 , 20, 334, 95]
+> <SpatialRelationship>:
+> [218 , 20, 334, 95]
+> [92, 40, 161, 207]
+
+Anwer : computer 
+
+> Step 1
+> Step 2
+> Step 3
+
+1 
+
+> <ObjectRecognition>: [92, 40, 161, 207]
+
+1
+
+2
+
+2
+
+1
+
+2
+
+1
+
+2Fig. 5 . Each triplet consists of an image, question, and answer, annotated with a sequence of visual capabilities. These steps represent a consistent logical path to the final answer, with each individual step visually grounded in the image. Question : Is the cup to the right side of the image? 
+
+<think> 
+
+<objectRecognition> 
+
+<objectInstance> 
+
+<label>cup</label> 
+
+<bbox><r34><r35>...<r67></bbox> 
+
+</objectInstance> 
+
+</objectRecognition> 
+
+<spatialLocation> 
+
+<spatialPositionInstance> 
+
+<spatialPosition>right</spatialPosition> 
+
+<bbox><r68><r69>...<r255></bbox> 
+
+</spatialPositionIntance> 
+
+<objectInstance> 
+
+<label>cup</label> 
+
+<bbox><r34><r35>...<r67></bbox> 
+
+</objectInstance> 
+
+</spatialLocation> 
+
+</think> 
+
+<answer> yes </answer> 
+
+1
+
+1
+
+2
+
+<think> 
+
+<objectRecognition> 
+
+<objectInstance> 
+
+<label>bus</label> 
+
+<bbox><r12><r13>...<r103></bbox> 
+
+</objectInstance> 
+
+</objectRecognition> 
+
+<attributeColor> 
+
+<attributeColorInstance> 
+
+<color>green</color> 
+
+<objectInstance> 
+
+<label>bus</label> 
+
+<bbox><r12><r13>...<r103></bbox> 
+
+</objectInstance> 
+
+</attributeColorInstance> 
+
+</attributeColor> 
+
+</think> 
+
+<answer> yes </answer> 
+
+1
+
+1
+
+Question : Is there a green bus? 
+
+1
+
+2 1Fig. 6 . Examples of generation. Type Description Special Token 
+
+Default Marks the beginning and the end of the reasoning sequence <reasoning> </think> 
+
+Marks the beginning and the end of the answer sequence <answer> </answer> 
+
+Visual Capability Marks the use of object recognition capability <objectRecognition> </objectRecognition> 
+
+Marks the use of spatial position capability <spatialPosition> </spatialPosition> 
+
+Marks the use of attribution capability (color specialized) <attributeColor> </attributeColor> 
+
+Marks the use of spatial relationship capability <spatialRelationship> </spatialRelationship> 
+
+Instance Represents a detected object instance <objectInstance> </objectInstance> 
+
+Same as objectInstance <subjectInstance> </subjectInstance> 
+
+Represents a relation instance <relationInstance> </relationInstance> 
+
+Represents a spatial position instance <spatialPositionInstance> </spatialPositionInstance> 
+
+Represents an attribution instance (color specialized) <attributeColorInstance> </attributeColorInstance> 
+
+Label or intermediate answer Object name label <label> </label> 
+
+Color name label <color> </color> 
+
+Relation name label, position of the object in the image <relation> </relation> 
+
+Visual Justification Contains a location representation, serving as visual justification <bbox> </bbox> 
+
+Table 5 . Taxonomy of tags. D. TAXONOMY OF TAGS 
+
+The Table 5 presents the set of tags used to structure the ouput of Composer.

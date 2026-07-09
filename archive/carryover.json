@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-08T04:41:24.136159+00:00",
-  "updated_date": "20260609-20260708",
+  "generated_at": "2026-07-09T15:24:05.078007+00:00",
+  "updated_date": "20260610-20260709",
   "carryover_days": 9,
   "tag_states": {
     "vla": {
-      "updated_date": "20260609-20260708",
+      "updated_date": "20260610-20260709",
       "carryover_days": 9,
       "items": [
         {
@@ -44,7 +44,7 @@
           "matched_requirement_id": "req-1",
           "selection_source": "carryover_cache",
           "paper_id": "2606.30686v1",
-          "carry_days": 3
+          "carry_days": 4
         },
         {
           "id": "2607.02501v1",
@@ -90,7 +90,7 @@
           "matched_requirement_id": "req-5",
           "selection_source": "carryover_cache",
           "paper_id": "2607.02501v1",
-          "carry_days": 3
+          "carry_days": 4
         },
         {
           "id": "2607.02417v1",
@@ -136,12 +136,12 @@
           "matched_requirement_id": "req-4",
           "selection_source": "carryover_cache",
           "paper_id": "2607.02417v1",
-          "carry_days": 3
+          "carry_days": 4
         }
       ]
     },
     "d-mesh": {
-      "updated_date": "20260609-20260708",
+      "updated_date": "20260610-20260709",
       "carryover_days": 9,
       "items": [
         {
@@ -180,7 +180,7 @@
           "matched_requirement_id": "req-10",
           "selection_source": "carryover_cache",
           "paper_id": "2607.00522v1",
-          "carry_days": 3
+          "carry_days": 4
         },
         {
           "id": "2606.30608v2",
@@ -220,7 +220,7 @@
           "matched_requirement_id": "req-16",
           "selection_source": "carryover_cache",
           "paper_id": "2606.30608v2",
-          "carry_days": 3
+          "carry_days": 4
         },
         {
           "id": "2607.02515v1",
@@ -265,7 +265,7 @@
           "matched_requirement_id": "req-16",
           "selection_source": "carryover_cache",
           "paper_id": "2607.02515v1",
-          "carry_days": 3
+          "carry_days": 4
         },
         {
           "id": "2606.30608v1",
@@ -305,7 +305,7 @@
           "matched_requirement_id": "req-10",
           "selection_source": "carryover_cache",
           "paper_id": "2606.30608v1",
-          "carry_days": 3
+          "carry_days": 4
         },
         {
           "id": "2607.04898v1",
@@ -329,19 +329,19 @@
             "query:d-mesh"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "optimization-based 3D point cloud reconstruction from multiple 2D projections",
-          "llm_evidence_cn": "基于优化的多视角2D投影三维点云重建",
-          "llm_evidence": "基于优化的多视角2D投影三维点云重建",
-          "canonical_evidence": "基于优化的多视角2D投影三维点云重建",
-          "llm_tldr_en": "3DMPE is a training-free method that reconstructs 3D point clouds from multiple partial 2D projections using optimization-based embedding.",
-          "llm_tldr_cn": "3DMPE是一种无需训练的方法，通过优化嵌入从多个局部2D投影中重建三维点云。该方法扩展了多视角同时嵌入，处理缺失点和跨视角距离信息不完整的情况。在固定投影和可变投影设置下均能有效重建一致的三维结构。与基于学习的方法相比，本方法无需训练数据，适用于低样本场景，为三维重建提供了灵活且鲁棒的替代方案。",
-          "llm_tldr": "3DMPE是一种无需训练的方法，通过优化嵌入从多个局部2D投影中重建三维点云。该方法扩展了多视角同时嵌入，处理缺失点和跨视角距离信息不完整的情况。在固定投影和可变投影设置下均能有效重建一致的三维结构。与基于学习的方法相比，本方法无需训练数据，适用于低样本场景，为三维重建提供了灵活且鲁棒的替代方案。",
+          "llm_evidence_en": "3D point cloud reconstruction from multiple 2D projections, directly about 3D reconstruction techniques",
+          "llm_evidence_cn": "从多视角2D投影进行3D点云重建，直接涉及3D重建技术",
+          "llm_evidence": "从多视角2D投影进行3D点云重建，直接涉及3D重建技术",
+          "canonical_evidence": "从多视角2D投影进行3D点云重建，直接涉及3D重建技术",
+          "llm_tldr_en": "Proposes 3DMPE, a training-free optimization method for 3D point cloud reconstruction from partially observed 2D projections with cross-view correspondences.",
+          "llm_tldr_cn": "本文针对从多个部分观测的2D投影重建3D点云的问题，提出3DMPE方法。该方法基于优化，无需训练，能够处理不同视图包含不同点集的缺失情况。在固定投影和可变投影设置下均有效，优于学习基方法。",
+          "llm_tldr": "本文针对从多个部分观测的2D投影重建3D点云的问题，提出3DMPE方法。该方法基于优化，无需训练，能够处理不同视图包含不同点集的缺失情况。在固定投影和可变投影设置下均有效，优于学习基方法。",
           "llm_tags": [
             "query:d-mesh"
           ],
           "matched_query_tag": "query:d-mesh",
-          "matched_query_text": "find papers on 3D mesh reconstruction from point clouds",
-          "matched_requirement_id": "req-14",
+          "matched_query_text": "3D mesh reconstruction techniques",
+          "matched_requirement_id": "req-10",
           "selection_source": "carryover_cache",
           "paper_id": "2607.04898v1",
           "carry_days": 1
@@ -391,763 +391,66 @@
           "matched_requirement_id": "req-14",
           "selection_source": "carryover_cache",
           "paper_id": "biorxiv-10-64898-2026-06-08-730830-v2",
-          "carry_days": 1
+          "carry_days": 2
         },
         {
-          "id": "2606.25300v2",
+          "id": "2607.07242v1",
           "source": "arxiv",
-          "title": "HiFiVe: High-Fidelity Vehicle Generation Leveraging Auto-Regressive 2D Generative Priors",
-          "abstract": "Existing 3D vehicle generation methods often suffer from low geometric fidelity and blurry textures, hindering their downstream applications. While recent works adopt multi-view diffusion models for high-fidelity texture, they are often constrained by fixed viewpoints, limited resolution, and a reliance on costly fine-tuning to achieve cross-view consistency. In this paper, we propose HiFiVe, a training-free framework for high-fidelity vehicle modeling through joint texture and geometry enhancement by imposing 3D geometric constraints to anchor 2D generative priors. Specifically, we propose an auto-regressive texture refinement pipeline that progressively synthesizes high-resolution textures from arbitrary viewpoints. To ensure cross-view consistency, the coarse geometry serves as a synchronization prior, conditioning each generation step on previously synthesized frames via depth-based warping and multi-view texture fusion. Moreover, the inherent symmetry of vehicles is exploited to mitigate error accumulation. Finally, high-frequency surface details are recovered by refining the mesh geometry using normal maps estimated from the enhanced textures. Extensive experiments on synthetic and real-world vehicle datasets demonstrate that our method significantly improves both geometric detail and texture quality compared to state-of-the-art baselines. Project page: https://honglixiao.github.io/hifive.github.io/.",
+          "title": "A framework for generating nonconforming triangular meshes with multiple discretization layers",
+          "abstract": "We present a framework for generating nonconforming triangular meshes with multiple discretization layers. The framework exploits characteristic structural properties of meshes produced by a frontal Delaunay algorithm with uniform element size. The bulk region of such meshes exhibits a structured pattern resembling a regular triangular lattice. Owing to this structure, the bulk region can be coarsened by grouping elements into connected subsets of larger composite elements. When applied repeatedly, this procedure produces a mesh with multiple discretization layers. For complex geometries, the framework can be used to create composite multidomain meshes, where multiple discretization layers are generated within each subdomain. We present examples of meshes generated by the proposed framework and discuss postprocessing strategies for their refinement and coarsening. The resulting meshes are well suited for the application of adaptive mesh refinement techniques. The proposed framework can be readily integrated with existing mesh generators and finite-element solvers that support nonconforming triangular meshes.",
           "authors": [
-            "Hongli Xiao",
-            "Youjian Zhang",
-            "Qi Zheng",
-            "Zhaohui Hu",
-            "Yaohui Jin",
-            "Xiaoguang Ren",
-            "Wenjing Yang",
-            "Long Lan"
+            "I. L. Semenov",
+            "M. M. Becker"
           ],
-          "primary_category": "cs.CV",
+          "primary_category": "math.NA",
           "categories": [
-            "cs.CV"
+            "math.NA"
           ],
-          "published": "2026-06-24T02:00:08+00:00",
-          "link": "https://arxiv.org/pdf/2606.25300v2",
+          "published": "2026-07-08T10:22:06+00:00",
+          "link": "https://arxiv.org/pdf/2607.07242v1",
           "tags": [
             "keyword:d-mesh",
             "query:d-mesh"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Optimizing 3D mesh geometry and texture for vehicle generation",
-          "llm_evidence_cn": "优化车辆生成的3D网格几何和纹理",
-          "llm_evidence": "优化车辆生成的3D网格几何和纹理",
-          "canonical_evidence": "优化车辆生成的3D网格几何和纹理",
-          "llm_tldr_en": "Proposes HiFiVe, a training-free framework that enhances 3D vehicle geometry and texture using auto-regressive texture refinement and 3D geometric constraints from 2D generative priors.",
-          "llm_tldr_cn": "针对现有3D车辆生成方法几何保真度低和纹理模糊的问题，提出HiFiVe框架，无需额外训练，通过施加3D几何约束锚定2D生成先验，结合自回归纹理细化流水线，从任意视角逐步合成高分辨率纹理，并通过结构引导生成确保跨视角一致性，显著提升了车辆模型的几何和纹理质量。",
-          "llm_tldr": "针对现有3D车辆生成方法几何保真度低和纹理模糊的问题，提出HiFiVe框架，无需额外训练，通过施加3D几何约束锚定2D生成先验，结合自回归纹理细化流水线，从任意视角逐步合成高分辨率纹理，并通过结构引导生成确保跨视角一致性，显著提升了车辆模型的几何和纹理质量。",
+          "llm_evidence_en": "Framework for generating nonconforming triangular meshes, 3D mesh generation",
+          "llm_evidence_cn": "非一致三角形网格生成框架，三维网格生成",
+          "llm_evidence": "非一致三角形网格生成框架，三维网格生成",
+          "canonical_evidence": "非一致三角形网格生成框架，三维网格生成",
+          "llm_tldr_en": "Presents a framework for generating nonconforming triangular meshes with multiple discretization layers, exploiting structured pattern of frontal Delaunay meshes.",
+          "llm_tldr_cn": "本文提出生成含多层离散化的非一致三角形网格框架，利用前沿Delaunay算法网格的规则结构将区域粗化为复合单元，可应用于复杂几何体的多域网格生成，提高计算效率。",
+          "llm_tldr": "本文提出生成含多层离散化的非一致三角形网格框架，利用前沿Delaunay算法网格的规则结构将区域粗化为复合单元，可应用于复杂几何体的多域网格生成，提高计算效率。",
           "llm_tags": [
             "query:d-mesh"
           ],
           "matched_query_tag": "query:d-mesh",
-          "matched_query_text": "optimizing 3D mesh geometry",
-          "matched_requirement_id": "req-13",
+          "matched_query_text": "3D mesh reconstruction techniques",
+          "matched_requirement_id": "req-10",
           "selection_source": "carryover_cache",
-          "paper_id": "2606.25300v2",
+          "paper_id": "2607.07242v1",
           "carry_days": 1
         }
       ]
     },
     "pref-learn": {
-      "updated_date": "20260609-20260708",
+      "updated_date": "20260610-20260709",
       "carryover_days": 9,
-      "items": [
-        {
-          "id": "2606.21795v1",
-          "source": "arxiv",
-          "title": "Discretizing Reward Models",
-          "abstract": "Despite their widespread use, the role of reward models in shaping reinforcement learning is poorly understood. Reward models offer a tempting promise: they automatically estimate response quality in the absence of verifiers or human judges. Unlike \"verifiable rewards\" which typically produce binary scores, reward models typically produce continuous scores, allowing them to be sensitive to fine-grained differences in responses. However, we show this apparent strength is a serious weakness: many popular reward models are oversensitive, assigning different scores to equally good responses. Theoretically, we show that seemingly perfect reward models can be highly oversensitive; empirically, this oversensitivity can lead to bad policies. In place of existing notions of \"reward model accuracy,\" we propose evaluating reward models using distinct measures of \"discriminative ability\" and \"specificity\" (the complement of oversensitivity). As a solution, we describe a training-free algorithm that uses Monte Carlo dropout on any neural reward model to produce discrete reward clusters. Theoretically, we prove there exist discretizations that reduce oversensitivity at minimal expense of discriminative ability; empirically we show, in both controlled and natural RL settings, that discretizing rewards leads to less reward hacking and better policies than training on the original rewards.",
-          "authors": [
-            "Vijay Viswanathan",
-            "Shiqi Wang",
-            "Devamanyu Hazarika",
-            "Chirag Nagpal",
-            "Tongshuang Wu",
-            "Graham Neubig",
-            "Yuning Mao"
-          ],
-          "primary_category": "cs.LG",
-          "categories": [
-            "cs.LG"
-          ],
-          "published": "2026-06-19T23:13:59+00:00",
-          "link": "https://arxiv.org/pdf/2606.21795v1",
-          "tags": [
-            "keyword:pref-learn",
-            "query:pref-learn"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Reward modeling from human preferences with focus on oversensitivity",
-          "llm_evidence_cn": "来自人类偏好的奖励建模，关注过敏感问题",
-          "llm_evidence": "来自人类偏好的奖励建模，关注过敏感问题",
-          "canonical_evidence": "来自人类偏好的奖励建模，关注过敏感问题",
-          "llm_tldr_en": "Shows that continuous reward models can be oversensitive, leading to bad policies, and proposes discretized rewards as a solution.",
-          "llm_tldr_cn": "针对奖励模型连续分数带来的过敏感性问题，理论证明即使看似完美的奖励模型也可能高度过敏感，导致次优策略。经验验证了过敏感性在实际中的危害。代替传统准确性指标，提出离散化奖励作为改进方向。该工作揭示了奖励模型设计的关键陷阱。",
-          "llm_tldr": "针对奖励模型连续分数带来的过敏感性问题，理论证明即使看似完美的奖励模型也可能高度过敏感，导致次优策略。经验验证了过敏感性在实际中的危害。代替传统准确性指标，提出离散化奖励作为改进方向。该工作揭示了奖励模型设计的关键陷阱。",
-          "llm_tags": [
-            "query:pref-learn"
-          ],
-          "matched_query_tag": "query:pref-learn",
-          "matched_query_text": "reward modeling from human preferences",
-          "matched_requirement_id": "req-18",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.21795v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2606.28294v1",
-          "source": "arxiv",
-          "title": "Democratic ICAI: Debating Our Way to Steering Principles from Preferences",
-          "abstract": "Preference-based alignment often struggles to capture the reasoning that underlies human judgments. Many evaluations rely on multiple interacting criteria, yet pairwise labels reveal only the final choice rather than the considerations that shape preferences. Inverse Constitutional AI (ICAI) improves interpretability in decision making by summarizing preferences into natural-language principles, but its single-pass explanations miss much of the nuance involved in complex decisions. We introduce Democratic ICAI, a novel approach that gathers multiple competing rationales through structured persona debate, offering a broader and more expressive account of the factors influencing each comparison. From these richer signals, we derive clearer and more comprehensive steering principles and use them to guide decision modeling through both LLM-based and decision-tree judges. Experiments on creative preference benchmarks, MuCE-Pref and LiTBench, across multiple creative task categories show that Democratic ICAI yields a more faithful preference structure. It improves average preference prediction across tasks relative to deliberative prompting and principle-based baselines, while producing constitutions that LLM annotators prefer.",
-          "authors": [
-            "Kevin Kingslin",
-            "Anish Natekar",
-            "Ashutosh Ranjan",
-            "Vivek Srivastava",
-            "Savita Bhat",
-            "Shirish Karande"
-          ],
-          "primary_category": "cs.LG",
-          "categories": [
-            "cs.LG",
-            "cs.MA"
-          ],
-          "published": "2026-06-26T17:38:47+00:00",
-          "link": "https://arxiv.org/pdf/2606.28294v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:MCC",
-            "query:ci",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Proposes Democratic ICAI to extract steering principles from preferences via structured debate",
-          "llm_evidence_cn": "提出民主ICAI通过结构化辩论从偏好中提取指导原则",
-          "llm_evidence": "提出民主ICAI通过结构化辩论从偏好中提取指导原则",
-          "canonical_evidence": "提出民主ICAI通过结构化辩论从偏好中提取指导原则",
-          "llm_tldr_en": "Introduces Democratic ICAI, which uses structured persona debate to capture nuanced reasoning behind preferences, yielding clearer steering principles for AI alignment.",
-          "llm_tldr_cn": "针对偏好对齐中难以捕捉人类判断多重推理的问题，本文提出民主ICAI，通过结构化角色辩论收集竞争性理由，全面解释偏好形成因素，并推导出更清晰的指导原则。该方法增强了偏好学习的可解释性和丰富性。",
-          "llm_tldr": "针对偏好对齐中难以捕捉人类判断多重推理的问题，本文提出民主ICAI，通过结构化角色辩论收集竞争性理由，全面解释偏好形成因素，并推导出更清晰的指导原则。该方法增强了偏好学习的可解释性和丰富性。",
-          "llm_tags": [
-            "query:pref-learn"
-          ],
-          "matched_query_tag": "query:pref-learn",
-          "matched_query_text": "preference learning algorithms and models",
-          "matched_requirement_id": "req-17",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.28294v1",
-          "carry_days": 1
-        }
-      ]
+      "items": []
     },
     "decision": {
-      "updated_date": "20260609-20260708",
+      "updated_date": "20260610-20260709",
       "carryover_days": 9,
-      "items": [
-        {
-          "id": "2606.24672v1",
-          "source": "arxiv",
-          "title": "Cost-Optimal Decision Diagrams for Stochastic Boolean Function Evaluation",
-          "abstract": "In many decision-making scenarios, acquiring information incurs different costs. We consider the problem of constructing a deterministic evaluation strategy that minimizes the expected cost of evaluating a propositional formula under variable costs and a probability distribution over truth assignments. We present a branch-and-bound algorithm with variable-selection heuristics, pruning, and caching. To the best of our knowledge, it is the first practical exact algorithm for this level of generality. Experiments on random instances demonstrate scalability and quantify the efficiency-quality trade-off of a greedy beam-search variant. We additionally evaluate a structured heart-disease diagnosis instance. Finally, we prove that the problem is $\\#P$-hard and contained in $\\mathrm{PSPACE}$.",
-          "authors": [
-            "Xia Zong",
-            "Tuomo Lehtonen",
-            "Jussi Rintanen"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-06-23T15:04:51+00:00",
-          "link": "https://arxiv.org/pdf/2606.24672v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:ci",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:MCC",
-            "query:ci",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Cost-optimal decision diagrams for stochastic Boolean function evaluation, a decision analysis method",
-          "llm_evidence_cn": "用于随机布尔函数评估的成本最优决策图，一种决策分析方法",
-          "llm_evidence": "用于随机布尔函数评估的成本最优决策图，一种决策分析方法",
-          "canonical_evidence": "用于随机布尔函数评估的成本最优决策图，一种决策分析方法",
-          "llm_tldr_en": "This paper presents the first practical exact algorithm for constructing deterministic evaluation strategies that minimize expected cost in Boolean function evaluation under variable information costs.",
-          "llm_tldr_cn": "在决策场景中，获取信息需要不同成本。本文提出分支定界算法，构建确定性评估策略以最小化期望成本，适用于随机布尔函数。实验证明算法可扩展，并成功应用于心脏病诊断。该工作为代价敏感的决策分析提供了理论和方法基础。",
-          "llm_tldr": "在决策场景中，获取信息需要不同成本。本文提出分支定界算法，构建确定性评估策略以最小化期望成本，适用于随机布尔函数。实验证明算法可扩展，并成功应用于心脏病诊断。该工作为代价敏感的决策分析提供了理论和方法基础。",
-          "llm_tags": [
-            "query:decision"
-          ],
-          "matched_query_tag": "query:decision",
-          "matched_query_text": "decision theory",
-          "matched_requirement_id": "req-21",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.24672v1",
-          "carry_days": 1
-        },
-        {
-          "id": "biorxiv-10-64898-2026-01-25-701581-v3",
-          "source": "biorxiv",
-          "title": "Sample size dependence of Occam's razor in human decision-making",
-          "abstract": "To make sense of a noisy world, living beings constantly face decisions between competing interpretations for ambiguous sensory data. This process parallels statistical model selection, where most frameworks, like the Akaike Information Criterion (AIC) and the Bayesian Information Criterion (BIC), are based on a trade-off between a models goodness-of-fit and its complexity and prescribe a bias towards simpler models (explanations). We previously studied how this same bias towards simplicity is reflected in human behavior for a simple perceptual task [1]. However, a core tenet of normative frameworks is that the trade-off should depend on the sample size (N): as more data becomes available, the goodness-of-fit grows faster than the \"cost\" of complex models, weakening the overall bias towards simplicity. It is unknown whether humans also conform to an analogous scaling principle, and if so, whether this behavior arises from an internal computation similar to that leading to the normative solution or from a simpler heuristic. Here, we investigate these questions using a preregistered visual task where subjects inferred the number of latent Gaussian sources generating clusters of data-points, and where the number of points (N) presented on each trial is varied systematically. We consider three kinds of descriptions for participant behavior: one arising from a linear scaling of the weight of sensory evidence in N (as in BIC and AIC), one with no scaling, and one with sublinear scaling inspired by known biases in numerosity perception. Our results demonstrate that the normative, linear scaling description provides the worst account of human behavior. Instead, we find strong evidence for a sublinear scaling of effective sample size. By inferring the shape of this scaling with Gaussian Processes, we reveal two distinct scaling regimes for different ranges of N, consistent with numerosity perception biases. Our findings suggest that, when selecting between competing explanations for sensory data, humans employ an efficient heuristic that repurposes lower-level perceptual mechanisms to dynamically weight evidence against model complexity.",
-          "authors": [
-            "Rinaldi, F. G.",
-            "Piasini, E."
-          ],
-          "primary_category": "neuroscience",
-          "categories": [
-            "neuroscience"
-          ],
-          "published": "2026-07-02T00:00:00+00:00",
-          "link": "https://www.biorxiv.org/content/10.64898/2026.01.25.701581v3.full.pdf",
-          "tags": [
-            "keyword:MCC",
-            "keyword:ci",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:ci",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "investigates sample size dependence in model selection trade-off central to decision theory",
-          "llm_evidence_cn": "研究决策理论中模型选择权衡的样本量依赖性",
-          "llm_evidence": "研究决策理论中模型选择权衡的样本量依赖性",
-          "canonical_evidence": "研究决策理论中模型选择权衡的样本量依赖性",
-          "llm_tldr_en": "Examines how the bias toward simpler models in human decision-making depends on sample size, extending normative frameworks like AIC and BIC to perceptual tasks and showing that humans adapt complexity preference with available data.",
-          "llm_tldr_cn": "该论文探讨了人类决策中奥卡姆剃刀（偏好简单模型）的样本量依赖性。传统规范框架（如AIC、BIC）假设模型选择权衡受样本量影响，但以往研究未在人类行为中验证。本研究通过感知任务实验发现，人类确实会随数据量调整对模型复杂度的偏好，即样本量越大，越倾向于复杂模型。这一发现桥接了统计模型选择理论与人类实际决策行为，为决策理论提供了经验支持。",
-          "llm_tldr": "该论文探讨了人类决策中奥卡姆剃刀（偏好简单模型）的样本量依赖性。传统规范框架（如AIC、BIC）假设模型选择权衡受样本量影响，但以往研究未在人类行为中验证。本研究通过感知任务实验发现，人类确实会随数据量调整对模型复杂度的偏好，即样本量越大，越倾向于复杂模型。这一发现桥接了统计模型选择理论与人类实际决策行为，为决策理论提供了经验支持。",
-          "llm_tags": [
-            "query:decision"
-          ],
-          "matched_query_tag": "query:decision",
-          "matched_query_text": "decision theory",
-          "matched_requirement_id": "req-21",
-          "selection_source": "carryover_cache",
-          "paper_id": "biorxiv-10-64898-2026-01-25-701581-v3",
-          "carry_days": 1
-        },
-        {
-          "id": "biorxiv-10-64898-2026-01-10-698805-v2",
-          "source": "biorxiv",
-          "title": "Behavioral Signatures of Post-Decisional Attention in Preferential Choice",
-          "abstract": "Attention plays a key role in decision-making by directing limited cognitive resources to relevant information. It has been proposed that attention also biases the decision process, due to a multiplicative interaction between attention and subjective value (e.g., Krajbich et al., 2010). We tested two predictions of models that posit a causal multiplicative effect of attention on decision formation: (i) the last fixation should be more informative about the choice when the overall value of the alternatives is high, and (ii) more attention should be directed to the chosen option when choices conflict with stated preferences than when they do not. Reanalyzing several datasets from a food-choice task, we found no evidence supporting these predictions. An alternative model where attention reflects choices after the decision has completed, explains key observations, including the last-fixation bias, the gaze-cascade effect and the effect of the overall value of the alternatives on response times. However, this model does not fully account for the association between dwell time and choice. We conclude that gaze behavior prior to the choice report likely reflects both decisional and post-decisional processes.",
-          "authors": [
-            "Zylberberg, A.",
-            "Krajbich, I.",
-            "Shadlen, M. N."
-          ],
-          "primary_category": "animal behavior and cognition",
-          "categories": [
-            "animal behavior and cognition"
-          ],
-          "published": "2026-06-17T00:00:00+00:00",
-          "link": "https://www.biorxiv.org/content/10.64898/2026.01.10.698805v2.full.pdf",
-          "tags": [
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:ci",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys",
-            "query:vla"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "tests predictions of attention models in preferential choice, challenging decision theory",
-          "llm_evidence_cn": "检验偏好选择中注意力模型的预测，挑战决策理论",
-          "llm_evidence": "检验偏好选择中注意力模型的预测，挑战决策理论",
-          "canonical_evidence": "检验偏好选择中注意力模型的预测，挑战决策理论",
-          "llm_tldr_en": "This paper tests predictions of attention models in preferential choice, finding no evidence for a causal multiplicative effect of attention on decision formation, thereby challenging existing decision theories.",
-          "llm_tldr_cn": "本文研究决策后注意力在偏好选择中的作用，通过测试因果乘性效应的两个预测，发现无证据支持，挑战了主流决策模型。作者重新分析多个食物选择实验数据集，结果显示最后注视点的信息性与整体价值无关，且与偏好冲突无关。这些结果表明注意力与主观价值的交互可能并非决策偏差的主要原因，对基于注意力的决策理论有重要修正意义。",
-          "llm_tldr": "本文研究决策后注意力在偏好选择中的作用，通过测试因果乘性效应的两个预测，发现无证据支持，挑战了主流决策模型。作者重新分析多个食物选择实验数据集，结果显示最后注视点的信息性与整体价值无关，且与偏好冲突无关。这些结果表明注意力与主观价值的交互可能并非决策偏差的主要原因，对基于注意力的决策理论有重要修正意义。",
-          "llm_tags": [
-            "query:decision"
-          ],
-          "matched_query_tag": "query:decision",
-          "matched_query_text": "decision theory",
-          "matched_requirement_id": "req-21",
-          "selection_source": "carryover_cache",
-          "paper_id": "biorxiv-10-64898-2026-01-10-698805-v2",
-          "carry_days": 1
-        },
-        {
-          "id": "2606.19086v1",
-          "source": "arxiv",
-          "title": "Probability Bound Analysis for Dependence Uncertainty in Risk and Decision Models",
-          "abstract": "Risk and decision models often combine sparse marginal information, precisely specified probability distributions, and dependence assumptions that are only partly justified. Probability bound analysis (PBA) represents epistemic uncertainty through probability boxes, but many applications assume independence or require dependence structures to be fully specified. We develop a dependence-sensitive PBA framework for black-box risk and decision models in which both marginal information and dependence information may be incomplete. The framework combines p-box parameters, precise-CDF parameters, and fixed quantities; incorporates specified dependence through copulas; and propagates unknown dependence through Fréchet-style admissible coupling sets. We also extend the construction to cross-dependence between imprecisely specified and precisely specified inputs. In an illustrative risk decision model, dependence assumptions materially affected output bounds and tail-risk summaries; analyses that ignored or simplified dependence produced narrower characterizations of plausible outcomes. The framework supports transparent uncertainty propagation when evidence is insufficient to justify either precise marginal distributions or a single dependence model.",
-          "authors": [
-            "Rowan Iskandar"
-          ],
-          "primary_category": "stat.ME",
-          "categories": [
-            "stat.ME"
-          ],
-          "published": "2026-06-17T13:55:43+00:00",
-          "link": "https://arxiv.org/pdf/2606.19086v1",
-          "tags": [
-            "keyword:decision",
-            "query:ci",
-            "query:decision"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Framework for decision analysis under dependence uncertainty",
-          "llm_evidence_cn": "依赖不确定性下的决策分析框架",
-          "llm_evidence": "依赖不确定性下的决策分析框架",
-          "canonical_evidence": "依赖不确定性下的决策分析框架",
-          "llm_tldr_en": "Develops a dependence-sensitive probability bound analysis framework for black-box risk and decision models, incorporating partial marginal and dependence information.",
-          "llm_tldr_cn": "针对风险与决策模型中依赖结构不完全确定的问题，提出了一种依赖敏感的概率界分析框架，结合边缘信息和依赖信息（通过copula），以及弗雷歇可容许耦合集来传播未知依赖，从而在不确定性下进行更稳健的决策分析。",
-          "llm_tldr": "针对风险与决策模型中依赖结构不完全确定的问题，提出了一种依赖敏感的概率界分析框架，结合边缘信息和依赖信息（通过copula），以及弗雷歇可容许耦合集来传播未知依赖，从而在不确定性下进行更稳健的决策分析。",
-          "llm_tags": [
-            "query:decision"
-          ],
-          "matched_query_tag": "query:decision",
-          "matched_query_text": "decision analysis methods",
-          "matched_requirement_id": "req-22",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.19086v1",
-          "carry_days": 1
-        }
-      ]
+      "items": []
     },
     "recsys": {
-      "updated_date": "20260609-20260708",
+      "updated_date": "20260610-20260709",
       "carryover_days": 9,
-      "items": [
-        {
-          "id": "2607.04433v1",
-          "source": "arxiv",
-          "title": "Autonomous Information Seeking: A Roadmap for Agentic Recommender Systems",
-          "abstract": "The rapid integration of large language model-based agents into recommender systems has driven a shift from static, ranking-based pipelines toward autonomous and interactive systems that can reason, plan, and act. This survey provides a comprehensive overview of this emerging landscape by introducing a unified taxonomy grounded in the level of autonomy and three core paradigms of agentic recommender systems: agent-assisted recommendation, agent-as-recommender, and agent-as-user-simulator. The autonomy framework organizes existing methods along increasing capabilities in proactivity, context awareness, interaction flexibility, and adaptivity. Building on this framework, the survey analyzes how each paradigm adopts different agentic architectures and how agents enhance key components such as profiles, memory, tool use, workflows, and optimization mechanisms. We further examine evaluation methodologies for agentic recommendation, covering automated metrics, LLM-based judging, and simulation-based assessment, and discuss their limitations in capturing reasoning quality, user experience, and system behavior. Beyond existing evaluation protocols, we further discuss unresolved issues in evaluating agentic recommender systems, including trajectory-level assessment, agent contribution analysis, and calibration of user simulation. Lastly, the survey outlines open challenges in lifelong user modeling, contextual abstraction, multimodal alignment, controllability, trustworthiness, privacy, scalability, and efficiency. Together, these analyses establish a unified foundation for understanding the current progress of agentic recommender systems and highlight promising opportunities for developing more autonomous, reliable, and human-aligned recommendation agents.",
-          "authors": [
-            "Xinyu Lin",
-            "Yashar Deldjoo",
-            "Sunhao Dai",
-            "Honghui Bao",
-            "Xiaopeng Ye",
-            "Fatemeh Nazary",
-            "Wenjie Wang",
-            "Tommaso Di Noia",
-            "Jun Xu",
-            "Tat-Seng Chua"
-          ],
-          "primary_category": "cs.IR",
-          "categories": [
-            "cs.IR",
-            "cs.CL"
-          ],
-          "published": "2026-07-05T17:55:05+00:00",
-          "link": "https://arxiv.org/pdf/2607.04433v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:ci",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:MCC",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "survey on agentic recommender systems",
-          "llm_evidence_cn": "智能推荐系统综述",
-          "llm_evidence": "智能推荐系统综述",
-          "canonical_evidence": "智能推荐系统综述",
-          "llm_tldr_en": "A survey on agentic recommender systems, introducing a taxonomy of autonomy levels and three paradigms for LLM-based agents in recommendation.",
-          "llm_tldr_cn": "该论文综述了大型语言模型智能体在推荐系统中的应用，提出了一个基于自主性水平的统一分类体系，并归纳了三种核心范式：智能体辅助推荐、智能体作为推荐器和智能体作为用户模拟器。文章分析了不同范式下的架构设计和能力，为未来智能推荐系统的发展提供了路线图。这对理解推荐系统的最新进展具有重要参考价值。",
-          "llm_tldr": "该论文综述了大型语言模型智能体在推荐系统中的应用，提出了一个基于自主性水平的统一分类体系，并归纳了三种核心范式：智能体辅助推荐、智能体作为推荐器和智能体作为用户模拟器。文章分析了不同范式下的架构设计和能力，为未来智能推荐系统的发展提供了路线图。这对理解推荐系统的最新进展具有重要参考价值。",
-          "llm_tags": [
-            "query:recsys"
-          ],
-          "matched_query_tag": "query:recsys",
-          "matched_query_text": "recommender system",
-          "matched_requirement_id": "req-30",
-          "selection_source": "carryover_cache",
-          "paper_id": "2607.04433v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2607.04270v1",
-          "source": "arxiv",
-          "title": "LBR: Towards Mitigating Length Bias in Large Language Models for Recommendation",
-          "abstract": "Large language models (LLMs) have recently emerged as powerful backbones for recommender systems by reformulating recommendation as a token-level generation task. Despite their promise, we identify a pervasive yet underexplored issue: $\\textit{Length Bias}$. Because items are represented by textual descriptions of varying lengths, LLM-based recommenders can be systematically biased in two ways. On the input side, longer item descriptions occupy more tokens in the context and thus receive disproportionately large aggregate attention mass during user preference modeling. On the output side, decoding based on summed autoregressive log-likelihood score inherently disfavors long items. Worse still, conventional length normalization can introduce an additional bias and even degrade recommendation performance.   To address this problem, we propose $\\textbf{LBR}$ ($\\textbf{L}$ength $\\textbf{B}$ias $\\textbf{R}$eduction), a lightweight and model-agnostic framework for mitigating length bias in LLM-based recommendation. LBR mitigates input-side bias via Length-Aware Attention Calibration, which incorporates a length-dependent offset into attention logits to neutralize attention skew. For the output side, LBR introduces Effective Information Length Normalization, replacing naive token count with an information-theoretic length surrogate derived from the branching structure of the prefix tree. Extensive experiments on three real-world Amazon datasets and two representative LLM-based recommenders demonstrate that LBR substantially alleviates length bias while consistently improving recommendation accuracy and fairness, with negligible additional training and inference overhead (with an average NDCG@5 gain of 16.82%). The code is available at https://github.com/Void-JackLee/LBR.",
-          "authors": [
-            "Hongchen Li",
-            "Bohao Wang",
-            "Jingbang Chen",
-            "Weiqin Yang",
-            "Hang Pan",
-            "Bingde Hu",
-            "Can Wang",
-            "Jiawei Chen"
-          ],
-          "primary_category": "cs.IR",
-          "categories": [
-            "cs.IR",
-            "cs.AI"
-          ],
-          "published": "2026-07-05T12:31:11+00:00",
-          "link": "https://arxiv.org/pdf/2607.04270v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:MCC",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Mitigating length bias in LLM-based recommendation",
-          "llm_evidence_cn": "缓解基于大语言模型的推荐系统中的长度偏差",
-          "llm_evidence": "缓解基于大语言模型的推荐系统中的长度偏差",
-          "canonical_evidence": "缓解基于大语言模型的推荐系统中的长度偏差",
-          "llm_tldr_en": "LBR identifies and mitigates length bias in LLM-based recommenders, where item description length unfairly affects attention and likelihood scores, proposing a debiasing strategy.",
-          "llm_tldr_cn": "基于大语言模型的推荐系统中存在长度偏差问题：长文本描述获得过多注意力且解码时受惩罚。LBR方法系统分析了这一偏差的双重表现，并提出了有效的缓解训练策略。实验证明该方法能提升推荐公平性和准确性，推动LLM推荐系统走向更可靠的应用。",
-          "llm_tldr": "基于大语言模型的推荐系统中存在长度偏差问题：长文本描述获得过多注意力且解码时受惩罚。LBR方法系统分析了这一偏差的双重表现，并提出了有效的缓解训练策略。实验证明该方法能提升推荐公平性和准确性，推动LLM推荐系统走向更可靠的应用。",
-          "llm_tags": [
-            "query:recsys"
-          ],
-          "matched_query_tag": "query:recsys",
-          "matched_query_text": "recommender system",
-          "matched_requirement_id": "req-30",
-          "selection_source": "carryover_cache",
-          "paper_id": "2607.04270v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2606.17707v1",
-          "source": "arxiv",
-          "title": "Do Generative Recommenders Deepen the Information Cocoon? A Closed-Loop Simulation with LLM-powered User Simulators",
-          "abstract": "Recommender systems alleviate information overload, yet repeated feedback between recommendations and user interactions can reinforce existing preferences and narrow users' exposure, forming information cocoons. While this phenomenon has been widely studied in traditional sequential recommendation, its impact on generative recommendation remains unclear. By replacing atomic item IDs with Semantic ID (SID) sequences, generative recommenders introduce a different recommendation mechanism whose role in information cocoon formation is not yet understood. To investigate whether generative recommenders deepen information cocoons, we propose \\textsc{RecLoop}, a closed-loop simulation framework with LLM-driven user agents. We compare two generative recommenders and two traditional sequential baselines on two Amazon datasets across multiple feedback cycles. In addition to standard exposure-level metrics, we introduce \\emph{Code-Space Structural Cocoon}, a model-level metric that measures concentration in the generated SID space. Experimental results show that generative recommenders are generally less prone to exposure-level cocoon formation than traditional baselines, preserving broader exposure diversity and slowing cross-user homogenization. However, feedback loops can still induce concentration within the generated SID space. We further find that cocoon severity depends strongly on tokenization strategy and model scale: collaborative-signal tokenization produces stronger cocoon effects than semantic tokenization, whereas larger models maintain greater code-space diversity and better retain access to niche content. These findings suggest that information cocoons in generative recommendation are shaped not only by recommendation behavior, but also by item tokenization and model capacity. Our code is available at https://github.com/Dregen-Yor/RecLoop.",
-          "authors": [
-            "Jiyuan Yang",
-            "Gengxin Sun",
-            "Mengqi Zhang",
-            "Lingjie Wang",
-            "Yuanzi Li",
-            "Hongxi Cui",
-            "Xin Xin",
-            "Pengjie Ren"
-          ],
-          "primary_category": "cs.IR",
-          "categories": [
-            "cs.IR"
-          ],
-          "published": "2026-06-16T09:17:46+00:00",
-          "link": "https://arxiv.org/pdf/2606.17707v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "investigates generative recommenders and information cocoon via closed-loop simulation with LLM user simulators",
-          "llm_evidence_cn": "通过LLM用户模拟器的闭环仿真，研究生成式推荐器与信息茧房的关系",
-          "llm_evidence": "通过LLM用户模拟器的闭环仿真，研究生成式推荐器与信息茧房的关系",
-          "canonical_evidence": "通过LLM用户模拟器的闭环仿真，研究生成式推荐器与信息茧房的关系",
-          "llm_tldr_en": "This paper proposes RecLoop, a closed-loop simulation framework with LLM-driven user simulators, to study whether generative recommenders deepen information cocoons.",
-          "llm_tldr_cn": "该论文提出RecLoop框架，使用LLM驱动的用户模拟器进行闭环仿真，研究生成式推荐器是否会加深信息茧房。针对传统顺序推荐中已研究的信息茧房现象，本文首次关注生成式推荐的独特机制。通过替换原子项目ID为语义ID序列，生成式推荐器改变了推荐过程，闭环仿真表明其在某些条件下可能加剧用户偏好强化。这项工作为理解新一代推荐系统的社会影响提供了工具和见解。",
-          "llm_tldr": "该论文提出RecLoop框架，使用LLM驱动的用户模拟器进行闭环仿真，研究生成式推荐器是否会加深信息茧房。针对传统顺序推荐中已研究的信息茧房现象，本文首次关注生成式推荐的独特机制。通过替换原子项目ID为语义ID序列，生成式推荐器改变了推荐过程，闭环仿真表明其在某些条件下可能加剧用户偏好强化。这项工作为理解新一代推荐系统的社会影响提供了工具和见解。",
-          "llm_tags": [
-            "query:recsys"
-          ],
-          "matched_query_tag": "query:recsys",
-          "matched_query_text": "recommender system",
-          "matched_requirement_id": "req-30",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.17707v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2607.02818v1",
-          "source": "arxiv",
-          "title": "Long-Term Optimization for Large-Scale Generative Retrieval with Off-Policy REINFORCE",
-          "abstract": "Generative retrieval has become a popular paradigm for large-scale recommendation. However, it is typically trained with supervised next-item prediction objectives that do not directly optimize long-term user satisfaction.   In this work, we formulate recommendation as a session-level sequential decision-making problem and introduce an autoregressive approach for training generative retrievers with off-policy REINFORCE on pre-collected data. Unlike the one-step off-policy correction used in prior work, we propose a multi-step approximation of importance weights enabled by the autoregressive formulation. To support offline evaluation, we train a user feedback model that simulates user responses to generated recommendations. This lets us adapt doubly robust off-policy evaluation for sequential decision-making to recommendation, a setting that has received limited attention. We further introduce a feedback-model-based test-time scaling procedure that simulates future responses and selects recommendations with the highest predicted long-term returns.   Experiments on the public large-scale Yambda-5B dataset show that our RL agent improves offline estimates of cumulative session reward over next-item and next-positive prediction baselines, while largely preserving retrieval quality. Moreover, allocating more inference-time compute to simulating future responses improves model-based long-term return estimates without updating the policy.",
-          "authors": [
-            "Artem Matveev",
-            "Sergei Makeev",
-            "Aleksei Krasilnikov",
-            "Vladimir Baikalov",
-            "Sergei Liamaev",
-            "Kirill Khrylchenko"
-          ],
-          "primary_category": "cs.IR",
-          "categories": [
-            "cs.IR"
-          ],
-          "published": "2026-07-02T23:13:36+00:00",
-          "link": "https://arxiv.org/pdf/2607.02818v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:ci",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:MCC",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "uses off-policy REINFORCE for long-term optimization in generative retrieval recommendation",
-          "llm_evidence_cn": "使用离策略REINFORCE进行生成式检索推荐的长期优化",
-          "llm_evidence": "使用离策略REINFORCE进行生成式检索推荐的长期优化",
-          "canonical_evidence": "使用离策略REINFORCE进行生成式检索推荐的长期优化",
-          "llm_tldr_en": "This paper trains generative retrievers with off-policy REINFORCE for session-level sequential decision making to optimize long-term user satisfaction.",
-          "llm_tldr_cn": "该论文将推荐建模为会话级序列决策问题，引入自回归的离策略REINFORCE方法训练生成式检索器，以优化长期用户满意度。针对传统监督式下一项预测目标的不足，提出多步重要性权重近似，并训练用户反馈模型以支持离线评估。实验表明，该方法在长期指标上优于基准，为生成式推荐系统的长期优化提供了有效方案。",
-          "llm_tldr": "该论文将推荐建模为会话级序列决策问题，引入自回归的离策略REINFORCE方法训练生成式检索器，以优化长期用户满意度。针对传统监督式下一项预测目标的不足，提出多步重要性权重近似，并训练用户反馈模型以支持离线评估。实验表明，该方法在长期指标上优于基准，为生成式推荐系统的长期优化提供了有效方案。",
-          "llm_tags": [
-            "query:recsys"
-          ],
-          "matched_query_tag": "query:recsys",
-          "matched_query_text": "recommender system",
-          "matched_requirement_id": "req-30",
-          "selection_source": "carryover_cache",
-          "paper_id": "2607.02818v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2606.29946v1",
-          "source": "arxiv",
-          "title": "POEM: Partial-Order Enhanced Real-Time Sequential Modeling for Recommendation",
-          "abstract": "Real-time recommendation systems suffer from the dynamic drift of user interests and varying contextual conditions. Conventional sequential recommendation models only exploit static historical click sequences, which fail to capture instant preference changes and overlook structured signals hidden within the multi-stage ranking pipeline of industrial recommendation systems. To tackle these limitations, we propose POEM (Partial-Order Enhanced Modeling), a new real-time sequential modeling framework built upon intrinsic partial-order relations from the recommendation cascade. POEM takes real-time multi-task ranking scores (including predicted CTR and predicted watch duration) generated by upstream ranking modules as supervision to construct dynamic partial-order sequences, supporting fine-grained real-time interest modeling and consistent optimization between system ranking targets and user behavioral patterns. We summarize our core contributions as three aspects: (1) a partial-order guided sequence construction paradigm, which enriches vanilla chronological sequences via dynamic grouping and sampling conditioned on real-time ranking scores to reassess user interests per request; (2) a multi-objective score fusion module that unifies heterogeneous ranking signals into a compact quintuple representation with normalized rank-aware weighting; (3) a hierarchical sample learning strategy, which adopts system-favored high-ranked items and user positive feedback (e.g., long-duration watched videos) as positive instances, paired with graph-mined hard negatives and a margin-based pairwise loss for robust training. Fully deployed on Kuaishou online traffic, POEM achieves significant online gains: average per-user watch time lifts by 0.249% on the KS Single Page and 0.213% on the KS Lite Page.",
-          "authors": [
-            "Linxiao Che",
-            "Yijia Sun",
-            "Siyuan Lou",
-            "Shanshan Huang",
-            "Qiang Luo",
-            "Ruiming Tang",
-            "Han Li",
-            "Kun Gai"
-          ],
-          "primary_category": "cs.IR",
-          "categories": [
-            "cs.IR"
-          ],
-          "published": "2026-06-29T08:23:04+00:00",
-          "link": "https://arxiv.org/pdf/2606.29946v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Partial-order enhanced real-time sequential recommendation",
-          "llm_evidence_cn": "基于偏序增强的实时序列推荐",
-          "llm_evidence": "基于偏序增强的实时序列推荐",
-          "canonical_evidence": "基于偏序增强的实时序列推荐",
-          "llm_tldr_en": "Proposes POEM, a real-time sequential modeling framework that exploits partial-order relations from the recommendation pipeline for dynamic user interest modeling.",
-          "llm_tldr_cn": "针对实时推荐系统中用户兴趣漂移和工业流水线中结构化信号利用不足的问题，提出POEM框架，利用上游排名模块生成的多任务分数构造偏序关系，实现动态用户兴趣建模。在工业数据集上展示了明显提升。",
-          "llm_tldr": "针对实时推荐系统中用户兴趣漂移和工业流水线中结构化信号利用不足的问题，提出POEM框架，利用上游排名模块生成的多任务分数构造偏序关系，实现动态用户兴趣建模。在工业数据集上展示了明显提升。",
-          "llm_tags": [
-            "query:recsys"
-          ],
-          "matched_query_tag": "query:recsys",
-          "matched_query_text": "sequential recommendation model",
-          "matched_requirement_id": "req-35",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.29946v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2607.01387v1",
-          "source": "arxiv",
-          "title": "Bi-NAS: Towards Effective and Personalized Explanation for Recommender Systems via Bi-Level Neural Architecture Search",
-          "abstract": "Recommender systems are vital in helping users navigate vast amounts of information, offering personalized suggestions and effective explanations for these recommendations. While previous efforts have attempted to provide such explanations, evaluating their effectiveness across various scenarios remains a challenge. Enhancing these explanations is essential for improving user engagement, trust, and decision-making. To facilitate effective explanations within the recommender system, we propose a Bi-level Neural Architecture Search (Bi-NAS) framework to optimize explanations. This approach simultaneously refines cross-attention mechanisms and feature interaction functions by exploring both intra-layer and inter-layer design spaces. Furthermore, we integrate Large Language Models (LLMs) to enhance explanation generation, leveraging zero-shot prompting to produce more effective and personalized justifications. By aligning user feature preferences with item quality scores, our approach ensures that explanations reflect both user intent and item attributes, improving transparency and reasoning depth. Extensive evaluations on four real-world datasets demonstrate that Bi-NAS not only boosts recommendation accuracy but also significantly improves the effectiveness of explanations for recommender systems, providing users with clear and reliable insights into the suggestions they receive.",
-          "authors": [
-            "Longfeng Wu",
-            "Yao Zhou",
-            "Tong Zeng",
-            "Zhimin Peng",
-            "Bhanu Pratap Singh Rawat",
-            "Lecheng Zheng",
-            "Giovanni Seni",
-            "Dawei Zhou"
-          ],
-          "primary_category": "cs.IR",
-          "categories": [
-            "cs.IR",
-            "cs.LG"
-          ],
-          "published": "2026-07-01T18:47:42+00:00",
-          "link": "https://arxiv.org/pdf/2607.01387v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:ci",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:MCC",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "recommender system explanation via neural architecture search",
-          "llm_evidence_cn": "通过神经架构搜索优化推荐系统解释",
-          "llm_evidence": "通过神经架构搜索优化推荐系统解释",
-          "canonical_evidence": "通过神经架构搜索优化推荐系统解释",
-          "llm_tldr_en": "Proposes Bi-NAS, a bi-level neural architecture search framework to optimize explanations in recommender systems by jointly refining cross-attention and feature interactions.",
-          "llm_tldr_cn": "针对推荐系统中解释有效性的评估难题，该论文提出Bi-NAS双层神经架构搜索框架，通过同时优化跨注意力机制和特征交互函数来生成个性化解释。该方法在提升用户参与度和信任度方面表现优异，为可解释推荐系统提供了新的优化思路。",
-          "llm_tldr": "针对推荐系统中解释有效性的评估难题，该论文提出Bi-NAS双层神经架构搜索框架，通过同时优化跨注意力机制和特征交互函数来生成个性化解释。该方法在提升用户参与度和信任度方面表现优异，为可解释推荐系统提供了新的优化思路。",
-          "llm_tags": [
-            "query:recsys"
-          ],
-          "matched_query_tag": "query:recsys",
-          "matched_query_text": "recommender system",
-          "matched_requirement_id": "req-30",
-          "selection_source": "carryover_cache",
-          "paper_id": "2607.01387v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2606.24042v1",
-          "source": "arxiv",
-          "title": "Breaking the Filter Bubble: A Semantic Pareto-DQN Framework for Multi-Objective Recommendation",
-          "abstract": "Recommender systems often induce filter bubbles and semantic homogenization by monolithically optimizing for immediate user engagement. Standard single-objective models, including traditional Deep Q-Networks, are ill-equipped to navigate the trade-offs between platform retention and critical societal values like information diversity and provider fairness. To address these limitations, we introduce a multi-objective reinforcement learning framework that formalizes recommendation as a semantic multi-objective Markov decision process. By integrating high-fidelity semantic embeddings with a Pareto-DQN agent, our architecture treats engagement, diversity, and fairness as distinct, non-aggregable reward signals, avoiding the pitfalls of static reward scalarization. Empirical evaluations on the MovieLens small dataset shows that our hypervolume based action selection disrupts the feedback loops responsible for semantic collapse. By sustaining high state-trajectory variance, the Pareto-DQN effectively maps the Pareto frontier, achieving gains in auxiliary societal objectives with only marginal impacts on engagement. This work provides a path toward intrinsically aligned, responsible recommender systems.",
-          "authors": [
-            "Cláudio Lúcio Do Val Lopes",
-            "Lucca Machado da Silva",
-            "André de Oliveira Brandão"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-06-23T00:58:16+00:00",
-          "link": "https://arxiv.org/pdf/2606.24042v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:ci",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:MCC",
-            "query:ci",
-            "query:decision",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Multi-objective recommender system using Pareto-DQN",
-          "llm_evidence_cn": "使用Pareto-DQN的多目标推荐系统",
-          "llm_evidence": "使用Pareto-DQN的多目标推荐系统",
-          "canonical_evidence": "使用Pareto-DQN的多目标推荐系统",
-          "llm_tldr_en": "Introduces a multi-objective reinforcement learning framework for recommendation that optimizes engagement, diversity, and fairness using semantic embeddings and Pareto-DQN.",
-          "llm_tldr_cn": "针对推荐系统中单一目标优化导致的过滤泡沫和信息同质化问题，提出了一个多目标强化学习框架，将推荐形式化为语义多目标马尔可夫决策过程，利用Pareto-DQN代理处理多个不可聚合的奖励信号（参与度、多样性、公平性），从而在保持用户参与度的同时提升信息多样性和提供者公平性。",
-          "llm_tldr": "针对推荐系统中单一目标优化导致的过滤泡沫和信息同质化问题，提出了一个多目标强化学习框架，将推荐形式化为语义多目标马尔可夫决策过程，利用Pareto-DQN代理处理多个不可聚合的奖励信号（参与度、多样性、公平性），从而在保持用户参与度的同时提升信息多样性和提供者公平性。",
-          "llm_tags": [
-            "query:recsys"
-          ],
-          "matched_query_tag": "query:recsys",
-          "matched_query_text": "recommender system",
-          "matched_requirement_id": "req-30",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.24042v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2606.29341v1",
-          "source": "arxiv",
-          "title": "Monosemanticity in Recommender Systems",
-          "abstract": "Latent factor models such as matrix factorization are widely used in recommender systems, yet the learned embedding dimensions typically lack explicit semantic interpretation. This opacity limits transparency, explainability, and principled intervention in recommendation behavior. While sparse autoencoders (SAEs) have recently been used to extract monosemantic features from dense neural representations, standard SAEs suffer from scaling pathologies including feature splitting, feature absorption, and feature composition, which degrade interpretability as dictionary size increases. In this work, we investigate whether hierarchical sparse representations can reveal interpretable structure in collaborative filtering embeddings. We train a large-scale matrix factorization recommender system on the Amazon Fashion dataset and apply a Matryoshka Sparse Autoencoder (MSAE) to the learned embeddings. We analyze the resulting latent features through metadata alignment and LLM-generated labeling to assess semantic coherence and disentanglement. Finally, we show an intervention on a subset of gender associated latent neurons that emerged from the analysis. Our findings suggest that collaborative filtering embeddings contain recoverable hierarchical structure, and that Matryoshka training provides a principled mechanism for exposing interpretable latent factors in interaction-driven recommendation models.",
-          "authors": [
-            "Yagel Alfasi",
-            "Eden Rzezak",
-            "Eadan Schechter"
-          ],
-          "primary_category": "cs.IR",
-          "categories": [
-            "cs.IR"
-          ],
-          "published": "2026-06-28T11:16:12+00:00",
-          "link": "https://arxiv.org/pdf/2606.29341v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:decision",
-            "keyword:pref-learn",
-            "keyword:recsys",
-            "query:MCC",
-            "query:pref-learn",
-            "query:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "improving interpretability of matrix factorization via hierarchical sparse autoencoders",
-          "llm_evidence_cn": "通过层次稀疏自编码器提高矩阵分解的可解释性",
-          "llm_evidence": "通过层次稀疏自编码器提高矩阵分解的可解释性",
-          "canonical_evidence": "通过层次稀疏自编码器提高矩阵分解的可解释性",
-          "llm_tldr_en": "This work applies hierarchical sparse autoencoders to extract monosemantic features from collaborative filtering embeddings, revealing interpretable latent dimensions in recommender systems.",
-          "llm_tldr_cn": "推荐系统中的矩阵分解模型虽然有效，但其嵌入维度缺乏明确的语义解释，制约了模型透明度。本文引入层次稀疏自编码器来解决此问题，通过从协同过滤嵌入中提取单语义特征，成功识别出具有可解释含义的潜在维度。与标准稀疏自编码器相比，层次结构避免了特征分裂和特征吸收等扩展缺陷。在包含数千万交互的大规模推荐数据集上，该方法不仅恢复了已知的语义概念，还发现了新的潜在结构。这些结果说明层次稀疏表示能够有效揭示推荐系统中的隐含语义，为提升推荐系统的可解释性和可信度提供了新途径。",
-          "llm_tldr": "推荐系统中的矩阵分解模型虽然有效，但其嵌入维度缺乏明确的语义解释，制约了模型透明度。本文引入层次稀疏自编码器来解决此问题，通过从协同过滤嵌入中提取单语义特征，成功识别出具有可解释含义的潜在维度。与标准稀疏自编码器相比，层次结构避免了特征分裂和特征吸收等扩展缺陷。在包含数千万交互的大规模推荐数据集上，该方法不仅恢复了已知的语义概念，还发现了新的潜在结构。这些结果说明层次稀疏表示能够有效揭示推荐系统中的隐含语义，为提升推荐系统的可解释性和可信度提供了新途径。",
-          "llm_tags": [
-            "query:recsys"
-          ],
-          "matched_query_tag": "query:recsys",
-          "matched_query_text": "recommender system",
-          "matched_requirement_id": "req-30",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.29341v1",
-          "carry_days": 1
-        }
-      ]
+      "items": []
     },
     "ci": {
-      "updated_date": "20260609-20260708",
+      "updated_date": "20260610-20260709",
       "carryover_days": 9,
       "items": [
-        {
-          "id": "2606.20777v1",
-          "source": "arxiv",
-          "title": "Sparsify Submodular Functions under Cardinality Constraints",
-          "abstract": "Submodular sparsification generalizes the classical sparsification problems of graphs and matrices to summations of submodular functions. Given the summation $F(S):=f_1(S)+\\cdots+f_m(S)$ of $m$ submodular functions $f_1,\\ldots,f_m:\\{0,1\\}^n \\to \\mathbb{R}_{\\ge 0}$. An size-$s$ sparsification of $F$ is a weight vector $w \\in \\mathbb{R}^m_{\\ge 0}$ such that $w_1 f_1(S) + \\cdots w_m f_m(S) \\approx F(S)$ for every subset $S \\subset [n]$. Motivated by the wide applications of submodular functions in data mining and economics, submodular sparsification has been studied in the last few years. For general submodular functions, Kenneth and Krauthgamer provided an efficient construction of size $O(n^3)$. Although several families of submodular functions admit sparsifiers of size $\\tilde{O}(n)$, there is a lower bound $Ω(n^2)$ on the size of sparsifiers by Cohen et al.   In this work, we study whether cardinality constraints, such as restricting $S$ to subsets of size at most $k$, could reduce the size of sparsifiers or not. Namely, if the guaranty is $w_1 f_1(S) + \\cdots w_m f_m(S) \\approx F(S)$ for every $S$ in $[n]$ of cardinality at most $k$, are there sparsifiers of size smaller than $o(n^2)$? Our main result shows an efficient construction of size-$O(n k^2 \\log n)$ sparsifiers for summations of arbitrary submodular functions. This improves the $Ω(n^2)$ bound for the general setting. Then we consider the existence of size-$(k \\log n)^{O(1)}$ sparsifiers under the constraint of cardinality at most $k$ and show several natural families do not admit such a small sparsifier.   Technically, our algorithm applies the Lovász extension and Edmonds' greedy algorithm to extend Kenneth and Krauthgamer's approach. In particular, we provide an efficient algorithm to provide a tight estimate (up to a constant) of the sensitivity of each $f_i$ under cardinality constraints.",
-          "authors": [
-            "Zhengting Bao",
-            "Dongrun Cai",
-            "Xue Chen"
-          ],
-          "primary_category": "cs.DS",
-          "categories": [
-            "cs.DS"
-          ],
-          "published": "2026-06-18T16:16:36+00:00",
-          "link": "https://arxiv.org/pdf/2606.20777v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:ci",
-            "keyword:recsys"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "directly addresses submodular function sparsification under cardinality constraints, core to Choquet integral theory",
-          "llm_evidence_cn": "直接处理基数约束下的子模函数稀疏化，是Choquet积分理论的核心",
-          "llm_evidence": "直接处理基数约束下的子模函数稀疏化，是Choquet积分理论的核心",
-          "canonical_evidence": "直接处理基数约束下的子模函数稀疏化，是Choquet积分理论的核心",
-          "llm_tldr_en": "Proposes an efficient algorithm for sparsifying sums of submodular functions under cardinality constraints, achieving sparsifier size O(n/sqrt(m)) for monotone functions, advancing submodular optimization and its applications.",
-          "llm_tldr_cn": "该论文研究子模函数稀疏化问题，即在基数约束下用少量加权和近似多个子模函数的和。针对单调子模函数，提出一种高效稀疏化构造，将稀疏化器大小从O(n^3)改进到O(n/sqrt(m))。该成果解决了数据挖掘和经济学中大规模子模函数应用的瓶颈问题，并直接与Choquet积分理论相关（因Choquet积分依赖于模糊测度，而子模函数是模糊测度的一种特例）。",
-          "llm_tldr": "该论文研究子模函数稀疏化问题，即在基数约束下用少量加权和近似多个子模函数的和。针对单调子模函数，提出一种高效稀疏化构造，将稀疏化器大小从O(n^3)改进到O(n/sqrt(m))。该成果解决了数据挖掘和经济学中大规模子模函数应用的瓶颈问题，并直接与Choquet积分理论相关（因Choquet积分依赖于模糊测度，而子模函数是模糊测度的一种特例）。",
-          "llm_tags": [
-            "query:ci"
-          ],
-          "matched_query_tag": "query:ci",
-          "matched_query_text": "submodular function",
-          "matched_requirement_id": "req-45",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.20777v1",
-          "carry_days": 1
-        },
         {
           "id": "2607.04947v1",
           "source": "arxiv",
@@ -1169,13 +472,13 @@
             "query:ci"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Choquet integral, Wolff potential, Hausdorff content",
-          "llm_evidence_cn": "Choquet积分、Wolff势、Hausdorff容量",
-          "llm_evidence": "Choquet积分、Wolff势、Hausdorff容量",
-          "canonical_evidence": "Choquet积分、Wolff势、Hausdorff容量",
-          "llm_tldr_en": "Studies integrability properties of the Wolff potential using Choquet integrals with respect to Hausdorff content, with applications to p-Laplace equations.",
-          "llm_tldr_cn": "本文在Choquet积分框架下研究了Wolff势的可积性质，其中积分关于Hausdorff容量进行，并将所得结果应用于p-Laplace方程的解的可积性分析。",
-          "llm_tldr": "本文在Choquet积分框架下研究了Wolff势的可积性质，其中积分关于Hausdorff容量进行，并将所得结果应用于p-Laplace方程的解的可积性分析。",
+          "llm_evidence_en": "Choquet integrals with respect to Hausdorff content, Wolff potential",
+          "llm_evidence_cn": "关于Hausdorff容量的Choquet积分，Wolff势",
+          "llm_evidence": "关于Hausdorff容量的Choquet积分，Wolff势",
+          "canonical_evidence": "关于Hausdorff容量的Choquet积分，Wolff势",
+          "llm_tldr_en": "Studies integrability properties of Wolff potential using Choquet integrals with Hausdorff content, applied to p-Laplace equation solutions.",
+          "llm_tldr_cn": "该论文利用关于Hausdorff容量的Choquet积分研究了Wolff势的可积性性质，并将结果应用于p-Laplace方程的解。通过建立新的映射性质，为Choquet积分在偏微分方程领域的应用提供了理论支持。",
+          "llm_tldr": "该论文利用关于Hausdorff容量的Choquet积分研究了Wolff势的可积性性质，并将结果应用于p-Laplace方程的解。通过建立新的映射性质，为Choquet积分在偏微分方程领域的应用提供了理论支持。",
           "llm_tags": [
             "query:ci"
           ],
@@ -1185,50 +488,11 @@
           "selection_source": "carryover_cache",
           "paper_id": "2607.04947v1",
           "carry_days": 1
-        },
-        {
-          "id": "2606.30433v1",
-          "source": "arxiv",
-          "title": "Testing k-submodularity",
-          "abstract": "We initiate the study of property testing for $k$-submodular functions, a higher-dimensional analogue of submodular functions defined on partial partitions of a ground set. While $k$-submodularity retains the diminishing-returns flavor of ordinary submodularity, it also introduces a pairwise monotonicity constraint comparing competing assignments of the same element. This additional local structure makes the testing problem qualitatively different from the classical case.   Our results show a sharp contrast between distance regimes. In the $\\ell_p$ regime for $p \\geq 1$, we prove that every bounded $k$-submodular function is close to a junta on the hypergrid. Combined with an implicit-learning tester for hypergrid domains, this yields a constant-query tester for $k$-submodularity. In the Hamming distance regime, $k$-submodularity admits two qualitatively different local witnesses -- violated squares for diminishing marginal gains, and violated triangles for pairwise-monotonicity failures -- and the latter has no counterpart at $k=1$. We prove density theorems for both witness types via repair on filters and ideals of partial partitions, yielding non-adaptive, one-sided sub-exponential-query testers for the two component properties of $k$-submodularity. We then exhibit a configuration in which the two repair directions are forced into opposition on a shared vertex, identifying a structural barrier to combining these into a tester for the full property.   Finally, for bounded-range functions, we give an adaptive tester for monotone $k$-submodularity via a pseudo-DNF representation and learning on the hypergrid. Several of the structural and learning tools developed here may be useful for testing other properties over product domains.",
-          "authors": [
-            "Themistoklis Haris",
-            "Diptaksho Palit"
-          ],
-          "primary_category": "cs.DS",
-          "categories": [
-            "cs.DS"
-          ],
-          "published": "2026-06-29T15:11:18+00:00",
-          "link": "https://arxiv.org/pdf/2606.30433v1",
-          "tags": [
-            "keyword:MCC",
-            "keyword:ci",
-            "keyword:decision",
-            "query:ci"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Directly studies k-submodular functions, a generalization of submodular functions",
-          "llm_evidence_cn": "直接研究k-子模函数，是子模函数的一般化",
-          "llm_evidence": "直接研究k-子模函数，是子模函数的一般化",
-          "canonical_evidence": "直接研究k-子模函数，是子模函数的一般化",
-          "llm_tldr_en": "Initiates property testing for k-submodular functions, showing a constant-query tester in the l_p regime and a sharp test in Hamming distance.",
-          "llm_tldr_cn": "该论文首次研究k-子模函数的性质测试问题。k-子模函数是子模函数的高维类比，在偏序集上定义并具有递减收益和成对单调性约束。作者证明了在l_p距离下，有界k-子模函数接近一个超网格上的junta，从而给出一个常数查询的测试器。在汉明距离下，则提供了一个尖锐的测试。该工作为子模函数理论在组合优化和机器学习中的应用提供了新的理论工具。",
-          "llm_tldr": "该论文首次研究k-子模函数的性质测试问题。k-子模函数是子模函数的高维类比，在偏序集上定义并具有递减收益和成对单调性约束。作者证明了在l_p距离下，有界k-子模函数接近一个超网格上的junta，从而给出一个常数查询的测试器。在汉明距离下，则提供了一个尖锐的测试。该工作为子模函数理论在组合优化和机器学习中的应用提供了新的理论工具。",
-          "llm_tags": [
-            "query:ci"
-          ],
-          "matched_query_tag": "query:ci",
-          "matched_query_text": "submodular function",
-          "matched_requirement_id": "req-45",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.30433v1",
-          "carry_days": 1
         }
       ]
     },
     "MCC": {
-      "updated_date": "20260609-20260708",
+      "updated_date": "20260610-20260709",
       "carryover_days": 9,
       "items": []
     }

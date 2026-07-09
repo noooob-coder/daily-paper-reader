@@ -1,0 +1,1153 @@
+Title: Do Generative Recommenders Deepen the Information Cocoon? A Closed-Loop Simulation with LLM-powered User Simulators
+
+URL Source: https://arxiv.org/pdf/2606.17707v1
+
+Published Time: Wed, 17 Jun 2026 00:55:06 GMT
+
+Number of Pages: 32
+
+Markdown Content:
+# Do Generative Recommenders Deepen the Information Cocoon? A Closed-Loop Simulation with LLM-powered User Simulators 
+
+JIYUAN YANG, Shandong University, China 
+
+GENGXIN SUN, Shandong University, China 
+
+MENGQI ZHANG, Shandong University, Shandong Provincial Key Laboratory of Computing-Network Integration, Qingdao Key Laboratory of Trustworthy Artificial Intelligence, China 
+
+LINGJIE WANG, Shandong University, China 
+
+YUANZI LI, Renmin University of China, China 
+
+HONGXI CUI, Shandong University, China 
+
+XIN XIN, Shandong University, China 
+
+PENGJIE REN ∗, Shandong University, Shandong Provincial Key Laboratory of Computing-Network Inte-gration, Qingdao Key Laboratory of Trustworthy Artificial Intelligence, China Recommender systems alleviate information overload by filtering large-scale content, yet repeated feedback between recommendations and user interactions can reinforce users’ existing preferences and progressively narrow the range of content users receive, forming information cocoons. While information cocoons have been extensively studied in traditional ID-based sequential recommendation, their effects in generative recommendation remain largely unclear. Unlike conventional sequential recommenders that score candidate items represented by atomic IDs, generative recommenders represent items as discrete code sequences and generate recommendations autoregressively. This shift from atomic-ID scoring to code-sequence generation makes it unclear whether generative recommenders mitigate, inherit, or deepen information cocoon effects. To answer this question, we present RecLoop , a large-scale closed-loop simulation framework that enables long-term analysis of information cocoon formation in generative recommendation. RecLoop runs two generative recommenders and two traditional sequential baselines with LLM-driven user agents on two Amazon product datasets, involving 5K agents on Office Products and 20K agents on Toys & Games, over 15 feedback cycles with periodic model retraining. To reflect the sequential recommendation setting, user agents are initialized from historical behavior sequences and update their preference states as new interactions occur. We evaluate exposure-level cocoon formation with standard metrics that capture individual exposure narrowing, cross-user homogenization, and system-wide exposure concentration. Beyond observable exposure 
+
+> ∗
+
+Corresponding author. Authors’ Contact Information: Jiyuan Yang, jiyuan.yang@mail.sdu.edu.cn, Shandong University, Qingdao, China; Gengxin Sun, gxin.sun@mail.sdu.edu.cn, Shandong University, Qingdao, China; Mengqi Zhang, mengqi.zhang@sdu.edu.cn, Shan-dong University, Shandong Provincial Key Laboratory of Computing-Network Integration, Qingdao Key Laboratory of Trustworthy Artificial Intelligence, Qingdao, China; Lingjie Wang, lingjie.wang@mail.sdu.edu.cn, Shandong Univer-sity, Qingdao, China; Yuanzi Li, liyuanzi0313@outlook.com, Renmin University of China, Beijing, China; Hongxi Cui, cuihongxi@mail.sdu.edu.cn, Shandong University, Qingdao, China; Xin Xin, xinxin@sdu.edu.cn, Shandong University, Qingdao, China; Pengjie Ren, renpengjie@sdu.edu.cn, Shandong University, Shandong Provincial Key Laboratory of Computing-Network Integration, Qingdao Key Laboratory of Trustworthy Artificial Intelligence, Qingdao, China. Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from permissions@acm.org. 
+
+© 2026 ACM. ACM 1558-2868/2026/1-ART1 https://doi.org/10.1145/nnnnnnn.nnnnnnn ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026.          
+
+> arXiv:2606.17707v1 [cs.IR] 16 Jun 2026 1:2 Jiyuan Yang and Gengxin Sun et al.
+> outcomes, we introduce Code-Space Structural Cocoon , a model-level metric measures whether the generated code space of generative recommenders becomes increasingly concentrated over feedback cycles. Our analysis shows that generative recommenders are generally less prone to exposure-level cocoon formation than traditional sequential baselines, preserving broader user exposure and slowing cross-user homogenization. However, generative recommenders are not immune to cocoon effects: feedback loops can still induce concentration within the generated code space. We further find that cocoon severity is strongly shaped by tokenization strategy and model scale. Collaborative-signal tokenization leads to stronger cocoon effects than semantic tokenization, while larger models preserve broader code-space diversity and better retain access to niche content. These results suggest that information cocoons in generative recommendation are governed not only by retrieval accuracy, but also by how items are tokenized and how much generative capacity the model has. Our code is available at https://github.com/Dregen-Yor/RecLoop. CCS Concepts: •Information systems →Recommender systems ;Information extraction .Additional Key Words and Phrases: Generative Recommendation, Information Cocoon
+> ACM Reference Format:
+> Jiyuan Yang, Gengxin Sun, Mengqi Zhang, Lingjie Wang, Yuanzi Li, Hongxi Cui, Xin Xin, and Pengjie Ren. 2026. Do Generative Recommenders Deepen the Information Cocoon? A Closed-Loop Simulation with LLM-powered User Simulators. ACM Trans. Inf. Syst. 1, 1, Article 1 (January 2026), 32 pages. https://doi.org/10.1145/ nnnnnnn.nnnnnnn
+
+1 INTRODUCTION 
+
+Recommendation is not only about finding what users may like, but also about deciding what information they are likely to encounter. When a user watches several anime clips, the system may infer a stronger preference for anime, recommend more anime-related content, and collect even more anime-related feedback shown in Figure 1 (a). After several rounds, the feed may become highly relevant but surprisingly narrow, with topics such as travel or science gradually disappear-ing. This phenomenon, often known as an information cocoon , reflects a self-reinforcing loop in which recommender systems optimize for inferred preferences while progressively reducing the diversity of user exposure [ 7 , 16 , 20 , 22 , 28 , 30 , 44 , 49 , 53 ]. Information cocoons have been widely studied in traditional recommender systems, where repeated feedback loops can reinforce user interests, amplify popularity bias, and reduce exposure diversity [ 17 , 23 ]. However, the recent rise of generative recommendation makes this problem worth revisiting. Generative recommenders have rapidly evolved from an emerging research direction to systems with large-scale industrial deployment [ 12 , 31 , 40 , 54 ]. Despite this progress, their long-term information cocoon effects remain largely unexplored. This leaves an important question unanswered: do generative recommenders in-herit, mitigate, or even amplify the information cocoon effects observed in traditional recommendation? 
+
+Information cocoons in generative recommendation. The above question is non-trivial be-cause generative recommendation changes how items are represented and produced. As shown in Figure 1 (b), generative recommenders tokenize items into sequences of discrete codes and produce recommendations by autoregressively generating such code sequences [ 12 , 31 , 40 , 54 ] instead of directly scoring a fixed candidate set. These item tokens can be constructed by different quantization or clustering methods, but they commonly introduce a structured discrete representation space. This changes how exposure may be concentrated or diversified. Because multiple items can share tokens or code prefixes, a shift toward one frequently generated code may affect an entire region of the item space rather than a single item. Meanwhile, multi-layer token generation makes later codes depend on earlier, coarser-level decisions, so narrowing at an early layer may propagate to subsequent layers.    
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:3 Exposure
+> List
+> Recommender
+> Serving
+> Data
+> Update
+> User
+> Interaction
+> Generative Recommendation
+> Recommendation
+> (Recommended)
+> SID sequence
+> Sequential
+> User History Next Item
+> Autoregressive
+> Model
+> Encoder
+> Match
+> Decoder
+> -
+> Traditional Recommendation
+> Candidate Set
+> Map
+> (Recommended)
+> Next Item User History
+> (a) Information cocoon feedback loop (b) Traditional vs. generative recommendation
+
+Fig. 1. Overview of information cocoon formation and recommendation paradigms. (a) A closed feedback loop in which recommendation, user interaction, and data update iteratively reinforce exposure patterns. (b) Traditional sequential recommenders match predicted next-item representations with atomic item IDs, whereas generative recommenders autoregressively generate SID sequences and map them back to items. 
+
+These structural properties make the information cocoon effect in generative recommendation difficult to predict in advance. A shared token space may concentrate exposure if the model repeatedly generates a small set of popular or semantically dominant codes, but it may also spread exposure across multiple items that share related codes. Similarly, hierarchical generation may preserve diversity at coarse levels, but it may also amplify narrowing when early code choices constrain later decoding steps. Therefore, whether generative recommendation mitigates or exacerbates information cocoons is an empirical question. To answer this question, we develop a closed-loop simulation framework, quantify information cocoons from both exposure-level and generative-code perspectives, and conduct experiments to compare how different recommendation models shape cocoon dynamics over long-term feedback cycles. Simulation framework. We first build a user simulator that models users’ long-term responses to recommendation exposure, and then introduce RecLoop , a closed-loop simulation framework for analyzing information cocoon effects. Information cocoons are inherently long-term phenomena that emerge through repeated feedback cycles: the system’s recommendations shape user exposure, user interactions update the training data, and the updated data further affects subsequent recommendations. Such feedback effects cannot be fully captured by standard offline evaluation protocols, where user preferences and exposure distributions are typically treated as fixed. This limitation is especially important in sequential recommendation, where recent interactions provide strong signals about users’ current interests. Therefore, a faithful simulator should not only preserve users’ historical preferences, but also promptly update their preference states as new interactions occur. Following recent work on LLM-based user simulation [ 8, 47 , 50 ], RecLoop uses LLM-powered user agents to simulate repeated recommendation–interaction–retraining cycles. At each cycle, the recommender serves an exposure list, the user agent selects items according to its current preference state, and the selected items are recorded as new interactions, appended to the user’s behavior sequence, and added back to the training data for periodic model retraining. To support sequential preference evolution, each agent maintains both long-term historical interests and short-term interaction context, allowing it to capture emerging interests while remaining grounded in the user’s original behavior. 
+
+Quantifying cocoon formation. Based on the simulated feedback cycles, we quantify information cocoon effects from both exposure-level and model-level perspectives. For exposure-level evaluation, we adopt standard metrics to characterize three common symptoms of cocoon formation: whether  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:4 Jiyuan Yang and Gengxin Sun et al.
+
+each user’s exposure range becomes narrower, whether different users receive increasingly similar recommendations, and whether system-wide exposure becomes concentrated on a smaller portion of the item space [ 1 , 2 , 5 , 6 , 13 , 34 , 35 ]. These metrics provide a basis for comparing traditional and generative recommenders, but they only capture cocoon effects from observed exposure outcomes. To further characterize information cocoons from the perspective of generative recommendation itself, we introduce Code-Space Structural Cocoon , a generative-specific model-level metric defined over generated code representations. Since generative recommenders represent items as multi-layer code sequences, cocoon formation may appear not only as repeated exposure to similar items or categories, but also as reduced diversity in the discrete code space used by the model. 
+
+Code-Space Structural Cocoon measures how concentrated the generated codes become as feedback cycles proceed, capturing whether the model’s generative space itself becomes narrower over time. Unlike standard exposure-level metrics, this metric describes information cocoon effects within the representation and generation space of generative recommenders. By integrating exposure-based metrics with our proposed code-space metric, we are able to examine both the visible effects of information cocoons and how they are reflected at the model level within generative recommendation. 
+
+Experiments and Key findings. We conduct a large-scale closed-loop simulation in which two generative recommenders and two traditional sequential baselines interact with LLM-driven user agents. The simulation runs on two Amazon product datasets, involving 5K agents on Office Products and 20K agents on Toys & Games, over 15 feedback cycles with periodic model retraining. Our analysis leads to four main findings: 
+
+• Generative recommenders are less prone to exposure-level cocoons. Under the same closed-loop feedback protocol, generative recommenders generally preserve broader individual exposure diversity and exhibit slower inter-user homogenization than traditional sequential baselines. 
+
+• Cocoon effects also appear in the generative code space. Beyond observable exposure out-comes, our code-space analysis shows that feedback loops can reduce diversity within generated code representations. This suggests that information cocoons in generative recommendation should be examined not only at the item or category level, but also at the model-representation level. 
+
+• Tokenization affects cocoon severity. Different item tokenization strategies lead to different cocoon dynamics. In our experiments, collaborative ID tokenization tends to produce stronger cocoon effects than semantic ID tokenization, suggesting that collaborative signals may carry popularity bias into the discrete code space. 
+
+• Model scale helps preserve diversity. Larger generative recommenders maintain a broader active code space during closed-loop simulation and are less likely to lose access to niche content, indicating that model capacity can buffer cocoon formation. Overall, this work provides a systematic analysis of information cocoons in generative recommenda-tion. By combining closed-loop simulation, exposure-level evaluation, and code-space analysis, we show that generative recommenders exhibit cocoon dynamics that differ from traditional sequential models and deserve dedicated attention beyond standard retrieval accuracy. 
+
+2 SIMULATION FRAMEWORK 
+
+Studying information cocoon formation requires a closed-loop environment in which user feedback is repeatedly absorbed by the recommender and further shapes subsequent exposure. Such feedback loops are difficult to capture through static offline evaluation, where recommenders are evaluated on fixed historical logs and the feedback induced by model-generated exposure is not returned to the system. The most direct way to study such dynamics is to deploy different recommenders        
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:5 Closed-loop
+> Simulation
+> Dual Memory System
+> Periodic
+> Reflection
+> Recommender
+> Model
+> Model
+> Retrain Item Candidates
+> Dataset
+> Update
+> Feedback
+> Collector Action Module
+> Behavioral History
+> Generate Actions
+> Long-term Memory Short-term Memory
+> Candidate
+> Generator
+> Recent Clicks
+> & Rationales Feedback
+> Complete
+> & Choices
+> User Preferences & Behavioral Patterns
+> Dynamic User Profile
+
+Fig. 2. Overview of the RecLoop closed-loop simulation framework. The framework couples a recommender module for candidate generation with an LLM-powered user agent module for simulating user behavior, establishing a closed feedback loop between recommendation exposure and simulated user feedback. 
+
+to real users and observe how their exposure and feedback evolve over multiple cycles. However, such a multi-cycle user study is difficult to conduct, reproduce, and control at scale, because the experimental algorithms themselves continuously reshape the information environment from which subsequent user feedback is collected. Motivated by recent studies [ 47 , 48 ] showing that LLM-powered agents can serve as effective user simulators, we construct RecLoop , a closed-loop simulation framework for tracing how recommendation exposure, simulated user feedback, and model updates interact over time. As shown in Figure 2, RecLoop consists of two coupled modules: a recommender module and an LLM-powered user agent module. For each user 𝑢 , the simulation starts from an initial interaction history S𝑢 0. The simulation then proceeds through multiple interaction cycles. At cycle 𝑡 , the recommender 𝑓 𝜃 𝑡 takes the accumulated history S𝑢 𝑡 as input and produces an exposure list of item candidates, E𝑢 𝑡 = 𝑓 𝑡 𝜃 (S 𝑢 𝑡 ). The user agent evaluates the exposed candidates according to its current profile and memory, and selects one item from E𝑢 𝑡 as feedback. The selected item is appended to the user history to form S𝑢 𝑡 +1. After feedback from all users is collected, the newly generated interactions are incorporated into the simulation dataset, and the recommender is retrained before the next cycle. Through this recurrent process, each recommendation is conditioned on all prior simulated decisions, enabling information cocoon effects to emerge and accumulate across cycles. The internal design of the user agent, including its dynamic profile, dual memory system, reflection mechanism, and action module, is introduced in the following subsection. 
+
+2.1 LLM-powered User Simulators for Sequential Recommendation 
+
+To simulate user behavior in the closed loop, we model each user with an LLM-powered simulator that selects items from the exposure lists generated across simulation cycles [ 36 , 47 ]. Each simulator is designed to preserve user-specific preferences while allowing the simulated behavior to evolve with newly received recommendations. As illustrated in Figure 2, the user agent consists of four components: (1) a dynamic user profile that represents the user’s preferences and behavioral patterns, (2) a dual memory system that maintains both recent choices and long-term interaction history, (3) a periodic reflection mechanism that distills accumulated experience into updated  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:6 Jiyuan Yang and Gengxin Sun et al.
+
+behavioral summaries, and (4) an interaction module that takes the profile, memory, and current exposure list as input and selects an item from the recommended candidates. 
+
+Dynamic User Profile. User preferences in sequential recommendation are generally non-stationary, as users may exhibit new interests and behavioral tendencies after repeated exposure and feedback cycles [ 25 ]. To capture both historical consistency and simulated preference evolution, each agent maintains a base profile and a stage-wise profile. For user 𝑢 , the base profile 𝑃 base  
+
+> 𝑢
+
+is constructed offline from the user’s pre-simulation historical interaction records by prompting an LLM to syn-thesize a first-person psychological profile covering core interests, behavioral tendencies, and purchasing motivations. This base profile provides the agent with an initial preference anchor derived from real user history. The stage-wise profile 𝑃 𝑡 𝑢 is initialized as 𝑃 0 
+
+> 𝑢
+
+= 𝑃 base  
+
+> 𝑢
+
+and updated every Δ cycles through reflection, which will be introduced later. Between reflection steps, 𝑃 𝑡 𝑢 
+
+remains fixed and is used for item selection. This design allows the agent to reflect simulated preference changes while retaining its historical preference base. An example of the generated user profile is shown in Figure 15. The prompts used to generate 𝑃 base  
+
+> 𝑢
+
+and update 𝑃 𝑡 𝑢 are provided in Appendix Figure 11 and Appendix Figure 12, respectively. 
+
+Dual Agent Memory. The user profile provides a compact summary of preferences, but it cannot preserve all interaction details needed for cycle-level decisions and long-term reflection. Therefore, each agent maintains a two-tier memory system that records simulated interactions at different temporal scales. Inspired by long- and short-term preference modeling in sequential recommenda-tion [ 9, 10 , 51 , 52 ], the memory system balances recency and completeness. The short-term memory 
+
+𝑀 𝑡 𝑢 is a sliding window over the most recent 𝑊 cycles in the interaction history S𝑢 𝑡 . It provides the interaction module with recent selections and rationales, helping the agent make decisions based on its current intent. The long-term memory is represented by the complete interaction history 
+
+S𝑢 𝑡 , which stores all simulated interactions up to cycle 𝑡 and provides the full behavioral trajectory for periodic reflection. 
+
+Periodic Reflection. The long-term memory H𝑡 𝑢 preserves the complete simulated interaction history. However, directly relying on detailed interaction records makes it difficult for the agent to maintain a concise and coherent preference profile over extended cycles. To convert accumulated experience into an updated profile, we introduce a periodic reflection mechanism inspired by reflective agents [15, 29, 33]. The reflection mechanism is triggered every Δ cycles. At each reflection step, the agent analyzes the complete interaction history H𝑢 𝑡 and produces a behavioral summary covering preference patterns, decision factors, and behavioral trends. The stage-wise profile 𝑃𝑢 𝑡 is then updated using this summary while retaining the base profile 𝑃 base  
+
+> 𝑢
+
+as the historical anchor. Updating the profile periodically rather than at every cycle reduces computational cost and makes the update less sensitive to individual outlier interactions. This design allows the agent to reflect preference changes accumulated during simulation while preserving the preference base derived from pre-simulation history. The reflection prompt template is provided in Appendix Figure 14. 
+
+Action. At each cycle 𝑡 , the agent selects one item from the exposure list E𝑢 𝑡 based on its current profile and memory context. This decision is implemented as a single LLM call that takes a structured prompt 𝜋 (𝑃𝑢 𝑡 , 𝑀 𝑡 𝑢 , E𝑢 𝑡 ) as input and returns a structured response: 
+
+(𝑖 𝑡 𝑢 , 𝑟 𝑡 𝑢 ) = LLM  𝜋 (𝑃 𝑡 𝑢 , 𝑀 𝑡 𝑢 , E𝑢 𝑡 ), (1) where 𝑖 𝑡 𝑢 ∈ E 𝑢 𝑡 denotes the selected item and 𝑟 denotes reason of the selection. The prompt 𝜋 is organized into four semantic layers: a context layer that provides 𝑃 𝑡 𝑢 as the system role, a memory layer that supplies recent selections from 𝑀 𝑡 𝑢 , a perception layer that presents the structured description of each candidate in E𝑢 𝑡 , and a constraint layer that enumerates the exact item IDs in  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:7
+
+E𝑢 𝑡 . The constraint layer restricts the LLM output to valid candidates and prevents the generation of plausible but non-existent item identifiers [ 47 ]. After selection, the item is appended to the interaction history S𝑢 𝑡 +1 = S𝑢 𝑡 ⊕ 𝑖 𝑡 𝑢 , providing newly generated interaction data for recommender retraining in the next cycle. The complete prompt template for 𝜋 is provided in Appendix Figure 13. 
+
+2.2 Recommender 
+
+Information cocoon formation is closely tied to the exposure patterns produced by recommender systems. To examine how different recommendation paradigms influence these patterns under feedback loops, RecLoop places the recommender in an iterative setting where model-generated exposure is repeatedly followed by simulated user feedback and model retraining. At each simulation cycle 𝑡 , the recommender takes the accumulated interaction history S𝑢 𝑡 of user 𝑢 as input, generates a ranked exposure list E𝑢 𝑡 , and passes it to the user agent for evaluation. To reflect how deployed recommenders evolve with user behavior, we retrain the model at the end of every cycle using the updated interaction sequences collected from all agents. This ensures that recommendations in later cycles are conditioned on the feedback produced within the simulation, rather than being generated by a fixed model trained only on the initial data. As a result, RecLoop allows us to observe how exposure patterns generated by different recommenders accumulate and evolve over repeated feedback cycles. 
+
+ID-based vs. Generative Recommender. We compare two sequential recommendation paradigms that differ in how items are represented and retrieved. ID-based sequential models [ 18 , 37 , 45 ]represent each item as an atomic identifier and predict the next item by scoring candidates in a fixed item set. Generative recommenders [ 12 , 19 , 31 , 42 , 43 ], in contrast, tokenize each item into multi-level discrete sematic codes, then identify target items by autoregressively generating code sequences and finally maps code sequences to item. This distinction changes the space in which exposure is produced: ID-based models concentrate exposure through item-level scoring, whereas generative models produce exposure through sequential decisions over a hierarchical code space. This structural difference is central to our study of information cocoons. Prior work has shown that ID-based recommenders can reinforce popularity and homogenize exposure through repeated feedback, as user representations and item popularity become increasingly aligned over retraining cycles [ 17 , 23 ]. However, it remains unclear whether generative recommenders follow the same cocoon dynamics, since their recommendations are not obtained by directly scoring all atomic item IDs. Instead, exposure may be shaped by token-level generation, coarse-to-fine code dependencies, and decoding procedures in the learned code space. RecLoop therefore evaluates both paradigms under the same closed-loop simulation protocol, allowing us to compare not only item-level exposure concentration but also how cocoon effects emerge within the generative code hierarchy. 
+
+3 MEASURING INFORMATION COCOON EFFECTS 
+
+To quantify information cocoon effects in closed-loop recommendation, we use two groups of metrics. The first group consists of exposure-level metrics, which measure cocoon effects from the item lists shown to users. These metrics capture whether recommendations become less diverse for individual users, more similar across users, or more concentrated on a small subset of items or categories. They provide a model-agnostic view of how the observable recommendation environment changes over simulation cycles. Beyond these observable exposure outcomes, we further introduce code-space metrics for gener-ative recommenders. Unlike ID-based models that directly score atomic items, generative recom-menders produce items by autoregressively generating multi-level codes. This makes it possible to  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:8 Jiyuan Yang and Gengxin Sun et al.
+
+examine cocoon formation inside the learned generative space rather than only at the final item level. Specifically, we track how generated codes are distributed across different code layers over time, which reveals where diversity is lost or preserved during the generative recommendation process. 
+
+3.1 Exposure Diversity 
+
+We define exposure as the candidate list E𝑡,𝑢 that the recommender presents to user 𝑢 at cycle 𝑡 ,and organize our metrics along a micro-to-macro progression: how broad each individual user’s exposure is ( intra-user diversity ), how similar recommendations become across users ( inter-user homogenization ), how broadly the system reaches the item and category space ( coverage ), and how evenly exposure is distributed among reached items ( exposure concentration ) [1, 2, 5, 6, 13, 34, 35]. 
+
+Intra-user Diversity. For a given user 𝑢 at simulation cycle 𝑡 , we quantify the breadth of their recommended content using category entropy. Category entropy at level 𝑙 captures distributional uniformity within a single cycle: 
+
+𝐸 𝑡,𝑙 = − 1
+
+|𝑈 |∑︁ 𝑢 ∈𝑈 ∑︁ 𝑐 ∈ C 𝑙 
+
+𝑝 𝑡,𝑢 (𝑐 ) log 𝑝 𝑡,𝑢 (𝑐 ), (2) where C𝑙 denotes the complete set of categories at hierarchy level 𝑙 , and 𝑝 𝑡,𝑢 (𝑐 ) is the fraction of items in E𝑡,𝑢 belonging to category 𝑐 at hierarchy level 𝑙 , and the outer average is taken over all users. Declining entropy over cycles indicates that per-cycle exposure is concentrating into fewer categories. 
+
+Inter-user Homogenization. Individual narrowing alone does not necessarily imply a system-level cocoon: different users may each narrow into distinct niches [ 1, 32 ]. A collective cocoon emerges when narrowing is accompanied by convergence, i.e., different users are increasingly exposed to the same items. We measure this effect using the average pairwise Jaccard similarity between users’ exposure lists: 
+
+¯𝐽 𝑡 = 1
+
+ | U | 
+
+> 2
+
+∑︁ 𝑢 <𝑣 
+
+|E 𝑡 𝑢 ∩ E 𝑡 𝑣 ||E 𝑡 𝑢 ∪ E 𝑡 𝑣 | . (3) A larger ¯𝐽 𝑡 indicates stronger inter-user homogenization, as different users receive more overlapping exposure. 
+
+System-level Coverage. Entropy and Jaccard similarity characterize diversity and overlap at the user-list level, but they do not reveal how broadly the recommender explores the full item catalog across all users [39]. Coverage measures this aggregate reach directly: 
+
+Cov 𝑡 =
+
+Ð𝑢 ∈ U E𝑡 𝑢 
+
+|I| , CatCov 𝑡 𝑙 =
+
+Ð𝑢 ∈ U C𝑡 𝑢,𝑙 
+
+|C 𝑙 | , (4) where E𝑡 𝑢 is the top-𝐾 exposure list generated for user 𝑢 at cycle 𝑡 before agent selection, I is the full item catalog, C𝑡 𝑢,𝑙 denotes the set of level-𝑙 categories covered by E𝑡 𝑢 , and C𝑙 is the full set of level-𝑙 categories. Higher Cov 𝑡 and CatCov 𝑡 𝑙 indicate broader system-level exploration of the item and category spaces, whereas lower values suggest that exposure is concentrated within a smaller portion of the catalog. 
+
+Exposure Concentration. Coverage measures how many items are reached at the system level, but it does not capture how unevenly exposure is distributed among those items. A recommender may cover many items while still allocating most exposure to a small subset. We measure this  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:9
+
+imbalance using the collective Gini coefficient [13]: 
+
+𝐺 𝑡  
+
+> coll
+
+=
+
+Í𝑖 ∈ I 
+
+Í𝑗 ∈ I 𝑠 𝑡 𝑖 − 𝑠 𝑡 𝑗 
+
+2|I| 2 ¯𝑠 𝑡 , (5) where 𝑠 𝑡 𝑖 = Í𝑢 ∈ U 1[𝑖 ∈ E 𝑡 𝑢 ] counts how many users are exposed to item 𝑖 at cycle 𝑡 , and ¯𝑠 𝑡 is the average exposure count over all items. A larger 𝐺 𝑡  
+
+> coll
+
+indicates stronger system-level exposure concentration, meaning that impressions are increasingly dominated by a smaller subset of items. All exposure-level metrics above are computed at each cycle to capture the instantaneous state of the recommendation environment. In Section 4, we analyze their trajectories over time to distinguish transient fluctuations from sustained cocooning trends. 
+
+3.2 Code-Space Structural Cocoon 
+
+Beyond exposure-level metrics, we introduce a code-space metric to characterize structural cocoon 
+
+effects in generative recommenders. Exposure-level metrics measure what users receive, but they treat the item space as flat and cannot reveal how concentration emerges inside the model’s learned generation space. This limitation is especially important for generative recommendation, where items are not directly selected as atomic IDs but generated through structured code sequences. Recent work on deep filter bubbles [ 35 ] studies hierarchical narrowing over externally defined item taxonomies, such as top-level, mid-level, and fine-grained categories. In contrast, our metric analyzes the learned code hierarchy used by generative recommenders themselves. For each item, a generative recommender assigns an 𝑚 -level discrete code sequence (𝑐 (0) , 𝑐 (1) , . . . , 𝑐 (𝑚 −1) ). Codes at earlier levels are often associated with coarser item distinctions, while later levels provide finer-grained refinements. Because this hierarchy is learned during item tokenization rather than imposed by external labels, it provides a model-internal view of how recommendation diversity is preserved or lost across generation levels. We refer to concentration in this learned code hierarchy as a structural cocoon .
+
+Definition 3.1 (Layer-wise Code Entropy). Generative recommenders select items through multi-layer code generation rather than direct item scoring. Therefore, two exposed items may be different at the item level but still share the same codes at certain generation layers. If many exposed items share only a small set of codes at layer 𝑛 , the recommender has already narrowed its generation space at that layer. To identify where such narrowing occurs, we measure the entropy of generated codes separately for each layer. For a generative recommender at simulation cycle 𝑡 , the code entropy at layer 𝑛 is 
+
+𝐻 𝑡,𝑛 = − 1
+
+|U| ∑︁ 𝑢 ∈ U ∑︁ 𝑐 ∈ V 𝑛 
+
+𝑝 𝑡,𝑢,𝑛 (𝑐 ) log 𝑝 𝑡,𝑢,𝑛 (𝑐 ), (6) 
+
+where V𝑛 is the code vocabulary at layer 𝑛 , and 𝑝 𝑡,𝑢,𝑛 (𝑐 ) is the empirical frequency of code 𝑐 at layer 
+
+𝑛 within the exposure list E𝑡 𝑢 . Specifically, for each item in E𝑡 𝑢 , we look up its layer-𝑛 code from the learned item codebook and compute the frequency distribution over V𝑛 . The outer average is taken over all users, so 𝐻 𝑡,𝑛 measures the average user-level diversity of generated codes at layer 𝑛 . The normalized variant ˆ𝐻 𝑡,𝑛 = 𝐻 𝑡,𝑛 /log |V 𝑛 | enables comparison across layers when code vocabulary sizes differ. 
+
+Definition 3.2 (Top-𝜅 Code Concentration). To complement the user-level entropy above, we also measure system-level concentration in the generated code space. Let 𝑝 𝑡,𝑛 (𝑐 ) denote the empirical frequency of code 𝑐 at layer 𝑛 over all exposure lists E𝑡 𝑢𝑢 ∈ U . The top-𝜅 concentration at layer 𝑛 is the  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:10 Jiyuan Yang and Gengxin Sun et al.
+
+cumulative probability mass of the 𝜅 most frequent codes: 
+
+Top -𝜅 𝑡,𝑛 = 
+
+> 𝜅 −1
+
+∑︁ 
+
+> 𝑘 =0
+
+𝑝 𝑡,𝑛 (𝑐 (𝑘 ) ), (7) 
+
+where 𝑐 (0) , 𝑐 (1) , . . . , 𝑐 (𝜅 −1) are codes ranked by descending probability under 𝑝 𝑡,𝑛 . Higher values indicate that a small number of codes dominate the system-level generation distribution at that layer. 
+
+All code-space metrics are computed on exposure lists before user selection, so they characterize the recommender’s generated exposure rather than the agent’s final feedback. Together, layer-wise code entropy and top-𝜅 code concentration capture complementary aspects of code-space narrowing: the former measures the average diversity of codes within each user’s exposure list, while the latter measures whether system-wide exposure mass is dominated by a small set of codes. Based on these two metrics, we use structural cocoon to describe a model-level narrowing phenom-enon in generative recommenders. A structural cocoon occurs when generated exposure becomes increasingly concentrated within the learned code hierarchy, especially when this concentration is unevenly distributed across layers. To summarize the degree of layer-wise narrowing, we report the relative entropy reduction: 
+
+𝛿 𝑛 = 𝐻 1,𝑛 − 𝐻 𝑇 ,𝑛 
+
+𝐻 1,𝑛 
+
+, 𝑛 = 0, 1, . . . , 𝑚 − 1, (8) where layer indices run from coarsest ( 0) to finest ( 𝑚 − 1). A larger 𝛿 𝑛 indicates a stronger reduction in average user-level code diversity at layer 𝑛 .The per-layer entropy reduction 𝛿 𝑛 shows how cocoon effects distribute across code granularities. For example, a profile such as (𝛿 0, 𝛿 1, 𝛿 2) = (0.54 , 0.19 , 0.13 ) indicates that the coarsest layer collapses most severely while the finer layers retain more diversity. The semantic categories captured by discrete codes need not align with the externally defined item taxonomy used in the exposure-level metrics, so the model’s code-level distribution may narrow while category-level exposure metrics remain stable, or vice versa. Tracking 𝛿 𝑛 therefore provides a model-level diagnostic for cocoon formation that is specific to generative recommendation architectures. 
+
+4 Results and Findings 
+
+We evaluate whether and how generative recommendation changes the formation of information cocoons under closed-loop feedback. The experiments are organized around four research questions that progress from observable exposure outcomes to the internal mechanisms and influencing factors of generative recommendation. 
+
+RQ1: Do generative recommenders deepen information cocoons under feedback loops? 
+
+We first compare generative recommenders with traditional sequential recommenders using expo-sure diversity, inter-user homogenization, coverage, and exposure concentration. 
+
+RQ2: Where does cocoon formation emerge in the generative code space? We then examine whether diversity loss is uniformly distributed across code layers or concentrated at specific levels of the hierarchical code sequence. 
+
+RQ3: How does item tokenization affect cocoon formation? Because generative recom-menders rely on discrete item codes, we further ask whether Semantic IDs and Collaborative IDs induce different cocoon dynamics when the quantization architecture is held fixed. 
+
+RQ4: Can model scale buffer structural cocoon formation? Finally, we analyze whether increasing model capacity preserves broader active code usage under repeated feedback, mitigating the collapse of semantic regions.                 
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:11
+> Table 1. Dataset statistics after preprocessing. Avg. Len. is the average number of interactions per user. Categories is the number of item categories at each hierarchy level (L1/L2/L3/L4).
+> Dataset #Users #Items #Interactions Avg. Len. #Categories Office Products 4,905 2,420 53,258 10.86 (5/11/44/152) Toys & Games 19,412 11,924 167,597 8.63 (11/41/191)
+
+Together, these questions correspond to the main findings of this section: generative recom-menders slow down category-level diversity loss and inter-user exposure homogenization compared with traditional sequential recommenders; cocoon effects concentrate unevenly in the generative code hierarchy; tokenization signals modulate cocoon severity; and larger models preserve broader code-space diversity. 
+
+4.1 Simulation Setup 
+
+4.1.1 Datasets. We conduct experiments on two Amazon product review datasets 1 [27 ]: Office Products and Toys and Games . We select these two domains because each item carries a multi-level category hierarchy (up to four levels) shown in Figure 16, which directly enables our diversity analysis across semantic granularities. We follow the standard 5-core preprocessing protocol [ 31 ], retaining users and items with at least five interactions, and order each user’s interactions chrono-logically. Dataset statistics after preprocessing are summarized in Table 1. 
+
+4.1.2 Models. We compare four representative recommendation models spanning two paradigms. 
+
+Traditional sequential models. SASRec [18 ] and Mamba4Rec [ 24 ] encode items as continuous embeddings and rank candidates via inner-product scoring. 
+
+Generative models. TIGER [31 ] tokenizes items into semantic IDs via RQ-VAE and generates item codes autoregressively with a Transformer backbone. OneRec [ 12 ] is a large-language-model-based generative recommender. We use the 0.5B, 1.5B, and 3B parameter scales to analyze the effect of model capacity. We use the MiniOneRec [ 19 ] codebase with supervised fine-tuning only (no reinforcement learning), so that the training objective remains comparable to the cross-entropy supervision used by the sequential baselines and any observed diversity differences can be attributed to architecture rather than training procedure. 
+
+4.1.3 Simulation Protocol. All models are evaluated under the closed-loop simulation framework described in Section 2. Each simulation runs for 𝑇 = 15 cycles over the complete user set of each dataset. Each user is initialized with an interaction history of maximum length 50, drawn from the user’s earliest historical records, so that the simulated trajectory continues from a realistic starting point rather than from a cold start. At each cycle, the recommender generates a top-𝐾 candidate list with 𝐾 = 5 for each user, the LLM-based agent (Qwen3-8B with temperature = 0) returns deterministic feedback, and the model is retrained on the updated interaction history. The agent’s short-term memory window is set to 𝑊 = 5 cycles, and the reflection mechanism is triggered every Δ = 5 cycles. All models share the same user set, initial interaction histories, and simulation parameters to ensure controlled comparison. 
+
+> 1https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026.
+
+1:12 Jiyuan Yang and Gengxin Sun et al. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+
+> Simulation Cycle
+> 0
+> 20
+> 40
+> 60
+> 80
+> 100
+> 120
+> 140
+> Relative Entropy (%)
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+
+(a) Office, Level 2 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  
+
+> Simulation Cycle
+> 50
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Relative Entropy (%)
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+
+(b) Office, Level 3 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  
+
+> Simulation Cycle
+> 40
+> 50
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Relative Entropy (%)
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+
+(c) Office, Level 4 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  
+
+> Simulation Cycle
+> 50
+> 60
+> 70
+> 80
+> 90
+> 100
+> Relative Entropy (%)  SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+
+(d) Toys, Level 2 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  
+
+> Simulation Cycle
+> 60
+> 70
+> 80
+> 90
+> 100
+> Relative Entropy (%)  SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+
+(e) Toys, Level 3 Fig. 3. Category entropy normalized to Cycle 1 across 15 simulation cycles for Office Products (Levels 2–4) and Toys and Games (Levels 2–3). Across panels, SASRec and Mamba4Rec show steep early entropy loss, TIGER declines more unevenly with occasional spikes, and OneRec also trends downward but with more oscillatory mid-cycle rebounds. 
+
+4.1.4 Implementation Details. All experiments are conducted on NVIDIA A800 80GB. Recom-mender model retraining at each cycle adopts the hyperparameters reported in the original imple-mentations of each backbone. The user agent is implemented with Qwen3-8B 2 served locally via vLLM. Code will be released upon publication. 
+
+4.2 RQ1: Do Generative Recommenders Deepen Information Cocoons? 
+
+Finding 1. Closed-loop feedback induces information cocoons across all models, but generative recommenders generally show weaker category-level narrowing and cross-user convergence than traditional sequential recommenders. The key difference is that generative recommenders decode over hierarchical item codes, while traditional models retrieve items through atomic embedding-based matching. 
+
+Experimental setup. This research question compares two recommendation paradigms under the same closed-loop simulation protocol. Traditional sequential recommenders, represented by SASRec and Mamba4Rec, encode user histories into continuous representations and rank candidate items through embedding-based matching over atomic item IDs. Generative recommenders, represented by TIGER and OneRec, replace atomic item scoring with autoregressive generation over discrete item codes, where each item is represented as a multi-layer code sequence. We use two representative models from each paradigm to analyze paradigm-level cocoon dynamics rather than to benchmark recommendation accuracy. This design allows us to examine whether closed-loop cocoon dynamics differ between atomic item matching and hierarchical code generation. We evaluate this question using four complementary exposure-level metrics is described in Section 3.1. Category entropy measures whether each user’s accessible information range becomes semantically narrower. Inter-user Jaccard similarity measures whether different users are pushed toward increasingly similar exposure lists. Coverage measures how much of the item and category space remains reachable during simulation. The Gini coefficient measures whether exposure traffic concentrates on a small number of head items. Together, these metrics distinguish two aspects of cocoon formation: semantic diversity collapse , where exposure becomes category-wise narrower, and head-item concentration , where recommendation mass accumulates on a small subset of items. 
+
+Category entropy: generative models slow down semantic narrowing. Figure 3 shows that repeated feedback reduces category entropy in most model–dataset–granularity combinations. This confirms that closed-loop recommendation generally narrows the semantic range of user 
+
+> 2
+
+https://huggingface.co/Qwen/Qwen3-8B ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:13 2 4 6 8 10 12 14 
+
+> Simulation Cycle
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> 0.25
+> Average Jaccard Similarity  0.223
+> 0.138
+> 0.108
+> 0.064
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+
+(a) Office Products 2 4 6 8 10 12 14  
+
+> Simulation Cycle
+> 0.00
+> 0.02
+> 0.04
+> 0.06
+> 0.08
+> 0.10
+> 0.12
+> Average Jaccard Similarity
+> 0.050
+> 0.037
+> 0.014
+> 0.057
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+
+(b) Toys and Games Fig. 4. Average pairwise Jaccard similarity across 15 simulation cycles on Office Products (left) and Toys and Games (right). Each line shows one model, where higher values indicate greater homogenization across users, with final-cycle values annotated on the right. 
+
+exposure over time. However, the rate and stability of entropy loss differ substantially across paradigms. SASRec and Mamba4Rec show the sharpest early drops, indicating that embedding-based matching quickly concentrates exposure around a smaller set of categories once user feedback is repeatedly folded back into training. TIGER declines more unevenly, with short-term spikes in several panels, suggesting that code generation does not collapse exposure as smoothly as direct item matching. OneRec shows even stronger oscillatory behavior; on Toys and Games Level 3, its normalized entropy stays above the Cycle 1 baseline throughout all 15 cycles, ranging from 1.49 to 1.57. Except for this case, the trajectories end below their Cycle 1 entropy, showing that generative recommendation does not remove semantic narrowing. Instead, it slows and destabilizes the collapse process by decoding over a shared discrete code space rather than directly retrieving nearest items from an atomic embedding space. 
+
+Inter-user homogenization: generative models reduce cross-user convergence. Figure 4 reports the average pairwise Jaccard similarity between users’ exposure lists. On Office Products, the homogenization pattern is consistent with the entropy results. By Cycle 15, SASRec reaches a Jaccard similarity of 0.223, Mamba4Rec reaches 0.138, TIGER reaches 0.108, and OneRec remains lowest at 0.064. This ranking shows that traditional sequential models push different users toward increasingly similar recommendation lists, whereas generative models better preserve user-level differentiation. A plausible mechanism is that embedding-based models repeatedly strengthen the same high-scoring item regions, causing multiple users to converge on overlapping head items. In contrast, generative models route users through hierarchical code sequences, so different users may still arrive at distinct item groups even when their feedback histories become more concentrated. On Toys and Games, the trend is less monotonic. OneRec starts with a relatively high initial Jaccard similarity around 0.048, spikes to 0.103 at Cycle 4, and then partially recovers to 0.057 by Cycle 15. This temporary spike suggests that early feedback can still concentrate a large user population into overlapping code regions. However, the subsequent recovery indicates that the generative code space may redistribute exposure after the initial reinforcement phase. TIGER ends with the lowest homogenization on this dataset at 0.014, while SASRec and Mamba4Rec end at 0.050 and 0.037, respectively. Thus, generative recommenders are not uniformly better at every cycle, but they are less likely to produce steadily increasing cross-user convergence. 
+
+ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:14 Jiyuan Yang and Gengxin Sun et al. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+
+> Simulation Cycle
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+> Item Coverage
+> 0.504
+> 0.075
+> 0.694
+> 0.145
+> 0.338
+> 0.110
+> 0.318
+> 0.175
+
+(a) Office Products, Item 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  
+
+> Simulation Cycle
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+> Level 2 Coverage
+> 0.667
+> 0.222
+> 0.778
+> 0.333
+> 0.444
+> 0.222
+> 0.556
+> 0.333
+
+(b) Office Products, Level 2 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15   
+
+> Simulation Cycle
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+> Level 3 Coverage
+> 0.854
+> 0.390
+> 0.927
+> 0.585
+> 0.634
+> 0.463
+> 0.756 0.683
+
+(c) Office Products, Level 3 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  
+
+> Simulation Cycle
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+> Level 4 Coverage
+> 0.806
+> 0.239
+> 0.916
+> 0.387
+> 0.594
+> 0.252
+> 0.645
+> 0.497
+
+(d) Office Products, Level 4 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  
+
+> Simulation Cycle
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+> Item Coverage
+> 0.729
+> 0.128
+> 0.789
+> 0.101
+> 0.264
+> 0.148
+> 0.037 0.060
+
+(e) Toys & Games, Item 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15    
+
+> Simulation Cycle
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+> Level 2 Coverage
+> 1.000
+> 0.826
+> 0.957
+> 0.783
+> 0.783 0.783
+> 0.783 0.826
+
+(f) Toys & Games, Level 2 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  
+
+> Simulation Cycle
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+> Level 3 Coverage
+> 0.982
+> 0.515
+> 0.994
+> 0.474
+> 0.743
+> 0.497
+> 0.474
+> 0.596
+
+(g) Toys & Games, Level 3 Fig. 5. Item coverage and category coverage at three hierarchy levels across 15 simulation cycles. The top row presents Office Products (a–d); the bottom row presents Toys and Games (e–g). Each panel shows ridgeline trajectories for all four models from Cycle 1 to Cycle 15, with the start and end values annotated. 
+
+Coverage: generative models preserve category reachability more consistently than item reachability. Figure 5 further examines whether the narrowing observed in entropy and Jaccard also reduces the reachable item and category space. On Office Products, the four models separate clearly. SASRec contracts fastest at every level, Mamba4Rec starts from broader exposure but reaches similarly narrow coverage by the middle cycles, TIGER slows the contraction, and OneRec retains the highest item coverage and Level-3/4 category coverage through the final cycles. This indicates that the generative models keep a broader portion of the semantic space reachable under repeated feedback, especially at finer category granularities. On Toys and Games, the coverage result is more dataset-dependent. Level 2 coverage remains nearly flat for all models, suggesting that the top-level taxonomy is broad enough that even concentrated recommendation lists still span most coarse categories. The paradigm difference becomes more visible at finer levels. OneRec has lower absolute item coverage than the other models, which may appear inconsistent with its stronger entropy behavior. The two observations capture different aspects of exposure. A model can recommend from a narrower item set while still covering semantically diverse fine-grained categories; conversely, a model can expose more distinct items while concentrating them within fewer semantic regions. Thus, coverage supports the same overall conclusion as entropy: generative recommendation is not always broader at the item level, but it tends to better preserve category-level diversity. 
+
+Exposure concentration: closed-loop feedback still reinforces head items. Figure 6 shows the Gini coefficient of item exposure across 15 simulation cycles. Unlike entropy and Jaccard, which show clearer paradigm-level differences, the Gini coefficient increases generally across both datasets and all four models. This universal increase indicates that closed-loop feedback systematically 
+
+ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:15 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+
+> Simulation Cycle
+> 0.700
+> 0.750
+> 0.800
+> 0.850
+> 0.900
+> 0.950
+> 1.000
+> Gini Coefficient
+> 0.983
+> 0.984
+> 0.967
+> 0.991
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+
+(a) Toys and Games 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  
+
+> Simulation Cycle
+> 0.825
+> 0.850
+> 0.875
+> 0.900
+> 0.925
+> 0.950
+> 0.975
+> 1.000
+> Gini Coefficient
+> 0.993
+> 0.982
+> 0.981
+> 0.966
+> SASRec
+> Mamba4Rec
+> TIGER
+> OneRec
+
+(b) Office Products Fig. 6. Gini coefficient of item exposure over 15 closed-loop simulation cycles on Toys and Games (left) and Office Products (right). All four models exhibit a generally increasing Gini, indicating progressive concentration of recommendations on a small set of popular items under closed-loop feedback. 
+
+concentrates recommendation traffic on a smaller set of head items, regardless of whether the model uses embedding-based matching or generative code decoding. The strength of this concentration varies by dataset and model. On Toys and Games, TIGER starts from a highly concentrated distribution, increasing from 0.933 to 0.970, while SASRec shows the steepest absolute rise, from 0.598 to 0.907. Mamba4Rec increases from 0.569 to 0.760 and remains the least concentrated at Cycle 15, whereas OneRec changes more mildly from 0.903 to 0.916. On Office Products, all models converge to a narrow high-concentration band by Cycle 15, ranging from 0.966 to 0.993, with OneRec ending lowest and SASRec ending highest. These results show that generative recommenders can slow semantic narrowing and inter-user convergence, but they do not fully prevent exposure mass from accumulating on popular items. Overall, RQ1 shows that generative recommendation does not eliminate information cocoons un-der closed-loop feedback. Instead, it mitigates two major symptoms of cocoon formation: category-level diversity loss and inter-user exposure homogenization. Traditional sequential models tend to collapse through direct reinforcement in an atomic item-embedding space, while generative models preserve more semantic variation through hierarchical code decoding. At the same time, the increasing Gini coefficient across all models shows that closed-loop feedback still amplifies head-item concentration. This motivates the next question: if generative recommenders resist aggregate diversity collapse more effectively, where does cocoon formation appear inside their generated code space? 
+
+4.3 RQ2: Where Does Cocoon Formation Emerge in the Generative Code Space? 
+
+Finding 2. Generative recommenders exhibit a structural cocoon in code space: diversity loss is concentrated in the coarse code layers rather than uniformly distributed across the generated code sequence. This pattern arises because autoregressive decoding makes early tokens act as routing decisions over broad semantic regions, while later tokens still preserve finer-grained variation within the selected branches. 
+
+Experimental setup. This research question examines how cocoon formation emerges within the hierarchical code space of generative recommendation. Since TIGER and OneRec represent items 
+
+ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:16 Jiyuan Yang and Gengxin Sun et al. 2 4 6 8 10 12 14 
+
+> Cycle
+> 60
+> 50
+> 40
+> 30
+> 20
+> 10
+> 0
+> Entropy change vs cycle 1 (%)
+> TIGER
+> OneRec-0.5B
+
+(a) Layer 0 (coarsest) 2 4 6 8 10 12 14  
+
+> Cycle
+> 40
+> 35
+> 30
+> 25
+> 20
+> 15
+> 10
+> 5
+> 0
+> Entropy change vs cycle 1 (%)
+> TIGER
+> OneRec-0.5B
+
+(b) Layer 1 2 4 6 8 10 12 14  
+
+> Cycle
+> 17.5
+> 15.0
+> 12.5
+> 10.0
+> 7.5
+> 5.0
+> 2.5
+> 0.0
+> Entropy change vs cycle 1 (%)
+> TIGER
+> OneRec-0.5B
+
+(c) Layer 2 (finest) Fig. 7. Layer-wise code entropy across simulation cycles for TIGER and OneRec on the Office Products dataset. Each subfigure reports the relative entropy change (%) at one code layer. Finer-grained layers undergo less entropy reduction across simulation cycles compared to coarser layers, revealing a structural cocoon formation. 
+
+using multi-layer discrete codes, we can track diversity dynamics at different levels of the code hierarchy. We therefore measure layer-wise code entropy across simulation cycles and analyze how the relative entropy reduction 𝛿 𝑘 varies across code layers, following the structural cocoon framework introduced in Section 3.2. 
+
+Layer-wise entropy dynamics. Figure 7 shows that cocoon severity is unevenly distributed across the generated code hierarchy. For TIGER on Office Products, entropy reduction from Cycle 1 to Cycle 15 reaches 53.6% at Layer 0, 40.4% at Layer 1, and only 13.4% at Layer 2. OneRec shows a milder but similar pattern, with entropy reduction of 18.4% at Layer 0, 18.9% at Layer 1, and 13.4% at Layer 2. Across both models, the finest layer remains more stable than the coarse layers, indicating that diversity loss does not occur uniformly over the entire code sequence. Instead, the feedback loop first narrows the set of coarse code regions before substantially reducing fine-grained variation. 
+
+Structural cocoon pattern. This layer-wise asymmetry reveals a structural form of cocoon formation that is specific to generative recommendation. In autoregressive code generation, the early code layers determine broad routing decisions: once a coarse code is selected, subsequent tokens are generated within a more restricted branch of the code hierarchy. As feedback cycles repeat, user exposure can become concentrated around a smaller set of coarse code regions, even while the model continues to generate diverse fine-layer codes inside those regions. Thus, the model does not simply collapse to a few individual items; rather, it funnels users into narrower semantic regions while preserving local diversity within those regions. This explains why generative recommenders can slow aggregate exposure collapse in RQ1 while still forming a cocoon internally in code space. Traditional sequential models do not expose an analogous layer-wise code sequence, so this structural pattern cannot be directly measured for them. Their cocoon effect is observed mainly through exposure-level metrics such as category entropy, Jaccard similarity, coverage, and Gini concentration. By contrast, generative recommenders allow us to locate the cocoon formation process inside the model’s discrete generation space. 
+
+First-token concentration. To further quantify the coarse-level bottleneck, we examine the entropy and top-𝑘 concentration of the first generated token, i.e., the Layer 0 code. This token is important because it acts as the first routing decision in the generated code sequence. For 
+
+ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:17 2 4 6 8 10 12 14 
+
+> Cycle
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> Number of Generated Code Prefixes
+> Layer 0 (SID)
+> Layer 1 (SID)
+> Layer 2 (SID)
+> Layer 0 (CID)
+> Layer 1 (CID)
+> Layer 2 (CID)
+
+(a) TIGER on Office Products 2 4 6 8 10 12 14  
+
+> Cycle
+> 4.0
+> 4.5
+> 5.0
+> 5.5
+> 6.0
+> 6.5
+> 7.0
+> 7.5
+> Number of Generated Code Prefixes
+> Layer 0 (SID)
+> Layer 1 (SID)
+> Layer 2 (SID)
+> Layer 0 (CID)
+> Layer 1 (CID)
+> Layer 2 (CID)
+
+(b) OneRec on Office Products Fig. 8. Number of unique generated code prefixes per layer across 15 simulation cycles under SID (solid) and CID (dashed) tokenization for TIGER (left) and OneRec (right) on the Office Products dataset. A lower value indicates narrower code diversity. 
+
+TIGER on Office Products, normalized first-token entropy drops from 0.895 at Cycle 1 to 0.451 at Cycle 15, corresponding to a 49.6% relative decrease. Meanwhile, the cumulative probability mass of the top-10 Layer 0 codes rises from 27.0% to 86.6%. By Cycle 15, most recommendations are therefore routed through only a small number of coarse semantic clusters. OneRec exhibits weaker first-token concentration: on Toys and Games, its normalized first-token entropy remains 0.844 at Cycle 15, down from 0.957 at Cycle 1, and its top-10 concentration reaches 43.3%. Its non-monotonic entropy trajectory suggests that OneRec continues to revisit underexplored code regions rather than collapsing steadily into a fixed set of coarse codes. Overall, RQ2 shows that generative recommenders form information cocoons through a hierar-chical mechanism. The dominant loss of diversity occurs at the coarse routing layers, while the fine layers retain more local variation. This structural cocoon explains why generative models can appear more diverse at the exposure level while still narrowing the semantic regions from which recommendations are generated. 
+
+4.4 RQ3: How Does Item Tokenization Affect Cocoon Formation? 
+
+Finding 3. Item tokenization changes the severity and location of cocoon formation in the generative code space. On Office Products, Collaborative IDs amplify code-space collapse compared with Semantic IDs, especially by weakening the fine-layer diversity buffer in TIGER. This effect is dataset-dependent: SID is not always safer than CID, and CID is not always more cocoon-prone. 
+
+Experimental setup. This research question examines whether the structural cocoon observed in RQ2 is caused only by autoregressive code generation, or also by the signal used to construct item codes. We compare two tokenization strategies: Semantic IDs (SID), where RQ-VAE is trained on text embeddings derived from item titles and descriptions, and Collaborative IDs (CID), where RQ-VAE is trained on item embeddings learned by a pre-trained SASRec model. Both strategies use the same RQ-VAE architecture, code depth, codebook size, and training hyperparameters; only the input representation differs. This controlled comparison allows us to isolate how semantic and collaborative signals affect closed-loop cocoon dynamics. 
+
+ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:18 Jiyuan Yang and Gengxin Sun et al. 
+
+Collaborative signals can amplify code-space collapse. Figure 8 compares the number of unique generated code prefixes under SID and CID tokenization on Office Products. For TIGER, the two tokenization strategies diverge most clearly at the finest layer. The CID curve declines to substantially fewer unique Layer 2 code prefixes by the final cycles, while the SID curve remains comparatively stable. This pattern is important because RQ2 shows that the finest layer is normally the most stable part of the generative code hierarchy. Under CID, however, this fine-grained buffer is weakened: the feedback loop not only narrows coarse routing regions, but also reduces diversity within the fine-layer code space. For OneRec, SID and CID produce more similar trajectories. Across the three layers, the two curves track each other closely, and their Layer 2 prefixes reach nearly the same endpoint. This suggests that the effect of tokenization also depends on the generative architecture. TIGER is more sensitive to whether item codes are initialized from semantic or collaborative representations, whereas OneRec preserves fine-layer code diversity more robustly under the two tokenization signals. 
+
+Popularity-bias inheritance. One reason is that CID inherits popularity and co-occurrence signals from interaction data. SID embeddings are derived from item text, so they mainly organize items by semantic similarity. CID embeddings, by contrast, are learned from user-item interactions, where popular or frequently co-purchased items tend to be closer in the embedding space. After RQ-VAE quantization, these items may be assigned to nearby code regions, giving the feedback loop a more concentrated starting point to reinforce. This explains why CID can weaken the fine-layer diversity buffer observed under SID, especially for TIGER on Office Products. 
+
+Dataset-dependent reversal. The effect of CID is not universal. On Toys and Games, OneRec under CID shows lower entropy reduction than under SID at the finer layers. One reason is that tokenization effects depend on the dataset taxonomy. Compared with Office Products, Toys and Games has a shallower category hierarchy, so collaborative clustering may not lead to stronger category-level collapse. In this setting, SID codes derived from item text may group semantically similar products into nearby code regions, which can concentrate recommendations around a user’s preferred niche. Thus, SID is not always safer than CID, and CID is not always more cocoon-prone; the effect depends on the input signal, dataset structure, and model architecture. Overall, RQ3 shows that item tokenization is an active factor in cocoon formation rather than a neutral preprocessing step. Collaborative signals can amplify structural cocoons by importing popularity-biased clustering into the code space, but this effect is mediated by dataset structure and model robustness. This finding complements RQ2: the code hierarchy determines where cocoon formation can emerge, while tokenization shapes how severely each part of the hierarchy collapses. 
+
+4.5 RQ4: Can Model Scale Buffer Structural Cocoon Formation? 
+
+Finding 4. Larger generative models better preserve code-space diversity under closed-loop feedback. On Toys and Games, the 3B OneRec model maintains higher layer-wise entropy and a larger active codebook than the 0.5B and 1.5B variants. This suggests that model scale can buffer structural cocoon formation by keeping more semantic code regions reachable during repeated feedback cycles. 
+
+Experimental setup. This research question examines whether structural cocoon formation is affected by model capacity. We compare OneRec at three parameter scales: 0.5B, 1.5B, and 3B. All variants use the same simulation protocol and the same item code space, so the comparison focuses on how model scale affects code entropy and active code usage under repeated feedback. 
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026.
+
+Do Generative Recommenders Deepen the Information Cocoon? 1:19 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15                                                                                                                                                                    
+
+> Simulation Cycle
+> 4.5
+> 5.0
+> 5.5
+> 6.0
+> 6.5
+> 7.0
+> 7.5
+> Entropy
+> 5.303
+> 5.485
+> 6.672
+> Layer 0
+> 12345678910 11 12 13 14 15
+> Simulation Cycle
+> 4.0
+> 5.0
+> 6.0
+> 7.0
+> 8.0
+> 5.238
+> 5.931
+> 7.218
+> Layer 1
+> 12345678910 11 12 13 14 15
+> Simulation Cycle
+> 4.0
+> 5.0
+> 6.0
+> 7.0
+> 8.0
+> 4.873
+> 5.943
+> 7.119
+> Layer 2
+> 1357911 13 15
+> Simulation Cycle
+> OneRec-0.5B
+> OneRec-1.5B
+> OneRec-3B
+> Active Code Space  103
+> 100 100 98 83 55 64 65 61 55 57 69 51 55 63
+> 99 97 102 99 76 42 89 69 55 71 68 69 71 60 67
+> 134 141 129 130 128 120 137 104 127 131 121 111
+> 100 97
+> 129
+> 1357911 13 15
+> Simulation Cycle
+> OneRec-0.5B
+> OneRec-1.5B
+> OneRec-3B
+> 254 256 256 256 248 196 179 142 149
+> 97
+> 107 147
+> 57
+> 132 119
+> 256 256 256 255 247 202 224 208 191 235 136 190 221 166 178
+> 239 242 241 240 240 239 244 231 241 243 232 236 226 214 241
+> 1357911 13 15
+> Simulation Cycle
+> OneRec-0.5B
+> OneRec-1.5B
+> OneRec-3B
+> 255 256 256 254 243 161 172 106
+> 90 51 45
+> 110
+> 26 93 70
+> 256 256 256 256 251 215 228 204 175 242
+> 87
+> 185 236 114 169
+> 225 231 232 231 229 225 225 216 228 227 224 225 222 218 233
+
+OneRec-0.5B OneRec-1.5B OneRec-3B 
+
+Fig. 9. Code layer entropy (top) and active code count per cycle (bottom) for OneRec at 0.5B, 1.5B, and 3B scales on Toys and Games, across three code layers. Numbers in the bubble plot are active code counts at each cycle. 
+
+We evaluate this question on Toys and Games, where the larger item space makes code-space compression easier to observe. 
+
+Larger models retain higher code entropy. Figure 9 shows the layer-wise entropy and active code usage of OneRec across 15 simulation cycles. The 3B model consistently maintains the highest entropy at all three code layers. At Cycle 15, its entropy reaches 6.672, 7.218, and 7.119 from Layer 0 to Layer 2. By contrast, the 1.5B model ends at 5.485, 5.931, and 5.943, while the 0.5B model ends at 5.303, 5.238, and 4.873. This indicates that the largest model preserves more uncertainty and diversity in its generated code distribution throughout the hierarchy. The active code counts show the same pattern. At Cycle 15, the 3B model uses 129, 241, and 233 active codes across the three layers. The 0.5B model retains only 63, 119, and 70 active codes. Thus, smaller models do not merely assign higher probability to a few popular codes; they also stop using a large portion of the code vocabulary. This code inventory shrinkage is especially severe at Layer 2, where the 3B model still uses 233 codes while the 0.5B model uses only 70. Since fine-layer codes carry more local semantic variation, this loss directly weakens the fine-grained diversity buffer identified in RQ2. 
+
+Larger models keep the long tail of codes reachable. Figure 10 compares the final-cycle code rank-frequency distributions. The 0.5B and 1.5B models show sharper drops after the top-ranked codes, meaning that most low-frequency codes become effectively inactive. The 3B model declines more gradually and continues to access codes through a much larger portion of the 256-slot vocabulary. This difference is also reflected in the active code sets: the 3B model uses roughly twice as many Layer 0 codes as the 0.5B model, 129 versus 63, and more than three times as many Layer 2 codes, 233 versus 70. One reason is that larger models have stronger representational capacity to maintain multiple code paths even when the training signal becomes concentrated through feedback. Smaller models may compress repeated feedback into a narrower set of high-probability codes, which makes 
+
+ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:20 Jiyuan Yang and Gengxin Sun et al. 1 64 128 192 256                      
+
+> Code Rank By Popularity
+> 10 2
+> 10 1
+> Normalized Frequency
+> Layer 0
+> Full: 256
+> 3B: 129
+> 1.5B: 67 0.5B: 63
+> 164 128 192 256
+> Code Rank By Popularity
+> 10 4
+> 10 3
+> 10 2
+> 10 1
+> Layer 1
+> Full: 256
+> 3B: 241
+> 1.5B: 178
+> 0.5B: 119
+> 164 128 192 256
+> Code Rank By Popularity
+> 10 5
+> 10 4
+> 10 3
+> 10 2
+> 10 1
+> Layer 2
+> Full: 256
+> 3B: 233
+> 1.5B: 169
+> 0.5B: 70
+> OneRec-0.5B OneRec-1.5B OneRec-3B
+
+Fig. 10. Code rank-frequency distribution at cycle 15 for each model scale on Toys and Games (log scale). Inset Venn diagrams show the active codebook size out of 256 total codes. 
+
+long-tail code regions increasingly difficult to reach. Larger models, in contrast, can preserve a broader mapping between user histories and code sequences, so the feedback loop does not collapse generation as quickly into a small active vocabulary. Overall, RQ4 shows that model scale can buffer, but not necessarily eliminate, structural cocoon formation. Larger generative models preserve higher entropy, broader active code usage, and a longer code tail under repeated feedback. This finding complements RQ2 and RQ3: the code hierarchy determines where cocoon formation appears, tokenization affects how strongly it appears, and model scale controls how much of the code space remains active over time. 
+
+5 DISCUSSION 5.1 Why Generative Recommenders Resist Cocoon Collapse? 
+
+Our experiments show that generative recommenders do not eliminate information cocoons, but they slow down two major symptoms of cocoon formation: category-level diversity loss and inter-user exposure homogenization. This resistance can be understood from two coupled mechanisms: how items are represented in a hierarchical code space, and how recommendations are generated through autoregressive decoding. Because these mechanisms are intrinsic to current RQ-VAE-based generative recommenders, we treat them as explanations consistent with our observations rather than independently isolated causal factors. 
+
+Hierarchical code structure. The multi-layer hierarchy distributes feedback-loop compression unevenly across code levels. The coarse layers make broad routing decisions, while the fine layers preserve local variation within selected branches. As shown by the layer-wise entropy analysis, diversity loss is strongest at the coarse code layers but much weaker at the fine-grained layers. This creates a structural buffer: users may be funneled into fewer broad semantic regions, but the model can generate diverse fine-level codes within those regions. Traditional sequential models do not expose such a hierarchical code sequence. They rank atomic item IDs in a continuous embedding space, so cocoon formation can only be observed at the exposure level rather than decomposed into coarse-to-fine structural changes. 
+
+Autoregressive code generation. Generative recommenders produce an item by decoding its code sequence step by step rather than by directly matching a user representation to every candidate item. This changes how feedback concentration affects recommendation. In traditional sequential models, repeated feedback can directly increase the scores of nearby item embeddings, making the same high-scoring items more likely to reappear. In generative recommenders, feedback first 
+
+ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:21 
+
+affects the probability of code tokens and code paths. Even if the early tokens become concentrated, later decoding steps can select different fine-grained tokens within the chosen branch, which helps preserve local diversity. This also explains the structural cocoon observed in RQ2: autoregressive decoding slows complete item-level collapse, but it can create a bottleneck at the first generated tokens, routing many users through fewer coarse semantic branches. 
+
+5.2 Design Considerations for Generative Recommendation 
+
+These findings suggest two considerations for designing diversity-aware generative recommenders. 
+
+Balance accuracy gains and cocoon risks in tokenization. Recent generative recommenders improve accuracy by injecting collaborative signals into semantic item tokenization. Our results suggest that this design choice should be evaluated from the perspective of information cocoons. Collaborative signals can encode popularity and co-occurrence patterns into the code structure. This may help next-item prediction, but it may give the feedback loop a more concentrated code space to reinforce. Therefore, item tokenization should not be optimized only for recommendation accuracy. It should also be evaluated with exposure diversity, exposure concentration, and layer-wise code entropy. 
+
+Scale up generative models for stronger cocoon resistance. Our scale analysis shows that larger OneRec models maintain broader active codebooks and higher code-space entropy across layers and cycles. This suggests that model scale may help resist structural cocoon formation by keeping more semantic code regions reachable under repeated feedback. However, scale should not be viewed as a complete solution, because closed-loop feedback can still increase exposure concentration. Therefore, model scale should be evaluated jointly with exposure-level metrics and structural code-space diagnostics. 
+
+5.3 Limitations 
+
+Several limitations bound the scope of our findings. 
+
+Simulation validity. Our results are obtained from a closed-loop simulator where user feedback is generated by LLM agents rather than real users. Although this design follows recent LLM-based user simulation studies [ 36 , 47 ], we do not quantitatively calibrate the simulator against real interaction distributions on the same datasets. The simulation also uses fixed protocol choices, including the exposure size, number of feedback cycles, retraining schedule, deterministic LLM feedback setting, and one trajectory per configuration. Different choices or random seeds may change the speed or strength of cocoon formation. Therefore, the absolute magnitude of the cocoon trajectories should not be interpreted as a direct estimate of real-world cocoon severity. Our conclusions are better understood as controlled comparisons of model dynamics under the same simulated feedback protocol. 
+
+Dataset coverage. We evaluate on two Amazon product datasets. This limited dataset coverage may not capture the full range of user behavior, item structure, and feedback dynamics in recom-mendation scenarios. Additional datasets from broader domains are needed to test whether the observed cocoon dynamics generalize beyond our current setting. 
+
+Model and baseline scope. We compare two representative models per paradigm: SASRec and Mamba4Rec for traditional sequential recommendation, and TIGER and OneRec for generative recommendation. We do not include diversity-aware or fairness-oriented baselines, because our goal is to characterize the cocoon dynamics of standard accuracy-driven recommenders. Whether the observed structural cocoon pattern holds for other generative architectures or under explicit diversity regularization remains open.  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:22 Jiyuan Yang and Gengxin Sun et al.
+
+Scaling scope. Our scaling analysis covers only three OneRec variants: 0.5B, 1.5B, and 3B. Thus, it remains unclear whether cocoon resistance continues to improve beyond this range. The benefit is mainly observed on Toys and Games, while Office Products shows weaker scale differences. Additional datasets and larger models are needed to verify whether model capacity consistently improves cocoon resistance. 
+
+6 RELATED WORK 6.1 Information Cocoons and Filter Bubbles 
+
+The concern that algorithmic personalization narrows content exposure traces back to the filter bubble [ 28 ] and echo chamber [ 38 ] concepts. A systematic review [ 2 ] identifies three root causes: algorithmic bias [ 13 ], data bias [ 3 ], and cognitive bias [ 11 ]. A theoretical study [ 17 ] further distin-guishes the two phenomena: echo chambers arise from user-side interest reinforcement, whereas filter bubbles arise from system-side narrowing of the item distribution. One line of work characterizes what form narrowing takes. One study [ 1 ] decomposes user exposure into inter-user diversity (how differently users consume across one another) and intra-user diversity (how broadly any individual consumes), showing that the two are not in a simple trade-off: traditional algorithms reduce inter-user diversity (homogenization) without significantly compressing intra-user diversity. The deep filter bubble [ 35 ] further shows that coarse-category diversity can mask convergence within fine-grained subcategories, and that young and male users are disproportionately susceptible. Our work detects a distinct form of narrowing: code-level concentration within the hierarchical item codebook of a generative recommender, a structure absent from traditional systems. A second line of work asks how to quantify narrowing reliably. Early proposals define filter bubble intensity as a single scalar derived from item distribution overlap [ 26 ]. A multidimensional assessment framework [ 41 ] argues that a scalar is insufficient, and introduces dual-dimension coverage of individual-level indicators (topic entropy, click repetition) and group-level indicators (network density, community openness), benchmarked across seven algorithms. Our metrics follow this joint perspective. Beyond exposure-level diversity, we introduce layer-wise codebook entropy to reveal where diversity collapse originates in the generation hierarchy. 
+
+6.2 Generative Recommendation 
+
+Generative recommendation reframes item retrieval as a sequence generation task [ 21 , 43 ]. P5 [ 14 ]first cast recommendation as text-to-text generation. Subsequent work replaces textual item iden-tifiers with learned discrete codes: TIGER [ 31 ] uses RQ-VAE to map items into hierarchical code sequences, and OneRec [ 54 ] scales this approach to larger model sizes. While these models have been evaluated primarily on accuracy and efficiency, their long-term effects on content diversity under feedback loops have not been studied. A related concern is exposure bias in generative recommenders. GENPLUGIN [ 46 ] addresses the training-inference mismatch that causes generative models to under-recommend long-tail items. The spectral analysis of popularity bias [ 23 ] reveals that embedding-based models amplify popularity through principal spectrum alignment and dimension collapse. Whether item codes derive from collaborative signals or item semantics is known to affect recommendation accuracy, but the differential impact of tokenization strategy on diversity under feedback loops has not been examined. Our work differs from both by studying how these biases accumulate over time through closed-loop feedback, rather than examining a single static training snapshot.  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:23
+
+6.3 Simulation of Recommendation Feedback Loops 
+
+Closed-loop simulation is the primary method for studying long-term feedback effects when online experiments are infeasible. An open-source simulation framework [ 4 ] demonstrates how models such as LightGCN amplify popularity bias through repeated retraining. A complementary assessment study [ 41 ] introduces a multi-dimensional framework for information cocoons in news recommendation. More recently, LLM-powered agents have been used as user simulators. SimTok [ 36 ] simulates filter bubble formation on a short-video platform, identifying demographic factors that drive content homogenization. Agent4Rec [ 47 ] and related work [ 48 ] show that LLM agents can produce realistic interaction patterns for recommender evaluation. Our work differs from prior simulation studies in two respects. First, we directly compare generative and traditional recommenders within the same closed-loop setup, using LLM agents equipped with persona, memory, and reflection. Second, our metrics cover both exposure diversity and model-internal code-level concentration, a dimension that no prior simulation framework has examined. 
+
+7 CONCLUSION AND FUTURE WORK 
+
+This paper studies information cocoon formation in generative recommenders through RecLoop ,a closed-loop simulation framework with LLM-powered user simulators. Experiments on two e-commerce datasets lead to four main findings. First, generative recommenders do not remove information cocoons, but they generally slow down category-level diversity loss and inter-user exposure homogenization compared with traditional sequential recommenders. Second, cocoon formation in generative recommenders is uneven across the code hierarchy: coarse layers show stronger entropy decline, while fine-grained layers retain more diversity. Third, item tokenization affects cocoon severity. Collaborative signals may improve recommendation accuracy, but they can also introduce popularity and co-occurrence bias into the code space and increase cocoon risk in some settings. Fourth, model scale affects code-space diversity. On Toys and Games, larger OneRec models retain broader active codebooks and higher per-layer entropy, although this trend still needs validation on larger models and more datasets. These results show that information cocoons in generative recommendation are shaped by both item-code construction and autoregressive code generation. The hierarchical code space helps preserve fine-grained diversity, but early generated tokens can still concentrate on a small set of coarse semantic regions. The layer-wise structural cocoon metric introduced in this work provides a model-level diagnostic for detecting this internal narrowing process. Future work can validate the observed cocoon dynamics on broader datasets and real user feedback. It can also study how to reduce coarse-code concentration in generative recommenders while preserving recommendation accuracy. 
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026.
+
+1:24 Jiyuan Yang and Gengxin Sun et al. 
+
+References 
+
+[1] Md Sanzeed Anwar, Grant Schoenebeck, and Paramveer S Dhillon. 2024. Filter bubble or homogenization? disentangling the long-term effects of recommendations on user consumption patterns. In Proceedings of the ACM Web Conference 2024 . 123–134. [2] Qazi Mohammad Areeb, Mohammad Nadeem, Shahab Saquib Sohail, Raza Imam, Faiyaz Doctor, Yassine Himeur, Amir Hussain, and Abbes Amira. 2023. Filter bubbles in recommender systems: Fact or fallacy—A systematic review. Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery 13, 6 (2023), e1512. [3] Ricardo Baeza-Yates. 2018. Bias on the web. Commun. ACM 61, 6 (2018), 54–61. [4] Gabriele Barlacchi, Margherita Lalli, Emanuele Ferragina, Fosca Giannotti, and Luca Pappalardo. 2025. A Simulation Framework for Studying Systemic Effects of Feedback Loops in Recommender Systems. arXiv preprint arXiv:2510.14857 
+
+(2025). [5] Alejandro Bellogín, Iván Cantador, and Pablo Castells. 2013. A comparative study of heterogeneous item recommenda-tions in social systems. Information Sciences 221 (2013), 142–169. [6] Keith Bradley and Barry Smyth. 2001. Improving recommendation diversity. In Proceedings of the Twelfth Irish Conference on Artificial Intelligence and Cognitive Science, Maynooth, Ireland . Citeseer, 85–94. [7] Pablo Castells, Neil Hurley, and Saul Vargas. 2021. Novelty and diversity in recommender systems. In Recommender systems handbook . Springer, 603–646. [8] Luyu Chen, Quanyu Dai, Zeyu Zhang, Xueyang Feng, Mingyu Zhang, Pengcheng Tang, Xu Chen, Yue Zhu, and Zhenhua Dong. 2025. Recusersim: A realistic and diverse user simulator for evaluating conversational recommender systems. In Companion Proceedings of the ACM on Web Conference 2025 . 133–142. [9] Zhiyong Cheng, Yike Jin, Zhijie Zhang, Huilin Chen, Zhangling Duan, and Meng Wang. 2026. Modeling Stage-wise Evolution of User Interests for News Recommendation. In Proceedings of the ACM Web Conference 2026 . 6755–6764. [10] Huixuan Chi, Hao Xu, Hao Fu, Mengya Liu, Mengdi Zhang, Yuji Yang, Qinfen Hao, and Wei Wu. 2022. Long Short-Term Preference Modeling for Continuous-Time Sequential Recommendation. arXiv:2208.00593 [cs.IR] https: //arxiv.org/abs/2208.00593 [11] Michela Del Vicario, Alessandro Bessi, Fabiana Zollo, Fabio Petroni, Antonio Scala, Guido Caldarelli, H Eugene Stanley, and Walter Quattrociocchi. 2016. The spreading of misinformation online. Proceedings of the national academy of Sciences 113, 3 (2016), 554–559. [12] Jiaxin Deng, Shiyao Wang, Kuo Cai, Lejian Ren, Qigen Hu, Weifeng Ding, Qiang Luo, and Guorui Zhou. 2025. Onerec: Unifying retrieve and rank with generative recommender and iterative preference alignment. arXiv preprint arXiv:2502.18965 (2025). [13] Daniel Fleder and Kartik Hosanagar. 2009. Blockbuster culture’s next rise or fall: The impact of recommender systems on sales diversity. Management science 55, 5 (2009), 697–712. [14] Shijie Geng, Shuchang Liu, Zuohui Fu, Yingqiang Ge, and Yongfeng Zhang. 2022. Recommendation as language processing (rlp): A unified pretrain, personalized prompt & predict paradigm (p5). In Proceedings of the 16th ACM Conference on Recommender Systems . 299–315. [15] Hao Gu, Rui Zhong, Yu Xia, Wei Yang, Chi Lu, Peng Jiang, and Kun Gai. 2025. R 4ec: A reasoning, reflection, and refinement framework for recommendation systems. In Proceedings of the Nineteenth ACM Conference on Recommender Systems . 411–421. [16] Ping He and Bo Yuan. 2024. On the Information Cocoon Effect in the TikTok Recommendation Algorithm. In 2024 5th International Conference on Artificial Intelligence and Computer Engineering (ICAICE) . IEEE, 94–98. [17] Ray Jiang, Silvia Chiappa, Tor Lattimore, András György, and Pushmeet Kohli. 2019. Degenerate feedback loops in recommender systems. In Proceedings of the 2019 AAAI/ACM Conference on AI, Ethics, and Society . 383–390. [18] Wang-Cheng Kang and Julian McAuley. 2018. Self-attentive sequential recommendation. In ICDM . IEEE, 197–206. [19] Xiaoyu Kong, Leheng Sheng, Junfei Tan, Yuxin Chen, Jiancan Wu, An Zhang, Xiang Wang, and Xiangnan He. 2025. MiniOneRec: An Open-Source Framework for Scaling Generative Recommendation. arXiv:2510.24431 [cs.IR] [20] Nian Li, Chen Gao, Jinghua Piao, Xin Huang, Aizhen Yue, Liang Zhou, Qingmin Liao, and Yong Li. 2022. An exploratory study of information cocoon on short-form video platform. In Proceedings of the 31st acm international conference on information & knowledge management . 4178–4182. [21] Xiaoxi Li, Jiajie Jin, Yujia Zhou, Yuyao Zhang, Peitian Zhang, Yutao Zhu, and Zhicheng Dou. 2025. From Matching to Generation: A Survey on Generative Information Retrieval. ACM Trans. Inf. Syst. 43, 3, Article 83 (May 2025), 62 pages. https://doi.org/10.1145/3722552 [22] Siyi Liang, Nurzat Alimu, Hanchi Si, Hong Li, and Chuanmin Mi. 2023. Influence of artificial intelligence recom-mendation on consumers’ purchase intention under the information cocoon effect. In International Conference on Human-Computer Interaction . Springer, 249–259. [23] Siyi Lin, Chongming Gao, Jiawei Chen, Sheng Zhou, Binbin Hu, Yan Feng, Chun Chen, and Can Wang. 2025. How do recommendation models amplify popularity bias? An analysis from the spectral perspective. In Proceedings of the 
+
+ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:25 
+
+Eighteenth ACM International Conference on Web Search and Data Mining . 659–668. [24] Chengkai Liu, Jianghao Lin, Jianling Wang, Hanzhou Liu, and James Caverlee. 2024. Mamba4Rec: Towards Efficient Sequential Recommendation with Selective State Space Models. arXiv:2403.03900 [cs.IR] https://arxiv.org/abs/2403. 03900 [25] Hongyang Liu, Zhu Sun, Tianjun Wei, Yan Wang, Jiajie Zhu, and Xinghua Qu. 2026. Diagnostic-Guided Dynamic Profile Optimization for LLM-based User Simulators in Sequential Recommendation. In Proceedings of the AAAI Conference on Artificial Intelligence , Vol. 40. 15306–15314. [26] Gabriel Machado Lunardi, Guilherme Medeiros Machado, Vinicius Maran, and José Palazzo M de Oliveira. 2020. A metric for filter bubble measurement in recommender algorithms considering the news domain. Applied Soft Computing 
+
+97 (2020), 106771. [27] Julian McAuley, Christopher Targett, Qinfeng Shi, and Anton Van Den Hengel. 2015. Image-based recommendations on styles and substitutes. In Proceedings of the 38th international ACM SIGIR conference on research and development in information retrieval . 43–52. [28] Eli Pariser. 2011. The filter bubble: What the Internet is hiding from you . penguin UK. [29] Joon Sung Park, Joseph C. O’Brien, Carrie J. Cai, Meredith Ringel Morris, Percy Liang, and Michael S. Bernstein. 2023. Generative Agents: Interactive Simulacra of Human Behavior. In In the 36th Annual ACM Symposium on User Interface Software and Technology (UIST ’23) (San Francisco, CA, USA) (UIST ’23) . Association for Computing Machinery, New York, NY, USA. [30] Hanqi Peng and Chang Liu. 2021. Breaking the information cocoon: when do people actively seek conflicting information? Proceedings of the Association for Information Science and Technology 58, 1 (2021), 801–803. [31] Shashank Rajput, Nikhil Mehta, Anima Singh, Raghunandan Hulikal Keshavan, Trung Vu, Lukasz Heldt, Lichan Hong, Yi Tay, Vinh Tran, Jonah Samost, et al . 2023. Recommender systems with generative retrieval. Advances in Neural Information Processing Systems 36 (2023), 10299–10315. [32] Karthik Shivaram, Ping Liu, Matthew Shapiro, Mustafa Bilgic, and Aron Culotta. 2022. Reducing cross-topic political homogenization in content-based news recommendation. In Proceedings of the 16th ACM conference on Recommender Systems . 220–228. [33] Yubo Shu, Haonan Zhang, Hansu Gu, Peng Zhang, Tun Lu, Dongsheng Li, and Ning Gu. 2024. RAH! RecSys–assistant– human: A human-centered recommendation framework with LLM agents. IEEE Transactions on Computational Social Systems 11, 5 (2024), 6759–6770. [34] Dusan Stamenkovic, Alexandros Karatzoglou, Ioannis Arapakis, Xin Xin, and Kleomenis Katevas. 2021. Choosing the Best of Both Worlds: Diverse and Novel Recommendations through Multi-Objective Reinforcement Learning. arXiv preprint arXiv:2110.15097 (2021). [35] Nicholas Sukiennik, Chen Gao, and Nian Li. 2024. Uncovering the deep filter bubble: narrow exposure in short-video recommendation. In Proceedings of the ACM Web Conference 2024 . 4727–4735. [36] Nicholas Sukiennik, Haoyu Wang, Zailin Zeng, Chen Gao, and Yong Li. 2025. Simulating filter bubble on short-video recommender system with large language model agents. arXiv preprint arXiv:2504.08742 (2025). [37] Fei Sun, Jun Liu, Jian Wu, Changhua Pei, Xiao Lin, Wenwu Ou, and Peng Jiang. 2019. BERT4Rec: Sequential recom-mendation with bidirectional encoder representations from transformer. In CIKM . 1441–1450. [38] Cass R Sunstein. 2001. Echo chambers: Bush v. Gore, impeachment, and beyond . Princeton University Press Princeton, NJ. [39] Saúl Vargas and Pablo Castells. 2011. Rank and relevance in novelty and diversity metrics for recommender systems. In Proceedings of the fifth ACM conference on Recommender systems . 109–116. [40] Wenjie Wang, Honghui Bao, Xinyu Lin, Jizhi Zhang, Yongqi Li, Fuli Feng, See-Kiong Ng, and Tat-Seng Chua. 2024. Learnable item tokenization for generative recommendation. In Proceedings of the 33rd ACM International Conference on Information and Knowledge Management . 2400–2409. [41] Xin Wang, Xiaowen Huang, and Jitao Sang. 2025. Understanding the Information Cocoon: A Multidimensional Assessment and Analysis of News Recommendation Systems. arXiv preprint arXiv:2509.11139 (2025). [42] Yidan Wang, Zhaochun Ren, Weiwei Sun, Jiyuan Yang, Zhixiang Liang, Xin Chen, Ruobing Xie, Su Yan, Xu Zhang, Pengjie Ren, et al . 2024. Content-based collaborative generation for recommender systems. In Proceedings of the 33rd ACM International Conference on Information and Knowledge Management . 2420–2430. [43] Longtao Xiao, Haozhao Wang, Cheng Wang, Linfei Ji, Yifan Wang, Jieming Zhu, Zhenhua Dong, Rui Zhang, and Ruixuan Li. 2025. UNGER: Generative Recommendation with A Unified Code via Semantic and Collaborative Integration. ACM Trans. Inf. Syst. 44, 2, Article 31 (Dec. 2025), 31 pages. https://doi.org/10.1145/3773771 [44] Jiyuan Yang, Yue Ding, Yidan Wang, Pengjie Ren, Zhumin Chen, Fei Cai, Jun Ma, Rui Zhang, Zhaochun Ren, and Xin Xin. 2024. Debiasing Sequential Recommenders through Distributionally Robust Optimization over System Exposure. In Proceedings of the 17th ACM International Conference on Web Search and Data Mining . 882–890. ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:26 Jiyuan Yang and Gengxin Sun et al. 
+
+[45] Jiyuan Yang, Yuanzi Li, Jingyu Zhao, Hanbing Wang, Muyang Ma, Jun Ma, Zhaochun Ren, Mengqi Zhang, Xin Xin, Zhumin Chen, and Pengjie Ren. 2024. Uncovering Selective State Space Model’s Capabilities in Lifelong Sequential Recommendation. arXiv:2403.16371 [cs.IR] https://arxiv.org/abs/2403.16371 [46] Kun Yang, Siyao Zheng, Tianyi Li, Xiaodong Li, and Hui Li. 2025. GENPLUGIN: A Plug-and-Play Framework for Long-Tail Generative Recommendation with Exposure Bias Mitigation. arXiv preprint arXiv:2507.03568 (2025). [47] An Zhang, Yuxin Chen, Leheng Sheng, Xiang Wang, and Tat-Seng Chua. 2024. On generative agents in recommendation. In Proceedings of the 47th international ACM SIGIR conference on research and development in Information Retrieval .1807–1817. [48] Junjie Zhang, Yupeng Hou, Ruobing Xie, Wenqi Sun, Julian McAuley, Wayne Xin Zhao, Leyu Lin, and Ji-Rong Wen. 2024. Agentcf: Collaborative learning with autonomous language agents for recommender systems. In Proceedings of the ACM Web Conference 2024 . 3679–3689. [49] Lin Zhang, Yahong Lian, Haixia Wu, Chunyao Song, and Xiaojie Yuan. 2025. An Exploratory Study on Information Cocoon in Recommender Systems. Data Science and Engineering 10, 3 (2025), 495–514. [50] Zijian Zhang, Shuchang Liu, Ziru Liu, Rui Zhong, Qingpeng Cai, Xiangyu Zhao, Chunxu Zhang, Qidong Liu, and Peng Jiang. 2025. Llm-powered user simulator for recommender system. In Proceedings of the AAAI Conference on Artificial Intelligence , Vol. 39. 13339–13347. [51] Wei Zhao, Benyou Wang, Jianbo Ye, Yongqiang Gao, Min Yang, and Xiaojun Chen. 2018. PLASTIC: Prioritize Long and Short-term Information in Top-n Recommendation using Adversarial Training. In Proceedings of the Twenty-Seventh International Joint Conference on Artificial Intelligence, IJCAI-18 . International Joint Conferences on Artificial Intelligence Organization, 3676–3682. https://doi.org/10.24963/ijcai.2018/511 [52] Wayne Xin Zhao, Shanlei Mu, Yupeng Hou, Zihan Lin, Yushuo Chen, Xingyu Pan, Kaiyuan Li, Yujie Lu, Hui Wang, Changxin Tian, Yingqian Min, Zhichao Feng, Xinyan Fan, Xu Chen, Pengfei Wang, Wendi Ji, Yaliang Li, Xiaoling Wang, and Ji-Rong Wen. 2021. RecBole: Towards a Unified, Comprehensive and Efficient Framework for Recommendation Algorithms. In Proceedings of the 30th ACM International Conference on Information & Knowledge Management (Virtual Event, Queensland, Australia) (CIKM ’21) . Association for Computing Machinery, New York, NY, USA, 4653–4664. https://doi.org/10.1145/3459637.3482016 [53] Ziqi Zhao, Zhaochun Ren, Jiyuan Yang, Zuming Yan, Zihan Wang, Liu Yang, Pengjie Ren, Zhumin Chen, Maarten de Rijke, and Xin Xin. 2025. Improving Sequential Recommenders through Counterfactual Augmentation of System Exposure. In Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval (Padua, Italy) (SIGIR ’25) . Association for Computing Machinery, New York, NY, USA, 1508–1518. https: //doi.org/10.1145/3726302.3730005 [54] Guorui Zhou, Jiaxin Deng, Jinghao Zhang, Kuo Cai, Lejian Ren, Qiang Luo, Qianqian Wang, Qigen Hu, Rui Huang, Shiyao Wang, et al. 2025. Onerec technical report. arXiv preprint arXiv:2506.13695 (2025). ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:27 
+
+8 APPENDIX 
+
+Prompt A: User Persona Construction (Part I) 
+
+Role: User-Behavior Psychologist & E-commerce Recommendation Spe-cialist Profile 
+
+• language: English 
+
+• description: A specialist in consumer psychology, adept at analyzing e-commerce purchase and review data to construct nuanced, first-person psychological and interest profiles. You bridge the gap between purchasing behavior and deep consumer motivations, preferences, and personality traits. 
+
+• background: You have extensive experience working with consumer behavior teams at major e-commerce platforms (like Amazon, eBay). You are trained to see beyond explicit transactions and infer the "why" behind user purchasing decisions to improve product recommendations and customer satisfaction. 
+
+• personality: Analytical, empathetic, insightful, and precise. You communicate complex psycho-logical inferences in a conversational, authentic, and easily digestible manner. 
+
+• expertise: Consumer behavior analysis, psychological profiling from purchasing patterns, product preference inference, understanding e-commerce recommendation systems. 
+
+Rules 
+
+(1) Fundamental Principles: 
+
+• Data-Driven Exclusivity: Base the entire profile ONLY on the provided purchase history and review data. Do not use any external knowledge or make assumptions beyond the data. 
+
+• Holistic Interpretation: Synthesize purchase patterns, ratings, review sentiments, and product categories to inform your analysis. 
+
+• Inference over Extraction: Do not simply list purchased products. Your primary task is to infer the psychological drivers, latent needs, and deeper preferences the purchases serve. 
+
+• First-Person Perspective: The entire output must be written in the first person ("I," "My"), as if the user is describing themselves. (2) Behavioral Guidelines: 
+
+• Objectivity and Nuance: Base inferences strictly on evidence from the purchase history. Use nuanced language (e.g., "I seem to be," "I’m likely," "This suggests a preference for") rather than making absolute claims. 
+
+• Authenticity and Conciseness: Maintain a conversational, genuine tone. The total output must be concise, approximately 200-300 words. 
+
+• Empathy: Frame the profile in an insightful and non-judgmental way, focusing on under-standing the user’s motivations and lifestyle. (3) Restrictions: 
+
+• Language: Write in English ONLY. 
+
+• No External Information: Do not ask for or incorporate any information outside of the provided purchase history. 
+
+Fig. 11. Prompt A: User Persona Construction (Part I)  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:28 Jiyuan Yang and Gengxin Sun et al.
+
+Prompt A: User Persona Construction (Part II) 
+
+Output Format 
+
+Please analyze the purchase history and generate a user profile with the following structure: 
+
+My Shopping & Lifestyle Profile 
+
+Core Interests & Preferences (Ranked) 
+
+• [Interest Theme] (High/Medium/Low): [Description of interest based on purchases and re-views] 
+
+Shopping Behavior Patterns 
+
+• [Describe purchasing habits, price sensitivity, brand loyalty, etc.] 
+
+Product Preferences & Quality Expectations 
+
+• [Infer quality expectations from ratings and reviews] 
+
+• [Describe preferred product characteristics] 
+
+Lifestyle & Personal Values (Inferred) 
+
+• [Infer lifestyle characteristics from product categories and review patterns] 
+
+• [Describe values that drive purchasing decisions] 
+
+Motivations & Decision Drivers 
+
+[2-3 sentences describing what motivates purchasing decisions and how shopping fits into lifestyle] 
+
+Personal Summary 
+
+[1-2 sentences encapsulating the user’s overall shopping personality and consumer profile] Here is my recent purchase and review history for <dataset_name>{}</dataset_name> products: 
+
+Review Statistics: 
+
+• Total purchases: <total_purchases>{}</total_purchases> 
+
+• Average rating given: <avg_rating/5.0>{}<avg_rating/5.0> 
+
+• Rating distribution: <rating_distribution>{}</rating_distribution 
+
+Top Product Categories: 
+
+<category_lines>{}</category_lines> 
+
+Top Brands: 
+
+<brand_lines>{}</brand_lines> 
+
+Recent Review History (sorted by timestamp in descending order - most recent first): 
+
+Note: Reviews are sorted by timestamp in descending order, with the most recent reviews appearing first. <Review_history_blocks>{}</Review_history_blocks> Please generate my first-person consumer profile following the system instructions above. 
+
+Fig. 12. Prompt A: User Persona Construction (Part II)  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:29
+
+Prompt B: Simulated User Decision Making 
+
+You excel at role-playing. Picture yourself as a user exploring a recommender system. This is your full user profile (act strictly accordingly): — START OF PROFILE — <dynamic_persona>{}</dynamic_persona> — END OF PROFILE — 
+
+Your Recent Selections: 
+
+<recent_selections>{}</recent_selections> You will be presented with a list of items by recommender. Your task is to SELECT EXACTLY ONE item that you are most interested in based on your profile and preferences. If NONE of the items interest you, you can choose not to select any item. 
+
+Recommended Items List 
+
+<item_description>{}</item_description> {item_description} Valid Item IDs (YOU CAN ONLY CHOOSE FROM THESE): 
+
+<valid_ids_str>{}</valid_ids_str> 
+
+CRITICAL RULES: 
+
+• selected_item_id MUST be one of: {valid_ids_str}, or null if no selection. 
+
+• DO NOT use any other numbers (from titles, descriptions, etc.) as Item ID. 
+
+• Only select an item that truly aligns with your taste and preferences. 
+
+• If nothing interests you, set selected_item_id to null. Make decisions that are consistent with your persona and previous interactions. Return your decision in JSON format: 
+
+• reason: Brief explanation of your choice (string) 
+
+• selected_item_id: One of the valid IDs above (integer), or null if no selection 
+
+Fig. 13. Prompt C: Simulated User Decision Making  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:30 Jiyuan Yang and Gengxin Sun et al.
+
+Prompt C: Reflection-Based Persona Updating 
+
+You are analyzing the interaction history between a recommender system and a user. 
+
+User Profile 
+
+<persona_text>{}</persona_text> 
+
+Conversation History 
+
+<conversation_history>{}</conversation_history> 
+
+Task 
+
+Based on the conversation history above, please provide a concise reflection summary that includes: (1) User Preference Patterns: What types of items does the user consistently prefer or reject? (2) Decision Factors: What factors seem to influence the user’s decisions (e.g., categories, features, descriptions)? (3) Behavioral Trends: Are there any notable trends or changes in the user’s behavior over time? (4) Recommendations for Future: What insights can help better serve this user in future recom-mendations? Please provide a structured summary in the following JSON format: 
+
+{"preference_patterns": "Brief description of user 's preference patterns", "key_decision_factors": ["factor1", "factor2", ...], "behavioral_trends": "Description of any behavioral trends", "insights": "Key insights for future recommendations", "summary": "One paragraph overall summary" }
+
+Fig. 14. Prompt D: Reflection-Based Persona Updating  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. Do Generative Recommenders Deepen the Information Cocoon? 1:31
+
+Example A: User Profile Example 
+
+My Shopping & Lifestyle Profile 
+
+Core Interests & Preferences (Ranked) 
+
+(1) Cooperative Board Games (High): I gravitate toward games that emphasize teamwork and shared success, suggesting a preference for social interaction and collaborative play. (2) Educational & Developmental Play (Medium): My interest in games that blend fun with learning indicates a value for both entertainment and skill-building. (3) Family-Friendly & Inclusive Gaming (Medium): I seem to prioritize games that are accessible to a wide range of ages, reflecting a desire for shared family experiences. 
+
+Shopping Behavior Patterns 
+
+• I tend to favor board games over other toy categories, indicating a strong interest in strategic and social play. 
+
+• I consistently rate my purchases highly, suggesting satisfaction with the quality and engagement of the products. 
+
+• I show a preference for games that are both challenging and educational, indicating a balance between fun and development. 
+
+Product Preferences & Quality Expectations 
+
+• I value clear rules and intuitive gameplay, as seen in my positive feedback on games like Catan: Junior and Family Pastimes. 
+
+• I seem to appreciate games that offer replayability and depth, as evidenced by my high rating for Castle Panic: The Wizard’s Tower. 
+
+• I may be sensitive to product quality, as I noted the card quality issue in Forbidden Island, suggesting a preference for durable materials. 
+
+Lifestyle & Personal Values (Inferred) 
+
+• I likely enjoy family time and social gatherings, as my purchases suggest a focus on shared experiences. 
+
+• I value learning and growth, which aligns with my interest in educational games. 
+
+• I seem to prioritize inclusivity and accessibility in play, favoring games that can be enjoyed by players of all ages. 
+
+Motivations & Decision Drivers 
+
+I am motivated by the desire for engaging, educational, and socially enriching experiences. Shopping for games is not just about entertainment—it’s about fostering connection, learning, and shared joy. 
+
+Personal Summary 
+
+I am a thoughtful and socially engaged gamer who values both fun and development, seeking products that bring people together and offer meaningful, inclusive play. 
+
+Fig. 15. Example A: User Profile Example of Toys&Games dataset  
+
+> ACM Trans. Inf. Syst., Vol. 1, No. 1, Article 1. Publication date: January 2026. 1:32 Jiyuan Yang and Gengxin Sun et al.
+
+Example B: Item Description Example 
+
+Item ID: 2274 
+
+Title: Logitech M720 Triathlon Multi-Device Wireless Mouse 
+
+Categories: [’Office Products’, ’Computer Accessories’, ’Mice’] 
+
+Description: Multi-device wireless mouse with hyper-fast scrolling, dual connectivity (Bluetooth & USB Unifying receiver), 1000 DPI sensor, 24-month battery life, compatible with Windows/-Mac/Chrome/Linux. 
+
+Fig. 16. Example B: Item Description Example of Office Products dataset

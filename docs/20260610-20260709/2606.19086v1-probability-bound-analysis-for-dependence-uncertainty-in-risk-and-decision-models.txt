@@ -1,0 +1,1673 @@
+Title: Probability Bound Analysis for Dependence Uncertainty in Risk and Decision Models
+
+URL Source: https://arxiv.org/pdf/2606.19086v1
+
+Published Time: Thu, 18 Jun 2026 01:07:35 GMT
+
+Number of Pages: 30
+
+Markdown Content:
+Received: Added at production Revised: Added at production Accepted: Added at production DOI: xxx/xxxx 
+
+RESEARCH ARTICLE 
+
+# Probability Bound Analysis for Dependence Uncertainty in Risk and Decision Models 
+
+## Rowan Iskandar 1,2 
+
+> 1
+
+Medtronic International Trading Sarl, Tolochenaz, Vaud, Switzerland 
+
+> 2
+
+Center for Evidence Synthesis in Health, Brown University School of Public Health, Providence, RI, USA 
+
+Correspondence 
+
+Rowan Iskandar, Rue des Amandiers 1, 2000 Neuchatel, Switzerland. Email: rowan.iskandar@gmail.com 
+
+Risk and decision models often combine sparse marginal information, precisely specified probability dis-tributions, and dependence assumptions that are only partly justified. Probability bound analysis (PBA) represents epistemic uncertainty through probability boxes, but many applications assume independence or require dependence structures to be fully specified. We develop a dependence-sensitive PBA framework for black-box risk and decision models in which both marginal information and dependence information may be incomplete. The framework combines p-box parameters, precise-CDF parameters, and fixed quantities; incor-porates specified dependence through copulas; and propagates unknown dependence through Fréchet-style admissible coupling sets. We also extend the construction to cross-dependence between imprecisely specified and precisely specified inputs. In an illustrative risk decision model, dependence assumptions materially affected output bounds and tail-risk summaries; analyses that ignored or simplified dependence produced nar-rower characterizations of plausible outcomes. The framework supports transparent uncertainty propagation when evidence is insufficient to justify either precise marginal distributions or a single dependence model. 
+
+KEYWORDS 
+
+probability bound analysis; p-box; dependence uncertainty; Fréchet bounds; risk analysis 
+
+## 1 INTRODUCTION 
+
+Risk and decision models are routinely used to support choices under incomplete information 1,2,3 . In domains such as public health, environmental management, engineering safety, biosecurity, and technology assessment, analysts often know that a model input lies within a plausible range or satisfies a small set of moment constraints, but they may not be able to justify a fully specified probability distribution 4,5 . Dependence among inputs is even harder to justify 6,7,8 . Parameters may share data sources, biological or physical mechanisms, expert judgments, or structural constraints, yet the available evidence may not identify a single joint distribution. This combination of imprecise marginal information and uncertain dependence creates a central problem for risk analysis. Standard probabilistic sensitivity analysis propagates a single joint probability model through the system 9,10,11 . When the marginal distributions or dependence assumptions are weakly supported, however, a single joint model can create a misleading 
+
+Risk Analysis ;:0–30 wileyonlinelibrary.com/journal/ © Copyright Holder Name 0
+
+> arXiv:2606.19086v1 [stat.ME] 17 Jun 2026 2
+
+impression of precision 4,3 . Conversely, ignoring dependence by imposing independence can assign mass to implausible input combinations and can understate or distort the range of plausible risk outcomes 6,12,13,14 . A risk analysis framework should therefore distinguish what is known about each marginal input from what is known, partially known, or unknown about their dependence 6,15,16 .Probability bound analysis (PBA) is one such approach. It is an imprecise probability model for representing and propagating uncertainty when precise probability distributions for model parameters cannot be justified 4,5,6,17 . Instead of requiring a single (precise ) cumulative distribution function (CDF), PBA represents uncertainty with a pair of bounding CDFs, often called a probability box (p-box) 5. This representation is useful when available information consists only of sparse summary information such as minima, maxima, means, medians, or standard deviations 6,5,18 . In many of its formulations, PBA assumes independence among model parameters 17,6 . It is a very common assumption and, unfortunately, rarely receives scrutiny. Dependence is common in risk and decision models 9,12,13 . For example, treatment benefits and adverse-event risks may be biologically linked, and parameters estimated from the same study may be statistically correlated 19,14 . In these settings, the independence assumption can create parameter combinations that are implausible and may lead to underestimation of uncertainty bounds 6,13 . The methodological gap is therefore twofold. Existing PBA methods can represent imprecise marginal information, but dependence has often been handled by assuming independence. Conversely, copulas and related dependence models are widely used with precise marginal distributions, but they do not by themselves allow imprecision in the marginal information 7,8 . A model may require both components: uncertain marginals and uncertain or partially specified dependence 4,15,16 . This study develops a generalized dependence-sensitive PBA framework for risk and decision models that addresses this methodological gap. First, we briefly review the concept of PBA and its uncertainty propagation. Second, we formally describe two approaches to modeling dependence between parameters whose uncertainty is represented by probability boxes: using a copula and Fréchet-style bounds for unknown dependence. Then, we extend the two approaches to model cross-dependence between different types of parameters. Fourth, we demonstrate how to implement the PBA algorithm using a worked risk-model example. Lastly, we conclude with a discussion on the limitations and directions for future research. Throughout this exposition, we try to strike a balance between mathematical rigor and accessibility to practitioners. 
+
+## 2 PRELIMINARIES 
+
+We consider a model as a black-box mapping 
+
+Y = M(θ), (2.1) where θ ∈ Θ denotes the vector of model parameters, Θ is the joint parameter space, and Y denotes a scalar decision-relevant model outcome, such as cost, net monetary benefit, or survival. The black-box formulation is intentionally general: we need only 3
+
+evaluate M at specified parameter values, and our framework does not require a closed-form expression for the distribution of Y.We partition the parameter vector as 
+
+θ = ( θb, η, ϕ), (2.2) where θb = ( θ1, . . . , θK ) denotes K parameters represented using p-boxes ( p-box parameters ), η = ( η1, . . . , ηM ) denotes 
+
+M parameters represented using precise cumulative distribution functions ( precise-CDF parameters ), and ϕ denotes fixed parameters. Precise-CDF parameters are propagated by sampling values from their precisely-specified distributions. Fixed parameters do not require uncertainty propagation, although their values still affect the model output. P-box parameters require a different construction because their marginal distributions are not specified precisely. The goal of parameter uncertainty quantification is to represent uncertainty in these inputs and propagate it through M to characterize the induced uncertainty in Y.The following subsections define p-boxes and demonstrate how p-box parameters are propagated through M, which in turns provide a way to incorporate a dependence structure. 
+
+## 2.1 Probability boxes 
+
+For each p-box parameter θi ∈ θb, uncertainty is represented by 
+
+PDi (θi) = [ Fi(θi | Di), Fi(θi | Di)], (2.3) where Fi and Fi are lower and upper bounds on the unknown cumulative distribution function of θi, and Di denotes the available information about that parameter. Under the PBA framework, for every realization of θ, we can only assign an interval of CDF values , Fi, Fi
+
+, in contrast to one CDF value. In sparse-data settings, Di may include only support bounds, such as a minimum and maximum, or it may additionally include summary information such as a mean, median, standard deviation, or selected quantiles. Each subset of Di induces a different p-box: with only support information the bounding functions are wide, whereas additional information tightens the region between Fi and Fi. In the limiting case where the CDF is fully specified, the two bounding functions coincide and the p-box degenerates to a precise CDF. Formally, the bounds defining a p-box have the following properties: 1. Fi and Fi are CDFs 2. Fi(θi | Di) ≤ Fi(θi) ≤ Fi(θi | Di) for all θi in the support 3. Fi and Fi form the sharpest bounds implied by Di
+
+4. Fi and Fi are consistent with Di4
+
+Here, a CDF of θi is consistent with the minimal data Di if each element in Di can be equated to a statistic derivable from that CDF. supplementary material summarizes several commonly used free p-box constructions from minimal data. 
+
+## 2.2 Discretization, marginal slice masses, and hyperrectangles 
+
+A p-box represents a set of cumulative distribution functions rather than a single distribution. Thus, propagating a p-box through a black-box model is not as simple as drawing one value from a specified distribution (as in PSA). In principle, we must characterize the range of model outputs that could arise from all distributions consistent with the p-box on the model parameters. Hence, sampling a p-box is akin to sampling an interval. This is achieved using a finite-dimensional approximation of the probability domain (see Iskandar 17 ). Discretization partitions the probability scale of each p-box parameter into slices, maps each probability slice into an interval of plausible parameter values, and then evaluates the model over the resulting regions of the input space. As the number of slices increases, the accuracy of the discretized representation improves, though at the cost of higher computational burden. For each p-box parameter θi ∈ θb, we partition the probability interval [0, 1] into ni slices, [c1 
+
+> i
+
+, d1 
+
+> i
+
+], [ c2 
+
+> i
+
+, d2 
+
+> i
+
+], . . . , [ cni 
+
+> i
+
+, dni 
+
+> i
+
+], (2.4) where the j-th slice has probability-scale width 
+
+mji = dji − cji. (2.5) The quantity mji is the marginal mass assigned to the j-th probability slice of parameter i. Each probability slice is then mapped from probability space to parameter space using the quasi-inverses of the p-box: 
+
+aji = F−1 
+
+> i
+
+(cji | Di), bji = F−1 
+
+> i
+
+(dji | Di). (2.6) Here, F−1(p) denotes the generalized inverse inf {x : F(x) ≥ p} because the bounding functions may have flat portions or jumps after discretization. This pair of mappings produce the interval-valued realization [ aji, bji] for parameter θi. The interval contains the parameter values that may correspond to the probability slice [ cji, dji ] under any cumulative distribution function lying within the p-box. To propagate several p-box parameters jointly, let k = ( k1, . . . , kK ) index one selected slice for each of the K p-box parameters. The Cartesian product of the corresponding parameter intervals defines the parameter-space hyperrectangle 
+
+Hk =
+
+> K
+
+Y
+
+> i=1
+
+[aki 
+
+> i
+
+, bki 
+
+> i
+
+], (2.7) 5
+
+and the corresponding product of probability slices defines the probability-space hyperrectangle 
+
+Uk =
+
+> K
+
+Y
+
+> i=1
+
+[cki 
+
+> i
+
+, dki 
+
+> i
+
+]. (2.8) Define the following multi-index set: 
+
+K = {( k1, . . . , kK ) : 1 ≤ ki ≤ ni for i = 1, . . . , K} , where each index vector k ∈ K identifies one combination of marginal probability slices across the K p-box parameters. Thus, K indexes both the probability-space hyperrectangles Uk and the corresponding parameter-space hyperrectangles Hk.In sum, the (marginal) discretization defines the slice masses mji, the interval-valued realizations [ aji, bji], the probability-space hyperrectangles Uk, and the corresponding parameter-space hyperrectangles Hk. The set of parameter-space hyperrectangles {Hk} forms the computational domain over which the p-box parameters are propagated through the black-box model M. We denote by pk the probability mass assigned to probability-space hyperrectangle Uk, equivalently, the mass associated with the corresponding parameter-space hyperrectangle Hk. Dependence assumptions enter only after these marginal discretization components have been constructed. Specifically, dependence assumptions affect pk, that is, how probability mass is assigned across the probability-space hyperrectangles Uk; they do not alter the marginal slice masses mji or the marginal intervals [ aji, bji]. supplementary material provides concise mathematical justifications for the marginal-mass preservation and the validity of the constructed output p-box. Figure 1 summarizes this construction and separates the geometric construction of Hk from the dependence-driven mass assignment over Uk.
+
+## 3 DEPENDENCE STRUCTURES IN PBA 
+
+The marginal p-box construction in Section 2.2 fixes the probability-scale slices, the corresponding parameter-space hyperrectan-gles, and the marginal slice masses. Dependence assumptions enter after this construction. They determine how probability mass is assigned across the fixed probability-space cells; they do not change the marginal p-boxes or the geometry of the hyperrectangles. The same construction is used throughout this section: first, specify or bound the cell masses; second, optimize the black-box model over the relevant parameter-space cells; and third, aggregate the cellwise output bounds into an output p-box. This separation is central for risk analysis because it distinguishes uncertainty about marginal evidence from uncertainty about dependence. We present an algorithm to conduct PBA under dependence uncertainty in supplementary material. 6
+
+Step 1: discretize marginal p-boxes into slices 
+
+Probability scale for each parameter 
+
+u
+
+0 cji dji 1
+
+[cji, dji ]
+
+Slice mass 
+
+mji = dji − cji
+
+Step 2: combine slices 
+
+Probability-space hyperrectangle 
+
+U1
+
+U2
+
+Uk
+
+Mass assignment is defined over the Uk’s 
+
+Step 3: map to parameter space 
+
+Parameter-space hyperrectangle 
+
+θ1
+
+θ2
+
+> Hk
+
+Model optimized over Hk
+
+Cartesian product quasi-inverse mapping 
+
+Step 4: choose a dependence assumption and assign masses 
+
+The Uk’s are fixed by marginal discretization; our dependence assumption determines the masses pk.
+
+Fixed probability-space cells 
+
+U1
+
+p1
+
+U2
+
+p2
+
+U3
+
+p3
+
+U4
+
+p4
+
+Masses pk are computed differently depending on the dependence assumption 
+
+Independence 
+
+pk = Q 
+
+> i
+
+mki
+
+> i
+
+Specified copula 
+
+pk = PC(Uk)
+
+Unknown dependence 
+
+pk optimized over feasible masses 
+
+All three approaches attach masses to the same Uk’s; the corresponding Hk’s are then evaluated through the model. 
+
+F I G U R E 1 Construction of probability-space hyperrectangles Uk, parameter-space hyperrectangles Hk, and dependence-sensitive mass assignment. Marginal p-box discretization first creates probability slices and interval-valued parameter realizations. The Cartesian products of probability slices define Uk, while the corresponding Cartesian products of parameter intervals define Hk. Dependence assumptions determine how the masses pk are assigned to the fixed probability-space cells Uk. These masses may be computed by independence, by a specified copula, or by optimization over admissible masses under unknown dependence; the assumptions do not change the marginal intervals or the geometry of the Hk’s. 
+
+## 3.1 Independence 
+
+The marginal discretization described in Section 2.2 produces three objects that remain fixed throughout the dependence analysis: the probability-space hyperrectangles Uk, the corresponding parameter-space hyperrectangles Hk, and the marginal slice masses 
+
+mji. To complete the uncertainty propagation, probability mass must be assigned to the probability-space hyperrectangles. The simplest assignment assumes that the uncertain parameters are mutually independent. Under independence, the joint mass assigned to Uk is the product of the selected marginal slice masses: 
+
+p⊥ 
+
+> k
+
+=
+
+> K
+
+Y
+
+> i=1
+
+mki 
+
+> i
+
+=
+
+> K
+
+Y
+
+> i=1
+
+
+
+dki 
+
+> i
+
+− cki
+
+> i
+
+
+
+. (3.1) 7
+
+Equation (3.1) uniquely determines the joint probability mass associated with every probability-space hyperrectangle. Consequently, no additional dependence model or mass-assignment optimization is required. The uncertainty propagation proceeds by evaluating the black-box model over Hk and aggregating the resulting outputs using p⊥ 
+
+> k
+
+. The remaining sections relax the independence assumption in progressively more general ways. Section 3.2 considers specified dependence among p-box parameters using a copula. Section 3.3 considers unknown dependence among p-box parameters by optimizing over admissible couplings. Section 3.4 extends both ideas to cross-dependence between p-box parameters and precise-CDF parameters. Independence is therefore a special case of the broader dependence framework. 
+
+## 3.2 Copula-based dependence 
+
+Copulas provide a flexible way to model dependence while preserving the marginal p-box construction. A copula separates marginal behavior from dependence. For K random variables with marginal cumulative distribution functions F1, . . . , FK , Sklar’s theorem gives 
+
+F(θ1, . . . , θK ) = C{F1(θ1), . . . , FK (θK )}, (3.2) where C : [0, 1] K → [0, 1] is a copula. The copula describes how the parameters co-vary after their marginal distributions have been transformed onto the common probability scale [0, 1]. In PBA, the marginal distributions are not fixed because each p-box represents a set of admissible cumulative distribution functions. After discretization, however, the probability-space cells Uk and the corresponding parameter-space hyperrectangles Hk are fixed. Dependence assumptions therefore affect the masses assigned to these cells rather than the cell geometry itself. The copula approach follows the same PBA sequence as independence: the cells are fixed, the dependence model assigns their masses, and the model is then propagated over the associated parameter-space hyperrectangles. Let Ui ∈ [0, 1] denote the probability-scale coordinate associated with p-box parameter θi. A copula specifies 
+
+C(u1, . . . , uK ) = Pr( U1 ≤ u1, . . . , UK ≤ uK ). (3.3) The copula gives cumulative probability up to a corner of the unit hypercube. PBA, however, requires probability mass inside a probability-space hyperrectangle. For the probability-space hyperrectangle Uk defined in Equation (2.8) , define, for each corner vector s = ( s1, . . . , sK ) ∈ {0, 1} K ,
+
+usi 
+
+> i
+
+=
+
+
+
+cki 
+
+> i
+
+, si = 0, 
+
+dki 
+
+> i
+
+, si = 1. (3.4) 8
+
+The copula-induced mass of Uk is 
+
+wC 
+
+> k
+
+= Pr( Uk) = X
+
+> s∈{0,1} K
+
+(−1) K−PKi=1 si C(us1 
+
+> 1
+
+, . . . , usK 
+
+> K
+
+). (3.5) This is the inclusion–exclusion increment of the copula over the probability-space cell. In the specified-copula case, wC 
+
+> k
+
+is the realized value of the general cell mass pk. For the independence copula 
+
+C⊥(u1, . . . , uK ) = 
+
+> K
+
+Y
+
+> i=1
+
+ui, (3.6) Equation (3.5) reduces to Equation (3.1). After the cell masses have been assigned, the model is propagated through the parameter-space hyperrectangles. Let 
+
+η(1) , . . . , η(N) (3.7) be Monte Carlo draws from the joint distribution of the precise-CDF parameters. For each draw η(l), l = 1, . . . , N, and each p-box hyperrectangle Hk, the black-box model is minimized and maximized over the p-box parameters while holding the precise-CDF draw and fixed parameters fixed: 
+
+Yk,l = min 
+
+> θb∈H k
+
+M(θb, η(l), ϕ), Yk,l = max 
+
+> θb∈H k
+
+M(θb, η(l), ϕ). (3.8) If no precise-CDF parameters are present, the outer Monte Carlo averaging step is omitted. Given the copula-induced masses 
+
+wC
+
+> k
+
+, the output p-box is obtained by averaging over the outer Monte Carlo draws and summing over the p-box hyperrectangles: 
+
+FY (y) = 1
+
+N
+
+> N
+
+X
+
+> l=1
+
+X
+
+> k∈K
+
+wC
+
+> k
+
+1{Yk,l ≤ y}, (3.9) and 
+
+FY (y) = 1
+
+N
+
+> N
+
+X
+
+> l=1
+
+X
+
+> k∈K
+
+wC
+
+> k
+
+1{Yk,l ≤ y}. (3.10) 
+
+## 3.3 Fréchet-style bounds for unknown dependence 
+
+Copulas require a specified dependence model. When no defensible dependence model is available, the p-box cell masses cannot be computed from a copula or from the independence assumption. Instead, the masses pk introduced in Section 2.2 are treated as unknown. The marginal discretization nevertheless remains fixed: the probability-space cells Uk and the marginal slice masses 
+
+mji are already determined. Consequently, although the joint masses pk are unknown, they cannot be arbitrary. Any admissible 9
+
+mass assignment must preserve the marginal slice masses implied by the discretization. Specifically, the total mass assigned to all cells whose i-th coordinate corresponds to slice j must equal mji. Together with non-negativity and unit total mass, these marginal-preservation constraints define the admissible coupling set 
+
+Q =
+
+p = ( pk)k∈K : pk ≥ 0, X
+
+> k∈K
+
+pk = 1, X
+
+> k:ki=j
+
+pk = mji for all i, j
+
+ . (3.11) Once the admissible mass set has been specified, the remaining tasks parallel Section 3.2, except that the final mass-assignment step is optimized over Q rather than computed from a specified copula. Before optimizing over Q, the model must first be propagated over each fixed hyperrectangle. This first optimization layer is 
+
+Yk,l = min 
+
+> θb∈H k
+
+M(θb, η(l), ϕ), Yk,l = max 
+
+> θb∈H k
+
+M(θb, η(l), ϕ). (3.12) For a fixed p ∈ Q and threshold y ∈ R, define 
+
+FY (y; p) = 1
+
+N
+
+> N
+
+X
+
+> l=1
+
+X
+
+> k∈K
+
+pk1{Yk,l ≤ y}, (3.13) and 
+
+FY (y; p) = 1
+
+N
+
+> N
+
+X
+
+> l=1
+
+X
+
+> k∈K
+
+pk1{Yk,l ≤ y}. (3.14) The indicator terms in Equations (3.13) and (3.14) are fixed after Equation (3.12) has been computed. The remaining uncertainty is only the allocation of probability mass across the fixed cells. The Fréchet bounds are therefore 
+
+FY (y) = min  
+
+> p∈Q
+
+FY (y; p), (3.15) and 
+
+FY (y) = max  
+
+> p∈Q
+
+FY (y; p). (3.16) Equations (3.15) and (3.16) are finite-dimensional linear programs because the objective functions and all constraints are linear in pk. supplementary material gives the corresponding validity and sharpness arguments. 
+
+## 3.4 Cross-dependence between p-box and precise-CDF parameters 
+
+Sections 3.2 and 3.3 address dependence among p-box parameters only. In many risk models, however, dependence may also exist between parameters represented by p-boxes and parameters represented by precise cumulative distribution functions. This 10 
+
+creates a different problem. P-box parameters are propagated through discretized hyperrectangles Hk, whereas precise-CDF parameters are often propagated through Monte Carlo draws from fully specified distributions. Dependence between these two classes of uncertainty therefore cannot be represented using the p-box hyperrectangles alone. A common probability-scale representation is therefore required. P-box parameters use coordinates Ui ∈ [0, 1]. Precise-CDF parameters use 
+
+Vh = Fηh (ηh), h = 1, . . . , M. (3.17) The resulting variables Vh are uniform on [0, 1]. Cross-dependence can then be specified or bounded for the combined vector (U1, . . . , UK , V1, . . . , VM ). Sections 3.4.1 and 3.4.2 extend the specified-dependence and unknown-dependence constructions to this mixed representation. Figure 2 summarizes this construction. 
+
+## 3.4.1 Specified cross-dependence using a copula 
+
+A specified cross-dependence model can be represented by a joint copula Cbc for ( U1, . . . , UK , V1, . . . , VM ). This is the cross-dependence analogue of Section 3.2: the dependence model is specified, so the relevant masses are calculated rather than optimized. For each outer draw η(l), define its probability-scale value 
+
+v(l) =
+
+
+
+Fη1 (η(l)1 ), . . . , FηM (η(l) 
+
+> M
+
+)
+
+
+
+. (3.18) Conditional on this value, the mass assigned to p-box probability-space cell Uk is 
+
+wC 
+
+> k|l
+
+= Pr (U1, . . . , UK ) ∈ U k (V1, . . . , VM ) = v(l) . (3.19) Thus, unlike Section 3.2, the p-box cell weights may vary across outer Monte Carlo draws; wC 
+
+> k|l
+
+is the draw-specific mass assigned to Uk conditional on v(l). If the joint copula has density cbc (u, v), this conditional mass can be expressed as 
+
+wC 
+
+> k|l
+
+=
+
+R 
+
+> Uk
+
+cbc (u, v(l)) du
+
+cc(v(l)) , (3.20) where cc(v(l)) is the marginal copula density of the precise-CDF probability-scale vector ( V1, . . . , VM ). This expression is evaluated only at values for which cc(v(l)) > 0. Conditioning on v(l) redistributes probability mass across the fixed p-box cells. The model is then optimized over the same p-box-derived hyperrectangles as before, with Yk,l and Yk,l defined as in Equation (3.8) ;only the weights attached to those hyperrectangles depend on the precise-CDF draw. For y ∈ R, the output p-box is constructed 11 
+
+General cross-dependence structure 
+
+P-box parameters θb = ( θ1, . . . , θK ) and precise-CDF parameters η = ( η1, . . . , ηM ) may be cross-dependent. 
+
+P-box parameters 
+
+θb = ( θ1, . . . , θK )
+
+Precise-CDF parameters 
+
+η = ( η1, . . . , ηM )
+
+Discretize p-boxes into 
+
+Uk and Hk
+
+Use precise CDFs Fηh
+
+to sample or discretize ηh
+
+Common probability scale 
+
+P-box coordinates U1, . . . , UK and precise-CDF coordinates V1, . . . , VM
+
+Cross-dependence model 
+
+Specifies or bounds how ( U1, . . . , UK ) varies with ( V1, . . . , VM )
+
+Specified cross-dependence 
+
+Conditional copula masses wC
+
+> k|l
+
+Unknown cross-dependence 
+
+Joint Fréchet mass optimization 
+
+> The marginal p-box and precise-CDF information are kept fixed. Cross-dependence determines how joint probability mass is arranged across combined parameter cells.
+
+F I G U R E 2 General structure of cross-dependence between p-box parameters and precise-CDF parameters. P-box parameters are represented by probability-space cells Uk and parameter-space hyperrectangles Hk. Precise-CDF parameters are represented through their cumulative distribution functions Fηh , either by outer sampling or by discretization. Cross-dependence is modeled on the common probability scale using Ui for p-box coordinates and Vh for precise-CDF coordinates. The copula approach specifies conditional masses wC
+
+> k|l
+
+, whereas the joint Fréchet approach optimizes over admissible joint mass assignments. by replacing unconditional copula weights wC 
+
+> k
+
+with conditional weights wC
+
+> k|l
+
+:
+
+FY (y) = 1
+
+N
+
+> N
+
+X
+
+> l=1
+
+X
+
+> k∈K
+
+wC
+
+> k|l
+
+1{Yk,l ≤ y}, (3.21) and 
+
+FY (y) = 1
+
+N
+
+> N
+
+X
+
+> l=1
+
+X
+
+> k∈K
+
+wC
+
+> k|l
+
+1{Yk,l ≤ y}. (3.22) Figure 3 illustrates this conditional mass-assignment mechanism. 12 
+
+1. Draw precise-CDF parameters 
+
+η(l) = ( η(l)1 , . . . , η(l) 
+
+> M
+
+)
+
+2. Transform the draw to probability scale 
+
+v(l) = ( Fη1 (η(l)1 ), . . . , FηM (η(l) 
+
+> M
+
+)) 
+
+3. Condition the joint copula 
+
+Cbc is evaluated conditional on V = v(l)
+
+4. Assign conditional masses to fixed p-box cells 
+
+Uk 7 → wC
+
+> k|l
+
+Fixed probability-space cells with draw-specific weights 
+
+U1
+
+wC
+
+> 1| l
+
+U2
+
+wC
+
+> 2| l
+
+U3
+
+wC
+
+> 3| l
+
+U4
+
+wC
+
+> 4| l
+
+5a. Optimize on Hk
+
+compute Yk,l, Yk,l
+
+5b. Aggregate outputs 
+
+use wC 
+
+> k|l
+
+to form 
+
+FY (y), FY (y)
+
+The copula changes the weights attached to the cells, not the geometry of Uk or Hk.
+
+F I G U R E 3 Copula-based cross-dependence between p-box parameters and precise-CDF parameters. For each outer draw 
+
+η(l), the precise-CDF parameters are mapped to probability scale as v(l). Conditioning the joint copula Cbc on V = v(l) gives conditional masses wC 
+
+> k|l
+
+for the fixed p-box probability-space cells Uk. These masses are then used to aggregate the optimized model-output bounds Yk,l and Yk,l over the corresponding parameter-space hyperrectangles Hk.
+
+## 3.4.2 Unknown cross-dependence using a Fréchet-style formulation 
+
+When no defensible cross-copula is available, the precise-CDF parameters can be discretized and included in a joint Fréchet-style coupling. This is the cross-dependence analogue of Section 3.3: the cells are constructed first, the black-box model is optimized 13 
+
+within each joint cell, and the admissible mass assignment is optimized after those cellwise bounds have been computed. For each precise-CDF parameter ηh, partition the probability scale into Rh slices, 
+
+Jsh = [ esh, f sh ], μsh = f sh − esh, s = 1, . . . , Rh. (3.23) The corresponding parameter-space interval is 
+
+Gsh = F−1 
+
+> ηh
+
+(esh), F−1 
+
+> ηh
+
+(f sh ) . (3.24) Let 
+
+R = {( r1, . . . , rM ) : 1 ≤ rh ≤ Rh for h = 1, . . . , M} . For a vector of precise-CDF slice indices r = ( r1, . . . , rM ) ∈ R , parallel to the p-box multi-index k, define 
+
+Gr =
+
+> M
+
+Y
+
+> h=1
+
+Grh 
+
+> h
+
+. (3.25) Thus, Gr is the precise-CDF analogue of the p-box hyperrectangle Hk. The combined joint cell is 
+
+Jk,r = Hk × G r. (3.26) The index pair ( k, r) ∈ K × R identifies one cell in the joint discretization of all uncertain parameters. The first optimization layer propagates each joint cell through the black-box model. For every ( k, r), compute 
+
+Yk,r = min  
+
+> θb∈H k,η∈G r
+
+M(θb, η, ϕ), Yk,r = max  
+
+> θb∈H k,η∈G r
+
+M(θb, η, ϕ). (3.27) This step determines the lower and upper model outputs attainable inside each joint cell. It is separate from the dependence problem: no joint probability masses are optimized in Equation (3.27). The second optimization layer assigns joint masses to the cells. Let pk,r denote the unknown mass assigned to Jk,r. The admissible set is 
+
+Qbc =
+
+p : pk,r ≥ 0, X
+
+> k∈K
+
+X
+
+> r∈R
+
+pk,r = 1, X
+
+> k∈K
+> ki=j
+
+X
+
+> r∈R
+
+pk,r = mji for all i, j, X
+
+> r∈R
+> rh=s
+
+X
+
+> k∈K
+
+pk,r = μsh for all h, s
+
+ . (3.28) The first set of marginal constraints preserves the p-box slice masses. The second preserves the precise-CDF probability-slice masses. Thus, Qbc varies only the admissible dependence structure while preserving the marginal information. 14 
+
+For a fixed p ∈ Q bc and threshold y ∈ R, the candidate output bounds are 
+
+FY (y; p) = X
+
+> k∈K
+
+X
+
+> r∈R
+
+pk,r1{Yk,r ≤ y}, (3.29) and 
+
+FY (y; p) = X
+
+> k∈K
+
+X
+
+> r∈R
+
+pk,r1{Yk,r ≤ y}. (3.30) The indicator terms in Equations (3.29) and (3.30) are fixed after Equation (3.27) has been computed. The remaining unknowns are the masses pk,r. The Fréchet lower and upper output bounds under unknown cross-dependence are obtained by solving 
+
+FY (y) = min 
+
+> p∈Q bc
+
+FY (y; p), (3.31) and 
+
+FY (y) = max 
+
+> p∈Q bc
+
+FY (y; p). (3.32) These are finite-dimensional linear programs because the objectives and all constraints are linear in the unknown masses pk,r.Figure 4 summarizes this construction. 
+
+## 4 ILLUSTRATIVE RISK-MODEL APPLICATION 
+
+We adapt the animal herd inspection model of Troffaes and Gosling as an illustrative risk-decision model 2 to demonstrate the introduced dependence-sensitive PBA approaches. The decision problem concerns choosing the number of animals to test ( m)before allowing the herd of imported animals ( n) to pass inspection. The herd contains an unknown number d of diseased animals. The diagnostic test has sensitivity p and specificity q. Testing m animals incurs cost c(m). If diseased animals pass inspection undetected, an outbreak cost a(d) is incurred. If at least one diseased animal is detected, the herd is terminated at cost t(n). Details on the computational model are presented in supplementary material. The uncertain quantities are grouped according to the three parameter classes in the framework. The p-box parameters are the infection probability r and the outbreak cost a.The precise-CDF parameters are sensitivity p and specificity q. Sensitivity and specificity are treated as dependent parameters as they are characteristics of the same diagnostic test. The fixed parameters are the herd size n, the coefficients in c(m), the termination cost multiplier, and the loss threshold used for exceedance summaries. We consider eleven scenarios. For each scenario we calculate the expected loss and the probability of the loss exceeding a threshold. Scenarios 1–9 vary the dependence assumptions within the two parameter pairs ( r, a) and ( p, q). Scenario 10 introduces Fréchet unknown cross-dependence between 15 
+
+P-box discretization 
+
+Hk, Uk
+
+U1
+
+U2
+
+> Uk
+
+Precise-CDF discretization 
+
+Gr
+
+Vh
+
+0 esh f sh 1   
+
+> Gsh
+> Products across hgive Gr
+
+Joint cell 
+
+Jk,r = Hk × G r
+
+Unknown joint mass 
+
+pk,r
+
+Qbc = {( pk,r) : pk,r ≥ 0, X
+
+> k∈K
+
+X
+
+> r∈R
+
+pk,r = 1, 
+
+X
+
+> k∈K
+> ki=j
+
+X
+
+> r∈R
+
+pk,r = mji, X
+
+> r∈R
+> rh=s
+
+X
+
+> k∈K
+
+pk,r = μsh}
+
+F I G U R E 4 Unknown cross-dependence using a joint Fréchet formulation. The precise-CDF parameters are discretized into probability slices and mapped to intervals Gsh. Products of these intervals define Gr, with r ∈ R , which are combined with p-box-derived hyperrectangles Hk, k ∈ K , to form joint cells Jk,r. The unknown masses pk,r are optimized over the feasible set 
+
+Qbc , which preserves the marginal slice masses for both p-box and precise-CDF parameters. the pairs ( r, a) and ( p, q). Scenario 11 introduces a Gaussian-copula cross-dependence between the same pair. As a comparison, we conduct PSA assigning precise CDF to all uncertain parameters. 
+
+## 4.1 Scenario 10 worked implementation 
+
+Scenario 10 applies the generalized algorithm from supplementary material with independence for ( r, a), Gaussian-copula dependence for ( p, q) with ρpq = −0.85, and Fréchet-type unknown cross-dependence between the pair blocks ( r, a) and ( p, q). The implementation is easiest to follow by keeping four objects separate. First, construct the two within-block cell systems: 400 cells for ( r, a) and 400 cells for ( p, q). Second, compute the within-block mass vectors wra = ( wra u ) and wpq = ( wpq v ). Third, optimize the 400 × 400 cross-block coupling matrix Π× = ( Π×
+
+> uv
+
+). Fourth, use the precomputed cell-output bounds Yuv and Yuv in the threshold-specific linear programs. Thus, u indexes a flattened ( r, a) block cell, v indexes a flattened ( p, q) block cell, and Π×
+
+> uv
+
+is the unknown joint mass assigned to their combination. 16 
+
+Step 1: Construct the marginal p-boxes. The p-box for r was constructed using the range of prior means ex-plored in the article, from 0.0002 to 0.0032 in addition to an assumed median value to avoid vacuous probability: 
+
+Dr = { rL = 0.0002, rM = 0.0016, rU = 0.0032}. The available information for a has wide lower and upper bounds representing deep uncertainty in the cost of an outbreak: Da = { aL = 5 ,000 , 000, μa = 10 ,000 , 000, aU = 20 ,000 , 000}. Using the p-box formulas for Dr, the p-boxes for r are 
+
+Fr(x) = 
+
+
+
+0, x < 0.0016, 0.5, 0.0016 ≤ x < 0.0032, 1, x ≥ 0.0032, 
+
+Fr(x) = 
+
+
+
+0, x < 0.0002, 0.5, 0.0002 ≤ x < 0.0016, 1, x ≥ 0.0016. Using the p-box formulas for Da,
+
+Fa(x) = 
+
+
+
+0, x < 10,000,000, 
+
+x − 10,000,000 
+
+x − 5,000,000 , 10,000,000 ≤ x < 20,000,000, 1, x ≥ 20,000,000, and 
+
+Fa(x) = 
+
+
+
+0, x < 5,000,000, 10,000,000 20,000,000 − x , 5,000,000 ≤ x < 10,000,000, 1, x ≥ 10,000,000. To ensure the comparison with PBA using the same support and median information, r is assigned a scaled beta distribution on [0.0002, 0.0032] with median 0.0016, which approximately gives: αr = 9.355, βr = 10.645. For the PSA comparator, the variable a is assigned a scaled beta distribution on [5 , 000 , 000, 20 , 000 , 000] with mean 10 , 000 , 000 and standard deviation equal to 20% of the mean. The diagnostic parameters p and q remain precise-CDF parameters with beta distributions centered at 
+
+E(p) = 0.85, E(q) = 0.90, which give: 
+
+p ∼ Beta(10.2, 1.8), q ∼ Beta(10.8, 1.2), 
+
+Step 2: Discretize the probability and parameter spaces. For each parameter, [0, 1] is discretized into 20 probability slices: [cji, dji ] = 
+
+ j − 120 , j
+
+20 
+
+
+
+, j = 1, . . . , 20, 17 
+
+so every marginal slice mass is 
+
+mji = dji − cji = 0.05. For p-box parameters, each probability slice was mapped into the corresponding parameter-space interval using the quasi-inverse of p-box formulas [aji, bji] = 
+
+h
+
+F−1 
+
+> i
+
+(cji), F−1 
+
+> i
+
+(dji )
+
+i
+
+.The quasi-inverses are 
+
+F−1 
+
+> r
+
+(u) = 
+
+
+
+0.0002, 0 ≤ u ≤ 0.5, 0.0016, 0.5 < u ≤ 1, 
+
+F−1 
+
+> r
+
+(u) = 
+
+
+
+0.0002, u = 0, 0.0016, 0 < u ≤ 0.5, 0.0032, 0.5 < u ≤ 1. and 
+
+F−1 
+
+> a
+
+(u) = 
+
+
+
+5,000,000, 0 ≤ u ≤ 0.6667, 20,000,000 − 10,000,000 
+
+u , 0.6667 < u ≤ 1. The lower quasi-inverse used for the right endpoint is 
+
+F−1 
+
+> a
+
+(u) = 
+
+
+
+5,000,000, u = 0, 10,000,000 − 5,000,000 u
+
+1 − u , 0 < u < 0.6667, 20,000,000, 0.6667 ≤ u ≤ 1. For the precise-CDF parameters, quantile-discretization intervals are used: [p− 
+
+> j
+
+, p+ 
+
+> j
+
+] = 
+
+
+
+F−1
+
+> p
+
+ j − 120 
+
+
+
+, F−1
+
+> p
+
+ j
+
+20 
+
+ 
+
+,and [q− 
+
+> j
+
+, q+ 
+
+> j
+
+] = 
+
+
+
+F−1
+
+> q
+
+ j − 120 
+
+
+
+, F−1
+
+> q
+
+ j
+
+20 
+
+ 
+
+.For example, 
+
+j = 1 : p ∈ [0.000, 0.659], q ∈ [0.000, 0.734], and 
+
+j = 20 : p ∈ [0.974, 1.000], q ∈ [0.991, 1.000]. 18 
+
+Table 1 reports the slice intervals used in the stress-test implementation. These intervals are used only to compute finite Gaussian-copula cell masses and the cross-dependence. They do not represent imprecision in p or q; the marginal distributions of p and q remain the precise beta CDFs throughout the PSA and PBA comparison. 
+
+T A B L E 1 Scenario 10 slice intervals used for the stress-test implementation. The a-intervals are expressed in millions. The 
+
+r- and a-columns are p-box-induced intervals, whereas the p- and q-columns are precise-CDF beta quantile intervals used for finite dependence calculations. 
+
+Slice j Probability interval r-interval a-interval p-interval q-interval 1 [0.00,0.05] [0.0002,0.0016] [5.000,10.263] [0.000,0.659] [0.000,0.734] 2 [0.05,0.10] [0.0002,0.0016] [5.000,10.556] [0.659,0.712] [0.734,0.785] 3 [0.10,0.15] [0.0002,0.0016] [5.000,10.882] [0.712,0.747] [0.785,0.816] 4 [0.15,0.20] [0.0002,0.0016] [5.000,11.250] [0.747,0.773] [0.816,0.840] 5 [0.20,0.25] [0.0002,0.0016] [5.000,11.667] [0.773,0.794] [0.840,0.859] 6 [0.25,0.30] [0.0002,0.0016] [5.000,12.143] [0.794,0.812] [0.859,0.875] 7 [0.30,0.35] [0.0002,0.0016] [5.000,12.692] [0.812,0.829] [0.875,0.888] 8 [0.35,0.40] [0.0002,0.0016] [5.000,13.333] [0.829,0.843] [0.888,0.901] 9 [0.40,0.45] [0.0002,0.0016] [5.000,14.091] [0.843,0.857] [0.901,0.912] 10 [0.45,0.50] [0.0002,0.0016] [5.000,15.000] [0.857,0.870] [0.912,0.922] 11 [0.50,0.55] [0.0002,0.0032] [5.000,16.111] [0.870,0.882] [0.922,0.931] 12 [0.55,0.60] [0.0016,0.0032] [5.000,17.500] [0.882,0.893] [0.931,0.940] 13 [0.60,0.65] [0.0016,0.0032] [5.000,19.286] [0.893,0.904] [0.940,0.948] 14 [0.65,0.70] [0.0016,0.0032] [5.000,20.000] [0.904,0.915] [0.948,0.956] 15 [0.70,0.75] [0.0016,0.0032] [5.714,20.000] [0.915,0.926] [0.956,0.963] 16 [0.75,0.80] [0.0016,0.0032] [6.667,20.000] [0.926,0.937] [0.963,0.970] 17 [0.80,0.85] [0.0016,0.0032] [7.500,20.000] [0.937,0.948] [0.970,0.977] 18 [0.85,0.90] [0.0016,0.0032] [8.235,20.000] [0.948,0.960] [0.977,0.984] 19 [0.90,0.95] [0.0016,0.0032] [8.889,20.000] [0.960,0.974] [0.984,0.991] 20 [0.95,1.00] [0.0016,0.0032] [9.474,20.000] [0.974,1.000] [0.991,1.000] 
+
+Step 3, 4: Construct the finite parameter cells The full parameter cells combine p-box intervals for ( r, a) with beta-quantile intervals for ( p, q). To avoid confusing this implementation index with the p-box-only multi-index in Section 2.2, write the full four-dimensional implementation index as κ = ( kr, ka, kp, kq). The corresponding full parameter-space cell is 
+
+H× 
+
+> κ
+
+= [ akr 
+
+> r
+
+, bkr 
+
+> r
+
+] × [aka 
+
+> a
+
+, bka 
+
+> a
+
+] × [p− 
+
+> kp
+
+, p+ 
+
+> kp
+
+] × [q− 
+
+> kq
+
+, q+ 
+
+> kq
+
+], where 
+
+κ = ( kr, ka, kp, kq), and kr, ka, kp, kq ∈ {1, . . . , 20} are the selected slices for r, a, p, and q, respectively. The corresponding probability-scale rectangles are 
+
+Uκ = [ ckr 
+
+> r
+
+, dkr 
+
+> r
+
+] × [cka 
+
+> a
+
+, dka 
+
+> a
+
+] × [ckp 
+
+> p
+
+, dkp 
+
+> p
+
+] × [ckq 
+
+> q
+
+, dkq 
+
+> q
+
+]. 19 
+
+The Cartesian product contains 20 × 20 × 20 × 20 = 160 , 000 finite cells. For instance, κ = (4, 12, 16, 9) means the fourth probability slice for r, the twelfth probability slice for a, the sixteenth quantile slice for p, and the ninth quantile slice for q:
+
+H× 
+
+> (4,12,16,9)
+
+= [0.0002, 0.0016] × [5,000,000, 17,500,000] × [0.926, 0.937] × [0.901, 0.912]. 
+
+Step 5: Assign weights for (r, a). Scenario 10 assumes independence between r and a, hence, the mass for each ( r, a) is 
+
+wra ij = 0.05 × 0.05 = 0.0025. 
+
+Step 6: Assign weights for (p, q). Scenario 10 assumes Gaussian-copula dependence between p and q with ρpq = −0.85. For the (p, q) quantile cell ( i, j), the probability mass is 
+
+wpq ij = C−0.85 
+
+ i
+
+20 , j
+
+20 
+
+
+
+− C−0.85 
+
+ i − 120 , j
+
+20 
+
+
+
+− C−0.85 
+
+ i
+
+20 , j − 120 
+
+
+
++ C−0.85 
+
+ i − 120 , j − 120 
+
+
+
+.This mass is assigned to the precise-CDF quantile cell, not to a p-box cell. 
+
+Step 7: Construct the Fréchet-type cross-dependence set Q×.
+
+Use u = 1, . . . , 400 to index the ( r, a) block cells and v = 1, . . . , 400 to index the ( p, q) quantile cells. In Scenario 10, the within-block masses are already fixed before cross-dependence is introduced: 
+
+wra u = 0.0025, u = 1, . . . , 400, because r and a are independent, while 
+
+wpq v , v = 1, . . . , 400, is the non-uniform Gaussian-copula cell mass from Step 6. The unknown cross-dependence is represented by the 400 ×400 matrix 
+
+Π× = { Π× 
+
+> uv
+
+: u = 1, . . . , 400, v = 1, . . . , 400}, 20 
+
+where Π× 
+
+> uv
+
+is the joint mass assigned to ( r, a) cell u and ( p, q) cell v. The admissible Fréchet-type cross-dependence set is 
+
+Q× =
+
+(
+
+Π× : Π× 
+
+> uv
+
+≥ 0, 
+
+> 400
+
+X
+
+> v=1
+
+Π× 
+
+> uv
+
+= wra u ∀u,
+
+> 400
+
+X
+
+> u=1
+
+Π× 
+
+> uv
+
+= wpq v ∀v
+
+)
+
+.Thus Q× is a probability-mass coupling set. Its row margins are the ( r, a) masses, and its column margins are the Gaussian-copula ( p, q) masses. Because the ( p, q) masses are not uniform, the column constraints are not all equal to 0.0025. They are exactly the values computed from the Gaussian copula in Step 6. This step is the dependence-uncertainty optimization; it should be kept distinct from the model-output optimization in Step 8. 
+
+Step 8: Evaluate the model For Scenario 10, write H× 
+
+> u,v
+
+for the full parameter-space cell associated with block-cell pair ( u, v); this is the block-indexed version of the joint cell Jk,r in Section 3.4.2, after the p-box and precise-CDF multi-indices are flattened into u and v. The index u identifies one of the 400 ( r, a) cells, and the index v identifies one of the 400 ( p, q) quantile cells. The lower and upper endpoints of the ( r, a) cell u are written as [r− 
+
+> u
+
+, r+ 
+
+> u
+
+] and [a− 
+
+> u
+
+, a+ 
+
+> u
+
+], and the lower and upper endpoints of the ( p, q) quantile cell v as [p− 
+
+> v
+
+, p+ 
+
+> v
+
+] and [q− 
+
+> v
+
+, q+ 
+
+> v
+
+]. The superscript “ −” marks the lower endpoint of the interval, and the superscript “+” marks the upper endpoint. The full hyperrectangle is 
+
+H× 
+
+> u,v
+
+= [ r− 
+
+> u
+
+, r+ 
+
+> u
+
+] × [a− 
+
+> u
+
+, a+ 
+
+> u
+
+] × [p− 
+
+> v
+
+, p+ 
+
+> v
+
+] × [q− 
+
+> v
+
+, q+ 
+
+> v
+
+]. If u corresponds to the first ( r, a) slice pair and v corresponds to the first ( p, q) slice pair, then 
+
+H× 
+
+> u,v
+
+= [0.0002, 0.0016] × [5.000, 10.263] × [0.000, 0.659] × [0.000, 0.734], where a is expressed in millions in the displayed interval table. For every H×
+
+> u,v
+
+, the loss function is evaluated at all 2 4 = 16 corner combinations: (r, a, p, q) ∈ {r− 
+
+> u
+
+, r+ 
+
+> u
+
+} × {a− 
+
+> u
+
+, a+ 
+
+> u
+
+} × {p− 
+
+> v
+
+, p+ 
+
+> v
+
+} × {q− 
+
+> v
+
+, q+ 
+
+> v
+
+}. 21 
+
+Then define the cellwise lower and upper outputs as 
+
+Yuv = min 
+
+> (r,a,p,q)∈corners( H×
+> u,v)
+
+L(10 | r, a, p, q), and 
+
+Yuv = max 
+
+> (r,a,p,q)∈corners( H×
+> u,v)
+
+L(10 | r, a, p, q). These two values form the output interval induced by the full hyperrectangle H×
+
+> u,v
+
+. Step 9 uses these precomputed Yuv and Yuv 
+
+values to construct the output CDF bounds. 
+
+Step 9: Construct the output CDF bounds by solving threshold-specific linear programs. For a fixed threshold y, the event 
+
+Y ≤ y is guaranteed for cell ( u, v) if the upper cell output does not exceed the threshold: 
+
+Yuv ≤ y.Similarly, the event Y ≤ y is possible for cell ( u, v) if the lower cell output does not exceed the threshold: 
+
+Yuv ≤ y.Therefore define the two binary indicators 
+
+I−
+
+> uv
+
+(y) = 1{Yuv ≤ y}, I+
+
+> uv
+
+(y) = 1{Yuv ≤ y}. The lower output CDF is obtained by minimizing the guaranteed mass below y over the admissible cross-dependence set: 
+
+FY (y) = min 
+
+> Π×∈Q ×
+> 400
+
+X
+
+> u=1 400
+
+X
+
+> v=1
+
+Π×
+
+> uv
+
+I−
+
+> uv
+
+(y). Equivalently, this is the linear program minimize Π×
+
+> 400
+
+X
+
+> u=1 400
+
+X
+
+> v=1
+
+Π×
+
+> uv
+
+1{Yuv ≤ y}subject to Π× 
+
+> uv
+
+≥ 0, u, v = 1, . . . , 400, 
+
+> 400
+
+X
+
+> v=1
+
+Π× 
+
+> uv
+
+= wra u , u = 1, . . . , 400, 
+
+> 400
+
+X
+
+> u=1
+
+Π× 
+
+> uv
+
+= wpq v , v = 1, . . . , 400. 22 
+
+The upper output CDF is obtained by maximizing the possible mass below y:
+
+FY (y) = max 
+
+> Π×∈Q ×
+> 400
+
+X
+
+> u=1 400
+
+X
+
+> v=1
+
+Π×
+
+> uv
+
+I+
+
+> uv
+
+(y), or explicitly, maximize Π×
+
+> 400
+
+X
+
+> u=1 400
+
+X
+
+> v=1
+
+Π×
+
+> uv
+
+1{Yuv ≤ y}subject to Π× 
+
+> uv
+
+≥ 0, u, v = 1, . . . , 400, 
+
+> 400
+
+X
+
+> v=1
+
+Π× 
+
+> uv
+
+= wra u , u = 1, . . . , 400, 
+
+> 400
+
+X
+
+> u=1
+
+Π× 
+
+> uv
+
+= wpq v , v = 1, . . . , 400. These two linear programs are solved at each grid value y ∈ Y . The resulting values form the lower and upper output CDF envelope for Scenario 10. For the exceedance threshold T = 3,000,000, the probability interval is computed as 
+
+P(Y > T) = 1 − FY (T), P(Y > T) = 1 − FY (T). The median interval is obtained from the same CDF envelope: the lower median is the first grid value where FY (y) ≥ 0.5, and the upper median is the first grid value where FY (y) ≥ 0.5. In this way, Scenario 10 has two explicit optimization layers: bounded model optimization within each full cell to obtain ( Yuv , Yuv ), followed by linear optimization over Π× ∈ Q × to obtain the output CDF bounds. 
+
+## 4.2 Comparative analysis 
+
+Table 2 lists the eleven scenarios and their corresponding result summaries. The dependence assumptions primarily affect the pessimistic side (higher loss) of the uncertainty distribution rather than the optimistic side (lower loss). Across all eleven scenarios, the lower PBA median remains approximately 0.308 million because the optimistic admissible output distribution is governed mainly by the common lower-tail marginal supports of the input parameters. In contrast, the upper PBA median and the exceedance-probability interval P(Y > 3 m ) vary substantially across scenarios, indicating that dependence assumptions mainly alter the adverse tail behavior of the system. The comparison between independence, Gaussian copulas, and Fréchet-type unknown dependence shows how stronger structural assumptions constrain the admissible uncertainty set. Gaussian-copula scenarios impose a specified dependence geometry and therefore generally produce narrower output envelopes. In contrast, Fréchet-type scenarios permit a much larger admissible set, allowing the optimization to place probability mass on more adverse configurations. Consequently, the Fréchet-type scenarios produce wider upper-tail uncertainty and larger exceedance-probability 23 
+
+intervals than the corresponding Gaussian-copula scenarios. This difference is particularly more pronounced in Scenarios 8–10, where either the ( r, a) block, the cross-block structure, or both are modeled using Fréchet-type uncertainty. Figure 5 provides a graphical summary of selected scenarios on a common output scale and adds a direct diagnostic of the bound width. 
+
+T A B L E 2 Scenario specifications for the 11 scenarios under different dependence assumptions. PBA denotes probability bounds analysis; PSA denotes probabilistic sensitivity analysis; ( r, a) denotes the prevalence–outbreak-cost block; ( p, q) denotes the diagnostic sensitivity–specificity block; independent denotes product dependence; gaussian denotes Gaussian-copula dependence; frechet denotes Fréchet-type unknown dependence; and cross denotes dependence between the ( r, a) and ( p, q)blocks. PSA median is the median of the precise PSA output distribution. PBA median interval is the interval formed by the lower and upper admissible medians of the PBA output p-box. P(Y > 3 m ) denotes the exceedance-probability interval for expected loss Y exceeding 3,000,000. All median expected-loss values are reported in millions.                                                                                                      
+
+> Scenario PBA ( r,a)PSA ( r,a)PBA ( p,q)PSA ( p,q)Cross PSA median PBA median interval P(Y> 3m) interval 1independent independent independent independent none 1.434 (0.308, 2.912) (0.000, 0.477) 2gaussian gaussian independent independent none 1.454 (0.308, 2.856) (0.000, 0.464) 3frechet gaussian independent independent none 1.425 (0.308, 3.024) (0.000, 0.502) 4independent independent gaussian gaussian none 1.393 (0.308, 2.912) (0.000, 0.475) 5independent independent frechet gaussian none 1.409 (0.308, 2.940) (0.000, 0.475) 6gaussian gaussian gaussian gaussian none 1.410 (0.308, 2.884) (0.000, 0.463) 7gaussian gaussian frechet gaussian none 1.426 (0.308, 2.884) (0.000, 0.462) 8frechet gaussian gaussian gaussian none 1.378 (0.308, 3.024) (0.000, 0.500) 9frechet gaussian frechet gaussian none 1.432 (0.308, 2.968) (0.000, 0.500) 10 independent independent gaussian gaussian frechet 1.427 (0.308, 3.080) (0.000, 0.525) 11 gaussian gaussian gaussian gaussian gaussian 1.418 (0.308, 2.912) (0.000, 0.477)
+
+## 5 DISCUSSION 5.1 Consequences of assuming independence without justification 
+
+A central implication of the proposed framework is that independence should be treated as a substantive modeling assumption rather than as a convenient default. In both PSA and PBA, assuming independence determines how uncertainty is distributed across the joint parameter space. When this assumption is unjustified, the resulting uncertainty analysis may place probability mass on implausible combinations of parameters, exclude plausible combinations that would arise under dependence, or underestimate uncertainty in nonlinear functions of the parameters. For example, if two beneficial treatment effects are positively associated, assuming independence may underrepresent the probability of jointly favorable or jointly unfavorable outcomes. Conversely, if two parameters are negatively associated because of a structural trade-off, independence may exaggerate the probability of extreme joint combinations. In both cases, the resulting uncertainty in the decision-relevant outcome may give a misleading impression of decision uncertainty. The broader sensitivity-analysis literature has repeatedly emphasized that dependence among inputs changes both uncertainty propagation and attribution of output variability. Oakley and O’Hagan emphasize that uncertainty in model outputs is induced by the joint uncertainty distribution of model inputs, not only by 24 
+
+F I G U R E 5 Comparison of output uncertainty and pointwise bound width under selected dependence assumptions. Panel A shows the lower and upper PBA cumulative distribution bounds for Scenarios 1, 3, 6, 8, 9, 10, and 11 on a common expected-loss scale; solid curves denote upper CDF bounds and dashed curves denote lower CDF bounds. Panel B shows the corresponding pointwise CDF bound width, defined as the difference between the upper and lower CDF bounds at each expected-loss threshold. Scenario 10, which leaves cross-dependence between parameter blocks unspecified, has the largest maximum, mean, and integrated bound width across all eleven scenarios, although it is not pointwise widest at every threshold. This distinction is expected because CDF-bound width is a local threshold-specific quantity, whereas the overall uncertainty envelope is summarized by maximum, average, integrated, median, and exceedance-probability diagnostics. their marginal distributions 9. In applied risk and decision modeling, independence assumptions are common because model parameters are often estimated separately, elicited separately, or obtained from different data sources. Neine et al. further showed in cost-effectiveness analysis that parameter correlation may affect uncertainty results and proposed methods for generating correlated non-normal input parameters 14 . The two approaches developed in this article address the problem from different 25 
+
+viewpoints. Copula-based PBA is appropriate when we can specify or estimate a plausible dependence structure. Fréchet bounds are appropriate when we cannot justify any particular dependence model and wish to avoid hidden assumptions. In both cases, the key principle is the same: independence should be used only when it is defensible, and sensitivity to dependence should be examined whenever dependence could materially affect model conclusions. 
+
+## 5.2 Computational complexity after dropping the independence assumption 
+
+A major implication of relaxing the independence assumption is the substantial increase in computational complexity. The computational burden is not only determined by the number of p-box parameters and the number of slices per p-box parameter, but also by the number of Monte Carlo samples for precise-CDF parameters, the cost of evaluating the black-box model, and the complexity of the optimization problems. The first source of computational growth is the number of p-box-derived hyperrectangles. Let db denote the number of p-box parameters. If p-box parameter i is discretized into ni slices, then the number of p-box-derived hyperrectangles under exact full-factorial propagation is |K| = 
+
+> db
+
+Y
+
+> i=1
+
+ni.This computational burden rapidly becomes significant even in moderate dimensions. For example, if there are 20 p-box parameters and each parameter is discretized into five slices, the number of hyperrectangles is 5 20 ≈ 9.5 × 10 13 . Another source of computational growth is dependence mass assignment. Under copula-based dependence, the probability mass assigned to a single probability-space cell requires evaluation of the inclusion–exclusion formula over all 2 db corners of that cell: 
+
+P(Uk) = X
+
+> s∈{0,1} db
+
+(−1) db−P  
+
+> isi
+
+C(us1 
+
+> 1
+
+, . . . , usdb 
+
+> db
+
+). This computing cost grows exponentially with the number of p-box parameters. The Fréchet-style formulation is also com-putationally demanding, albeit in a different way. Here, the cell mass pk becomes an optimization variable, and the output p-box is obtained through linear optimization over the admissible set Q. Thus, Fréchet propagation involves optimization over admissible joint probability-mass couplings in addition to optimization of the black-box model over hyperrectangles. Parameters with precise CDFs contribute to computational complexity in a different way as well. If N Monte Carlo draws are used for the precise-CDF parameters, then each p-box hyperrectangle must usually be propagated conditional on each draw η(l). The number of bounded model optimizations is therefore approximately 2N
+
+> db
+
+Y
+
+> i=1
+
+ni,26 
+
+where the factor 2 corresponds to the minimization and maximization needed to obtain Yk,l and Yk,l. Thus, even though precise-CDF parameters do not increase the number of p-box-derived hyperrectangles, they multiply the number of hyperrectangle optimizations by the number of samples used to integrate over their distributions. Fixed parameters do not add hyperrectangles and do not require sampling. Their computational contribution is indirect: they affect the numerical value and possibly the shape of the objective function being optimized. One last contributor, and perhaps the dominant computational bottleneck, is the repeated black-box optimization step. For each hyperrectangle and each Monte Carlo draw of the precise-CDF parameters, the algorithm must solve 
+
+Yk,l = min 
+
+> θb∈H k
+
+M(θb, η(l), ϕ), and 
+
+Yk,l = max 
+
+> θb∈H k
+
+M(θb, η(l), ϕ). If the model is computationally expensive to evaluate, these repeated bounded optimizations will undoubtedly dominate runtime. Hence, scalable computation approaches should be considered to significantly reduce the computational burden. We sketch some ideas. First, instead of evaluating every combination of marginal slices (full-factorial design), the algorithm should focus on a sparse subset of representative hyperrectangles. This may change the effective computational scaling from exponential growth in the full Cartesian grid to approximately linear growth in the number of sampled hyperrectangles. Second, to reduce the number of Monte Carlo samples we should consider the use of variance-reduced outer sampling, such as quasi-Monte Carlo Sobol draws, Latin hypercube sampling, antithetic sampling, or sparse quadrature when the number of precise-CDF parameters is small. An adaptive approach can also be used: start with a modest number of precise-CDF draws, estimate the change in FY and FY as additional draws are added, and stop when the change is smaller than a prespecified tolerance. Third, low-influence precise-CDF parameters can also be screened through sensitivity analyses, and, when justified, fixed at representative values. The propagation is naturally parallelizable because each hyperrectangle optimization is conditionally independent given the dependence model and Monte Carlo sample. Lastly, using meta-models or emulators in place of the black-box model may also reduce the need for repeated model evaluations, provided that emulator uncertainty is incorporated into the final output p-box rather than ignored 20 .These aforementioned scalable approaches do not eliminate the intrinsic complexity of PBA under dependence uncertainty, but they substantially improve tractability and make high-dimensional dependence-sensitive uncertainty propagation feasible for practical applications. 
+
+## 5.3 Decision-making 
+
+One major implication of PBA-based uncertainty quantification is that the output of the analysis is no longer a single precise distribution of Y, but an output p-box characterized by lower and upper cumulative distribution bounds. This changes the 27 
+
+interpretation of decision-making fundamentally relative to conventional PSA. Under PSA, decision-making is grounded in the von Neumann–Morgenstern (VNM) expected utility framework, which assumes precise probability distributions for uncertain model parameters and therefore a unique induced distribution for the model outcome 21,22 . In health economic evaluation, this usually leads to decision criteria based on expected net monetary benefit 23,24 . PBA produces a family of admissible distributions, 
+
+FY = FY : FY (y) ≤ FY (y) ≤ FY (y) ,so the expected utility itself becomes interval-valued, 
+
+E[Y] ≤ E[Y] ≤ E[Y]. Several alternative decision criteria arise naturally for interval-valued decision-relevant outcomes. One possibility is interval dominance, where strategy A dominates strategy B if 
+
+E(YA) > E(YB), meaning that every admissible distribution for A yields a larger expected outcome than every admissible distribution for B.Another possibility is maximality, which compares strategies over the entire admissible set of distributions and allows partially ordered preferences 16 . A more conservative alternative is robust or Γ-maximin decision-making over d choices, max  
+
+> d
+
+min 
+
+> F∈F Y
+
+EF [Yd], which selects the strategy with the best worst-case expected performance under all admissible distributions 25 . In sum, any aforementioned decision-making framework can be readily integrated into PBA. Nevertheless, we should distinguish uncertainty quantification from the choice of normative decision models: PBA characterizes the admissible uncertainty set implied by incomplete information and unresolved dependence assumptions, whereas the choice of decision criterion depends on the decision-makers’ tolerance for ambiguity and conservatism. 
+
+## 5.4 Limitations 
+
+This study has several limitations. First, as noted before, although the proposed framework generalizes PBA to include settings where accounting for dependence uncertainty matters, the computational burden may still be substantial for high-dimensional problems. We offer some solutions in the above discussion. However, a thorough investigation is needed to determine which 28 
+
+scalable approaches are optimal. Next, this study introduces a copula approach for modeling dependence under PBA. We do not provide guidance on how to select the appropriate copula model. However, our characterization of copula and its application are general, hence, their utility is not restricted to a particular copula model. Thirdly, although we introduce approaches that can accommodate a broad class of dependence assumptions, we do not provide practical guidance for selecting an appropriate dependence model in a given application. In many real-world settings, information about dependence is sparse, incomplete, or entirely unavailable. Consequently, results may remain sensitive to assumptions regarding the nature and strength of dependence. Fourth, the illustrative application was intentionally designed to demonstrate the methodology rather than to represent the full complexity of real-world models. Although the example highlights the practical implications of dependence assumptions, additional applications involving more realistic models, multiple sources of evidence, and more complex dependence structures would strengthen the empirical evaluation of the framework. Fifth, the framework assumes that the information used to construct uncertainty bounds is itself reliable and representative. If the underlying evidence base is biased (e.g., due to measurement error or not representative of the target population), the resulting uncertainty characterization may also be misleading regardless of conservativeness of the bounds. The framework quantifies uncertainty conditional on the available evidence but does not account for the robustness in the evidence. Lastly, practical implementation still requires analyst judgment regarding uncertainty representation, discretization choices, optimization settings, and dependence assumptions. Although these choices are transparent and can be examined through sensitivity analyses, different modeling decisions may produce different uncertainty bounds, particularly when the available evidence is limited. 
+
+## 5.5 Future directions 
+
+Although the proposed framework broadens PBA to accommodate dependent uncertainty, several methodological and computa-tional challenges remain. First, practical guidance is needed for choosing among copula and Fréchet dependence models. In applied risk and decision modeling, dependence information is often partial: we may know the direction of the association, a plausible correlation range, or structural constraints, but not a full joint distribution. One future research topic is the development of decision rules or diagnostic workflows that map available dependence information to an appropriate dependence model. For example, pairwise correlation information may motivate a Gaussian or vine copula; qualitative tail-dependence information may motivate Archimedean or t-copulas; and absence of defensible dependence information may motivate Fréchet bounds. Second, de-pendence elicitation remains underdeveloped. Existing elicitation methods in health economic modeling often focus on marginal distributions 17 . Future work should develop elicitation protocols for dependence under sparse data, including elicitation of rank correlations, tail dependence, and feasible joint constraints. Such protocols should be designed for domain experts who may not be familiar with copula theory or imprecise probability. Third, scalable algorithms are needed for high-dimensional dependent 29 
+
+PBA. The curse of dimensionality affects both hyperrectangle enumeration and dependence-sensitive mass assignment. Sparse Sobol hyperrectangles, adaptive refinement, and surrogate modeling provide promising directions, but their statistical properties require further study. In particular, future research should quantify approximation error introduced by sparse hyperrectangle selection and develop stopping criteria indicating when additional hyperrectangles no longer materially change the output p-box. Fourth, optimization over hyperrectangles remains a major bottleneck. Fast local optimizers may fail for multimodal black-box models, whereas global optimizers may be too slow for large propagation problems. Future implementations could combine several strategies: monotonicity screening, endpoint evaluation when justified, local optimization with multi-start initialization, surrogate-assisted optimization, and adaptive allocation of computational effort to influential hyperrectangles. Machine-learning emulators may also reduce repeated model evaluations, provided that emulator uncertainty is incorporated into the output p-box rather than ignored. Fifth, Fréchet dependence propagation requires efficient optimization over admissible joint mass distribu-tions. Although the discrete formulation leads to linear programming problems, the number of variables grows with the number of hyperrectangles. Future work should explore decomposition methods, optimal-transport formulations, constraint screening, and sparse-support approximations. These tools may make unknown-dependence PBA feasible for higher-dimensional models. 
+
+## 6 CONCLUSION 
+
+Uncertainty is an inevitable feature of models, and the available evidence is often insufficient to fully characterize all uncertain model parameters and their relationships. Conventional approaches frequently require assumptions that may not be supported by the underlying evidence, potentially leading to overconfident conclusions and an incomplete representation of uncertainty. This study presents a framework that enables uncertainty analyses to more closely reflect the information that is actually available. By explicitly accommodating incomplete knowledge and avoiding reliance on unjustified assumptions, the proposed approach provides a more transparent characterization of the range of outcomes that remain plausible given current evidence. 
+
+## DATA AVAILABILITY STATEMENT 
+
+The illustrative example uses numerical inputs described in the manuscript and supplementary material. Analysis code and derived data can be provided through the journal submission system upon request during review. 
+
+## References     
+
+> 1. O’Hagan A, Buck CE, Daneshkhah A, et al. Uncertain Judgements: Eliciting Experts’ Probabilities . Chichester: John Wiley & Sons, 2006. 2. Troffaes MCM, Gosling JP. Robust detection of exotic infectious diseases in animal herds: A comparative study of three decision methodologies under severe uncertainty. International Journal of Approximate Reasoning. 2012;53(8):1271–1281. doi: 10.1016/j.ijar.2012.06.020 30
+
+3. Augustin T, Coolen FPA, Cooman dG, Troffaes MCM., eds. Introduction to Imprecise Probabilities . John Wiley & Sons, 2014. 4. Walley P. Statistical Reasoning with Imprecise Probabilities . Chapman and Hall, 1991. 5. Ferson S, Kreinovich V, Ginzburg L, Myers DS, Sentz K. Uncertainty analysis based on probability bounds analysis. Risk Analysis. 2009;29(8):1156– 1169. 6. Ferson S, Nelsen RB, Hajagos J, et al. Dependence in Probabilistic Modeling, Dempster-Shafer Theory, and Probability Bounds Analysis. Tech. Rep. SAND2004-3072, Sandia National Laboratories; Albuquerque, NM: 2004. 7. Nelsen RB. An Introduction to Copulas . Springer. 2 ed., 2006. 8. Joe H. Dependence Modeling with Copulas . Chapman and Hall/CRC, 2014. 9. Oakley JE, O’Hagan A. Probabilistic sensitivity analysis of complex models: a Bayesian approach. Journal of the Royal Statistical Society: Series B. 2004;66(3):751–769. doi: 10.1111/j.1467-9868.2004.05304.x 10. Claxton K, Sculpher M, McCabe C, et al. Probabilistic sensitivity analysis for NICE technology assessment: not an optional extra. Health Economics. 2005;14(4):339–347. 11. Jackson CH, Thompson SG, Sharples LD. Accounting for uncertainty in health economic decision models by using value of information analysis. 
+
+Medical Decision Making. 2019;39(5):497–509. 12. Jacques J, Lavergne C, Devictor N. Sensitivity analysis in presence of model uncertainty and correlated inputs. Reliability Engineering & System Safety. 2006;91(10-11):1126–1134. doi: 10.1016/j.ress.2005.11.047 13. Mara TA, Tarantola S. Variance-based sensitivity indices for models with dependent inputs. Reliability Engineering & System Safety. 2012;107:115– 121. doi: 10.1016/j.ress.2011.08.008 14. Neine M, Brianc ¸on S, others . An algorithm to generate correlated input-parameters to perform probabilistic sensitivity analysis in cost-effectiveness analysis. PharmacoEconomics Open. 2020;4:1–13. doi: 10.1007/s41669-020-00225-8 15. Rüschendorf L. Fréchet-Bounds and Their Applications. In: , , Springer, 1991:151–187. 16. Troffaes MCM, Cooman dG. Lower Previsions . John Wiley & Sons, 2014. 17. Iskandar R. Probability bound analysis: A novel approach for quantifying parameter uncertainty in decision-analytic modeling and cost-effectiveness analysis. Statistics in Medicine. 2021;40:1–22. 18. Iskandar R. Probability bound analysis: A novel approach for quantifying parameter uncertainty in decision-analytic modeling and cost-effectiveness analysis. Statistics in Medicine. 2021;40(29):6501–6522. 19. Baio G, Dawid AP. Probabilistic sensitivity analysis in health economics. Statistical Methods in Medical Research. 2011;24(6):615–634. doi: 10.1177/0962280211419832 20. Ellis AG, Iskandar R, Schmid CH, Wong JB, Trikalinos TA. Active learning for efficiently training emulators of computationally expensive mathematical models. Statistics in Medicine. 2020;39(25):3521–3548. 21. Neumann vJ, Morgenstern O. Theory of Games and Economic Behavior . Princeton University Press, 1944. 22. Savage LJ. The Foundations of Statistics . John Wiley & Sons, 1954. 23. Claxton K. The irrelevance of inference: a decision-making approach to the stochastic evaluation of health care technologies. Journal of Health Economics. 1999;18(3):341–364. 24. Fenwick E, Claxton K, Sculpher M. Representing uncertainty: the role of cost-effectiveness acceptability curves. Health Economics. 2001;10(8):779– 787. 25. Gilboa I, Schmeidler D. Maxmin expected utility with non-unique prior. Journal of Mathematical Economics. 1989;18(2):141–153.

@@ -1,0 +1,1113 @@
+Title: Scoring Is Not Enough: Addressing Gaps in Utility-fairness Trade-offs for Ranking
+
+URL Source: https://arxiv.org/pdf/2606.26369v1
+
+Published Time: Fri, 26 Jun 2026 00:13:39 GMT
+
+Number of Pages: 22
+
+Markdown Content:
+# SCORING IS NOT ENOUGH : A DDRESSING GAPS IN 
+
+# UTILITY -F AIRNESS TRADE -OFFS FOR RANKING 
+
+Shubham Singh 
+
+Department of Computer Science University of Illinois Chicago Chicago, IL 60607 
+
+ssing57@uic.edu 
+
+Ian A. Kash 
+
+Department of Computer Science University of Illinois Chicago Chicago, IL 60607 
+
+iankash@uic.edu 
+
+Mesrob I. Ohannessian 
+
+Department of Electrical and Computer Engineering University of Illinois Chicago Chicago, IL 60607 
+
+mesrob@uic.edu 
+
+June 26, 2026 
+
+## ABSTRACT 
+
+Scoring functions are used to represent the relevance of individual documents. In modern information retrieval or recommendation systems, they are often learned from data and play a pivotal role in ranking sets of documents or items in a way that maximizes utility to a query or user. With the recent interest in algorithmic fairness, the success of scoring has naturally led to methods that learn scores that simultaneously trade off fairness and utility. In this work, we show that in stark contrast with utility-centric objectives, scoring is sub-optimal in achieving all utility-fairness trade-offs. We establish this with a series of counter-examples with a generic fairness formulation. We show that the issue persists whether we have a deterministic scoring function or a randomized one, or whether we measure fairness at the scope of a single query or across multiple queries. On the positive side, we empirically demonstrate that semi-greedy post-processing has the potential to achieve much better trade-offs, often approaching the ideal of exhaustive post-processing in a tractable way. 
+
+Keywords Ranking · Fairness · Trade-offs 
+
+## 1 Introduction 
+
+Ranking is a basic task that has far-reaching applications in sociotechnical systems. Information retrieval and recommendation systems have provided the main impetus to understanding ranking, motivated by presenting documents in response to a query or recommending items to a user, in such a way as to maximize engagement. However, ranking is increasingly recognized to emerge in other diverse settings. For example, one may want to rank sites to determine the order in which they are inspected or to rank medical tests to decide the order in which they are administered. A primary utility often quantifies how well these ranking tasks are performed. With the diversity of applications, however, we increasingly recognize the importance of trading-off utility with secondary desirable objectives, such as fairness. To achieve such trade-offs in a data-driven fashion, the field has continued to adhere to a main paradigm: learning how to score documents and then, at inference-time, evaluating scores and ranking via sorting them. (See Section 1.1 below for a quick overview, with a full survey of relevant work in Appendix A.) In this paper, we challenge this paradigm. More precisely, through a series of analytical, simulation, and real examples, 
+
+we show that scoring cannot cover the entire range of achievable trade-offs and often falls considerably short of it. To make this thesis clear, we adhere to the language of information retrieval and to a generic family of binary 
+
+> arXiv:2606.26369v1 [cs.IR] 24 Jun 2026
+
+Scoring is Not Enough data document query features relevance group {a,b} {query query ... utility ranking { position position weight position weight +unfairness group a group b –
+
+(sum-decomposable) (not decomposable) 
+
+SCORING EX-POST RANKING 
+
+Learn a scoring function that encompasses both objectives... Learn relevances only... 
+
+score relevance query evaluate scores 
+
+... then simply sort. 
+
+> query
+
+evaluate relevances 
+
+trade-off = α utility – (1– α) unfairness 
+
+... then greedily sort by relevance + fairness. 
+
+> utility
+
+unfairness 
+
+gaps in achievable trade-offs scoring ex-post Pareto optimal 
+
+α = 0 
+
+α = 1 exposure exposure × relevance × relevance exposure = exposure = 
+
+Figure 1: Overview of the paper, highlighting key ideas about the limitations of scoring for utility-fairness trade-offs document-group fairness metrics as a secondary objective, which can be instanced to some popular metrics via a choice of weights. The key insight is that, unlike utility, objectives such as fairness may not be decomposable into individual contributions of documents. We define scoring as assigning to each document, based on its features, a numerical score. This assignment may be deterministic or, in the case of some models such as Plackett-Luce, Plackett [1975], Luce [1959], randomized. We assume to operate in the infinite-data learning regime, by substituting learning with two abstractions: (i) the true relevance and the group membership of documents are known and (ii) the ranking procedure can be determined based on the exact knowledge of how documents combine to form queries. In Section 2, we make these definitions and assumptions mathematically precise. Then, in Section 3, to define the trade-off achieving aspirations we have of scoring, 
+
+we introduce the concept of scorability . In Section 4, we show that scoring is not enough to achieve optimal trade-offs, through analytical counterexamples to scorability and numerical examples. In Section 5, we give a positive spin to these findings. We look at an alternative to scoring: learning relevances without regard to the secondary objective and then, ex-post, accounting for it. Such post-processing, also known as re-ranking, needs to explore the space of rankings and can be intractable, except in very simple settings. Current techniques often resort to greed. In Section 6, relaxing greed, we empirically demonstrate that beam-search can efficiently cover achievable trade-offs much more than scoring and also better than greed alone. Fair learning-to-rank via scoring is an in-processing approach and, as such, is touted to offer more flexibility than post-processing [Singh and Joachims, 2019]. Thus, the main message of this paper is to alert the community to the fact that, when striving to trade off a decomposable utility and a non-decomposable objective such as fairness, the nature of scoring could make it limiting . Figure 1 gives an overview of the key ideas and results of the paper. 
+
+1.1 Related Work 
+
+To optimize the utility-fairness trade-off, we utilize the low-variance Plackett-Luce gradient estimator by Gadetsky et al. [Gadetsky et al., 2019]. This aligns our work with recent reinforcement learning approaches for scoring [Singh and Joachims, 2019, Ge et al., 2022]. We focus specifically on document-group fairness via interaction disparity per query [Gorantla et al., 2023]. This distinguishes our scope from works targeting user fairness [Greenwood et al., 2024] 2Scoring is Not Enough or accumulated cross-query interactions [Memarrast et al., 2021, Ovaisi et al., 2024]. While some post-processing methods enforce fixed fairness [Geyik et al., 2019, Gorantla et al., 2023], others address utility-fairness trade-offs using greedy heuristics [Gao and Shah, 2020, Ovaisi et al., 2024]. Crucially, while Ovaisi et al. fits our fairness framework, prior literature has not recognized that scoring itself is inherently suboptimal. Our work distinguishes itself by explicitly highlighting the inadequacy of scoring-based ranking methods for achieving optimal utility-fairness trade-offs. A detailed discussion of the literature is given in Appendix A. 
+
+## 2 Problem Setting 
+
+We start by defining the general ranking setting in which we operate. We use the following notation. Let the set of possible documents be denoted by D and individual documents be denoted by d ∈ D . We associate with each document a relevance rel (d) ∈ [0 , 1] . We assume that each query consists of a set Q of m documents from D.Relevances, in general, depend on the query. By forgoing this dependence, we are restricting to a specific case (no personalization). However, when a limitation is present in a specific case it is also present in the general case in that instance. Thus the conclusions of the paper hold generally. 
+
+Deterministic and Random Ranking A deterministic ranking σQ is defined as a permutation of the m documents in 
+
+Q, in a way that may depend on Q. σQ(i) = d is interpreted as placing document d ∈ Q at position i. We assume that no selection is made, that is all documents in the query are ranked. More precisely, for each Q, σQ is equivalent to a bijective map [m] → Q. We also allow for randomized ranking . In this case, σQ is a random map defined through a distribution, conditional on Q, over all m! permutations. In other words, given Q, σQ is sampled from this conditional distribution. Although σQ always depends on Q, whenever Q is explicitly specified we drop the subscript Q and simply write σ.
+
+Utility Utility, in general, is a function from (σ, Q ) to R+. In most ranking applications, however, this utility decomposes as a sum. A document at position i delivers a utility based on its relevance as well as a factor that depends only on position, captured by non-increasing weights wi. The utility of a deterministic ranking can then be given as: 
+
+U(σ, Q ) = X
+
+> i
+
+wirel (σQ(i)) . (1) Examples: 
+
+Recommendation systems If we use wi = 1 /(log 2 i + 1) to capture position bias, utility becomes the discounted cumulative gain (DCG). Here, wirel represents an interaction probability, thus maximizing utility boosts interaction. 
+
+Inspection sites Documents could refer to inspections sites, with rel (d) the probability of a failure occurring at site d, and σQ the order in which sites are visited to correct failures. Then, choosing wi = −(i − 1) /m and maximizing utility minimizes average uncorrected failure time. For randomized ranking, because of its linearity, the notion of utility extends in a straightforward way to expected utility. We keep the notation the same, and distinguish the two instances based on context: 
+
+U(σ, Q ) = X
+
+> i
+
+wiE [rel (σQ(i)) |Q] . (2) Note that the expectation is over random rankings, while the query Q is fixed. 
+
+Unfairness In addition to utility, we are concerned with giving documents a fair interaction through ranking. For the purpose of defining fairness, we think of D as being partitioned into two groups Ga and Gb, and use g(d) ∈ { a, b }
+
+as the group-membership function. We capture fairness, or rather unfairness , by measuring the disparity of relative interaction between the two groups: 
+
+V(σ, Q ) = 1
+
+|Ga|
+
+X
+
+> i:g(σQ(i))= a
+
+wirel (σQ(i)) − 1
+
+|Gb|
+
+X
+
+> i:g(σQ(i))= b
+
+wirel (σQ(i)) (3) By convention, if either group is not present in Q, we assume fairness is vacuously achieved and set V = 0 . Examples: 
+
+Recommendation systems If the documents are interview candidates, utility captures consideration probability, and the groups refer to two racial groups, this disparity would be the difference of per-candidate consideration across these groups. 3Scoring is Not Enough 
+
+Inspection sites If Ga and Gb are two geographical inspection zones, this would be the disparity in failure time correction across zones. Other variants of (3) can be justified in various contexts, e.g., normalizing by the total relevance of each group instead of their sizes, using only w in the sum instead of rel , etc. We choose (3) because it is a common disparity measure and gives a concrete instance to illustrate the phenomenon that we aim to shed light on. This phenomenon, however, is likely not limited to this choice, as we discuss later. For randomized ranking, some authors (e.g., Singh and Joachims [2019]) aggregate the disparity over the random rankings within the absolute value in (3) . This can be thought of as corresponding to a long session in which multiple rankings may be produced for a single query. However, since (3) measures per-query unfairness and since during a single query only a single ranking is sampled, we adhere to the more natural choice of aggregating outside of the absolute value, i.e., a short session: 
+
+V(σ, Q ) = E
+
+ 1
+
+|Ga|
+
+X
+
+> i:g(σQ(i))= a
+
+wirel (σQ(i)) − 1
+
+|Gb|
+
+X
+
+> i:g(σQ(i))= b
+
+wirel (σQ(i)) Q
+
+ , (4) Again, the expectation is over random rankings while the query Q is fixed, and we keep the notation the same and disambiguate based on context. Readers interested in the effect of session length, albeit in a slightly different setting, can be referred to [Vardasbi et al., 2022]. 
+
+Problem Instances We call the triplet (D, rel , g) a problem instance . The space of utility and unfairness pairs (U, V)
+
+is spanned through the choice of the weights w. Eqs. (1) and (3) , or Eqs. (2) and (4) , give the functional form of (U, V)
+
+in the deterministic, or randomized, ranking cases respectively. These functional forms then become concrete for each problem instance (D, rel , g).
+
+Trade-offs With the primary objective of utility and the secondary objective of fairness, we are interested in striking a good trade-offs between utility (1) and unfairness (3) . Trade-offs at level α can be defined through the combined objective function: 
+
+Tα(σ, Q ) = α U(σ, Q ) − (1 − α) V(σ, Q ), (5) where the minus in the second term refers to the fact that we strive to increase utility, but to decrease unfairness. 
+
+Deterministic Scoring Scoring, in a typical learning-to-rank framework, produces a function score (d) : D → R
+
+using either pairwise or list-wise data, as overviewed in Appendix A. At query-time, score (d) is computed for each document in the query Q and the ranking is produced by sorting the documents in decreasing score order. The score-induced ranking can then be defined as: 
+
+σQ, score = sort ↓(Q, score ). (6) With limited data, score typically does not have direct access to rel , but rather depends on features of the document, potentially including its group membership. To narrow down on the issue at hand, consider instead the infinite-data regime where score knows exactly rel (d) as well as g(d). Since this information is sufficient to evaluate both (1) and (3) , and thus (5) , there is no loss of capability in restricting score to be an arbitrary function of these two attributes. Thus, moving forward, score (d) is always of the form 
+
+score (rel (d), g(d)) : [0 , 1] × { a, b } → R.
+
+Note that many documents may have the same (relevance, group) pair, and we can think of this pair as a document type .In what follows, even if documents themselves do not repeat in a query, document types may. Lastly, to avoid ties, we assume score never assigns distinct document types in D the same score. 1
+
+Randomized Scoring Deterministic scoring is widely used, but a softer variant gives more flexibility. In this case, 
+
+score (d) is a random variable drawn independently from other documents in Q, from a distribution fd on R that depends uniquely on d. In the infinite-data regime, fd depends uniquely on rel (d) and g(d). In this case, the score-induced ranking σQ, score of (6) is a randomized ranking. The main practical case of randomized scoring that we consider is the Plackett-Luce (PL) model, a ubiquitously used model for list-wise ranking [Xia et al., 2019, Ma et al., 2021, Gadetsky et al., 2019, Gorantla et al., 2023, Oosterhuis, 2021, Singh and Joachims, 2019]. The best way to relate PL to 
+
+> 1This is not a restrictive assumption, because ultimately we need to break ties, and this can only be done via either deterministic or stochastic perturbation. If the perturbation is deterministic, then it is equivalent to the assumption. If the perturbation is stochastic, then we simply jump to the case of randomize scoring, which doesn’t make this assumption.
+
+4Scoring is Not Enough randomized scoring is to note that it is equivalent to learning a deterministic score h(d) first, and then to randomizing it by adding independent standard Gumbel noise to each: 
+
+score PL (d) = h(d) + Gumbel .
+
+This then induces a randomized ranking: 
+
+σQ, PL = sort ↓ (Q, score PL ) .
+
+As proposed by Plackett [1975] and Luce [1959], an alternative way of describing PL is as a sequential generation of the ranking itself, through the probability of a document being ranked at the next position i, conditioned on the remaining documents up till that point. 
+
+Prob (σQ, PL = σ|Q) = 
+
+> m
+
+Y
+
+> i=1
+
+exp( h(σ(i)) 
+
+Pmj=i exp( h(σ(j)) 
+
+!| {z }
+
+> Prob (σ(i)|Q\(σ(k)) k<i })
+
+. (7) In learning to rank, typically, h is parametrized using, for example, a linear regressor or neural network that depends on the features of d. The resulting ranking sampling is often referred to as a stochastic “ranking policy” πQ. In the infinite-data regime, we can take h to be simply a function of the relevance and group membership, h(d) = h(rel (d), g(d)) .
+
+## 3 Scorability 
+
+The central question of this work is: to strike good trade-offs between utility (1) , (2) and unfairness (3) ,(4) , i.e., achieve a low value of the trade-off at a desired level α (5), is it sufficient to rely on scoring functions? Our expectations from a scoring function, however, are often implicit. We posit that the popularity of scoring functions suggests the following plausible expectation: Given enough data, we should be able to learn a scoring function that achieves the best possible utility-fairness trade-off. To capture the spirit of this informal statement without being distracted by the details of the learning procedure, the following definition gives the scoring function infinite data by allowing it to depend on the query-generating distribution. 
+
+Definition 1 (Scorablility) . A pair of utility and unfairness functions (U, V) is called deterministic (or, respectively, randomized) α-scorable if ∀ problem instances (D, rel , g) and distributions P on D, ∃ a deterministic (or, respectively, randomized) score such that if the documents in Q are sampled ∼i.i.d. P, then ranking them by score using σscore =
+
+sort ↓(Q, score ) achieves 
+
+EQ [Tα (σscore , Q )] = max 
+
+> σQ
+
+EQ [Tα (σQ, Q )] (8) 
+
+where the maximization is over deterministic (or, respectively, randomized) rankings. Equivalently, scorability means that: 
+
+σscore ∈ argmax 
+
+> σQ
+
+EQ [Tα (σQ, Q )] .
+
+It is important to note that the maximization in Eq. (8) is over σQ, the space of rankings or equivalently (deterministic or random) mappings from Q to permutations, and not over a single (deterministic or random) permutation. By allowing score to depend on the problem instance and the distribution of queries, Definition 1 abstracts the notion that the scoring function may be learned given sufficient data from this instance. The order of quantifiers “ ∀ (D, rel , g)
+
+and P, ∃ score s.t. ∀Q ∼ P” is extremely important for this abstraction to be meaningful. It can be understood as “given enough data, we can learn/build a scoring function, such that when new queries arrive” we can rank them well by scoring then sorting. This adheres to the typical learning-to-rank framework, where the scoring function acts on individual documents and is fixed after the learning process. 
+
+## 4 Suboptimality of Scoring 
+
+4.1 Deterministic Case 
+
+We first consider the deterministic case and show that there are instances where scorability is not possible. In other words, in these instances, deterministic scoring does not achieve the best possible tradeoff. 5Scoring is Not Enough 
+
+Theorem 1 (Counterexample to Deterministic Scorability) . Let U and V be given by Eqs. (1) and (3) with some monotonically non-increasing w such that wi + wm−i+1 is not constant for i = 1 , · · · , m − 1. Then, for any α < 1,there exists a problem instance (D, rel , g) and a distribution P on D, such that for all deterministic scoring functions 
+
+score , that can depend on the instance and the distribution, Eq. (8) fails. Therefore, this choice of (U, V) is not scorable. 
+
+The detailed proof of Theorem 1 can be found in Appendix B, but we offer here the intution behind it. To show that the utility and fairness pair is not scorable, we construct a problem instance with only one document type (same relevance) from each group. This means that only two scoring functions are possible: rank group Ga first or group 
+
+Gb first. We show that no matter which is chosen, we can design an adversarial query Q to contradict the optimality of that scoring function. That is, no matter how a scoring function is chosen, there exists some query Q where it will fail to reach the Pareto frontier. The reason we can design such a Q is the fact that, whereas the score depends on individual documents only, fairness depends on the makeup of the whole query. Designing Q like this is not enough, however, because the definition of scorability allows the choice of score to depend on the distribution over Q.So, if we deterministically chose one of our adversarial queries, one could simply choose the other scoring function. The solution is to choose a distribution over queries that guarantees both adversarial queries are chosen with positive probability. In Appendix B, we give a corollary to Theorem 1 which explicitly quantifies the optimality gap under an additional (convexity) condition on the weights w. We also illustrate an example instance of this scenario, with the position bias weights wi = 1 /(log 2 i + 1) , where we evaluate the theoretical bound on the gap as well as calculate the actual gap via Monte Carlo simulations. The gap persists when the two types of documents do not have the same relevance, and its general behavior (e.g., being much smaller for large α) parallels all of our other experiments, including with real data. 
+
+4.2 Randomized Case 
+
+Having identified that deterministic scorability fails for the family of utility and unfairness objectives considered, we now demonstrate that randomization does not necessarily help circumvent the trade-off gap. The proof relies on the fact that it is always possible to improve on randomized scoring using a randomized ranking that mimics it always, except in the cases highlighted by the counterexample construction in Theorem 1. 
+
+Theorem 2 (Counterexamples to Randomized Strong/Weak Scorability) . Let U and V be given by Eqs. (2) and (4) 
+
+with some monotonically non-increasing w such that wi + wm−i+1 is not constant for i = 1 , · · · , m − 1. Then, for any α < 1, there exists a problem instance (D, rel , g) and a distribution P on D, such that for all randomized scoring functions score , that can depend on the instance and the distribution, Eq. (8) fails. Therefore, this choice of (U, V) is not scorable. 
+
+In order to show that this is not just a concern with theoretical constructions, we next consider the widely used Plackett-Luce model and construct a tractable counterexample instance where the Pareto frontier can be calculated, then numerically optimize the Plackett-Luce model (hence the randomized scoring) and demonstrate its suboptimal trade-offs. We let weights to be the standard position bias wi = 1 /(log 2(i) + 1) . We choose P to have k = 5 documents, with the following composition (rel (d), g(d)) = (1 , a ), (2 , b ), (3 , a ), (4 , b ), (5 , a ). We sample, i.i.d., queries Q consisting of 
+
+m = 8 documents. This is the same as the synthetic data set described in Section 6, which also contains details about how the PL model is solved. Primarily, to calculate gradients directly is intractable and one often resorts to the log-trick, as in the REINFORCE algorithm, However, a variance reduction technique proposed by Grathwohl et al. [2018] has been demonstrated to work well for training PL models [Gadetsky et al., 2019], and is particularly reliable for this simple counterexample. Further details of the experiments are included as part of Section 6, but we illustrate the resulting suboptimality in Figure 2a below. The top (navy) curve is the exact (exhaustive) ex-post optimal solution. We can see clearly that the PL model bottom (purple) curve is unable to achieve good trade-offs in comparison. We also include an exhaustive search of all (deterministic) scores (pink), which shows that the randomization of Plackett-Luce does not give it an advantage in this case, as their tradeoff curves effectively overlaps (within simulation precision). In Section 5, we propose and explain the alternative approaches (green and orange) in the same figure. 
+
+4.3 Across-Query Fairness 
+
+The notion of unfairness given by Eq. (3) is per-query. Namely, we measure the discrepancy between groups at the level of individual queries. While this is reasonable in many applications, e.g., suggesting male and female applicants in response to a single job posting, there are other instances where fairness is better measured across queries, e.g., whether certain movie categories are reaching a wide enough audience. In Appendix C, we demonstrate that even in that setting, scoring can be suboptimal. 6Scoring is Not Enough 0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4              
+
+> Unfairness
+> 15
+> 16
+> 17
+> 18
+> 19
+> 20
+> Utility
+> 0.0
+> 0.0
+> 0.0
+> 0.0 0.0
+> 0.1
+> 0.1 0.1
+> 0.1
+> 0.1
+> 0.2
+> 0.2
+> 0.2
+> 0.2 0.2
+> 0.3
+> 0.3 0.3
+> 0.3 0.3
+> 0.4 0.4 0.4
+> 0.4 0.4
+> 0.5 0.5 0.5
+> 0.5 0.5
+> 0.6 0.6 0.6 0.6 0.6
+> 0.7 0.7 0.7 0.7 0.7 0.8 0.8 0.8 0.8 0.8 0.9 0.9 0.9 0.9 0.9 1.0 1.0 1.0 1.0 1.0
+> Ex post
+> Beam
+> Greedy
+> PL-RELAX
+> SimScoring
+
+(a) Synthetic Dataset 1.00 1.25 1.50 1.75 2.00 2.25 2.50               
+
+> Unfairness
+> 28
+> 30
+> 32
+> 34
+> 36
+> Utility
+> 0.0
+> 0.0
+> 1.0
+> 0.1
+> 0.1
+> 0.9
+> 0.2
+> 0.2
+> 0.8
+> 0.3 0.3
+> 0.7
+> 0.4 0.4 0.6 0.5 0.5 0.5 0.6 0.6 0.4
+> 0.7 0.7
+> 0.3
+> 0.8 0.8
+> 0.2
+> 0.9 0.9
+> 0.1
+> 1.0 1.0
+> 0.0
+> 1.0 0.9
+> 0.8 0.7
+> 0.6 0.5
+> 0.4
+> 0.8 0.9 0.9 1.0 1.0
+> Beam
+> Greedy
+> PL-RELAX
+
+(b) COMPAS Dataset 
+
+Figure 2: Utility and unfairness values for α = {0, . . . , 1} achieved by beam search (orange), greedy (green) and the randomized scoring-based trained PL model (purple) on these datasets. Unlike the real-world COMPAS dataset, the synthetic data is tractable, and we also include the brute-force optimal ex-post (blue) and best deterministic scorer (pink). 
+
+## 5 Alternatives to Scoring 
+
+Having seen the theoretical shortcomings of scoring in various contexts, be it deterministic, randomized, per query D
+
+or across queries drawn from a distribution P, we now turn our attention to potential alternatives to simultaneously highlight that these shortcomings are present even in practice and, possibly, to overcome them. In particular, we explore and propose ex-post methods that can achieve better trade-off values than scoring functions. In Section 6, when tractable, we compare these approximate ex-post approaches to exact brute-force post-processing, which evaluates all the permutations for a query D and finds the rankings that achieve the best trade-offs. This motivates us to think of the algorithms presented here as proxies to these Pareto optimal rankings when they are intractable, thus providing a clear backdrop to highlight the limitations of scoring. Thus, while we invite more attention to the richness of post-processing and are excited about some of the novelties in our methods, such as the use of beam search in fair ranking, our emphasis remains on understanding scoring. In what follows, we assume that we know the true relevance of the documents or that we can learn them. 
+
+5.1 Greedy Approach 
+
+We first start with an ex-post approach that is a representative of the methods covered in Section A, particularly [Ovaisi et al., 2024], which is itself inspired by [Geyik et al., 2019]. The approach also has elements in common with [Gao and Shah, 2020]. We emphasize that this is only meant to represent these methods, not to compete with them, similarly to how the Plackett-Luce model is meant to represent, and not to compete with, scoring approaches such as Fair-PG Rank [Singh and Joachims, 2019]. In the first step in this greedy approach, we split the documents in D by groups, {a, b }, and within each group, sort the documents in decreasing order of their relevance. The group-wise sorted document sets let the greedy approach efficiently decide on the most suitable document for a better utility-fairness trade-off by considering only the top remaining document from each group. Next, we initialize an empty list of ranked documents. For each position, i, we try adding the top document from each group, {a, b }, and calculate the trade-off with the desired α. The document from the group that achieves the maximum trade-off value is placed at position i and removed from the group-wise sorted document sets. The trade-off value at any position i is computed for the previously selected documents and the one considered at position i, given as: 
+
+σD (i) = arg max   
+
+> d∈{ d∗
+> a,d ∗
+> b}
+
+T (σ([0 , . . . , i − 1]) ∪ { d}) (9) where d∗ 
+
+> g
+
+is the top (highest relevance) document from group g, and T represents the (truncated) trade-off function. We repeat this process for all positions, and the final result is a ranked list of all documents. Without the unfairness term in the trade-off, this greedy approach would exactly optimize utility. Indeed, for higher α
+
+values, where utility is given more weight in the trade-off, we observe that this performs well. However, since unfairness of a ranking depends on the relative positions of other documents, the one-step decision in the greedy approach is too myopic and can get stuck in local minima. This is why performance is expected to deteriorate with lower α values. 7Scoring is Not Enough 
+
+5.2 Beam Search 
+
+To improve on greed, we propose a novel contribution: to adapt ideas from beam search [Lowerre, 1976], commonly used in NLP procedures Freitag and Al-Onaizan [2017] into the previous method. Beam search is similar to the greedy approach, but relaxes the greed by considering more than one possible realization. The algorithm can keep multiple lists of exploration (a beam). The number of lists is denoted by B, called the beam width, and is an input parameter of the algorithm. While fairly standard, the complexity here comes from the fact that each list in the beam is like a parallel universe, where we need to book-keep everything (which documents have been ranked and the remaining documents in each group, sorted in order of decreasing relevance.) At each stage, we expand the beam by considering the next candidate from each group, then we prune the beam by evaluating all the tradeoffs achieved and keeping only the top-B.We repeat this process until all the remaining documents in the set have been ranked. In the end, the ranking with the best trade-off among the last B rankings is returned. We describe a concrete implementation of this beam search for ranking trade-offs in Algorithm 1. A detailed mathematical description and a schematic illustration of this algorithm can be found in Appendix D. Both beam search and greedy are extremely efficient. They both need O(m log m) time to initially sort. Greedy then needs time O(m) to traverse, while beam search in addition needs O(m B log B) to traverse while expanding and pruning the beams. 
+
+## 6 Evaluation 
+
+We evaluate both scoring via listwise Plackett-Luce ranking and our ex-post approaches (greedy and beam search) on one synthetic dataset and two real-world datasets. We show that, across all ranges of α, our approaches achieve considerably better trade-offs than scoring. In the case of synthetic data, the results are also compared to the optimal trade-off, which ex-post approaches but scoring does not. 
+
+6.1 Data 
+
+Our evaluation is done on four datasets—a synthetic dataset, COMPAS dataset Angwin et al. [2016], and the German Credit dataset Hofmann [1994], and the MovieLens 100K dataset (see Appendix E for the last two). To construct the synthetic dataset, we select k = 5 unique documents with relevances {1, ..., 5} and alternating group membership 
+
+{a, b, a, b, · · · } . For each query D on the k documents, we sample m = 8 random rankings. We sample 50,000 such queries to constitute a synthetic training set. The small values of k and m are intended to make the exact exhaustive ex-post optimal solution tractable in this case. 
+
+Algorithm 1: Beam Trade-off Search                                                                    
+
+> Input: Problem instance ( D,rel ,g), Beam width B, Size of query m=|D|
+> Output: Trade-offs for varying α
+> foreach α∈[0 ,1] with step size 0.1do
+> Tα=α· U (σ, D )−(1 −α)· V (σ, D );Sort Dbased on rel in descending order; Group sorted Dinto dictionary desc_group_dict based on g;Initialize the beam with top-ranked documents from each group; Set beam_candidates to the Bbest initial choices based on their trade-offs;
+> for each position i= 1 , . . . , m do
+> Initialize empty sets for trade_off_list and seek_indices ;
+> for each beam candidate w∈beam_candidates do
+> Collect remaining unprocessed documents for each group from desc_group_idx_dict ;Get the top documents from each group sorted by relevance; Combine most relevant documents into a single list;
+> for each document d∈remaining do
+> Compute trade-off for appending dto beam candidate w;Append the trade-off and the updated beam to trade_off_list and seek_indices ;Select the top Bbeams with the lowest trade-off values; Update beam_candidates accordingly; Select the final beam in beam_candidates as the candidate with the lowest trade-off; Compute final utility and unfairness for the selected beam;
+
+We adapt the COMPAS dataset for a ranking task (as done in Singh and Joachims [2019]) by following a similar process to the synthetic dataset. This dataset contains 4,534 rows with 13 attributes that are used to predict if a defendant is likely to recidivate (commit a crime when release on parole). The attribute violent_decile_score assigns a score between 1 and 10 to each defendant, which we treat as the true relevance in this case. A query is created by sampling 8Scoring is Not Enough 10 documents from the dataset, where the ratio of recidivism likelihood ( two_year_recidivous ) is 4:1. We perform an 80-20 train-test split on the original documents and sample 10,000 queries from the train split and 2,000 from the test split. We treat the race attribute as protected, and use the two groups, African-American and Caucasian , for unfairness. 
+
+6.2 Experiments 
+
+We design the experiments to measure how trade-offs between utility and unfairness are navigated by different methods at different α values. 
+
+Ex-Post. The ex-post ranking iterates over all possible permutations given the documents in a query and finds the optimal given an α value. Naturally, this is an expensive operation and takes O(n!) time. Therefore, we perform this evaluation only for the synthetic dataset with a smaller query size of m = 8 . Using this baseline, we get the best possible ranking for each query, which allows us to contextualize the performance of the other approaches. 
+
+Greedy and Beam Search. These proposed alternative approaches are elaborated in Section 5 and in Algorithm 1. They are approximate ex-post solutions that require knowledge of relevances, either exact or learned. 
+
+PL Model. We use PL-RELAX, the low-variance gradient estimator for the Plackett-Luce distribution, proposed by Gadetsky et al. [2019], to train on our datasets. The proposed estimator is unbiased and offers low variance compared to the other gradient estimators, such as REINFORCE. The PL model is a listwise ranking algorithm that learns a real-number preference over the documents and samples a ranking that optimizes a loss function. In our case, the loss function is the trade-off between utility and unfairness, Eq. (5). 
+
+SimScoring. For the synthetic dataset, we also simulate the best possible scoring methods by evaluating all possible (deterministic) scorings. This is equivalent to looking at all possible permutations of the document types, which is fairly tractable at this small scale. 
+
+6.3 Results Synthetic Dataset. We plot the results for the ex-post , beam search, greedy, SimScoring, and the PL-model on the synthetic dataset in Fig. 2a. Each line corresponds to the trade-offs offered by one of the approaches for α ∈ { 0, . . . , 1}.The overlap between SimScoring and the PL-RELAX model provides evidence of optimal convergence of the PL-model. The greedy approach performs better than the PL model with gradient estimates (shown in purple, labeled PL-RELAX )and for α > 0.5 gets close to the Pareto frontier achieved by the ex-post approach. One reason that explains the better performance of the greedy approach at higher α values is as follows. When we prefer utility over fairness, since our choice of documents across groups is sorted in a decreasing order by relevance, the greedy approach gets close to finding optimal rankings without much exploration. Compared to the greedy approach, the beam search performs closer to the ex-post trade-off values. Especially at lower 
+
+α values, it can achieve lower unfairness while having a comparable utility to the greedy approach. Since the beam search evaluates trade-off values for more documents for ranking, it “explores” more permutations which can avoid the myopic choices of only placing the highest relevant document at the top position. Naturally, this exploration depends on the beam width B, and in our evaluation, we see the best results using B = 4 . Beam search does not completely avoid choosing suboptimal documents at intermediate steps when unfairness dominates utility (lower α values), and finding the perfect fairness for ranking remains a combinatorial problem Bekta¸ s and Letchford [2020]. 
+
+COMPAS Dataset. Unlike the synthetic dataset, where we know the true relevance of each document, in real-world scenarios, we are not given access to the true relevances at test time. Therefore, we need to learn the relevances from the dataset and use them for the beam search and greedy approaches. To do so, we train a Gradient Boosting Regressor to predict the violent_decile_score from the document features as rel . The regression model achieves an R2 = 0 .79 
+
+and we use these scores for beam search and greedy approaches. For the PL-RELAX approach, we learn a linear model to map features to the Plackett-Luce coefficients. This gives PL the same representation power as the regression model used to learn relevances for greedy and beam search. Fig. 2b shows the (test) trade-off curves traced by the beam search, greedy, and PL-RELAX. Due to the larger size of the query in this case ( m=10) compared to the synthetic dataset ( m=8), we do not calculate the ex-post trade-offs. The beam search manages to achieve high utility and low unfairness at α < 0.2 and remains weakly-dominant at α ≥ 0.2
+
+values. The greedy approach gets closer to the beam search trade-off values as α gets larger, but it maintains a gap with beam search until the highest α values. At α > 0.5 values, the trade-off values for the beam search and greedy approaches become similar. The PL model, on the other hand, does not achieve as significant of a trade-off as the other two approaches for all α values. It sacrifices utility for lower unfairness at α < 0.2, but is weakly-dominated by the greedy and beam search approaches at α ≥ 0.2 and approaches the beam search and greedy trade-off values at α = 1 .9Scoring is Not Enough We emphasize that these experiments use the greedy and beam approaches as representatives of ex-post techniques from the literature and the Plackett-Luce model as a representative of scoring-based techniques, rather than competitors of these techniques. The key takeaway is that, even in practice, scoring-based ranking struggles to achieve the same quality of trade-offs that ex-post approaches can, giving empirical evidence to the issue highlighted by the theory. 
+
+## 7 Conclusion and Limitations 
+
+In this paper, we looked closely at the problem of learning to rank in the presence of a traditional utility objective as well as a secondary objective, namely fairness. We challenged the common paradigm of learning a score per query-document pair, by giving several counterexamples that show that this can fall short of achieving good trade-offs 
+
+between the two objectives. The key insight is that, despite being an in-processing technique, scoring is limited by the fact that fairness is non-decomposable in contrast to utility . We showed that our approximate ex-post solutions, in the form of greedy and beam-search, are tractable alternatives with much better trade-offs . They both, however, rely on learning relevances directly. This opens the question of, if other properties are learned during in-processing instead of or in addition to relevances, whether they could promote even better trade-offs. On the limitations front, it is worth noting that, instead of interaction disparity, there are some fairness notions that are presented as direct properties of the score function, designed to encourage certain ranking behaviors. For example, [Zhu et al., 2020] makes the score weakly predictive of the group membership, in order to encourage being at chance when guessing the group of documents placed at higher positions via scoring. This does not map to an interaction disparity as covered in this paper, e.g., it does not account for relevances. The conclusions of this paper do not apply to such notions, and it is entirely plausible that when fairness is a property of the score, it is sufficient to perform in-processing to achieve optimal utility-fairness tradeoffs. In terms of other limitations, while the framework we present readily handles the commonly used DCG as utility (the counterexample constructions would also work with nDCG), there are some utilities such as MAP (mean average precision) that do not fit in the framework. That said, since the shortcomings of scoring are due to the fairness function, we expect tradeoffs involving utilities such as MAP to also have optimality gaps under scoring. 
+
+## References 
+
+R. L. Plackett. The Analysis of Permutations. Applied Statistics , 24(2):193, 1975. ISSN 00359254. doi:10.2307/2346567. R. Duncan Luce. Individual Choice Behavior . Individual Choice Behavior. John Wiley, Oxford, England, 1959. Ashudeep Singh and Thorsten Joachims. Policy Learning for Fairness in Ranking. Proceedings of the 33rd International Conference on Neural Information Processing Systems , page 11, 2019. Artyom Gadetsky, Kirill Struminsky, Christopher Robinson, Novi Quadrianto, and Dmitry Vetrov. Low-variance Black-box Gradient Estimates for the Plackett-Luce Distribution, November 2019. Yingqiang Ge, Xiaoting Zhao, Lucia Yu, Saurabh Paul, Diane Hu, Chu-Cheng Hsieh, and Yongfeng Zhang. Toward pareto efficient fairness-utility trade-off in recommendation through reinforcement learning. In Proceedings of the fifteenth ACM international conference on web search and data mining , pages 316–324, 2022. Sruthi Gorantla, Eshaan Bhansali, Amit Deshpande, and Anand Louis. Optimizing Group-Fair Plackett-Luce Ranking Models for Relevance and Ex-Post Fairness, August 2023. Sophie Greenwood, Sudalakshmee Chiniah, and Nikhil Garg. User-item fairness tradeoffs in recommendations. arXiv preprint arXiv:2412.04466 , 2024. Omid Memarrast, Ashkan Rezaei, Rizal Fathony, and Brian Ziebart. Fairness for Robust Learning to Rank, December 2021. Zohreh Ovaisi, Parsa Saadatpanah, Shahin Sefati, Mesrob Ohannessian, and Elena Zheleva. Fairness of Interaction in Ranking under Position, Selection, and Trust Bias. ACM Transactions on Recommender Systems , April 2024. doi:10.1145/3652864. Sahin Cem Geyik, Stuart Ambler, and Krishnaram Kenthapadi. Fairness-aware ranking in search & recommendation systems with application to LinkedIn talent search. In Proceedings of the 25th acm sigkdd international conference on knowledge discovery & data mining , pages 2221–2231, 2019. Ruoyuan Gao and Chirag Shah. Toward creating a fairer ranking in search engine results. Information Processing & Management , 57(1):102138, 2020. Ali Vardasbi, Fatemeh Sarvi, and Maarten de Rijke. Probabilistic permutation graph search: Black-box optimization for fairness in ranking. In Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval , pages 715–725, 2022. 10 Scoring is Not Enough Tian Xia, Shaodan Zhai, and Shaojun Wang. Plackett-Luce model for learning-to-rank task. (arXiv:1909.06722), September 2019. doi:10.48550/arXiv.1909.06722. Jiaqi Ma, Xinyang Yi, Weijing Tang, Zhe Zhao, Lichan Hong, Ed Chi, and Qiaozhu Mei. Learning-to-Rank with Partitioned Preference: Fast Estimation for the Plackett-Luce Model. In Proceedings of The 24th International Conference on Artificial Intelligence and Statistics , pages 928–936. PMLR, March 2021. Harrie Oosterhuis. Computationally Efficient Optimization of Plackett-Luce Ranking Models for Relevance and Fairness, July 2021. Will Grathwohl, Dami Choi, Yuhuai Wu, Geoff Roeder, and David Duvenaud. Backpropagation through the Void: Opti-mizing control variates for black-box gradient estimation. In International Conference on Learning Representations ,February 2018. Bruce T Lowerre. THE HARPY SPEECH RECOGNITION SYSTEM. Carnegie Mellon University , 1976. Markus Freitag and Yaser Al-Onaizan. Beam Search Strategies for Neural Machine Translation. In Thang Luong, Alexan-dra Birch, Graham Neubig, and Andrew Finch, editors, Proceedings of the First Workshop on Neural Machine Transla-tion , pages 56–60, Vancouver, August 2017. Association for Computational Linguistics. doi:10.18653/v1/W17-3207. Julia Angwin, Jeff Larson, Surya Mattu, and Lauren Kirchner. Machine Bias, May 2016. URL https://www.propub lica.org/article/machine-bias-risk-assessments-in-criminal-sentencing .Hans Hofmann. Statlog (German Credit Data). UCI Machine Learning Repository, 1994. DOI: https://doi.org/10.24432/C5NC77. Tolga Bekta¸ s and Adam N. Letchford. Using ℓp-norms for fairness in combinatorial optimisation. Computers & Operations Research , 120:104975, August 2020. ISSN 0305-0548. doi:10.1016/j.cor.2020.104975. Ziwei Zhu, Jianling Wang, and James Caverlee. Measuring and mitigating item under-recommendation bias in personalized ranking systems. In Proceedings of the 43rd international ACM SIGIR conference on research and development in information retrieval , pages 449–458, 2020. Aman Agarwal, Xuanhui Wang, Cheng Li, Michael Bendersky, and Marc Najork. Addressing Trust Bias for Unbiased Learning-to-Rank. In The World Wide Web Conference on - WWW ’19 , pages 4–14, San Francisco, CA, USA, 2019. ACM Press. ISBN 978-1-4503-6674-8. doi:10.1145/3308558.3313697. Thorsten Joachims. Optimizing search engines using clickthrough data. In Proceedings of the Eighth ACM SIGKDD International Conference on Knowledge Discovery and Data Mining , KDD ’02, pages 133–142, New York, NY, USA, July 2002. Association for Computing Machinery. ISBN 978-1-58113-567-1. doi:10.1145/775047.775067. Christopher Burges, Robert Ragno, and Quoc Le. Learning to Rank with Nonsmooth Cost Functions. In Advances in Neural Information Processing Systems , volume 19. MIT Press, 2006. Fredric C. Gey. Inferring probability of relevance using the method of logistic regression. In Proceedings of the 17th Annual International ACM SIGIR Conference on Research and Development in Information Retrieval , SIGIR ’94, pages 222–231, Berlin, Heidelberg, August 1994. Springer-Verlag. ISBN 978-0-387-19889-7. Chris Burges, Tal Shaked, Erin Renshaw, Ari Lazier, Matt Deeds, Nicole Hamilton, and Greg Hullender. Learning to Rank using Gradient Descent. In Proceedings of the 22nd International Conference on Machine Learning , ICML ’05, pages 89–96, New York, NY, USA, August 2005. Association for Computing Machinery. ISBN 978-1-59593-180-1. doi:10.1145/1102351.1102363. Alex Beutel, Jilin Chen, Tulsee Doshi, Hai Qian, Li Wei, Yi Wu, Lukasz Heldt, Zhe Zhao, Lichan Hong, Ed H. Chi, and Cristos Goodrow. Fairness in Recommendation Ranking through Pairwise Comparisons. In Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining , KDD ’19, pages 2212–2220, New York, NY, USA, July 2019. Association for Computing Machinery. ISBN 978-1-4503-6201-6. doi:10.1145/3292500.3330745. Zhe Cao, Tao Qin, Tie-Yan Liu, Ming-Feng Tsai, and Hang Li. Learning to rank: From pairwise approach to listwise approach. In Proceedings of the 24th International Conference on Machine Learning , ICML ’07, pages 129–136, New York, NY, USA, June 2007. Association for Computing Machinery. ISBN 978-1-59593-793-3. doi:10.1145/1273496.1273513. John Schulman, Nicolas Heess, Theophane Weber, and Pieter Abbeel. Gradient estimation using stochastic computation graphs. In Proceedings of the 28th International Conference on Neural Information Processing Systems - Volume 2 ,NIPS’15, pages 3528–3536, Cambridge, MA, USA, December 2015. MIT Press. Iris A. M. Huijben, Wouter Kool, Max B. Paulus, and Ruud J. G. van Sloun. A Review of the Gumbel-max Trick and its Extensions for Discrete Stochasticity in Machine Learning, March 2022. 11 Scoring is Not Enough Wouter Kool, Herke van Hoof, and Max Welling. Estimating Gradients for Discrete Random Variables by Sampling without Replacement. International Conference on Learning Representations, ICLR 2020 , 2020. Ashudeep Singh and Thorsten Joachims. Fairness of Exposure in Rankings. In Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining , pages 2219–2228, London United Kingdom, July 2018. ACM. ISBN 978-1-4503-5552-0. doi:10.1145/3219819.3220088. Abolfazl Asudeh, H. V. Jagadish, Julia Stoyanovich, and Gautam Das. Designing Fair Ranking Schemes. In Proceedings of the 2019 International Conference on Management of Data , pages 1259–1276, Amsterdam Netherlands, June 2019. ACM. ISBN 978-1-4503-5643-5. doi:10.1145/3299869.3300079. Asia J. Biega, Krishna P. Gummadi, and Gerhard Weikum. Equity of Attention: Amortizing Individual Fairness in Rankings. In The 41st International ACM SIGIR Conference on Research & Development in Information Retrieval ,SIGIR ’18, pages 405–414, New York, NY, USA, June 2018. Association for Computing Machinery. ISBN 978-1-4503-5657-2. doi:10.1145/3209978.3210063. Yuta Saito and Thorsten Joachims. Fair Ranking as Fair Division: Impact-Based Individual Fairness in Ranking. In 
+
+Proceedings of the 28th ACM SIGKDD Conference on Knowledge Discovery and Data Mining , KDD ’22, pages 1514–1524, New York, NY, USA, August 2022. Association for Computing Machinery. ISBN 978-1-4503-9385-0. doi:10.1145/3534678.3539353. Amanda Bower, Hamid Eftekhari, Mikhail Yurochkin, and Yuekai Sun. Individually Fair Rankings. In International Conference on Learning Representations , October 2020. Ke Yang and Julia Stoyanovich. Measuring Fairness in Ranked Outputs. In Proceedings of the 29th International Conference on Scientific and Statistical Database Management , SSDBM ’17, pages 1–6, New York, NY, USA, June 2017. Association for Computing Machinery. ISBN 978-1-4503-5282-6. doi:10.1145/3085504.3085526. Meike Zehlike, Ke Yang, and Julia Stoyanovich. Fairness in Ranking, Part I: Score-Based Ranking. ACM Computing Surveys , 55(6):118:1–118:36, December 2022a. ISSN 0360-0300. doi:10.1145/3533379. Meike Zehlike, Ke Yang, and Julia Stoyanovich. Fairness in Ranking, Part II: Learning-to-Rank and Recommender Systems. ACM Computing Surveys , 55(6):117:1–117:41, December 2022b. ISSN 0360-0300. doi:10.1145/3533380. Tina Behzad, Siddartha Devic, Vatsal Sharan, Aleksandra Korolova, and David Kempe. An External Fairness Evaluation of LinkedIn Talent Search, 2025. Viet Ha-Thuc, Yan Yan, Xianren Wu, Vijay Dialani, Abhishek Gupta, and Shakti Sinha. From Query-By-Keyword to Query-By-Example: LinkedIn Talent Search Approach. In Proceedings of the 2017 ACM on Conference on Information and Knowledge Management , CIKM ’17, pages 1737–1745, New York, NY, USA, November 2017. Association for Computing Machinery. ISBN 978-1-4503-4918-5. doi:10.1145/3132847.3132869. Mihajlo Grbovic and Haibin Cheng. Real-time Personalization using Embeddings for Search Ranking at Airbnb. In 
+
+Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining , KDD ’18, pages 311–320, New York, NY, USA, July 2018. Association for Computing Machinery. ISBN 978-1-4503-5552-0. doi:10.1145/3219819.3219885. Lingwei Cheng, Cameron Drayton, Alexandra Chouldechova, and Rhema Vaithianathan. Algorithm-Assisted Decision Making and Racial Disparities in Housing: A Study of the Allegheny Housing Assessment Tool. In Sanmay Das, Brian Patrick Green, Kush Varshney, Marianna Bergamaschi Ganapini, and Andrea Renda, editors, Proceedings of the Seventh AAAI/ACM Conference on AI, Ethics, and Society (AIES-24) - Full Archival Papers, October 21-23, 2024, San Jose, California, USA - Volume 1 , pages 281–292. AAAI Press, 2024. doi:10.1609/AIES.V7I1.31636. Dimitris Bertsimas, Vivek F. Farias, and Nikolaos Trichakis. Fairness, Efficiency, and Flexibility in Organ Al-location for Kidney Transplantation. Operations Research , 61(1):73–87, February 2013. ISSN 0030-364X. doi:10.1287/opre.1120.1138. F. Maxwell Harper and Joseph A. Konstan. The MovieLens Datasets: History and Context. ACM Transactions on Interactive Intelligent Systems , 5(4):1–19, January 2016. ISSN 2160-6455, 2160-6463. doi:10.1145/2827872. Mohammadmehdi Naghiaei, Hossein A. Rahmani, and Yashar Deldjoo. CPFair: Personalized Consumer and Producer Fairness Re-ranking for Recommender Systems. In Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval , SIGIR ’22, pages 770–779, New York, NY, USA, July 2022. Association for Computing Machinery. ISBN 978-1-4503-8732-3. doi:10.1145/3477495.3531959. 12 Scoring is Not Enough 
+
+## A Related Work 
+
+A.1 Scoring Functions 
+
+Scoring is one of the most traditional approaches to ranking documents. It works by assigning a score to individual documents and then using the score to sort them Agarwal et al. [2019]. A scoring function, often learned, produces the score using the document features and a query. Typically, the scores are expected to help rank documents in such a way that the most relevant ones are shown first [Joachims, 2002, Burges et al., 2006]. The scoring functions are evaluated using a utility objective, which is defined over cumulative relevances of ranked documents for a query, weighted by the placement or position. Prior works have explored learning methods using three different types of utilities: (i) pointwise — scores are learned by comparing against labeled relevances of individual documents [Gey, 1994]; (ii ) pairwise — scores are learned based on relative relevances for document pairs [Burges et al., 2005, Beutel et al., 2019]; (iii )
+
+listwise — scores are learned based on the complete list of documents presented [Cao et al., 2007, Burges et al., 2006]. Recent work focuses more on the listwise utility functions, since they allow direct optimization over the complete ranked documents and are easily compatible with desirable end-to-end performance measures [Cao et al., 2007]. Despite the utility being listwise, the scoring is performed document-by-document. Thus, the listwise utility imparts valuable statistical information about other documents in a typical query to the score — but no direct information about other documents in a query is available to the scoring function. One of the common listwise techniques to train learning-to-rank (LTR) methods uses the Plackett-Luce (PL) model to output a ranking based on the probability of selecting the next document conditioned on observed documents. The PL model uses probabilistic sampling instead of a non-differentiable sorting function, making the model differentiable and suitable for gradient-based training methods. However, in practice, calculating gradients for the PL model requires sampling all possible permutations given a document set, making the problem computationally intractable [Schulman et al., 2015]. To solve this, researchers have proposed several techniques to efficiently estimate unbiased gradients for the PL model [Oosterhuis, 2021, Ma et al., 2021, Huijben et al., 2022, Kool et al., 2020]. In particular, we use the low-variance gradient estimation technique proposed by Gadetsky et al. to compute PL model gradients and optimize for utility-fairness trade-off [Gadetsky et al., 2019]. This is inspired by reinforcement learning and is in line with many recent approaches for learning to score [Singh and Joachims, 2019, Ge et al., 2022]. 
+
+A.2 Fairness in Ranking 
+
+As ranking systems are increasingly adopted within sociotechnical systems, fairness considerations have become a crucial requirement. Despite scoring functions having originated from utility-based objectives, significant research has been centered around developing fairness-focused scoring functions that are used for ranking [Singh and Joachims, 2018, Asudeh et al., 2019, Singh and Joachims, 2019, Memarrast et al., 2021]. It is worth describing the landscape of fairness, to place the current work more clearly within context. In addition to the subtle variations in the definitions of fairness, there are distinct granularities, targets, and scopes. In terms of granularity, and a distinction that permeates the general algorithmic fairness literature, there is a contrast between individual notions of fairness [Biega et al., 2018, Saito and Joachims, 2022, Bower et al., 2020] and group notions [Yang and Stoyanovich, 2017, Singh and Joachims, 2019, 2018]. In the present work, we focus on binary groups. In terms of targets, since there are two sides in the ranking scenario (query/user, document/item), fairness considerations could be toward one, the other, or both. We focus on document-group fairness. Some of the cited work also considers fairness toward queries/users instead and more recent work also attempts to be jointly fair toward both queries/users and documents [Greenwood et al., 2024]. Document (un)fairness is often measured in terms of interaction disparity, and this can be measured for each query [Gorantla et al., 2023] or by accumulating interaction across multiple queries [Memarrast et al., 2021, Ovaisi et al., 2024]. We primarily focus on the former, though we also give a brief treatment of the latter. For interested readers, an extensive review by Zehlike et al. elaborates on the recent advances in fair ranking methods, datasets used and their applications [Zehlike et al., 2022a,b]. 
+
+A.3 Post-Processing 
+
+Scoring is not the only way that fairness in ranking has been tackled. Though not as widespread, post-processing — also known as ex-post methods or re-ranking — attempts to account for fairness at inference-time. Some of the work in this area does not address trade-offs, but rather attempts to achieve a fixed notion of fairness via post-processing [Geyik et al., 2019, Gorantla et al., 2023], e.g., based on alternations between groups of documents. One important concept from [Geyik et al., 2019] is the use of greed to address the intractability of post-processing. A novel concept in [Gorantla et al., 2023] is that scores are learned in a way that is aware of post-processing. Two papers that do address utility-fairness trade-off are [Gao and Shah, 2020] and [Ovaisi et al., 2024]. They both also use greed to develop tractable heuristics. The former uses an entropy-based diversity notion of fairness that does not fit well into the present framework of 13 Scoring is Not Enough fairness. The latter does fit, but does not bring to light the fact that scoring is otherwise suboptimal. The post-processing approaches of Section 6 are offered as representatives of, rather than competitors to, these methods. In summary, we adopt an interaction-disparity notion of fairness over document-groups, and study the trade-offs between utility and such fairness, comparing scoring and non-scoring based ranking methods. Our focus is on the scope of individual queries, but we also briefly address the case when the scope is across queries. What has gone under the radar in prior work, and what we highlight at present, is the inadequacy of scoring in terms of achieving the best possible trade-offs. 
+
+A.4 Popularity of Scoring in Practice 
+
+The popularity of scoring-based methods in research stems directly from their extensive application across various domains, as scoring is an inherent mechanism in many real-world ranking systems. Although our present contribution is theoretical, the widespread use of scoring in practice, including technology, social sciences, and healthcare, underscores its real-world relevance. 1. Technology. 
+
+(a) LinkedIn. The LinkedIn Talent Search platform, used by recruiters to find eligible candidates, relies on score-based ranking to order results Behzad et al. [2025], Ha-Thuc et al. [2017]. (b) Airbnb. This online accommodation marketplace uses list ranking based on scoring methods to personalize property suggestions for users Grbovic and Cheng [2018]. 2. Housing. Scoring is a foundational component for allocating crucial resources, such as housing services for unhoused community members, as demonstrated by the Allegheny County Department of Human Ser-vices Cheng et al. [2024]. Critically, fairness issues within these scoring methods have a heavy bearing on the reliability and funding opportunities for public agencies. 3. Healthcare. US kidney exchange programs utilize a point-based ranking system to match and prioritize patients eligible for transfers, balancing key criteria such as medical efficiency and fairness Bertsimas et al. [2013]. These are some of the many examples we list emphasizing the practical use of scoring-based methods for ranking, where fairness is an important consideration. This should demonstrate the importance of our findings and the urgency to discuss this with the wide community of researchers and practitioners. 
+
+## B Proofs 
+
+B.1 Proof, Corollary, and Example of Theorem 1 
+
+To prove the theorem, we first build a stepping stone by showing an even more stringent notion of scorability is not possible to achieve. In this notion, one expects the score to rank every Q the best way possible. 
+
+Definition 2 (Strong Scorability) . A pair of utility and unfairness functions (U, V) is called deterministic (or, respectively, randomized) strongly α-scorable if ∀ problem instances (D, rel , g), ∃ deterministic (or, respectively, randomized) score 
+
+such that ∀Q = {d1, d 2, ..., d m}, ranking them by score using σscore = sort ↓(Q, score ) achieves 
+
+Tα (σscore , Q ) = max 
+
+> σQ
+
+α · U (σ, Q ) − (1 − α)V(σ, Q ), (10) 
+
+where the maximization is over deterministic (or, respectively, randomized) rankings. 
+
+Unlike Eq. (8) , the maximization variable in Eq. (10) does not have to explicitly depend on Q, since this is repeated for every Q.Just as in Definition 1, by allowing score to depend on the problem instance, Definition 2 abstracts the notion that the scoring function may be learned given sufficient data from this instance. Again, the order of quantifiers “ ∃score s.t. ∀Q”is important for this abstraction to be meaningful. (This should not be confused with the reversed order “ ∀Q ∃score ”, which can be trivially achieved by setting the scores to reflect the post-hoc ranking in Eq. (10).) What makes the requirement of Definition 2 “strong” is that we ask for optimality of the trade-off for every query Q. In other words, this means that one can think of nature as an adversary who can, within the problem instance, choose the specific documents to present to the scorer. This stronger requirement gives us the first evidence that we should not take scoring for granted, through the following suboptimality of deterministic scoring in terms of strong scorability. 14 Scoring is Not Enough 
+
+Lemma 1 (Counterexample to Deterministic Strong Scorability) . Let U and V be given by Eqs. (1) and (3) with some monotonically non-increasing w such that wi + wm−i+1 is not constant for i = 1 , · · · , m − 1. Then, for any α < 1,there exists a problem instance (D, rel , g) such that ∀ deterministic scoring functions score that can depend on the instance, there exists Q such that Eq. (10) fails. Therefore, this choice of (U, V) is not strongly scorable. Proof. Consider the function 
+
+ϕ(j) = 1
+
+j
+
+> j
+
+X
+
+> i=1
+
+wi − 1
+
+m − j
+
+> m
+
+X
+
+> i=j+1
+
+wi,
+
+with j = 1 , · · · , m − 1. Observe that, thanks to the non-increasing nature of w, ϕ is non-negative. We claim that ϕ
+
+cannot be symmetrical, i.e., ϕ(j) = ϕ(m − j) ∀j, under the given condition for w. To see this, note that: 
+
+ϕ(j) − ϕ(m − j) = 1
+
+j
+
+> j
+
+X
+
+> i=1
+
+ci − 1
+
+m − j
+
+> m
+
+X
+
+> i=j+1
+
+ci,
+
+where ci = wi + wm−i+1 . If we enumerate these equations over all j = 1 , · · · , m − 1 and equate them to 0, we get 
+
+m − 1 linearly independent equations, if we add to these c1 = c, we have m equations that uniquely determine the values of ci. Since ci = c ∀i is a valid solution, it is the only one. (We can also solve this constructively, by induction.) Thus ϕ(j) = ϕ(m − j) ∀j implies that wi + wm−i+1 is constant. (For completion, note that the converse can also be verified to be true, thus these two conditions are equivalent.) Since wi + wm−i+1 is not constant, it means that there exists some p ∈ { 1, · · · , m − 1} such that ϕ(p) > ϕ (m − p)
+
+(strictly). Using this, construct the problem instance as follows. Let D consist of two types of documents, with 
+
+(rel (d), g(d)) = either (1 , a ) or (1 , b ). Note that, by choosing both types to have the same relevance, the utility of all rankings will be the same, and the trade-off will only depend on the unfairness term. As previously discussed, we assume that score (d) is a function of (rel (d), g(d)) and that it cannot assign the same value to the two distinct types of documents. W.l.o.g., assume score (1 , a ) > score (1 , b ). Construct Q to have p documents of type (1 , a ) and m − p of type (1 , b ). This means that the score-induced ranking assigns the top p spots to documents from Ga and the remaining m − p to Gb. Note that the unfairness of this ranking is equal to ϕ(p). This, by construction, is larger than ϕ(m − p), which is the unfairness we would have obtained had we placed the Gb documents first and Ga
+
+documents last. Therefore, for this choice of Q, Eq. (10) fails and it follows that strong scorability does not hold. The counterexample in the proof of this theorem explicitly constructs a hard query Q to counteract each choice of score .This is possible since, in strong scorability, the adversary of the scorer knows exactly which documents are being scored. We are now ready to prove Theorem 1. Now, picking individual Q’s to counteract each choice of score is no longer option, since score is allowed to depend on how queries are chosen. However, we show that any choice of score will be suboptimal on some queries. 
+
+Proof of Theorem 1. Construct the problem instance similarly to the proof of Lemma 1. Choose D to have two types of documents (rel (d), g(d)) = (1 , a ) and (rel (d), g(d)) = (1 , b ). Let P sample from each group equally. Let p be as before, and assume, w.l.o.g., that score (1 , a ) > score (1 , b ). Now let’s look at the difference between the right and left hand sides of Eq. (8): 
+
+max 
+
+> σQ
+
+EQ [Tα (σQ, Q )] − EQ [Tα (σscore , Q )] = max 
+
+> σQ
+
+−(1 − α)EQ [V(σQ, Q )] + (1 − α)EQ [V(σscore , Q )] 
+
+≥ −(1 − α)EQ [V(˜ σQ, Q )] + (1 − α)EQ [V(σscore , Q )] = (1 − α)EQ [V(σscore , Q ) − V (˜ σQ, Q )] ,
+
+where the utility terms cancel out and we have bounded the optimality gap by choosing a specific ranking ˜σQ rather than the optimal. Let A be the set of all queries Q which contain pQ documents of Ga and m − pQ documents of Gb, such that 
+
+ϕ(pQ) > ϕ (m − pQ). We already showed that this set is non-empty, and thus there is a positive probability that Q will be sampled from it. Since we have full control of ˜σQ for each Q, let ˜σQ reverse the order of σscore or all Q ∈ A and let it rank similarly to σscore otherwise (thus the unfairness difference is 0 in that case). It then follows that: 
+
+max 
+
+> σQ
+
+EQ [Tα (σQ, Q )] − EQ [Tα (σscore , Q )] ≥ (1 − α)EQ [1{Q ∈ A} (ϕ(pQ) − ϕ(m − pQ))] (11) 
+
+> 0,
+
+15 Scoring is Not Enough where we have used the fact that for Q ∈ A, using the proof of Lemma 1, V(σ, Q ) is not minimal with the scoring-induced ranking. Therefore, we have a non-zero optimality gap. In other words, Eq. (8) fails, and it follows that scorability does not hold. Note that if there is a slight discrepancy in relevance between the document types, the gap would still exist as long as utility is no so dominant that fairness is outright ignored. We can also get a quantifiable larger gap, under a convexity assumption on the weights. 
+
+Corollary 1. Consider the setting of Theorem 1. Assume, additionally, that wi are convex, i.e.. (wi+1 − wi) − (wi −
+
+wi−1) > 0, and let m be odd. Then, if we uniformly sample m documents from two types of documents (1 , a ) and (1 , b ),the trade-off gap of scoring can be bounded by 
+
+max 
+
+> σQ
+
+EQ [Tα (σQ, Q )] − EQ [Tα (σscore , Q )] ≥ (1 − α) X 
+
+> 0<p< m
+> 2
+
+Prob (Binomial (m, 12 ) = p) [ ϕ(p) − ϕ(m − p)] 
+
+≥ (1 − α)
+
+ 12 − 12m
+
+  
+
+ϕ
+
+ m − 12
+
+
+
+− ϕ
+
+ m + 1 2
+
+ | {z }
+
+> >0
+
+Proof. What simplifies things in this corollary is that the convexity of w implies that ϕ is non-increasing (further properties about ϕ can also be shown, such as convexity, but that’s not needed.) To see this, let di = wi − wi+1 be the differences of weights, as (non-negative) magnitude of consecutive drops in the sequence. The convexity of w implies that di is non-increasing, i.e., d1 ≥ d2 ≥ · · · . We can express wi around wj+1 by summing these differences as: 
+
+wi =
+
+(
+
+wj+1 + Pjk=i dk ; i ≤ jwj+1 − Pi−1 
+
+> k=j+1
+
+dk ; i > j + 1 
+
+By changing orders of summation, we have: 
+
+> j
+
+X
+
+> i=1
+
+wi =
+
+> j
+
+X
+
+> i=1
+
+wj+1 +
+
+> j
+
+X
+
+> k=i
+
+dk
+
+!
+
+= j w j+1 +
+
+> j
+
+X
+
+> k=1
+
+k d k
+
+and mX
+
+> i=j+1
+
+wi = wj+1 +
+
+> m
+
+X
+
+> i=j+2
+
+wj+1 −
+
+> i−1
+
+X
+
+> k=j+1
+
+dk
+
+ = ( m − j) wj+1 −
+
+> m−1
+
+X
+
+> k=j+1
+
+(m − k) dk.
+
+By combining these, we get 
+
+ϕ(j) = 1
+
+j
+
+> j
+
+X
+
+> i=1
+
+wi − 1
+
+m − j
+
+> m
+
+X
+
+> i=j+1
+
+wi = 1
+
+j
+
+> j
+
+X
+
+> k=1
+
+k d k + 1
+
+m − j
+
+> m−1
+
+X
+
+> k=j+1
+
+(m − k) dk.
+
+We now can deduce that ϕ is non-increasing, because 
+
+ϕ(j) − ϕ(j + 1) =
+
+ 1
+
+j − 1
+
+j + 1 
+
+ jX
+
+> k=1
+
+k d k − j + 1 
+
+j + 1 dj+1 + m − j − 1
+
+m − j dj+1 
+
++
+
+ 1
+
+m − j − 1
+
+m − j − 1
+
+ m−1X
+
+> k=j+2
+
+(m − k) dk
+
+= 1
+
+j(j + 1) 
+
+> j
+
+X
+
+> k=1
+
+k d k − 1(m − j)( m − j − 1) 
+
+> m−1
+
+X
+
+> k=j+1
+
+(m − k) dk ≥ 0,
+
+where for the non-negativity we used the fact that the dk’s are non-increasing and the fact that we are evaluating the difference (up to a factor of 2) of the weighted averages of the first j d k’s and the remaining (no greater) dk’s. Because ϕ is non-increasing, it implies that the symmetric differences ϕ(p) − ϕ(m − p) > 0 for all p < m 
+
+> 2
+
+. What we are thus able to achieve is to exactly specify the whole set A in the proof of Theorem 1. Using the same problem 16 Scoring is Not Enough instance there, instead of simply claiming that Eq. (11) is non-negative we can evaluate it to get the first bound in the claim of this corollary. To get the second bound, we note that the fact ϕ is non-increasing also implies that the symmetric differences ϕ(p) −
+
+ϕ(m − p) are non-increasing too. Therefore, we can replace them by the smallest value they take ϕ   m−12
+
+ − ϕ   m+1 2
+
+,at p = m−12 . The proof is then complete by pulling that out of the sum, which gives us 12 (the median of a symmetric binomial distribution) minus the chance of p = 0 , when there cannot be any unfairness, by convention. To put this in context, note that without the ability to characterize A, the only bound we can offer for the gap is exponentially smaller, obtained by multiplying with the probability of a sequence with exactly p documents of the needed type, giving us: 
+
+12m
+
+mp
+
+
+
+(ϕ(p) − ϕ(m − p)) .
+
+Example. As an example to illustrate this corollary, consider the weights wi = 1log 2(i+1) for position bias. These satisfy the requisite assumptions, including convexity. If we use queries of m = 9 documents and use the simplified (second) bound we can easily find that ϕ(4) − ϕ(5) ≈ 0.04 and thus we deduce that all scoring functions would have an optimality gap of at least 0.02 (times 1 − α). We can refine this further by using the full (first) bound, and find out that the gap is in fact at least 0.05 (times 1 − α). 
+
+Figure 3: Tradeoff gap between the optimal ranker and the best scorer in the example of Corollary 1, as a function of the desired tradeoff parameter α and asymmetry of relevances γ between the two types of documents. Of course, in practice the gap is even larger than what this theoretical analysis predicts, because the optimal ranking may interleave the documents but a deterministic scorer cannot. (The theory is only comparing against an alternative that also does not interleave.) We can simulate this scenario straightforwardly, and in doing so, we also add an asymmetry γ
+
+in the relevances between the two groups (one group with relevance 1, the other with relevance γ), to assess the impact of utility. In Figure 3, we illustrate how these two parameters affect the gap. The closest to the theory is the left figure, with γ = 1 and the gap plotted vs. α. We can see the expected linear 1 − α behavior, though the gap is about 6× larger than the theory’s lower bound of 0.05 (it’s ≈ 0.30 at α = 1 .) As γ increases, the gap diminishes because the utility plays a larger role. With γ very asymmetrical, utility dictates the tradeoff by requiring to rank all the relevance-1 documents ahead, and the gap vanishes. As expected, the diminishing with γ is more marked for larger values of α, where utility dominates and the overall tradeoff becomes closer to being separable. Indeed, even for γ near 1, the gap can nearly flatten near α = 1 . However, it remains non-negligible whenever α is small enough. It is remarkable that the behavior of this very simple experiment is in complete agreement with our larger set of experiments, including those with real data. (The experiment still uses m = 9 . Expected utility and unfairness were calculated using 500 random queries. The bars represent 10 th and 90 th percentiles of the gap across these queries.) 17 Scoring is Not Enough 
+
+B.2 Proof of Theorem 2 
+
+Proof of Theorem 2. First, consider strong scorability and use the same problem instance (D, rel , g) as in the proof of Lemma 1. Namely, let D consist of two types of documents, with (rel (d), g(d)) = either (1 , a ) or (1 , b ). We will proceed by competing with the score-induced randomized ranking using an alternative randomized ranking. Given any randomized scoring function score , assume for the sake of contradiction that it achieves Eq. 10 for all Q. Let 
+
+X = score (1 , a ) and Y = score (1 , b ) be independent random variables representing a sample of scoring from each document type. Assume, without loss of generality, that P (X > Y ) > 0. Construct Q to have p documents of type 
+
+(1 , a ) and m − p of type (1 , b ). Let E be the event that all (1 , a ) documents will have greater score than all (1 , b )
+
+documents. Since scores are sampled independently per document, and based on how X and Y relate, we know that 
+
+Prob (E) > 0 (possibly small but non-zero). Consider an alternative randomized ranker that mimics σQ, score on Ec, but on E it flips the order of all (1 , a ) and (1 , b )
+
+documents. This will change the unfairness, given E, from |ϕ(p)| to |ϕ(m − p)|, thus reducing it (see the proof of Lemma 1). By the law of total expectation, the expected unfairness of the alternative randomized ranker is thus strictly smaller than that of σQ, score , leading to an improved trade-off and thus a contradiction. Thus score must fail Eq. 10 for this Q. Note that the proof is valid for any score-based randomized ranker, i.e., none of them can be trade-off optimal for all Q. Thus, the trade-off optimal randomized ranker is provably non-score-based. The proof of scorability follows the same steps as the proof of Theorem 1, but adapted to the above alternative randomized ranker construction. In particular, with positive probability, Q will have p documents of Ga and m − p
+
+documents of Gb. Conditionally on this Q, the event E will again have a positive probability. The alternative randomized ranker will mimic σQ, score in all cases except under this Q and event E, and thus will have an improved trade-off. It follows that scorability once again does not hold. 
+
+## C Across-Query Fairness 
+
+The notion of unfairness given by Eq. (3) is per-query. Namely, we measure the discrepancy between groups at the level of individual queries. While this is reasonable in many applications, e.g., suggesting male and female applicants in response to a single job posting, there are other instances where fairness is better measured across queries, e.g., whether certain movie categories are reaching a wide enough audience. We here demonstrate that even in that setting, scoring can be suboptimal. We assume, as in the case of scorability, that queries are formed based on a distribution Q ∼ P. We focus on deterministic scoring. The notion of utility is mostly unchanged, except that we now average over all queries: 
+
+U(σ, P) = EQ∼P[U(σ, Q )] . (12) The notion of unfairness, however, is more radically affected. Instead of aggregating interaction per query, we aggregate it across queries: 
+
+V(σ, Q ) = EQ∼P
+
+ 1
+
+mProb (Ga)
+
+X
+
+> i:g(σQ(i))= a
+
+wirel (σQ(i)) 
+
+− 1
+
+mProb (Gb)
+
+X
+
+> i:g(σQ(i))= b
+
+wirel (σQ(i)) 
+
+
+
+(13) where 
+
+Prob (G) = 1
+
+m EQ∼P
+
+"X
+
+> i
+
+1{σQ(i) ∈ G}
+
+#
+
+.
+
+Contrast the inside-absolute-value expectation of (13) with the outside-absolute-value expectations of (4) and (8). 
+
+Definition 3 (Across-Query Scorability) . A pair of across-query utility and unfairness functions is called scorable if 
+
+∀α, ∀P, ∃score α, P such that if D = {d1, d 2, ..., d m} ∼ i.i.d. from P are sorted using σscore = sort (D, score α, P), we achieve 
+
+max  
+
+> σ
+
+α · U (σ, P) − (1 − α) · V (σ, P).
+
+18 Scoring is Not Enough 
+
+Counterexample to Across-Query Scorability. To demonstrate that even in the across-query setting scorability is not to be taken granted, we construct a specific example where we can tractably solve for the optimal ranking. In particular, we sample a query Q = {{ d1, . . . , d m}} from document distribution P i.i.d. (with replacement), where P
+
+is a categorical distribution of k documents. We assume m ≥ k. The number of all possible multisets is given (( km )) .Within each multiset, the number of possible permutations is given by   mm1,...,m k
+
+. Recall that the maximization in Definition 3 determines, for every multiset Q, the particular permutation representing the way they would be ranked. Unlike the per-query instance where the optimization could be solved for each query separately, the across-query optimization needs to take into account all queries simultaneously. To solve this, we propose the following linear relaxation. A multiset is equivalently identified via the corresponding histogram H = Histogram (Q). Let J(H) be the set of all permutations within the histogram H, and let j ∈ J(H)
+
+represent the indices of individual permutations. In other words, choices of j in each H collectively define σ. Each j
+
+results in a contribution to utility, which we denote by UH,j , as well as a contribution to the unfairness term within the absolute values, which we denote by VH,j . These contributions can be computed offline. If we relax the selection of the permutation to a convex combination over permutations given by coefficient xj|H , akin to randomized sampling, the maximization of the trade-off can be written as a linear program as follows: maximize α X
+
+> H
+
+p(H) X
+
+> j∈J(H)
+
+xj|H UH,j − Z
+
+subject to (1 − α) X
+
+> H
+
+p(H) X
+
+> j∈J(H)
+
+xj|H VH,j ≤ Z
+
+− (1 − α) X
+
+> H
+
+p(H) X
+
+> j∈J(H)
+
+xj|H VH,j ≤ Z
+
+X
+
+> j∈J(H)
+
+xj|H = 1 , ∀Hxj|H ≥ 0, ∀H, j Z ≥ 0 .
+
+We choose a uniform distribution for P, which then results each sequence to be equally likely. The probability p(H)
+
+for a histogram H is then computed using the multinomial coefficient, representing the number of ways to arrange elements according to the counts in H:
+
+p(H) = m!
+
+h1! h2! . . . h k!
+
+ 1
+
+k
+
+m
+
+.
+
+As for the PL model, we choose k = 5 , m = 8 , with the following composition of documents (rel (d), g(d)) = (1 , a ), (2 , b ), (3 , a ), (4 , b ), (5 , a ). Weights are chosen to be the standard position bias wi = 1 /(log 2(i) + 1) . This is the same as the synthetic data set described in Section 6. To compare with scoring, we optimize over all possible deterministic scorings by considering all k! different orderings that they induce on the documents. The results are in Table 1, highlighting a clear gap between scoring and the optimal trade-offs. It is worth noting that despite the linear program being a relaxation, it predominantly produces pure strategies, i.e., a single ranking choice per multiset. 
+
+## D Beam Trade-off Search Algorithm Details 
+
+D.1 Mathematical Description 
+
+Beam Trade-off Search (Algorithm 1) can be mathematically described as follows. We initialize B lists (σ1 
+
+> D
+
+, . . . , σ BD ),each with one of the most relevant documents from each group. Each of these lists, b = 1 , · · · , B maintains its own copy of the pair of group-wise sorted documents, (Db 
+
+> a
+
+, D b 
+
+> b
+
+), with the added document σb 
+
+> D
+
+(0) removed. Let db 
+
+> g
+
+∈ Db
+
+> g
+
+be sorted in decreasing order of relevance with increasing ℓ = 1 , · · · , |Db 
+
+> g
+
+|. For subsequent positions i > 1, we collect the most highly relevant document from each group, like in greedy, append them to the documents in each list to create temporary ranking orders, and calculate their trade-offs, as follows. The documents to be evaluated can be written as 
+
+Db = {db 
+
+> g
+
+: g ∈ { a, b }} . Thus, there are 2B partial rankings considered at each step 
+
+S =
+
+n
+
+σb′ 
+
+> D
+
+([0 , . . . , i − 1]) ∪ { d} : b′ = 1 , · · · , B, d ∈ Db′
+
+,
+
+o
+
+.
+
+19 Scoring is Not Enough 
+
+Optimal Scoring Linear Program 
+
+α U V T U V T
+
+0 11.75 0 0 11.16 0 00.1 11.75 0 1.18 13.21 0 1.32 0.2 13.27 0.33 2.39 13.21 0 2.64 0.3 13.27 0.33 3.75 13.21 0 3.96 0.4 13.27 0.33 5.11 13.21 0 5.28 0.5 13.27 0.33 6.47 13.21 0 6.61 0.6 13.36 0.45 7.84 13.21 0 7.93 0.7 13.36 0.45 9.22 13.21 0 9.25 0.8 13.36 0.45 10.6 13.21 0 10.57 0.9 13.36 0.45 11.98 13.21 0 11.89 1 13.36 0.45 13.36 13.36 0.45 13.36 Table 1: Across-query utility, unfairness, and trade-off: suboptimality of scoring vs. direct optimization. We sort them in decreasing order of their trade-off values and only keep the top-B lists, to maintain our beam width. We can write this as, for b = 1 , · · · , B :
+
+σb 
+
+> D
+
+= top-b arg max 
+
+> σ∈S
+
+T (σ) (14) We then maintain only the surviving lists’ sorted groups, and remove from them each list’s newly appended document. We repeat this process until all the remaining documents in the set have been ranked. In the end, the ranking with the best trade-off among the last B rankings is returned. 
+
+Figure 4: AI-Generated Illustration of Beam Trade-off Search (Algorithm 1) 
+
+D.2 Illustration 
+
+We give an illustration of Beam Trade-off Search. Figure 4 is AI-generated (using Gemini with Nano Banana Pro), based on the L ATEXpseudocode of Algorithm 1 and the above mathematical description. 20 Scoring is Not Enough 
+
+## E Additional Experiments 
+
+We now give two additional real data experiments illustrating the presence of optimality gaps for scoring. 
+
+E.1 German Credit Dataset Dataset Preparation. We follow a similar process to create queries for ranking from the the German Credit dataset as we did from the COMPAS dataset (see 6.1). The dataset contains 1,000 rows of 20 attributes that comprise an individual’s creditworthiness and true relevances. Relevances are binary in this case, i.e., creditworthy ( rel =1) or not (rel =0). We maintain the query size, ratio of positive to negative class, and the train-test split as in the COMPAS dataset. The only difference being that we use sex={Male, Female} as the protected attribute in this case. 
+
+Results. Since the relevances in this dataset are binary, we train a Logistic Regression model that maps features to relevances, rel ∈ [0 , 1] . The probability of each individual being creditworthy ( rel = 1 ) is treated as the target variable for this prediction. However, the regression model suffers from lower prediction accuracy, which could be explained by the binary relevances compared to multi-valued relevances for the COMPAS dataset. To counter the effect of noisy learned relevance on the greedy and beam search, we modify the algorithms to sample using a softmax with temperature β = 10 q α 
+
+> (1 −α)
+
+instead of merely sorting group-wise documents based on the relevances. Lower values of α make β smaller, making the sample more random and steering the greedy and beam search towards lower utility and lower unfairness. As α increases and β gets larger, the softmax sample has a higher probability of being ordered by the learned relevances. We train the PL-RELAX model as specified earlier. Since the performance of the trained Plackett-Luce model is not great, in order to rule out optimization-related issues, we also adapt the optimizer of the Fair-PGRank method proposed by [Singh and Joachims, 2019], within their publicly available code, as an additional baseline. Essentially, the difference between the two methods is that Fair-PGRank (with our own objective function, rather than that of [Singh and Joachims, 2019]) uses REINFORCE without the variance reduction of PL-RELAX. The fact that both methods perform similarly gives support to the convergence of the PL-RELAX model on this dataset. We present the results in Fig. 5. Both Plackett-Luce models (PL-RELAX and Fair-PGRank) remain dominated by our ex-post ranking methods (greedy and beam search) for the German Credit dataset. The latter shows excellent trade-offs by maintaining high utility while keeping the unfairness low at all α values. Notably, greedy performs better than the beam search at α ≤ 0.2 as the myopic choice for greedy results in lower unfairness and similar utility. At α > 0.2,beam search provides the optimal trade-offs compared to other approaches and the gap is significant with respect to PL-RELAX and Fair-PGRank. We observe that the trade-off curves do not look convex for the German Credit dataset, as they did for COMPASS and the synthetic dataset. This is likely due to the fact that this dataset has binary relevances (rel ∈ { 0, 1}) and the regression and the scoring-based PL models learn noisy estimates of the relevances, affecting the lower range of α values where the tradeoff curve is steep and small changes in trading off the estimated utility and fairness can result in large changes in the (plotted) true utility and fairness. 0.19 0.20 0.21 0.22 0.23 0.24 0.25              
+
+> Unfairness
+> 3.4
+> 3.6
+> 3.8
+> 4.0
+> 4.2
+> 4.4
+> Utility
+> 0.0 0.0
+> 1.0 1.0
+> 0.1
+> 0.1
+> 0.9 0.9
+> 0.2
+> 0.2
+> 0.8 0.8
+> 0.3 0.3
+> 0.7 0.7
+> 0.4 0.4 0.6 0.6 0.5 0.5 0.5 0.5 0.6 0.6 0.4 0.4
+> 0.7 0.7 0.3
+> 0.3 0.8 0.8 0.2
+> 0.2 0.9 0.9
+> 0.1
+> 0.1 1.0 1.0
+> 0.0
+> 0.0
+> Beam
+> Greedy
+> PL-RELAX
+> Fair-PGRank
+
+Figure 5: Utility and unfairness values for α = {0, . . . , 1} achieved by the beam search (orange), greedy (green), and the trained PL model (purple) on the German Credit dataset. 21 Scoring is Not Enough 
+
+(a) Greedy and Beam Search use the relevances learned from a Linear Regression model. 0.5 1.0 1.5 2.0 2.5      
+
+> Unfairness
+> 36.5
+> 37.0
+> 37.5
+> 38.0
+> 38.5
+> Utility  0.0 0.0
+> 0.0
+> 0.1
+> 0.1
+> 0.1
+> 0.2
+> 0.2
+> 0.2
+> 0.3
+> 0.3
+> 0.3
+> 0.4
+> 0.4
+> 0.4
+> 0.5
+> 0.5
+> 0.5
+> 0.6 0.6
+> 0.6
+> 0.7 0.7
+> 0.7
+> 0.8
+> 0.8 0.8
+> 0.9 0.9 0.9
+> 1.0 1.0 1.0
+> Beam
+> Greedy
+> PL-RELAX
+
+(b) Greedy and Beam Search use the relevances learned from a Gradient Boosting Regression model. 
+
+Figure 6: Utility and unfairness values for α = {0, . . . , 1} achieved by beam search (orange), greedy (green) and the trained PL model (purple) on the Movielens 100K dataset. 
+
+E.2 MovieLens 100K Dataset Data Preprocessing. MovieLens 100K is a popular dataset used for learning-to-rank tasks Harper and Konstan [2016]. As the name suggests, the dataset contains 100,000 movie ratings for 1,682 movies from 943 users. A rating is a number ranging from 1 to 5, where a higher rating is more liked by the user. Following the methodologies of Naghiaei et al. [2022], Ovaisi et al. [2024], we select the top 20% of movies with the highest average rating as popular and the rest as unpopular. We use this popularity measure as the protected attribute to calculate the unfairness. For each user, we randomly sample 20 of their rated movies to create a query, such that each query has a fixed size. Based on the 21 features describing a movie, including release year, genre (1-hot encoded), and popularity, we train two regression models to predict point-wise relevances for the movies. Then, we train the PL-RELAX model as described in Section 6.2. 
+
+Results. The dataset is challenging to learn as it contains many sparse features and varied ratings for the same movie among users. Therefore, we explore two regression models to learn ratings from features whose outputs are used by greedy and beam search. First, we train a Linear Regression model with mean squared error loss using an SGD optimizer. The linear model yields R2 = 0 .09 , suggesting low explanatory power. Second, we use a Gradient Boosting Regression model, an ensemble method that sequentially trains multiple learners to reduce the error of the previous learner. The ensemble model gets R2 = 0 .11 , showing a minor improvement over the linear model. These are both used as inputs to greedy and beam search approaches. We use the same linear model architecture as for the other datasets to map features to PL coefficients, and we optimize it with the PL model to maximize the trade-off. The results for both relevance models are shown in Fig. 6. Although the linear model demonstrates a weak fit, greedy and beam search performances resemble that of the PL-RELAX model (Fig. 6a). When the slightly more powerful Gradient Boosting model is used for greedy and beam search, they both exhibit better trade-off values at each α level. The challenges of learning from sparse features and varied ratings limit beam search in outperforming greedy search using the same learned relevances. More generally, these results showcase an additional benefit of using decoupled models to learn relevance and then applying our proposed heuristic approaches. We can choose better relevance models independently of the ranking objectives, then combine the model outputs with greedy or beam search to achieve a desired utility-fairness trade-off, whereas scoring-based methods like Plackett-Luce must be retrained as the desired trade-off changes. 22

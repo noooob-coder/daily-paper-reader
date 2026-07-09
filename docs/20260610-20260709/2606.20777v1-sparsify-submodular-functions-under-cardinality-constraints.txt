@@ -1,0 +1,3092 @@
+Title: Sparsify Submodular Functions under Cardinality Constraints
+
+URL Source: https://arxiv.org/pdf/2606.20777v1
+
+Published Time: Tue, 23 Jun 2026 00:11:14 GMT
+
+Number of Pages: 30
+
+Markdown Content:
+# Sparsify Submodular Functions under Cardinality Constraints 
+
+## Zhengting Bao ∗ Dongrun Cai † Xue Chen ‡
+
+## June 23, 2026 
+
+Abstract 
+
+Submodular sparsification generalizes the classical sparsification problems of graphs and matrices to summations of submodular functions. Given the summation F (S) := f1(S) + · · · + fm(S) of m
+
+submodular functions f1, . . . , f m : {0, 1}n → R≥0. An size-s sparsification of F is a weight vector 
+
+w ∈ Rm 
+
+> ≥0
+
+such that w1f1(S) + · · · wmfm(S) ≈ F (S) for every subset S ⊂ [n]. Motivated by the wide applications of submodular functions in data mining and economics, submodular sparsification has been studied in the last few years. For general submodular functions, Kenneth and Krauthgamer provided an efficient construction of size O(n3). Although several families of submodular functions admit sparsifiers of size ˜O(n), there is a lower bound Ω( n2) on the size of sparsifiers by Cohen et al. In this work, we study whether cardinality constraints, such as restricting S to subsets of size at most 
+
+k, could reduce the size of sparsifiers or not. Namely, if the guaranty is w1f1(S) + · · · wmfm(S) ≈ F (S)for every S in [ n] of cardinality at most k, are there sparsifiers of size smaller than o(n2)? Our main result shows an efficient construction of size-O(nk 2 log n) sparsifiers for summations of arbitrary submodular functions. This improves the Ω( n2) bound for the general setting. Then we consider the existence of size-(k log n)O(1) sparsifiers under the constraint of cardinality at most k and show several natural families do not admit such a small sparsifier. Technically, our algorithm applies the Lov´ asz extension and Edmonds’ greedy algorithm to extend Kenneth and Krauthgamer’s approach. In particular, we provide an efficient algorithm to provide a tight estimate (up to a constant) of the sensitivity of each fi under cardinality constraints. 
+
+# 1 Introduction 
+
+Sparsification is a powerful tool in algorithm design, whose goal is to sparsify the data while retaining some key properties. Two notable examples are graph sparsification and matrix sparsification. For graphs, the seminal work of Bencz´ ur and Karger [BK96] provided an efficient construction of cut sparsifiers: for an undirected graph G = ( V, E ), let the cut function of G on a subset S be cut G(S) = P 
+
+> e∈E
+
+cut e(S) where cut e(S) ∈ { 0, 1} indicates whether S cuts the edge e or not; there exists a cut sparsifier (i.e., a subset E′ ⊂ E
+
+with weights w) of size O(n log n) such that 
+
+X
+
+> e∈E′
+
+we · cut e(S) ≈ cut G(S) for every S. 
+
+A stronger notion, introduced by Spielman and Teng [ST04], is a spectral sparsifier that preserves the spectrum of the Laplacian matrix of the graph G. Its generalizations on graphs include hyper-graphs [KK15, CKN20, KKTY21, Lee23, JLS23], directed hyper-graphs [SY19, VBK23, OST23, KPS24a], CSP sparsification [BZ20, KPS25], and code sparsification [KPS24b, BG25, HLM +26]. On the other hand, matrix sparsification studies how to reduce the number of rows in a matrix A ∈ Rm×n
+
+while preserving a certain norm for vectors in the form of Ax . Two classical examples are ℓp subspace embeddings and the restricted isometry property. An ℓp-subspace embedding seeks for a weighted submatrix 
+
+> ∗
+
+bztminamoto@mail.ustc.edu.cn, University of Science and Technology of China, Hefei 230026, China. 
+
+> †
+
+cdr@mail.ustc.edu.cn, University of Science and Technology of China, Hefei 230026, China. 
+
+> ‡
+
+xuechen1989@ustc.edu.cn, University of Science and Technology of China, Hefei 230026, China and Hefei National Laboratory, Hefei 230088, China. Supported by NSFC 62372424 and Innovation Program for Quantum Science and Technology 2021ZD0302901. 
+
+1
+
+> arXiv:2606.20777v1 [cs.DS] 18 Jun 2026
+
+A′ with as few rows as possible such that ∥Ax ∥p ≈ ∥ A′x∥p for every x ∈ Rn. When p = 2, this is equivalent to the spectral sparsification of graphs. Classical results [BLM89, Tal90, BSS12] have shown 
+
+ℓp-subspace embeddings of size ˜O(n) for any p ∈ [1 , 2]. Very recently, Jambulapati et al. [JLLS23, JLLS24] have generalized the sparsification of functions on Ax from norms to semi-norms and more general linear models. The restricted isometry property is a core property in compressed sensing [Don06]. Unlike spectral sparsification, it takes a sparsity parameter k and requires ∥Ax ∥2 ≈ ∥ A′x∥2 for all k-sparse vectors in Rn.For the Fourier matrices and the Hadamard matrix, this sparsity constraint reduces the size to k · (log n)O(1) 
+
+[CT05, RV08] instead of O(n)[BSS12]. This work considers the sparsification of summations of submodular functions, introduced by Rafiey and Yoshida [RY22]. A set function f : {0, 1}n → R is submodular if for any subset S and T , f (S) + f (T ) ≥
+
+f (S ∪ T ) + f (S ∩ T ). Let F := Pmi=1 fi be the summation of submodular functions f1, . . . , f m. Given error 
+
+ϵ, a size-s sparsification of F (S) is a weight vector w ∈ Rm 
+
+> ≥0
+
+with at most s non-zero entries such that 
+
+∀S ∈ { 0, 1}n, F (S) = (1 ± ϵ) ·
+
+
+
+> m
+
+X
+
+> j=1
+
+wj · fj (S)
+
+ . (1) Sparsification of summations of submodular functions is a generalization of graph sparsification [RY22] and matrix sparsification [JLLS23]. On the first hand, cut functions are an important subclass in submodular functions. For example, the directed cut function cut →
+
+> (u,v )
+
+(S) for a directed edge ( u, v ) is 1 iff u ∈ S and 
+
+v / ∈ S, which is submodular. Different from the standard cut function cut e(S), the directed cut function is asymmetric. This gives a strong lower bound Ω( n2) [CKP +17] on the size of directed cut sparsifiers, although undirected cut sparsifiers have a size as small as O(n) [BSS12]. This also implies a lower bound Ω( n2) on the size of submodular sparisifers. Other examples include the directed cut on a hyper-edge, cut A→B (S) = 1 iff A ∩ S̸ = ∅ and B ∩ S̸ = ∅, and the summation of directed cuts on hyper-edges, P 
+
+> (A,B )∈E
+
+cut A→B (S) over a set of hyper-edges E. On the second hand, submodular functions are more general than linear functions. For example, a welfare function {0, 1}n → R≥0 represents the utility of an agent over subsets of n resources, which is not necessarily linear. But matrix sparsification focuses on sparsifying the summation of a norm function N (·) (or a loss function) on linear forms such as Pmi=1 N (⟨Ai, x ⟩) for rows Ai in a matrix A ∈ Rm×d.Motivated by the wide applications of submobular functions in machine learning and economics, a line of research [RY22, KZ23, JLLS23, KK24, KPS24a] has studied how to sparsify sums of various types of submodular functions in (1). For general submodular functions, Kenneth and Krauthgamer provided a sparsifier of size O(n3/ϵ 2); and a lower bound of Ω( n2) is well known from the sparsification of directed cut functions [CKP +17]. Several types of submodular functions admit smaller sparsifications. For example, Jambulapati et al. [JLLS23] constructed a sparsifier of size ˜O(n/ϵ 2) for symmetric submodular functions (i.e., fi(S) = fi(S) for any S and any fi in the sum), which is almost optimal up to (log nϵ )O(1) factors. Based on this construction, Khanna et al. [KPS24b] showed a sparisifer of size ˜O(n/ϵ 2) for monotone submodular functions (i.e., f (S) ≤ f (T ) for any S ⊂ T ) and a sparsifier of size ˜O(n2/ϵ 2) for directed cut on hyper-edges. We refer to [KK24] for results on other types of submodular functions. In this work, our focus is on the sparsification of sums of submodular functions under cardinality constraints. For convenience, we call it submodular sparsification under cardinality constraints in the rest of this work. Specifically, given a sum of submodular functions F := Pmi=1 fi and a parameter of cardinality 
+
+k, an error-ϵ size-s sparsification of F (S) under the cardinality constraint |S| ≤ k provides a weight vector 
+
+w ∈ Rm 
+
+> ≥0
+
+with at most s non-zero entries such that 
+
+∀S ⊂ [n] of cardinality at most k, F (S) = (1 ± ϵ) ·
+
+
+
+> m
+
+X
+
+> j=1
+
+wj · fj (S)
+
+ . (2) Constructing this sparsification is well-motivated. On the first hand, cardinality constraints appeared in many applications of submodular functions. A classical example is to sparsify the social welfare function [RY22]: Consider m agents with interests in n resources, whose utilities are described by m submodular functions f1, . . . , f m : {0, 1}n → R≥0. So F := Pmi=1 fi presents the social welfare, and a sparsification can be viewed as picking a committee. A cardinality constraint corresponds to a restriction on the number of resources that could be taken. Rafiey and Yoshida [RY22] also pointed out that sparsification under 2cardinality constraints subsumes sparsification under matroids. On the second hand, it is natural to ask whether a cardinality constraint could reduce the size of sparsifiers. In matrix sparsification, restricted isometry property (RIP) is equivalent to adding a cardinality constraint k to the vector x in the ℓ2 subspace embedding. For the Fourier matrix and the Hadamard matrix, such a constraint reduces the size of the sparsifier to k · (log n)O(1) in RIP [RV08, CGV13, HR16]. This contrasts to the ℓ2 subspace embedding, where the optimal bound is Θ( n) [BSS12]. Hence, it is natural to ask how small could a sparsifier be after adding a cardinality constraint, and if such a constraint could reduce the size, how to construct a smaller sparsifier efficiently. In fact, these questions have been studied by Rafiey and Yoshida [RY22]. For monotone submodular functions 1, they showed an existential upper bound O( M ·k·nϵ2 ) and provided an efficient construction of size O( M ·k·n1.5 
+
+> ϵ2
+
+). 
+
+M denotes the largest number of extreme points in the base polytope of fi in the above two bounds, which could be exponentially large in n [KK24]. However, this result was subsumed by the size- ˜O(n/ϵ 2)sparsifier for monotone submodular functions without any cardinality constraint by Khanna et al. [KPS24a]. Although sparsifiers of various submodular functions have been studied extensively in the last few years [KZ23, JLLS23, KK24, KPS24a, Qua24], much less is known about their sparsification under cardinality constraints. 
+
+## 1.1 Our Results 
+
+Our first result shows that a cardinality constraint |S| ≤ k could replace a factor n on the size of sparsifiers by k2, which reduces the size to ˜O(nk 2), and provides efficient algorithms to construct such sparsifiers for arbitrary submodular functions under cardinality constraints. For convenience, we always use k to denote the cardinality and  [n]
+
+> ≤k
+
+ to denote subsets of size at most 
+
+k. Similar to the previous work by Jambulapati et al. [JLLS23], for a submodular function f , let Teval (f )denote the time complexity of its evaluation oracle. 
+
+Theorem 1.1. [Informal version of Theorem 4.1] Let F (S) := Pmi=1 fi(S) be the sum of m arbitrary submodular functions f1, . . . , f m : {0, 1}n → R≥0. There exists an efficient algorithm in time (nm )O(1) ·Teval (fi) that for any cardinality k, finds a sparsifier satisfying (2) of size O( nk 2 log nϵ2 ) (with high prob.). 
+
+There are several remarks. First of all, there is a lower bound Ω( nk ) on the size of a sparsifer under the cardinality constraint S ∈  [n]
+
+> k
+
+. This is a generalization of the lower bound Ω( n2) on directed cut functions and submodular functions [CKP +17] (see Claim 5.1 for a full proof). So the size of the sparsifier in Theorem 1.1 is almost tight up to a factor of O(k log n). Secondly, this upper bound O(nk 2 log n) is smaller than the lower bound Ω( n2) on the sparsification of submodular functions without any cardinality constraint when k is small. This indicates that cardinality constraints could reduce the size of sparsifiers. At last, Theorem 1.1 could be generalized to any matroid M. Because a matroid of rank k is a sub-family of subsets of size k [RY22], Theorem 1.1 provides a sparsifier of the same size under any matroid constraint of rank k.
+
+Techniques. Our sparsification algorithm follows the classical importance-sampling approach, which has been used extensively in matrix sparsification and submodular sparsification (e.g., [RY22, WY23, KK24]). The basic routine is to compute an importance score ρj for each submodular function fj and to bound their total summation P 
+
+> i
+
+ρi. Then the sparsifier samples each fj with probability proportional to ρj and assigns a weight 1 /ρ j to each sampled fj . So the expected size is proportional to P 
+
+> i
+
+ρi.A standard requirement of ρj is to upper bound the maximum contribution of fj in F = P 
+
+> i
+
+fi as max S fj (S)  
+
+> F(S)
+
+. In some sparsification problems such as the ℓ1 and ℓ2 subspace embedding, there are efficient algorithms to compute this maximum contribution [CP15, WY23]. However, for two submodular functions 
+
+f and g, there is no polynomial time algorithm [BIWB16] to approximate max   
+
+> S∈{ 0,1}n
+> f(S)
+> g(S)
+
+within a factor of √n.Actually, under a cardinality constraint |S| ≤ k, there is no polynomial time algorithm [SF11] to approximate max 
+
+> S∈
+
+([n]
+
+> ≤k
+
+)  
+
+> 1
+> F(S)
+
+within a factor of √n.
+
+> 1[KZ23] claimed the proof in [RY22] holds only for monotone submodular functions.
+
+3In this work, we call this quantity σ(k) 
+
+> j
+
+:= max    
+
+> |S|≤ kfj(S)
+> F(S)
+
+the sensitivity of fj and S := P 
+
+> i
+
+σ(k) 
+
+> i
+
+the total sensitivity. Then our algorithms compute ρ(k) 
+
+> j
+
+as an approximation of σ(k) 
+
+> j
+
+. Our main contribution are efficient algorithms to compute ρ(k) 
+
+> j
+
+such that ρ(k) 
+
+> j
+
+≥ σ(k) 
+
+> j
+
+for every j and P 
+
+> j
+
+ρ(k) 
+
+> j
+
+= O(kn ). This sum is tight (up to a constant factor) because the lower bound Ω( nk ) on the size of sparsifiers also holds for the total sensitivity S.This would provide a sparsifier of size O( k2n log nϵ2 ) from the above importance sampling approach plus a union bound. Without any cardinality constraint, Kenneth and Krauthgamer [KK24] have shown P 
+
+> j
+
+σj ≤ n2
+
+for σj := max    
+
+> S∈{ 0,1}n
+> fj(S)
+> F(S)
+
+. Our bounds on ρ(k) 
+
+> j
+
+can be viewed as an extension of their results, which show the total sensitivity S drops from n2 to O(kn ) after imposing a cardinality constraint. However, our algorithms and analyses are more involved. In addition to the idea of approximating each fj by n2 directed cut functions by Kenneth and Krauthgamer [KK24], we combine several tools, such as the Lov´ asz extension and Edmonds’ greedy construction [Edm01], to obtain a tight estimate on σ(k) 
+
+> j
+
+.The proof of Theorem 1.1 has two steps. In the first step, we leverage the knowledge of the cardinality constraint into an existential proof that P 
+
+> j
+
+σ(k) 
+
+> j
+
+≤ kn + O(n). In the second step, we combine Kenneth and Krauthgamer’s approach [KK24] with the Lov´ asz extension to analyze a bicriteria approximation of min 
+
+> S∈
+
+([n] 
+
+> k
+
+)F (S). An important new idea for the bicriteria approximation is to bound P 
+
+> j
+
+ρ(k) 
+
+> j
+
+by P 
+
+> j
+
+σ(2 k) 
+
+> j
+
+=
+
+O(kn ) shown in the first step. So the time complexity in Theorem 1.1 relies on the time to approximate min 
+
+> S∈
+
+([n] 
+
+> k
+
+)f (S) for a submodular function f . For convenience, let Tmin (f ) denote this time complexity. Before we define it formally in Section 2, we show the time complexity to sparsify several families of submodular functions in Table 1. In this table, junta-r submodular denotes the family of submodular functions f : {0, 1}n → R≥0 that depend on at most r variables; Boolean submodular denotes the family of submodular functions f : {0, 1}n → { 0, 1} .While we did not improve the size of their sparsifiers (i.e., sparsity), we provide faster sparsification algorithms for junta-r submodular and Boolean submodular in Theorem 3.3 and Corollary 3.2 separately. 
+
+Function Family Sparsity Time Complexity 
+
+General submodular ˜O(nk 2/ϵ 2) O(mn 2Tmin (fi) + n2Tmin (F )) Theorem 4.1 Junta-r submodular ˜O(r2nk 2/ϵ 2) ˜O  mr 2Tmin (fi) + min( n4, mr 2n2) Theorem 3.3 Boolean submodular ˜O(nk 2/ϵ 2) ˜O(mn 2 + mn Teval (fi) + n2Tmin (F )) Corollary 3.2 Table 1: Time complexity of our sparsifiers for several families to submodular functions. 
+
+Lower bounds. Without any cardinality constraint, many families of submodular functions (such as symmetric submodular functions, monotone submodular functions, and directed cut of hyper-edges) admit sparsifiers of size ˜O(n), smaller than the general lower bound Ω( n2). Hence, an intriguing question is: Are there families of submodular functions that admit sparsifiers of size o(n) under constraint S ∈  [n]
+
+> ≤k
+
+? In particular, is it possible to have a sparsifier of size ( k log n)O(1) like the restricted isometry property? The second part of our results shows lower bounds for several families of submodular functions. First of all, a classical counter-example in matrix compression is F (x) := Pni=1 xi. Under the cardinality constraint that x is 1-sparse, any sparsifier of F (x) has a size of at least n. Since each xi is a monotone submodular function, this also provides a counter-example for sparsifying submodular functions. So classical results [RV08, CGV13, HR16, CD20] about the restricted isometry property (RIP) assume that every row Ai of the matrix A is regular like a normalized Hadamard matrix, i.e., |A(i, j )| = O( ∥Ai∥2 
+
+> √n
+
+) for every entry and show any such matrix admits a sparsifier of size k(log n)O(1) .Motivated by the results in RIP, we consider which families of submodular functions admit sparsifiers of size ( k log n)O(1) . Because submodular functions have diminishing marginal returns, we generalize the condition of restricted isometry property as follows. 4Definition 1.2. A submodular function f is regular if max 
+
+> i∈[n]
+
+f ({i}) = O(1) · min 
+
+> i∈[n]
+
+f ({i}). A submodular function 
+
+f is almost-regular if max 
+
+> i∈[n]
+
+f ({i}) = O(1) · E
+
+> i∈[n]
+
+[f ({i})] .
+
+Basically, a regular submodular function guaranties every variable has almost the same amount of influence; and an almost-regular submodular function guaranties the largest influence of a variable is a constant times the average influence. We show several results for regular submodular functions and almost-regular submodular functions. 
+
+Theorem 1.3. 1. For any sum of regular and monotone submodular functions, there exists a sparsifier of size O( k2 log nϵ2 ).2. However, there is a lower bound Ω( n) on the size of sparsifiers for regular and symmetric submodular functions under a cardinality constraint of k = 2 .3. For almost-regular and monotone submodular functions, there is a lower bound Ω( n) on the size of sparsifiers under a cardinality constraint of k = 1 .
+
+Compared to the upper bound in Theorem 1.3, the two lower bounds indicate that the two properties of the submodular function, regularity and monotonicity, are necessary to have a sparsifier of size o(n). We refer to Lemma 6.1 for the formal statement of the upper bound and Lemma 5.2 and Lemma 5.3 for the two lower bounds. 
+
+## 1.2 Related Works 
+
+Graph sparsification has been extensively studied in the last few decades. Two notable examples are cut sparsifiers [BK96] and spectral sparsifiers [ST04], which had found numerous applications in graph algorithms [Vis13]. Besides cut sparsifiers and spectral sparsifiers, other graph sparsifiers include graph spanners [ABS +20], expander decomposition [GRST21], and quotient sparsification [Qua24]. Hyper-graph sparsification is a generalization of graph sparsifiation. Several variants have been extensively studied in the last few years. The first one is cut sparsifiers of hyper-edges and directed hyper-edges (to name a few [KK15, CKN20, VBK23, KPS24a]). The second one is spectral sparsifiers of hyper-graphs [SY19, KKTY21, OST23, Lee23, JLS23]. Matrix sparsification is an important tool in machine learning and big data algorithms. Besides subspace embedding and restricted isometry property (RIP) mentioned above, other sparsifications include Johnson-Lindenstrauss projection [JL84] and low-rank approximation [CW17]. Very recent work by Jambulapati et al. [JLLS24] have constructed almost-optimal sparsifiers for general linear models such as the Huber and Tukey loss functions. Sparsification of a summation of submodular functions is also called sparsification of a decomposable submodular function. Besides sparsification of hyper-edges mentioned above, Veldt, Benson, and Kleinberg [VBK23, VBK21] have shown small size sparsifiers for summations of cardinality based submodular functions, i.e., fi(x) = gi(|x ∩ Ti|) for some subset Ti ⊂ [n] and gi : Z → R≥0. Rafiey and Yoshida [RY22] studied the sparsification of general submodular functions and showed an existential bound O(M · n2) and a constructive bound O(M · n2.5) for monotone submodular functions. Here M denotes the largest number of extreme points in the base polytope of fi. On the other hand, directed cut functions provide a lower bound Ω( n2)on the size of sparsifiers [CKP +17]. Rafiey and Yoshida’s results [RY22] have been improved and generalized in the last few years. Kudla and Zivny improved the constructive bound to O(M · n2) for low-curvature submodular functions. For summations of symmetric submodular functions, Jambulapati et al. [JLLS23] showed efficient constructions of sparisiers of size ˜O(n). Based on this construction, Khanna, Putterman, and Sudan [KPS24a] showed that monotone submodular functions also have sparsifiers of size ˜O(n). For general submodular functions (including asymmetric ones), Kenneth and Krauthgamer [KK24] showed an algorithm to approximate the sensitivity Pni=1 max S fi(S)  
+
+> F(S)
+
+with a summation O(n2), which is almost tight (by the same lower bound of directed cut functions). Based on this algorithm, Kenneth and Krauthgamer proved that any sum of submodular functions has a sparsifier of size O(n3), leaving a gap to the lower bound Ω( n2). In the special 5case of directed cut on hyper-edges, Khanna, Putterman, and Sudan [KPS24a] improved the construction to 
+
+O(n2). In fact, this improvement also holds for Boolean submodular functions (see Theorem 6.2 in Section 6). At the same time, Rafiey and Yoshida [RY22] also raised the question of sparsifying submodular functions under cardinality constraints or matroids and for monotone submodular functions, showed smaller sparsifiers than their results for the general setting. As mentioned earlier, these sparsifiers were improved by Khanna et al. [KPS24a] for monotone submodular without any constraint. However, this leaves an open question: how much can a cardinality constraint reduce the size of sparsifiers? 
+
+## 1.3 Discussion 
+
+In this work, we show that a cardinality constraint could reduce the size of sparsifiers for general submodular functions from Ω( n2) to ˜O(nk 2). While our algorithms are based on the classical importance sampling framework, our main contribution is efficient algorithms to approximate the sensitivity of each submodular function. In particular, the summation of these approximated scores is tight up to a constant. Our work leaves many intriguing open questions, and we list some of them here. 1. Under a cardinality constraint S ∈  [n]
+
+> ≤k
+
+, is it possible to improve the size of the sparsifier to ˜O(nk )? A first step would be to obtain a sparsifier of size O(n2) for the general setting without any constraint. 2. Are there families of submodular functions that admit a sparsifier of size ( k log n)O(1) under the cardinality constraint? While we show that the family of regular (see Definition 1.2) and monotone submodular functions admit such a sparsifier, we also provide lower bounds in Theorem 1.3. 3. Besides cardinality constraints, are there other constraints on S that can reduce the size of sparsifiers? 
+
+Organization. The rest of this work is organized this way. We introduce notations and basic facts about submodular functions in Section 2. Then we prove the results shown in Table 1 for sparsifying Boolean submodular functions and junta-r submodular functions under cardinality constraints in Section 3. Next we prove Theorem 1.1 about sparsifying general submodular functions under cardinality constraints in Section 4. Finally, we prove the lower bounds of Theorem 1.3 in Section 5 and the upper bound of Theorem 1.3 in Section 6. 
+
+# 2 Preliminaries 
+
+We introduce several notations and basic results about submodular functions in this work. Given an error 
+
+ϵ, for two real numbers a and b, we use a = b ± ϵ to denote a ∈ [(1 − ϵ) · b, (1 + ϵ) · b]. Let [ n] := {1, 2, . . . , n } and  [n]
+
+> k
+
+ denote the family of size-k subsets in [ n]. Similarly, let  [n]
+
+> ≤k
+
+ denote the family of subsets with maximum size most k.We identify Boolean vectors in {0, 1}n with subsets of [ n]. For ease of exposition, we use S both for a subset of [ n] and for its corresponding Boolean vector. For the vectors in Rn, we use x to denote a vector of real numbers and 1S to denote the corresponding indicator vector in Rn. Specifically, we reserve 1S ∈ Rn
+
+for the Lov´ asz extension and use the set notation S elsewhere. For a vector x ∈ Rn, let x(i) denote its i-th coordinate and let x(T ) denote the sub-vector in RT for 
+
+T ⊆ [n]. For two vectors x, y ∈ Rn, we write x ≥ y to mean x(i) ≥ y(i) for all i ∈ [n]. For an event E, let I(E) ∈ { 0, 1} denote the indicator function. For any permutation π :=  π(1) , . . . , π (n) of [ n], let Pre π (i) := {π(1) , π (2) , · · · , π (i)} denote the first i
+
+elements in its prefix and Pre π (0) = ∅.We state the classical Chernoff bound [MU05] for completeness. 
+
+Theorem 2.1 (Chernoff bound) . Let X1, . . . , X n be independent random variables in the range [0 , a ]. Let 
+
+T = Pni=1 Xi. Then for any ϵ ∈ [0 , 1] and μ ≥ E[T ], we have 
+
+P [|T − E[T ]| ≥ ϵμ ] ≤ 2 exp 
+
+
+
+− ϵ2μ
+
+3a
+
+
+
+.
+
+6We state a useful lemma that bounds the summation of sensitivities under a cardinality constraint here. 
+
+Lemma 2.2. ∀w ∈ RN
+
+> ≥0
+
+, for any k,
+
+> N
+
+X
+
+> i=1
+
+w(i)min 
+
+> S:|S|≤ k, i / ∈S
+
+P 
+
+> j / ∈S
+
+w(j) ≤ k + 2 .
+
+Proof. Without loss of generality, assume w(1) ≥ w(2) ≥ · · · ≥ w(N ). Define R = PNj=k+2 w(j). Then 
+
+> N
+
+X
+
+> i=1
+
+w(i)min 
+
+> S:|S|≤ k, i / ∈S
+
+P 
+
+> j / ∈S
+
+w(j) =
+
+> N
+
+X
+
+> i=1
+
+w(i)
+
+PNj=1 w(j) − max 
+
+> S:|S|≤ k, i / ∈S
+
+P 
+
+> j∈S
+
+w(j)=
+
+> k+1
+
+X
+
+> i=1
+
+w(i)
+
+R + w(i) +
+
+> N
+
+X
+
+> i=k+2
+
+w(i)
+
+R + w(k + 1) =
+
+> k+1
+
+X
+
+> i=1
+
+
+
+1 − RR + w(i)
+
+
+
++ RR + w(k + 1) 
+
+≤ k + 1 −
+
+> k+1
+
+X
+
+> i=1
+
+RR + w(i) + 1 .
+
+Because w ∈ RN
+
+> ≥0
+
+, this is at most k + 2. 
+
+Submodular functions. A function f : {0, 1}n −→ R is submodular iff f (S) + f (T ) ≥ f (S ∪ T ) + f (S ∩ T )for any S ⊆ [n] and T ⊆ [n]. Equivalently, f has diminishing marginal returns: f (S ∪ { i}) − f (S) ≥
+
+f (T ∪ { i}) − f (T ) for any S ⊂ T and i / ∈ T .For a submodular function f , let its base polytope in Rn be 
+
+B(f ) := 
+
+y ∈ Rn X
+
+> v∈A
+
+y(v) ≤ f (A) ∀A ⊆ [n], X
+
+> v∈[n]
+
+y(v) = f ([ n]) 
+
+ .
+
+In this work, we consider the following classes of submodular functions. 1. Boolean submodular functions: the value of each f (S) is either 0 or 1. 2. Directed cut of hyper-edges: each f is associated with two subsets L and R such that f (S) = 1 iff there exist S ∩ L̸ = ∅ and S ∩ R̸ = ∅.3. r-junta submodular functions: each submodular function f depends on at most r variables. 4. Monotone submodular functions: each f has f (S) ≤ f (T ) whenever S ⊆ T .5. B-bounded submodular functions: for a given B, each f satisfies f (S) is in [1 , B ] whenever f (S)̸ = 0. This includes functions taking integer values in {0, 1, . . . , B }.
+
+Sparsification and sensitivity. For the sake of generality, we consider weighted summations of submodular functions in the rest of this work. Given m submodular functions f1, . . . , f m : {0, 1}n → R≥0 with initial weights b1, . . . , b m, let F (S) := Pmj=1 bj · fj (S) be their weighted summation. So an s-sparsification of F (x)under the cardinality constraint S ∈  [n]
+
+> ≤k
+
+ is a weight vector w ∈ Rm 
+
+> ≥0
+
+with at most s non-zero entries such that 
+
+∀S ∈
+
+ [n]
+
+≤ k
+
+
+
+, F (S) = (1 ± ϵ) ·
+
+
+
+> m
+
+X
+
+> j=1
+
+wj · fj (S)
+
+ .
+
+7We remark that one can always reduce the sparsification of a weighted summation like (1) and (2) to the sparsification of a unweighted summation. This is because as ϵ → 0+, the term bifi can be approximated by 
+
+⌈bi/ϵ ⌉ copies of ϵf i, and the limit recovers F (S). Following [SY19, KK24], we define the sensitivity of fi under the cardinality constraint k as 
+
+σ(k) 
+
+> i
+
+:= max 
+
+> S∈
+
+([n]
+
+> ≤k
+
+)
+
+bi · fi(S)
+
+F (S) .
+
+Our algorithm will compute a sequence of sampling weights ( ρ(k)1 , . . . , ρ (k) 
+
+> m
+
+) satisfying ρ(k) 
+
+> i
+
+≥ σ(k) 
+
+> i
+
+for every i.When the cardinality parameter is clear from context, we write σi and ρi. When k is fixed, let S := P 
+
+> i
+
+σ(k)
+
+> i
+
+denote the total sensitivity [WY23]. 
+
+Lov´ asz Extension. Given a submodular function f defined over {0, 1}n with f (∅) = 0, the Lov´ asz extension [Lov82] defines a bf : Rn 
+
+> ≥0
+
+→ R as 
+
+bf (z) := 
+
+Z ∞
+
+> 0
+
+f  {i : z(i) ≥ λ}dλ. (3) Equivalently, let π denote the permutation of [ n] with z π(1)  ≥ z π(2)  ≥ · · · ≥ z π(n). Recall that Pre π (k) = {π(1) , π (2) , · · · , π (k)} such that 
+
+bf (z) = 
+
+> n−1
+
+X
+
+> i=1
+
+
+
+z π(i) − z π(i + 1) 
+
+· f  Pre π (i) + z π(n) · f  Pre π (n). (4) We will use these two equivalent definitions alternatively. Here are basic properties of the Lov´ asz Extension bf .1. If f ≥ 0, then bf ≥ 0. 2. bf (1S ) = f (S), ∀S ⊆ [n]. 3. The Lov´ asz extension bf is convex iff f is submodular. 4. If f is monotone, bf is monotone: bf (x) ≥ bf (y) for x ≥ y (i.e. ∀i, x i ≥ yi). 5. bf (cx ) = c bf (x) for any scalar c ≥ 0 and vector x.
+
+Submodular Minimization. We use submodular minimization algorithms as a primitive to compute the sampling weight ρi. Because there is no efficient algorithm for the exact submodular minimization under a cardinality constraint [SF11], we consider minimization in its Lov´ asz extension for a fractional solution. In the rest of this work, besides Teval (f ), we use Tmin (f ) to denote the time complexity of minimizing the Lov´ asz Extension bf (x) under O(1) linear constraints of x. Specifically, if the optimization goal is to find 
+
+x∗ := arg min x∈[0 ,1] n bf (x) without any extra constraint, it finds a subset S∗ ∈ { 0, 1}n in Tmin (f ) time. If the optimization goal is to find a minimizer with extra constraints (like a cardinality constraint P 
+
+> i
+
+xi ≤ k), it finds a fractional minimizer x ∈ [0 , 1] n for its Lov´ asz extension bf in Tmin (f ) time. We state the best bounds [JLSZ24, LSW15] on Tmin (f ). 
+
+Lemma 2.3. For any submodular function f , Tmin (f ) ≤ O(min( n3 log n · T eval (f ) + n4 log n, n 2 log( nM ) ·Teval (f ) + n3 log O(1) (nM ))) , where M = max S f (S).
+
+A natural threshold rounding provides a bicriteria approximation (see, e.g., [SF11]; [IB13]). Motivated by Kenneth and Krauthgamer’s approach [KK24] and the connection between submodular functions and directed cut functions (see Lemma 2.6 and Lemma 2.7 below), we will apply the bicriteria approximation by enforcing one element u ∈ S and another element v / ∈ S, like minimizing a directed cut from u to v.We state the bicriteria approximation for completeness. Since its proof is straightforward, we defer it to Appendix A.1. 8Lemma 2.4. Let F : {0, 1}n → R≥0 be a non-negative submodular function, let k be the cardinality parameter, and α ∈ (0 , 1) . For any u ∈ [n] and v ∈ [n], let 
+
+OPT (k) 
+
+> u,v
+
+:= min {F (S) : |S| ≤ k, u ∈ S, v / ∈ S}.
+
+Procedure BicriteriaApproximate in Algorithm 1 returns a set bS such that 
+
+| bS| ≤ kα , F ( bS) ≤ 11 − α OPT (k) 
+
+> u,v
+
+, u ∈ bS, and v / ∈ bS. 
+
+Algorithm 1 Minimization Under a cardinality constraint 
+
+procedure BicriteriaApproximate (F : {0, 1}n → R≥0, k, α, u, v )
+
+x∗ ← arg min 
+
+n bF (x) P 
+
+> j∈[n]
+
+x(j) ≤ k, x (u) = 1 , x (v) = 0 , x ∈ [0 , 1] n
+
+o
+
+▷ convex optimization by Lemma 2.3 
+
+S ← ∅
+
+for θ ∈ { x∗(j) | x∗(j) ≥ α, j ∈ V } ∪ { α} do 
+
+Sθ ← { j ∈ V | x∗(j) ≥ θ}S ← S ∪ { Sθ }
+
+end for return arg min S∈S F (S)
+
+end procedure Submodular functions and directed cuts. We will apply the classical Birkhoff’s representation theorem of the Boolean cube [Bir37] to the zero set {x : f (x) = 0 } of a non-negative submodular function f in {0, 1}n.Because it would be more convenient to use it when f ([ n]) = 0, we extend the ground set to V := [ n] ∪ { v∅}
+
+such that f (V ) = 0. 
+
+Claim 2.5. Let f : {0, 1}n → R≥0 be a submodular function with f (∅) = 0 . Let v∅ be a dummy node, and let V := [ n] ∪ { v∅} be the new ground set. We extend the definition of f to {0, 1}V as f (V ) = 0 and 
+
+f (S ∪ { v∅}) := f (S) for S̸ = [ n]. Then f is still a submodular function. Proof. Verify f (A) + f (B) ≥ f (A ∪ B) + f (A ∩ B) in this proof. If A = V or B = V , the submodular inequality f (A) + f (B) ≥ f (A ∪ B) + f (A ∩ B) is clearly established. Then we consider A̸ = V and B̸ = V . Let SA := A \ { v∅} and SB := B \ { v∅}. By the definition of f ,
+
+f (A) = f (SA), f (B) = f (SB ), and f (A ∩ B) = f (SA ∩ SB ). On the other hand, the union f (A ∪ B) ≤ f (SA ∪ SB ) always holds. If A ∪ B = V , then f (A ∪ B) = 0 ≤
+
+f (SA ∪ SB ) since f is non-negative. Otherwise, f (A ∪ B) = f (SA ∪ SB ). So f (A) + f (B) = f (SA) + f (SB ) ≥ f (SA ∪ SB ) + f (SA ∩ SB ) ≥ f (A ∪ B) + f (A ∩ B). To use Birkhoff’s representation theorem, we extend the ground set such that each fi satisfies fi(V ) = 0 from the above lemma. One remark is that this does not affect our sparsification goal because  Vk
+
+ is essentially equivalent to  [n]
+
+> k
+
+. For convenience, we still use [ n] to represent the ground in the rest of this work. The following lemma is a restatement of Birkhoff’s theorem, which will be useful in characterizing the zero set of a submodular function [Fuj05]. One remark is that this set of directed edges is a special case of the directed cut function defined in [KK24]. For completeness, we provide a proof in Section A.2. 
+
+Lemma 2.6. Given a non-negative submodular function f in {0, 1}n with f (0) and f ([ n]) = 0 , there exists a directed edge set E in [n] such that a subset S has f (S) = 0 iff cut u→v (S) = 0 for every directed (u, v ) ∈ E.Moreover, Procedure ConstructDirectedEdges in Algorithm 2 computes E in time O(n2 · T min (f )) ,where Tmin denotes the time of submodular minimization oracle. 
+
+9Algorithm 2 Construct Directed Edge Set for Zero Sets of a Submodular function 
+
+procedure ConstructDirectedEdges (f : {0, 1}n → R≥0)
+
+E ← ∅
+
+for (u, v ) ∈ [n] × [n] with u̸ = v do 
+
+Compute μ := min {f (S) | u ∈ S, v / ∈ S} by Lemma 2.3 
+
+if μ > 0 then 
+
+E ← E ∪ { (u, v )}
+
+end if end for return E
+
+end procedure 
+
+Furthermore, if f is boolean, the directed edge set E becomes a complete directed bipartite graph 
+
+L × R for some L ⊆ [n] and R ⊆ [n]. In other word, any Boolean submodular function f : {0, 1}n →{0, 1} can be represented as a directed hyper-edge cut function. Although this fact was known before (e.g. [CCJK05]), prior results focus on existence and do not consider efficient constructions. Here, we provide a constructive proof, explicitly specifying how to obtain the directed cut representation. Its proof is deferred to Appendix A.3. 
+
+Lemma 2.7. Let f : {0, 1}n → { 0, 1} be a submodular function with f (∅) = f ([ n]) = 0 . Let L := {i ∈ [n] : 
+
+f ({i}) = 1 } and R := {j ∈ [n] : f ([ n] \ { j}) = 1 }. Then f ≡ cut L→R. Equivalently, the set of directed edges 
+
+E in Lemma 2.6 is a complete bipartite graph between L and R: E := {(u, v ) : for all u ∈ L and v ∈ R}.In particular, Algorithm 3 constructs the directed hyperedge E in O(n · T eval (f )) time. 
+
+Algorithm 3 Construct directed hyper-edge for Boolean submodular 
+
+procedure ConstructHyperEdge (f ) ▷ Construct a hyper-edge in O(n) queries via Lemma 2.7 
+
+L ← ∅, R ← ∅
+
+for u ∈ V do if f ({u}) = 1 then 
+
+L ← L ∪ { u}
+
+end if if f ([ n] \ { u}) = 1 then 
+
+R ← R ∪ { u}
+
+end if end for 
+
+Return E ← L × R
+
+end procedure 
+
+# 3 Sparsifying Boolean submodular functions and its Generalization 
+
+In this section, we consider how to sparsify two simple submodular families: Boolean submodular functions and r-junta submodular functions. Compared to Theorem 1.1 for general submodular functions (whose proof is shown in Section 4), the algorithms and analyses of these two families are much simpler, although the size of the sparsifier is almost the same. In particular, the algorithms of these two families are faster than the algorithm of Theorem 1.1 for the general case; and the analyses shed more intuition about bounding and approximating the sensitivity σ(k) 
+
+> i
+
+. So we present a complete proof for these two families in this section. For the sake of generality, we state our main technical result for sparsifying weighted summations of Boolean submodular functions. 10 Theorem 3.1. Given m Boolean submodular functions fi : {0, 1}n → { 0, 1} and initial weights b1, . . . , b m,let F (S) := Pmi=1 bifi(S) and sensitivity σ(k) 
+
+> i
+
+:= max |S|≤ k bifi(S)  
+
+> F(S)
+
+. Then, the total sensitivity S := Pmi=1 σi
+
+is at most (k + 1) n.More importantly, Algorithm 4 computes ρ(k) 
+
+> i
+
+in time O mn 2 + mn · T eval (fi) + n2 · T min (F ) such that 
+
+ρ(k) 
+
+> i
+
+≥ σ(k) 
+
+> i
+
+and Pmi=1 ρ(k) 
+
+> i
+
+= 4 kn + 4 n.
+
+Algorithm 4 Sensitivity Oversampling for Boolean Submodular Functions 
+
+procedure ApproximateSensitivity (f1, . . . , f m : {0, 1}n → R≥0, k )
+
+for i ∈ [m] do 
+
+Call Algorithm 3 to construct the directed edge set Ei = Li × Ri for each fi
+
+end for 
+
+F (S) ← Pmi=1 fi(S)
+
+for every u ∈ [n] and v ∈ [n] \ { u} do 
+
+dSu,v ← BicriteriaApproximate (F, k, 1/2, u, v ) in Algorithm 1 
+
+end for for i ∈ [m] do 
+
+bSi ← arg min (u,v )∈Ei F ( dSu,v ) ▷ for each fi, enumerate the cut-edge in Ei
+
+ρ(k) 
+
+> i
+
+← 2 
+
+> F(cSi)
+
+end for return {ρ(k) 
+
+> i
+
+}mi=1 
+
+end procedure 
+
+A direct application of Theorem 3.1 is to sample a sparsifier with weights proportional to ρ(k) 
+
+> i
+
+. Given 
+
+ρ(k) 
+
+> i
+
+≥ σ(k) 
+
+> i
+
+and P 
+
+> i
+
+ρ(k) 
+
+> i
+
+= O(kn ), this bounds the size of the sparsifier by O( nk 2 log nϵ2 ) by a union bound. 
+
+Corollary 3.2. Given any m Boolean submodular functions f1, . . . , f m : {0, 1}n → { 0, 1} and initial weights 
+
+b1, . . . , b m, for their summation F (S) := P 
+
+> i
+
+bifi(S), there exists an sampling algorithm that computes a sparsification w1, . . . , w m of sparsity O( nk 2 log nϵ2 ) in time O mn 2 + mn · T eval (fi) + n2 · T min (F ) such that with probability 0.99 ,
+
+F (S) = (1 ± ϵ) X
+
+> i
+
+wifi(S), ∀S ∈
+
+ [n]
+
+≤ k
+
+
+
+. (5) Because the proof of Corollary 3.2 is similar to previous proofs [RY22, KK24], we defer it to Appendix A.4. Next, we combine Kenneth and Krauthgamer’s method [KK24] with our sparsification of Boolean submodular functions to give an efficient sparsification of r-junta submodular functions. 
+
+Theorem 3.3. Let f1, . . . , f m : {0, 1}n → R≥0 be a collection of r-junta submodular functions and F (S) = 
+
+b1 · f1(S) + · · · + bm · fm(S) be their summation. Then there exists a sparsification algorithm that finds w of sparsity O(r2 · nk 2 log nϵ2 ) in time ˜O  mr 2 · T min (fi) + min( n2, mr 2) · n2 such that with probability 0.99 ,
+
+F (S) = (1 ± ϵ) · X
+
+> i
+
+wifi(S) ∀S ∈
+
+ [n]
+
+≤ k
+
+
+
+.
+
+Remark 3.4. One could generalize Corollary 3.2 to B-bounded value submodular functions (i.e., f (x) ∈
+
+[1 , B ] when x ∈  [n]
+
+> ≤k
+
+ has f (x)̸ = 0 ), which provides a sparsification algorithm of sparsity O( B·nk 2 log nϵ2 ) and time O(mn 2 · T min (fi) + n2 · T min (F )) . The algorithm would replace Algorithm 3 by Algorithm 2 to construct 
+
+Ei and re-set the sampling weights ρ(k) 
+
+> i
+
+← 2BF (cSi) . This increases the time complexity to construct the edge sets E1, . . . , E m from mn · T eval (fi) to mn 2 · T min (fi). Because this result will be subsumed by Theorem 4.1, we omit this part. On the other hand, Theorem 3.3 would be faster than Theorem 4.1 for r-junta submodular functions, although its sparsity is worse by a factor of r2.
+
+11 We defer the proofs of Theorem 3.1 and Theorem 3.3 to Section 3.1 and Section 3.2 separately. Because the proof of Corollary 3.2 is straightforward (similar to [SY19, KK24]), we defer it to Section A.4. For ease of exposition, we assume two properties in their proofs: (1) each fi satisfies fi([ n]) = 0 (by Claim 2.5); (2) every initial weight bi = 1 such that F (x) = P 
+
+> i
+
+fi(x) (by the reduction described below equation (2)). 
+
+## 3.1 Proof of Theorem 3.1 
+
+In this section, we finish the proof of Theorem 3.1 . The first part of this proof bounds P σ(k) 
+
+> i
+
+.
+
+Claim 3.5. Given any non-negative submodular functions f1, . . . , f m, for any cardinality constraint k, let 
+
+F (S) = f1(S) + · · · + fm(S) and σ(k) 
+
+> i
+
+:= max S∈([n]
+
+> ≤k
+
+) fi(S)  
+
+> F(S)
+
+. Then σ(k) 
+
+> i
+
+≤ (k + 2) n.Proof. For each i with σ(k) 
+
+> i
+
+> 0, let Si := arg max S∈([n]
+
+> ≤k
+
+) fi(S)  
+
+> F(S)
+
+be the maximizer achieving σ(k) 
+
+> i
+
+. Since fi
+
+is Boolean, fi(Si) = 1 and σ(k) 
+
+> i
+
+= 1 /F (Si). Recall that Ei is the set of directed edges of fi provided by Lemma 2.6 such that Si cuts at least one edge ( u, v ) ∈ Ei. We define a map A : [ m] → [n] × [n] for these submodular functions f1, . . . , f m such that A(i) = ( u, v ) denotes a direct edge in Ei that is cut by Si. Also, let A−1(u, v ) ⊂ [m] denote the set of functions assigned to ( u, v ) in A.Now, let us fix fi and upper bound σ(k) 
+
+> i
+
+= 1  
+
+> F(Si)
+
+. A lower bound is F (Si) ≥ P 
+
+> w′∈Si,w / ∈Si
+
+|A−1(w′, w )|
+
+because A−1(w′, w ) are disjoint. Since u ∈ Si and A(i) = ( u, v ) provides a direct edge cut by Si, we simplify the lower bound to P 
+
+> w / ∈Si
+
+|A−1(u, w )|. For σ(k) 
+
+> i
+
+= 1 /F (Si), we know σ(k) 
+
+> i
+
+≤ 1P  
+
+> w / ∈Si|A−1(u,w )|
+
+so that 
+
+X
+
+> i
+
+σ(k) 
+
+> i
+
+≤ X
+
+> i∈[m]: A[i]=( u,v )
+
+1
+
+P 
+
+> w / ∈Si
+
+|A−1(u, w )| = X
+
+> (u,v )
+
+X
+
+> i:A[i]=( u,v )
+
+1
+
+P 
+
+> w / ∈Si
+
+|A−1(u, w )| . (6) Although the number of i’s with A[i] = ( u, v ) is exactly |A−1(u, v )|, different Si might give different fractions 1P  
+
+> w / ∈Si|A−1(u,w )|
+
+. To simplify this summation in (6), let Zu(v) := |A−1(u, v )| be such that 
+
+P 
+
+> w / ∈Si
+
+|A−1(u, w )| = P 
+
+> w / ∈Si
+
+Zu(w). Because each Si is in  [n]
+
+> ≤k
+
+, the smallest possible value of P 
+
+> w / ∈Si
+
+Zu(w)over Si is min 
+
+> S∈
+
+([n]
+
+> ≤k
+
+):u∈S,v / ∈S
+
+P 
+
+> w / ∈S
+
+Zu(w) given A[i] = ( u, v ) and Si cuts this edge ( u, v ). This upper bounds 
+
+X
+
+> i:A[i]=( u,v )
+
+1
+
+P 
+
+> w / ∈Si
+
+|Du,w | ≤ Zu(v)min 
+
+> S∈
+
+([n]
+
+> ≤k
+
+):u∈S,v / ∈S
+
+P 
+
+> w / ∈S
+
+Zu(w) .
+
+Now Lemma 2.2 implies that its summation over v (for any fixed u) in (6) is 
+
+X 
+
+> v̸=u
+
+Zu(v)min 
+
+> S∈
+
+([n]
+
+> ≤k
+
+):u∈S,v / ∈S
+
+P 
+
+> w / ∈S
+
+Zu(w) ≤ X 
+
+> v̸=u
+
+Zu(v)min 
+
+> S∈
+
+([n]
+
+> ≤k
+
+):v / ∈S
+
+P 
+
+> w / ∈S
+
+Zu(w) ≤ k + 2 .
+
+So (6) is at most n(k + 2). The second part bounds ρi calculated in Algorithm 4. The key observation is that while dSu,v (in Algorithm 4) with F ( dSu,v ) ≤ 2F (Si) is not in  [n]
+
+> ≤k
+
+, it is in   [n]
+
+> ≤2k
+
+ such that ρ(k) 
+
+> i
+
+is upper-bounded by 
+
+σ(2 k) 
+
+> i
+
+:= min S∈( [n]
+
+> ≤2k
+
+) fi(S)  
+
+> F(S)
+
+. Moreover, P 
+
+> i
+
+σ(2 k) 
+
+> i
+
+≤ n(2 k + 1) from the above proof of σi. We summarize this in the following claim 
+
+Claim 3.6. For every i,
+
+σ(k) 
+
+> i
+
+≤ ρ(k) 
+
+> i
+
+≤ 2σ(2 k) 
+
+> i
+
+.
+
+12 Proof. Let Si := arg max S∈([n]
+
+> ≤k
+
+) fi(S)  
+
+> F(S)
+
+be a set that attains σ(k) 
+
+> i
+
+again. For every directed edge ( u, v ), let OPT (k) 
+
+> u,v
+
+:= min {F (S) : S ⊆ V, u ∈ S, v / ∈ S, |S| ≤ k}.
+
+Then F (Si) := min (u,v )∈Ei OPT (k) 
+
+> u,v
+
+by their definitions. Hence, let ( ui, v i) ∈ Ei denote the edge satisfying 
+
+F (Si) = OPT (k) 
+
+> ui,v i
+
+. On the other hand, in Algorithm 4, F ( dSu,v ) is the bicriteria approximation (of constant 2) for each OPT (k) 
+
+> u,v
+
+: F ( dSu,v ) ≤ 2OPT (k) 
+
+> u,v
+
+and dSu,v ≤ 2k. Because bSi = arg min (u,v )∈Ei F ( dSu,v ) in algorithm 4 takes the minimal value over all edges, 
+
+F ( bSi) ≤ F (\Sui,v i ) ≤ 2 OPT (k) 
+
+> ui,v i
+
+= 2 F (Si).
+
+Thus, we have a lower bound on ρ(k) 
+
+> i
+
+:
+
+ρ(k) 
+
+> i
+
+= 2
+
+F ( bSi) ≥ 1
+
+F (Si) = σ(k) 
+
+> i
+
+.
+
+For the upper bound, because each dSu,v is of size ≤ 2k, bSi as the minimizer among all ( u, v ) ∈ Ei has 
+
+fi( bSu,v ) = 1 and | bSu,v | ≤ 2k. By definition, 
+
+σ(2 k) 
+
+> i
+
+:= max 
+
+> |S|≤ 2k
+
+fi(S)
+
+F (S)is greater than 
+
+fi( bSi)
+
+F ( bSi) = ρ(k) 
+
+> i
+
+/2.
+
+Now we apply Claim 3.5 with the cardinality constraint parameter 2 k to the bound 
+
+> m
+
+X
+
+> i=1
+
+ρ(k) 
+
+> i
+
+≤ 2
+
+> m
+
+X
+
+> i=1
+
+σ(2 k) 
+
+> i
+
+= 4 kn + O(n).
+
+It remains to account for the oracle calls and the non-oracle steps. According Lemma 2.6, building all edge sets E1, . . . , E m takes O(mn · T eval (fi)) time. The bicriteria minimization step depends only on the ordered pair ( u, v ) and the aggregate function F ,so Algorithm 4 makes a call for each ordered pair of distinct augmented vertices. This needs n(n − 1) calls for total time O(n2 · T min (F )). Outside of these calls, the algorithm evaluates F once for each candidate associated with an edge in some 
+
+Ei to choose the best edge for each i. Since P 
+
+> i
+
+|Ei| ≤ mn (n − 1), this contributes to the O(mn 2) evaluations of F and arithmetic operations. If we store all F ( dSu,v ), this step only needs O(n2) to evaluate oracle for F .
+
+## 3.2 Sparsification of r-junta Submodular Functions 
+
+The proof relies on Claim 2.1 of [KK24], which provides a sandwiching approximation on a submodular function via directed cut functions. Let Ti denote the variable set of function fi in this section. 
+
+Lemma 3.7 (Claim 2.1 of [KK24]) . For any u and v ∈ Ti, we define 
+
+f u→vi := min 
+
+> S⊆Vu∈S, v / ∈S
+
+fi(S).
+
+For any subset W ⊆ Ti,
+
+max  
+
+> u∈W,v / ∈W
+
+f u→vi ≤ fi(W ) ≤ X
+
+> u∈W,v / ∈W
+
+f u→vi .
+
+13 Proof of Theorem 3.3. We will reduce the sparsification of junta-r submodular functions to weighted Boolean submodular functions (by losing a factor of r2). Because the number of directed cut edges is at most r2 in 
+
+Ti and each f u→vi ≤ fi(W ) for any subset W that cuts u and v, by Lemma 3.7, 
+
+X
+
+> u∈Ti∩W,v ∈Ti\W
+
+f u→vi ≤ {(u, v ) ∈ Ti : u ∈ W, v / ∈ W } · fi(W ) ≤ r2fi(W ). (7) For each i ∈ [m] and each ordered pair ( u, v ) ∈ Ti × Ti, we define a single-edge directed cut function based on f u→vi to be 
+
+∀S ⊂ [n], cut fi 
+
+> u→v
+
+(S) := f u→vi · I[u ∈ S ∩ Ti, v / ∈ S ∩ Ti] .
+
+We remark that cut fi 
+
+> u→v
+
+(S) is a weighted Boolean submodular function. Let Φ( S) := P
+
+> i
+
+P 
+
+> u∈Ti,v ∈Ti
+
+cut fi 
+
+> u→v
+
+(S) be the summation of these mr 2 cut functions, which is a directed cut. Then, by equation (7) and Lemma 3.7, for all S ⊆ V ,
+
+r−2 X
+
+> u,v ∈Ti
+
+cut fi 
+
+> u→v
+
+(S) ≤ fi(S) ≤ X
+
+> u,v ∈Ti
+
+cut fi 
+
+> u→v
+
+(S)such that their summations over i have 
+
+r−2Φ( S) ≤ F (S) ≤ Φ( S).
+
+Therefore, 
+
+X
+
+> i
+
+σi = X
+
+> i
+
+max 
+
+> |S|≤ k
+
+fi(S)
+
+F (S) ≤ r2 X
+
+> i
+
+max 
+
+> |S|≤ k
+
+P 
+
+> u,v ∈Ti
+
+cut fi 
+
+> u→v
+
+(S)Φ( S) ≤ r2 X
+
+> i
+
+X
+
+> u,v ∈Ti
+
+max 
+
+> |S|≤ k
+
+cut fi 
+
+> u→v
+
+(S)Φ( S) . (8) Now we discuss how to approximate σi. Let ρ(k) 
+
+> i,u,v
+
+:= max |S|≤ k cut fiu→v (S)Φ( S) and ρ(k) 
+
+> i
+
+:= r2 P 
+
+> u∈Ti,v ∈Ti
+
+ρ(k)
+
+> i,u,v
+
+such that ρ(k) 
+
+> i
+
+≥ σi from Equation (8). Recall that cut fi 
+
+> u→v
+
+(S) is a weighted Boolean submodular function such that Theorem 3.1 implies the total sensitivity of cut fi 
+
+> u→v
+
+is at most O(kn ). So the total sensitivity 
+
+O(kn ) of cut fi 
+
+> u→v
+
+bounds P 
+
+> i
+
+ρ(k) 
+
+> i
+
+≤ O(r2nk ). Next we show ρ(k) 
+
+> i,u,v
+
+can be computed efficiently via min-cut maximum-flow algorithm instead of submodular minimization because it is the min-cut value of Φ( S). Specifically, since each cut fi 
+
+> u→v
+
+is weighted Boolean, 
+
+ρ(k) 
+
+> i,u,v
+
+= f u→vi   
+
+> min |S|≤ k,u ∈S,v ̸∈SΦ( S)
+
+for u ∈ S ∩ Ti and v ∈ Ti \ S, and 0 otherwise. Although computing the exact min |S|≤ k,u ∈S,v ̸ ∈S Φ( S) is NP-hard, Lemma 2.4 guarantees we can get a bicriteria approximation dSu,v s.t. 
+
+| dSu,v | ≤ 2k and Φ( dSu,v ) ≤ 2 min |S|≤ k,u ∈S,v ̸ ∈S Φ( S) by Algorithm 1. Thus, Ai,u,v := 2f u→vi   
+
+> Φ( dSu,v )
+
+satisfies ρ(k) 
+
+> i,u,v
+
+≤
+
+Ai,u,v ≤ 2ρ(2 k) 
+
+> i,u,v
+
+, which is a valid approximation of ρ(k) 
+
+> i,u,v
+
+. Moreover, P 
+
+> i,u,v
+
+Ai,u,v ≤ 2 P 
+
+> i,u,v
+
+ρ(2 k) 
+
+> i,u,v
+
+= O(kn ). Now we discuss how to speed up the arg min step in Algorithm 1. For fixed u and v, we formulate the problem with the Lov´ asz extension bΦ( x): min 
+
+> x
+
+bΦ( x) s.t. x(u) = 1 , x (v) = 0 , X
+
+> i∈[n]
+
+x(i) ≤ k, x ∈ [0 , 1] n.
+
+By the convexity of the Lov´ asz extension, strong duality holds. Thus we dualize the constraint by introducing a Lagrangian multiplier λ ≥ 0. We define the Lagrangian L(x, λ ) := bΦ( x) + λ
+
+P 
+
+> i∈[n]
+
+x(i) − k
+
+
+
+and the dual function g(λ) := min x L(x, λ ). Strong duality guaranties min x bΦ( x) = max λ≥0 g(λ). Since g is concave, its global maximum can be found efficiently if we can evaluate g(λ) quickly. We now show how to evaluate g(λ). Because x(v) = 0, we can write λx (i) as λ max(0 , x (i) − x(v)). Recall that the Lov´ asz extension of a cut function cut i→j takes the form max(0 , x (i) − x(j)). Ignoring the constant −λk and adding auxiliary edges of capacity λ from i ∈ [n] to the sink v, calculating g(λ) is exactly an unconstrained minimum ( u, v )-cut on the augmented graph. 14 Let B := max S Φ( S). Employing a binary search over λ with the maximum flow algorithm of time ˜O(n2 log B) [BBL +25], we can solve this dual problem with only an additional factor O(log B). Therefore, we get arg min x bΦ( x) by strong duality. Since the dual problem is equivalent to the minimum cut, we know that the optimal solution to the dual problem is attained at an extreme point. By strong duality, this guaranties that the optimal solution to the primal problem is also attained at an extreme point. Hence, the solution we obtain, arg min x [Φ( x), is an integer solution, which is precisely the desired dSu,v . Then we can efficiently calculate Ai := P 
+
+> u,v
+
+Ai,u,v as an approximation of ρ(k) 
+
+> i
+
+. We have shown ρ(k) 
+
+> i
+
+≤ Ai and P 
+
+> i
+
+Ai = O(kn ). Accounting for the preprocessing cost of O(mr 2 · T min (fi)) required to compute the edge weights f u→vi
+
+and ignoring logarithmic factor, the overall time complexity is given by: ˜O  mr 2 · T min (fi) + min( n4, mr 2n2) .
+
+# 4 Sparsifying under cardinality constraint 
+
+In this section, we prove our main result, Theorem 1.1, . 
+
+Theorem 4.1. Given m submodular functions fi : {0, 1}n → R≥0 and initial weights b1, . . . , b m, let F (S) := 
+
+Pmi=1 bifi(S) and σi := max |S|≤ k fi(S)  
+
+> F(S)
+
+. Then, the total sensitivity S := Pmi=1 σi is at most (k + 2) n.Algorithm 5 computes ρi such that ρi ≥ σi and Pmi=1 ρi ≤ 4kn + O(n), with a running time of O(mn 2 ·Tmin (fi) + n2 · T min (F )) . Moreover, this approach yields a sparsifier of size O( nk 2 log nϵ2 ) within the same time complexity. 
+
+In the rest of this section, we finish the proof of Theorem 4.1. Similarly to Section 3.1, this proof focuses on the unweighted case (i.e., each bi = 1) and assumes that each fi satisfies fi([ n]) = 0 (by Claim 2.5). Our algorithm and analysis are based on the minimum directed block cut function of a submodular f ,defined as follows. This extends Kenneth and Krauthgamer’s definition f u→v := min T ⊆[n],u ∈T,v / ∈T f (T )[KK24] and Fujishige’s definition g(S) := min T ⊆S f (T ) [Fuj05] to the subsets A and B.
+
+Definition 4.2 (Minimum directed block cut function) . Given a submodular function f : {0, 1}n → R≥0,for A and B ⊆ [n], define 
+
+f →(A, B ) := 
+
+( min    
+
+> T⊆[n], A ⊆T, T ∩B=∅
+
+f (T ), if A ∩ B = ∅,M, if A ∩ B̸ = ∅,
+
+where M > max S⊆[n] f (S). For convenience, when A is a singleton set {u}, we will write f →(u, B ) instead of f →({u}, B ).
+
+The key of our definition is that f →(A, B ) is submodular and monotone such that the base polytope of f → is in Rn 
+
+> ≥0
+
+[RY22, KZ23]. Specifically, fixing A or B ensures that f →(A, B ) remains monotone and submodular with respect to the other part. 
+
+Claim 4.3. For a submodular function f : {0, 1}n with f (∅) = 0 and f ([ n]) = 0 , f →(A, B ) (in Definition 4.2) satisfies the following properties. 1. f →(A, ∅) = 0 and f →(∅, B ) = 0 .2. For a fixed A, f →(A, B ) is non-decreasing, non-negative, and submodular monotone on B ⊆ [n].3. For a fixed B, f →(A, B ) is monotone non-decreasing, non-negative, and submodular on A ⊆ [n].4. For any set S ⊆ [n], f (S) equals f →(S, S ), which is at most P 
+
+> u∈S
+
+f →(u, S ) (by Property 3). 
+
+In the rest of this section, we prove the Claim 4.3 in Section 4.1 and the Theorem 4.1 in Section 4.2. 15 Algorithm 5 Sensitivity Oversampling for General Submodular Functions 
+
+procedure ApproximateSensitivity (f1, . . . , f m : {0, 1}n → R≥0, k )
+
+F (S) ← Pmi=1 fi(S)
+
+for (u, v ) ∈ [n] × [n] with u̸ = v do 
+
+dSu,v ← BicriteriaApproximate (F, k, 1/2, u, v ) in Algorithm 1 
+
+Xu(v) ← 1    
+
+> F(dSu,v )
+
+▷ Define a vector Xu ∈ Rn
+
+> ≥0
+
+end for for u ∈ [n] do 
+
+Xu(u) ← 0
+
+πu ← sort( Xu, descending) ▷ A permutation of [ n] with a descending order on Xu
+
+end for for i = 1 to m do 
+
+ρi ← 0
+
+for u ∈ [n] do 
+
+Define f → 
+
+> i
+
+(u, B ) := min   
+
+> T⊆[n], u ∈T, T ∩B=∅
+
+fi(T ) ▷ a monotone submodular function by Lemma 4.4 By Definition 4 of the Lov´ asz extension, Compute 
+
+df → 
+
+> i
+
+(u, X u) := 
+
+> n−1
+
+X
+
+> j=1
+
+ Xu(πu(j)) − Xu(πu(j + 1))  · f → 
+
+> i
+
+(u, {πu(1) , . . . , π u(j)}) + Xu(πu(n)) · f → 
+
+> i
+
+(u, [n]) 
+
+ρi ← ρi + 2 df → 
+
+> i
+
+(u, X u) ▷ Equivalently, ρi := P 
+
+> u
+
+2df → 
+
+> i
+
+(u, X u)
+
+end for end for return {ρi}mi=1 
+
+end procedure 
+
+## 4.1 Minimum Directed Block Cut Function 
+
+We finish the proof of Claim 4.3 in this section. We first prove that for a fixed A ⊆ [n], f →(A, B ) is a monotone submodular function on subsets B ⊆ [n]. 
+
+Lemma 4.4. For any fixed f : {0, 1}n → R≥0 and A ⊆ [n], f →(A, B ) is a monotone, non-negative, submodular function on B ⊆ [n]. Moreover, if f ([ n]) = 0 , then f →(A, ∅) = 0 .Proof. If f ([ n]) = 0, then f →(A, ∅) = min T :A⊆T f (T ) = f ([ n]) = 0. Monotonicity follows because any T feasible for B′ is feasible for a super set B, so f →(A, B ) ≤ f →(A, B ′). We now prove submodularity. First, consider B1, B 2 ⊆ [n] \ A. Let T1 and T2 be the minimizers of 
+
+f →(A, B 1) and f →(A, B 2), respectively. Thus, we have A ⊆ T1 ⊆ B1 and A ⊆ T2 ⊆ B2. Consequently, 
+
+A ⊆ T1 ∩ T2 and A ⊆ T1 ∪ T2. Note that 
+
+T1 ∩ T2 ⊆ B1 ∩ B2 = B1 ∪ B2,T1 ∪ T2 ⊆ B1 ∪ B2 = B1 ∩ B2.
+
+Since f →(A, B 1 ∪ B2) is the minimum of f (T ) in all A ⊆ T with T ∩ (B1 ∪ B2) = ∅, f (T1 ∩ T2) ≥
+
+f →(A, B 1 ∪ B2) given the above property. Similarly, f (T1 ∪ T2) ≥ f →(A, B 1 ∩ B2). Thus, by the submodularity of f and the definition of f →, we have 
+
+f →(A, B 1) + f →(A, B 2) = f (T1) + f (T2)
+
+≥ f (T1 ∩ T2) + f (T1 ∪ T2)
+
+≥ f →(A, B 1 ∪ B2) + f →(A, B 1 ∩ B2).
+
+Hence, f →(A, ·) is submodular on [ n] \ A.16 Now consider arbitrary B1, B 2 ⊆ [n] in which A intersects with at least one, implying A ∩ (B1 ∪ B2)̸ = ∅
+
+and f →(A, B 1 ∪ B2) = M . If both intersect with A, then f →(A, B 1) + f →(A, B 2) = 2 M ≥ M + f →(A, B 1 ∩
+
+B2), since M bounds all possible values. If exactly one intersects A, say B1, then B2 and B1 ∩ B2 are disjoint from A. By our proven monotonicity, f →(A, B 2) ≥ f →(A, B 1 ∩B2), which implies f →(A, B 1)+ f →(A, B 2) = 
+
+M + f →(A, B 2) ≥ M + f →(A, B 1 ∩ B2). Therefore, submodularity holds for all B1, B 2 ⊆ [n]. We have the following property for f →(·, B ). The proof is the same, which is omitted here. 
+
+Lemma 4.5. For any fixed f : {0, 1}n → R≥0 and B ⊆ [n], f →(A, B ) is a monotone, non-negative, submodular function on A ⊆ [n]. Moreover, if f (∅) = 0 , then f →(∅, B ) = 0 .
+
+## 4.2 Proof of Theorem 4.1 
+
+We recall Edmonds’ greedy construction, which will be used to bound the total sensitivity for general submodular functions. 
+
+Lemma 4.6 (Edmonds’ Greedy Construction, [Edm01]) . Let f : {0, 1}n → R≥0 be a submodular function with f (∅) = 0 . Recall its base polytope is 
+
+B(f ) := 
+
+y ∈ Rn : ∀S ⊆ [n], X
+
+> v∈S
+
+y(v) ≤ f (S) and X
+
+> v∈[n]
+
+y(v) = f ([ n]) 
+
+ .
+
+Fix any permutation π = ( v1, v 2, . . . , v n) of [n] and define its prefix set Pre π (k) := {v1, . . . , v k} for k ≤ n.We construct vector yπf ∈ Rn as 
+
+yπf (vi) := f (Pre i) − f (Pre i−1),
+
+for i ∈ [n]. Then yπf satisfies the following properties: 1. yπf ∈ B (f ).2. For any k ∈ [n], P 
+
+> v∈Pre k
+
+yπf (v) = f (Pre k).3. If f is monotone, all entries of yπf are non-negative. Proof. Property 3 is obvious. Next, we prove Property 2. For any prefix set Pre k of the permutation, summing the vector components yields: 
+
+> k
+
+X
+
+> i=1
+
+yπf (vi) = 
+
+> k
+
+X
+
+> i=1
+
+(f (Pre i) − f (Pre i−1)) = f (Pre k) − f (Pre 0) = f (Pre k).
+
+In particular, when k = n, Pre n = [ n], and we obtain P 
+
+> v∈[n]
+
+yπf (v) = f ([ n]). Thus, yπf satisfies the equality constraint of B(f ). To prove Property 1, it remains to show that P 
+
+> v∈A
+
+yπf (v) ≤ f (A) for every subset A ⊆ [n]. Let 
+
+A = {vi1 , v i2 , . . . , v im } according to the order of the permutation, where i1 < i 2 < · · · < i m. Expanding the sum over A gives mX
+
+> j=1
+
+yπf (vij ) = 
+
+> m
+
+X
+
+> j=1
+
+ f ({v1, . . . , v ij }) − f ({v1, . . . , v ij −1}) .
+
+Using the submodularity of f , for each j ∈ { 1, . . . , m }, let Vj = {v1, v 2, . . . , v ij −1} and Uj = {vi1 , v i2 , . . . , v ij−1 }.Since Uj ⊆ Vj , submodularity gives 
+
+f (Vj ∪ { vij }) − f (Vj ) ≤ f (Uj ∪ { vij }) − f (Uj ).
+
+The left-hand side is exactly yπf (vij ). Substituting this bound into the sum gives 
+
+> m
+
+X
+
+> j=1
+
+yπf (vij ) ≤
+
+> m
+
+X
+
+> j=1
+
+ f (Uj ∪ { vij }) − f (Uj ) .
+
+17 Since Uj ∪ { vij } = Uj+1 , the right-hand telescopes: 
+
+> m
+
+X
+
+> j=1
+
+(f (Uj+1 ) − f (Uj )) = f (Um+1 ) − f (U1).
+
+Because Um+1 = A and U1 = ∅, this sum is exactly f (A). Thus, 
+
+X
+
+> v∈A
+
+yπf (v) = 
+
+> m
+
+X
+
+> j=1
+
+yπf (vij ) ≤ f (A),
+
+which completes the proof that yπf ∈ B (f ). Similarly to the Proof in Section 3.1, the proof of Theorem 4.1 has two steps. 
+
+Step 1: bound P 
+
+> i
+
+σ(k) 
+
+> i
+
+≤ kn + 2 n for any k.Claim 4.7. mX
+
+> i=1
+
+σ(k) 
+
+> i
+
+=
+
+> m
+
+X
+
+> i=1
+
+max 
+
+> |S|≤ k
+
+fi(S)
+
+F (S) ≤ kn + 2 n. 
+
+Proof of Claim 4.7. For each fi, let Si := arg max Si∈([n]
+
+> ≤k
+
+) fi(Si)  
+
+> F(Si)
+
+and πSi denote the permutation of [ n] that places all elements of Si before those in Si. For convenience, for each u ∈ [n] and fi, we define a vector 
+
+zufi := yπSi  
+
+> f→
+> i(u, ·)
+
+in this proof, which is in B(f → 
+
+> i
+
+(u, ·)). By Lemma 4.6, it satisfies: 1. For all A ⊆ [n], P 
+
+> v∈A
+
+zufi (v) ≤ f → 
+
+> i
+
+(u, A ). 2. zufi (v) ≥ 0 for all v ∈ [n]. 3. More importantly, P 
+
+> v∈Si
+
+zufi (v) = f → 
+
+> i
+
+(u, S i). We now prove Pmi=1 σi = O(kn ). We first show that zufi provides the required upper bound for fi.
+
+X
+
+> v∈Si
+
+zufi (v) = f → 
+
+> i
+
+(u, S i).
+
+For any optimal set Si, decompose fi(Si) pointwise: 
+
+fi(Si) ≤ X
+
+> u∈Si
+
+f → 
+
+> i
+
+(u, S i) = X
+
+> u∈Si
+
+X
+
+> v∈Si
+
+zufi (v), (9) where the first inequality uses Claim 4.3 Property 4. Now fix Si and u ∈ Si. For any j ∈ [m], since zufj ∈ B (f → 
+
+> j
+
+(u, ·)), the total weight from u to Si satisfies 
+
+X
+
+> v∈Si
+
+zufj (v) ≤ f → 
+
+> j
+
+(u, S i).
+
+By Definition 4.2, 
+
+f → 
+
+> j
+
+(u, S i) = min   
+
+> T⊆[n],u ∈T, T ∩Si=∅
+
+fj (T ).
+
+Since Si satisfies u ∈ Si and Si ∩ Si = ∅, we conclude 
+
+f → 
+
+> j
+
+(u, S i) ≤ fj (Si).
+
+18 Summing over all j gives 
+
+X
+
+> j∈[m]
+
+X
+
+> v∈Si
+
+zufj (v) ≤ X
+
+> j∈[m]
+
+f → 
+
+> j
+
+(u, S i) ≤ X
+
+> j∈[m]
+
+fj (Si) = F (Si). (10) We now bound the total sensitivity. Substituting the preceding upper bound (9) on fi(Si), we obtain 
+
+> m
+
+X
+
+> i=1
+
+σi = X
+
+> i∈[m]
+
+fi(Si)
+
+F (Si) ≤ X
+
+> i∈[m]
+
+P
+
+> u∈Si
+
+P 
+
+> v∈Si
+
+zufi (v)
+
+F (Si) .
+
+Let Zu(v) := P 
+
+> j∈[m]
+
+zufj (v). Equation (10) implies F (Si) ≥ P
+
+> j∈[m]
+
+P 
+
+> w∈Si
+
+zufj (w) = P 
+
+> w∈Si
+
+Zu(w), 
+
+> m
+
+X
+
+> i=1
+
+σi ≤ X
+
+> i∈[m]
+
+X
+
+> u∈Si
+
+X
+
+> v∈Si
+
+zufi (v)
+
+P 
+
+> w∈Si
+
+Zu(w) .
+
+Switching the order of summation gives 
+
+> m
+
+X
+
+> i=1
+
+σi ≤ X
+
+> u∈[n]
+
+X
+
+> v∈[n]
+
+X 
+
+> i:u∈Si,v / ∈Si
+
+zufi (v)
+
+P 
+
+> w / ∈Si
+
+Zu(w) .
+
+For fixed u and v, the sum P  
+
+> i:u∈Si, v / ∈Si
+
+zufi (v) ≤ Zu(v), since each zufi (v) is non-negative. The denominator depends on Si; taking the worst case, namely the smallest denominator of S with u ∈ S,
+
+v / ∈ S, and |S| ≤ k, gives 
+
+> m
+
+X
+
+> i=1
+
+σi ≤ X
+
+> u∈[n]
+
+X
+
+> v∈[n]
+
+Zu(v)min S⊆[n]: u∈S, v / ∈S, |S|≤ k
+
+P 
+
+> w / ∈S
+
+Zu(w) .
+
+For each fixed u, the inner sum over v is bounded by Lemma 2.2: at most k high-weight elements v can be excluded by the cardinality constraint, so 
+
+X
+
+> v∈[n]
+
+Zu(v)min S⊆[n]: u∈S, v / ∈S, |S|≤ k
+
+P 
+
+> w / ∈S
+
+Zu(w) ≤ X
+
+> v∈[n]
+
+Zu(v)min S⊆[n]: v / ∈S, 
+
+> |S|≤ k
+
+P 
+
+> w / ∈S
+
+Zu(w) ≤ k + 2 .
+
+Summing over u gives mX
+
+> i=1
+
+σi ≤ X
+
+> u∈[n]
+
+(k + 2) = ( k + 2) n. 
+
+Step 2: Analysis of Algorithm 5. This proof requires knowing Si, but computing Si exactly is NP-hard (see [BIWB16]). Hence, the proof does not yield a polynomial-time algorithm. Returning to the analysis of Algorithm 5, the key is that the vectors {Xu}u∈[n] defined in Algorithm 5 provide a good approximation of   
+
+> 1
+> F(Si)
+
+1Si for Si := arg max fi(S)  
+
+> F(S)
+
+whenever u ∈ Si.
+
+Claim 4.8. The oversampled sensitivity proxy ρi produced by Algorithm 5 satisfies ρi ≥ σ(k) 
+
+> i
+
+for every 
+
+i ∈ [m]. Moreover, the total proxy satisfies Pmi=1 ρi = O(kn ).Proof of Claim 4.8. We first prove ρi ≥ σ(k) 
+
+> i
+
+for each fi. For a vector x or z in Rn, let df →(u, x ) denote the Lov´ asz extension on f →(u, ·) in this proof. Recall that Xu ∈ Rn is the vector with Xu(v) := 1 /F ( dSu,v ) for v̸ = u, and Xu(u) := 0, as defined in Algorithm 5. Permutation πu satisfies Xu(πu(1)) ≥ · · · ≥ Xu(πu(n)) and ρi = 2 Pnu=1 df → 
+
+> i
+
+(u, X u) in Algorithm 5. 19 Let Si achieve σ(k) 
+
+> i
+
+under |Si| ≤ k, i.e., σ(k) 
+
+> i
+
+= fi(Si)  
+
+> F(Si)
+
+. For any u ∈ Si and v / ∈ Si, Si is feasible for OPT (k) 
+
+> u,v
+
+= min {F (S) : |S| ≤ k, u ∈ S, v / ∈ S}. Thus, by Lemma 2.4, dSu,v (output by Algorithm 1) satisfies 
+
+F ( dSu,v ) ≤ 2 OPT (k) 
+
+> u,v
+
+≤ 2F (Si),
+
+so Xu(v) = 1 /F ( dSu,v ) ≥ 1/(2 F (Si)) for all v / ∈ Si. We can write it in vector form as Xu ≥ 12F (Si) 1Si .Since f → 
+
+> i
+
+(u, ·) is monotone and its Lov´ asz extension df → 
+
+> i
+
+(u, ·) is positively homogeneous and order-preserving, 2df → 
+
+> i
+
+(u, X u) ≥ 2df →
+
+> i
+
+
+
+u, 12F (Si) 1Si
+
+
+
+= 1
+
+F (Si) df → 
+
+> i
+
+(u, 1Si )= f → 
+
+> i
+
+(u, S i)
+
+F (Si) . (11) Recall that ρi := 2 P 
+
+> u∈[n]
+
+df → 
+
+> i
+
+(u, X u) in Algorithm 5. To show ρi > σ (k) 
+
+> i
+
+, we restrain the summation of 
+
+u from [ n] to Si:2 X
+
+> u∈[n]
+
+df → 
+
+> i
+
+(u, X u) ≥ 2 X
+
+> u∈Si
+
+df → 
+
+> i
+
+(u, X u)
+
+≥ X
+
+> u∈Si
+
+f → 
+
+> i
+
+(u, S i)
+
+F (Si) (by (11)) 
+
+≥ fi(Si)
+
+F (Si) (by Claim 4.3 Property 4) = σ(k) 
+
+> i
+
+.
+
+Next we show Pmi=1 ρi = O(kn ). Exchanging the order of summation gives 
+
+> m
+
+X
+
+> i=1
+
+ρi = 2 X
+
+> u∈[n]
+> m
+
+X
+
+> i=1
+
+df → 
+
+> i
+
+(u, X u). (12) Different from the proof in Claim 4.7 where vector zufi is constructed by Edmonds’ approach on fi
+
+with permutation πSi , we use πu for all f1, . . . , f m. However, we could replace the sum Pmi=1 df → 
+
+> i
+
+(u, X u)by one submodular function and consider its relation with P 
+
+> i
+
+fi. Let f →
+
+> sum
+
+(u, A ) := Pmi=1 f → 
+
+> i
+
+(u, A ) and 
+
+Wu = yπu  
+
+> f→
+> sum (u, ·)
+
+be the vector output by Edmonds’ greedy algorithm on f →
+
+> sum
+
+(u, ·). That is, for 1 ≤ j ≤ n,
+
+Wu(πu(j)) = f →
+
+> sum
+
+(u, Pre π (j)) − f →
+
+> sum
+
+(u, Pre π (j − 1)) .
+
+Then, we have 
+
+> m
+
+X
+
+> i=1
+
+df → 
+
+> i
+
+(u, X u) = 
+
+> m
+
+X
+
+> i=1
+
+
+
+> n−1
+
+X
+
+> j=1
+
+(Xu(πu(j)) − Xu(πu(j + 1))) f → 
+
+> i
+
+(u, Pre π (j)) + Xu(πu(n)) f → 
+
+> i
+
+(u, Pre π (n)) 
+
+
+
+(Definition (4) of Lov´ asz extension) =
+
+> n−1
+
+X
+
+> j=1
+
+(Xu(πu(j)) − Xu(πu(j + 1))) f →
+
+> sum
+
+(u, Pre π (j)) + Xu(πu(n)) f →
+
+> sum
+
+(u, Pre π (n)) 
+
+!
+
+=
+
+> n
+
+X
+
+> j=1
+
+Xu(πu(j)) 
+
+
+
+f →
+
+> sum
+
+(u, Pre π (j)) − f →
+
+> sum
+
+(u, Pre π (j − 1)) 
+
+
+
+= X
+
+> v∈[n]
+
+Wu(v)Xu(v) = X 
+
+> v̸=u
+
+2 Wu(v)
+
+F ( dSu,v ) , (13) 20 where the last step uses Xu(v) = 2 /F ( dSu,v ) for v̸ = u and Xu(u) = 0. By Lemma 4.6. Wu ∈ B (f →
+
+> sum
+
+(u, ·)) and Wu(v) ≥ 0 for all v, since f →
+
+> sum
+
+(u, ·) is monotone. One more step is to compare Wu(v) and F ( dSu,v ). By the definition of the base polytope, 
+
+X 
+
+> w∈[n]\dSu,v
+
+Wu(w) ≤ f →
+
+> sum
+
+(u, [n] \ dSu,v ) (Property 4 of Claim 4.3) =
+
+> m
+
+X
+
+> i=1
+
+f → 
+
+> i
+
+(u, [n] \ dSu,v )=
+
+> m
+
+X
+
+> i=1
+
+min    
+
+> T:u∈T, T ⊆dSu,v
+
+fi(T ) (by Definition 4.2 of f → 
+
+> i
+
+(u, ·)) 
+
+≤
+
+> m
+
+X
+
+> i=1
+
+fi( dSu,v ) = F ( dSu,v ). (14) Combining (13) and (14), we get 
+
+> m
+
+X
+
+> i=1
+
+ρi = 2 X
+
+> u∈[n]
+
+X
+
+> v∈[n]
+
+Wu(v)Xu(v) = 2 X
+
+> u∈[n]
+
+X 
+
+> v̸=u
+
+Wu(v)
+
+F ( dSu,v ) ≤ 2 X
+
+> u∈[n]
+
+X 
+
+> v̸=u
+
+Wu(v)
+
+P  
+
+> w / ∈dSu,v
+
+Wu(w) .
+
+Since | dSu,v | ≤ 2k, u ∈ dSu,v , and v / ∈ dSu,v ,
+
+X 
+
+> w / ∈dSu,v
+
+Wu(w) ≥ min 
+
+> |S|≤ 2k, u ∈S, v / ∈S
+
+X
+
+> w / ∈S
+
+Wu(w).
+
+Applying Lemma 2.2 to Wu:
+
+X 
+
+> v̸=u
+
+Wu(v)min 
+
+> |S|≤ 2k, u ∈S, v / ∈S
+
+P 
+
+> w / ∈S
+
+Wu(w) ≤ X
+
+> v∈[n]
+
+Wu(v)min 
+
+> |S|≤ 2k, v / ∈S
+
+P 
+
+> w / ∈S
+
+Wu(w) ≤ 2k + O(1) .
+
+Summing over u ∈ [n] gives 
+
+> m
+
+X
+
+> i=1
+
+ρi ≤ 2 X
+
+> u∈[n]
+
+(2 k + O(1)) = O(kn ).
+
+For the running time, Algorithm 5 makes O(n2) calls to BicriteriaApproximate , each costing Tmin (F )by Lemma 2.4, O(n2) queries to evaluate F ( dSu,v ), and O(mn 2) queries to the local cut functions f → 
+
+> i
+
+(u, ·)when evaluating (4), each costing Tmin (fi). The remaining work, including sorting the cost vectors, is lower order. Hence the total running time is O(n2 · T min (F ) + mn 2 · T min (fi)). This completes the proof. The sparsifier follows from the same argument of Corollary 3.2, which is omitted here. 
+
+# 5 Lower Bounds 
+
+In this section, We show several lower bounds on the size of sparsifers under cardinality constraints. We list these lower bounds in Table 2. The first construction extends the Ω( n2) lower bound of [CKP +17] for the unconstrained sparsification problem in (1). Under the cardinality constraint in (2), it gives a Ω( nk ) lower bound. 
+
+Claim 5.1. Given n and the cardinality constraint k, there exists a set of submodular functions fi such that any sparsification of their summation needs at least kn functions. 
+
+21 Function Family Sparsity 
+
+general submodular Ω( nk ) Claim 5.1 regular and symmetric Ω( n) Claim 5.2 almost-regular and monotone Ω( n) Claim 5.3 Table 2: Lower bounds for sparsification of submodular functions under cardinality constraints 
+
+Proof. We set m := nk and define fi : {0, 1}n+k → { 0, 1} as follows. Consider a complete bipartite directed graph with L = [ n] and R = [ k] vertices, where every vertex in L has a directed edge to every vertex in R.Each directed edge ( u, v ) (with u ∈ L and v ∈ R) provides a directed cut function cut u→v on this edge, i.e., cut u→v (S) = 1 iff u ∈ S and v / ∈ S. Moreover, we define F (S) = P 
+
+> (u,v )
+
+cut u→v (S). For each edge ( u, v ), consider the subset S := {u} ∪ (R \ { v}), which has size k. Then cut u→v (S) = 1, while cut u′→v′ (S) = 0 for every ( u′, v ′)̸ = ( u, v ). Thus, any sparsifier that preserves the value on this set must retain cut u→v . Since this holds for every edge, the sparsity is at least nk .Next we prove two lower bounds for regular submodular functions. Recall that A submodular function 
+
+f is regular if max 
+
+> i∈[n]
+
+f ({i}) = O(1) · min 
+
+> i∈[n]
+
+f ({i}). A submodular function f is almost-regular if max 
+
+> i∈[n]
+
+f ({i}) = 
+
+O(1) · E
+
+> i∈[n]
+
+[f ({i})]. 
+
+Claim 5.2. There exists a family of regular and symmetric submodular functions f1, . . . , f m : {0, 1}n → R≥0
+
+such that: 1. fi(∅) = 0 for all i ∈ [m];2. fi({v}) = 1 for all i ∈ [m] and all v ∈ [n].Under the cardinality constraint k = 2 , any sparsification of f1 + · · · + fm requires Ω( n) functions. Proof. Since fi has to be symmetric, we will use undireted cut function in this proof. Let n = 3 m for an even m. Partition [ n] into three disjoint sets 
+
+A = {a1, . . . , a m}, B = {b1, . . . , b m}, R = {r1, . . . , r m}.
+
+We construct a cut function for each index i ∈ [m]. For every i ∈ [m], define a perfect matching Mi in A ∪ B ∪ R as the union of the following edges: 1. All edges {aj , b j } for j̸ = i;2. The edges ( ai, r 1) and ( bi, r 2); 3. The pairs ( r3, r 4), (r5, r 6), . . . , (rm−1, r m). Let fi(S) = P 
+
+> (u,v )∈Mi
+
+cut (u,v )(S) be the undirected cut function induced by Mi. Since every vertex has degree 1, for every i ∈ [m] we have fi(∅) = 0 and fi({v}) = 1 for all v ∈ [n]. Hence, each fi is regular. Moreover, the functions are nonnegative, submodular, and symmetric because they are undirected cut functions. For each i ∈ [m], let Si = {ai, b i}. We have 
+
+fj (Si) = 
+
+(
+
+2 if j = i, 
+
+0 if j̸ = i. 
+
+Suppose that there exists a valid error-ϵ sparsification Pmj=1 wj fj (S) under the constraint |S| ≤ 2, with weights wj ≥ 0. For each i ∈ [m], evaluating this condition in Si = {ai, b i} yields the following: 2 = 
+
+> m
+
+X
+
+> j=1
+
+fj (Si) ≤ (1 + ϵ)
+
+> m
+
+X
+
+> j=1
+
+wj fj (Si) = (1 + ϵ)wifi(Si) = 2(1 + ϵ)wi.
+
+22 Thus, wi > 0 for every i ∈ [m]. Consequently, every function must receive positive weight, and any valid sparsifier retains all m = n/ 3 = Ω( n) functions. Regularity and monotonicity yield a small size sparsification (see Lemma 6.1). However, almost-regular submodular functions do not admit such a small sparsifier. 
+
+Claim 5.3. There exists a family of almost-regular and monotone submodular functions f1, . . . , f m : {0, 1}n →
+
+R≥0 satisfying 1. fi is almost-regular: max j fi({j}) ≤ 2 · Ej fi({j}) for all i;2. any sparsifier of P 
+
+> i
+
+fi requires Ω( n) nonzero entries. Proof. Let m = n 
+
+> 2
+
+and k = 1. For i ∈ [m], define Ti = {i} ∪ { m + 1 , . . . , n } and 
+
+fi(S) = 
+
+(
+
+1 S ∩ Ti̸ = ∅,
+
+0 otherwise .
+
+Then fi is monotone and submodular. For all i, max j fi({j}) = 1 and Ej fi({j}) = m+1 2m , so max j fi({j}) ≤
+
+2Ej fi({j}). For each i ∈ [m], let Si = {i}. Then fj (Si) = 1 iff j = i.The same argument as in Claim 5.2 shows that any sparsifier has size at least m.
+
+# 6 Upper Bounds 
+
+We complement the lower bounds in Section 5 with two upper-bound examples on this section. First, for 
+
+k-sparse monotone submodular functions, regularity gives a sparsification with ˜O(k2) nonzero entries. 
+
+Lemma 6.1. Given monotone submodular functions f1, . . . , f m : {0, 1}n → R≥0 such that fi({j}) = Θ( ci)
+
+for all i ∈ [m] and j ∈ [n], there exists a sampling algorithm that returns a vector w ∈ Rm with at most 
+
+O
+
+ k2 log nϵ2
+
+
+
+nonzero entries such that, w.p. 0.99 , for all S with |S| ≤ k,
+
+> m
+
+X
+
+> i=1
+
+fi(S) ∈ (1 ± ϵ) ·
+
+> m
+
+X
+
+> i=1
+
+wifi(S)
+
+!
+
+.
+
+Proof. Let ρi = Ck · ciP  
+
+> jcj
+
+for a sufficient large constant C such that P 
+
+> i
+
+ρi = O(k). Then we show ρi ≥ σ(k) 
+
+> i
+
+.Since each fi is monotone and submodular, we have 
+
+σi = max 
+
+> S⊆[n],|S|≤ k
+
+fi(S)
+
+F (S) ≤ k · max j fi({j})max j F ({j}) ≤ C kc i
+
+P 
+
+> j
+
+cj
+
+.
+
+The rest analysis is identical to Corollary 3.2, which is omitted here. We next prove that without any cardinality constraint, weighted Boolean submodular functions — functions of the form fi(S) ∈ { 0, w i} with wi ≥ 0 — admits a sparsifier of size ˜O
+
+ n2
+
+> ϵ2
+
+
+
+. The argument applies Lemma 2.6 to reduce weighted Boolean submodular functions to semi-norms and apply the sparsifier of [JLLS23]. In fact, given Claim 2.7, this result follows directly from sparsification bound for directed hypergraph cuts in [KPS24a]. But we provide a complete proof here. 
+
+Theorem 6.2 (Seminorm Reduction for Weighted Functions) . Let f1, . . . , f m : {0, 1}n → R≥0 be a collection of weighted Boolean submodular functions. These functions can be embedded into a space RD as seminorms, where D = ( n + 2)( n + 1) = O(n2), resulting in a sparsifier of size ˜O
+
+ n2
+
+> ϵ2
+
+
+
+.
+
+23 Proof. For each weighted function fi, write fi(S) = bigi(S), where gi(S) ∈ { 0, 1} is Boolean and submodular. By Lemma 2.6, the zero set Zi = {S ⊆ V | gi(S) = 0 } forms a ring of sets. By Claim 2.5 and Lemma 2.6, there exists an augmented ground set V = [ n] ∪ { v∅} and a directed edge set Ei on V such that gi(S) = 1 if and only if S cuts at least one directed edge in Ei. Let RD have one coordinate for each possible directed edge on V , so D = |V |(|V | − 1). For a subset S ⊆ [n], define 
+
+x(S) ∈ { 0, 1}D by setting x(S) 
+
+> e
+
+= 1 iff S cuts edge e.Let Pi be a diagonal projection matrix where the e-th diagonal entry is 1 iff e ∈ Ei. The weighted function can then be expressed as: 
+
+fi(S) = bi · ∥ Pix(S)∥∞
+
+Define Ni(x) := bi∥Pix∥∞ on RD . This function is homogeneous and subadditive, so it is a seminorm. According to [JLLS23], the sparsifying complexity for seminorms is ˜O   Dϵ2
+
+. Given that D = ( n + 2)( n + 1), we conclude that the total sparsity required is ˜O
+
+ n2
+
+> ϵ2
+
+
+
+.
+
+# References 
+
+[ABS +20] Reyan Ahmed, Greg Bodwin, Faryad Darabi Sahneh, Keaton Hamm, Mohammad Javad Latifi Jebelli, Stephen Kobourov, and Richard Spence. Graph spanners: A tutorial review. Computer Science Review , 37:100253, 2020. [BBL +25] Aaron Bernstein, Joakim Blikstad, Jason Li, Thatchaphol Saranurak, and Ta-Wei Tu. Combinatorial maximum flow via weighted push-relabel on shortcut graphs. In 2025 IEEE 66th Annual Symposium on Foundations of Computer Science (FOCS) , pages 464–485, 2025. [BG25] Joshua Brakensiek and Venkatesan Guruswami. Redundancy is all you need. In Proceedings of the 57th Annual ACM Symposium on Theory of Computing , pages 1614–1625, 2025. [Bir37] Garrett Birkhoff. Rings of sets. Duke Mathematical Journal , 3(3):443–454, 1937. [BIWB16] Wenruo Bai, Rishabh K. Iyer, Kai Wei, and Jeff A. Bilmes. Algorithms for optimizing the ratio of submodular functions. In Maria-Florina Balcan and Kilian Q. Weinberger, editors, Proceedings of the 33nd International Conference on Machine Learning, ICML 2016, New York City, NY, USA, June 19-24, 2016 , JMLR Workshop and Conference Proceedings, pages 2751–2759. JMLR.org, 2016. [BK96] Andr´ as A. Bencz´ ur and David R. Karger. Approximating s-t minimum cuts in ˜O(n2) time. In 
+
+Proceedings of the Twenty-Eighth Annual ACM Symposium on Theory of Computing , STOC ’96, page 47–55, New York, NY, USA, 1996. Association for Computing Machinery. [BLM89] J. Bourgain, J. Lindenstrauss, and V. Milman. Approximation of zonoids by zonotopes. Acta Mathematica , 162(1):73–141, July 1989. [BSS12] Joshua Batson, Daniel A Spielman, and Nikhil Srivastava. Twice-ramanujan sparsifiers. SIAM Journal on Computing , 41(6):1704–1721, 2012. [BZ20] Silvia Butti and Stanislav Zivny. Sparsification of binary csps. SIAM Journal on Discrete Mathematics , 34(1):825–842, 2020. [CCJK05] David A. Cohen, Martin C. Cooper, Peter Jeavons, and Andrei A. Krokhin. Supermodular functions and the complexity of MAX CSP. Discret. Appl. Math. , 149(1-3):53–72, 2005. [CD20] Xue Chen and Anindya De. Reconstruction under outliers for fourier-sparse functions. In 
+
+Proceedings of the Thirty-First Annual ACM-SIAM Symposium on Discrete Algorithms , SODA ’20, page 2010–2029, USA, 2020. Society for Industrial and Applied Mathematics. [CGV13] Mahdi Cheraghchi, Venkatesan Guruswami, and Ameya Velingker. Restricted isometry of fourier matrices and list decodability of random linear codes. SIAM J. Comput. , 42(5):1888–1914, 2013. 24 [CKN20] Yu Chen, Sanjeev Khanna, and Ansh Nagda. Near-linear size hypergraph cut sparsifiers. In Sandy Irani, editor, 61st IEEE Annual Symposium on Foundations of Computer Science, FOCS 2020, Durham, NC, USA, November 16-19, 2020 , pages 61–72. IEEE, 2020. [CKP +17] Michael B. Cohen, Jonathan A. Kelner, John Peebles, Richard Peng, Anup B. Rao, Aaron Sidford, and Adrian Vladu. Almost-linear-time algorithms for markov chains and new spectral primitives for directed graphs. In Hamed Hatami, Pierre McKenzie, and Valerie King, editors, Proceedings of the 49th Annual ACM SIGACT Symposium on Theory of Computing, STOC 2017, Montreal, QC, Canada, June 19-23, 2017 , pages 410–419. ACM, 2017. [CP15] Michael B. Cohen and Richard Peng. Lp row sampling by lewis weights. In Proceedings of the Forty-Seventh Annual ACM on Symposium on Theory of Computing , pages 183–192, 2015. [CT05] E.J. Candes and T. Tao. Decoding by linear programming. IEEE Transactions on Information Theory , 51(12):4203–4215, 2005. [CW17] Kenneth L. Clarkson and David P. Woodruff. Low-rank approximation and regression in input sparsity time. J. ACM , 63(6), January 2017. [Don06] D.L. Donoho. Compressed sensing. IEEE Transactions on Information Theory , 52(4):1289–1306, 2006. [Edm01] Jack Edmonds. Submodular functions, matroids, and certain polyhedra. In Michael J¨ unger, Gerhard Reinelt, and Giovanni Rinaldi, editors, Combinatorial Optimization - Eureka, You Shrink!, Papers Dedicated to Jack Edmonds, 5th International Workshop, Aussois, France, March 5-9, 2001, Revised Papers , Lecture Notes in Computer Science, pages 11–26. Springer, 2001. [Fuj05] Satoru Fujishige, editor. Submodular Functions and Optimization , volume 58 of Annals of Discrete Mathematics . Elsevier, 2005. [GRST21] Gramoz Goranci, Harald R¨ acke, Thatchaphol Saranurak, and Zihan Tan. The expander hierarchy and its applications to dynamic graph algorithms. In Proceedings of the Thirty-Second Annual ACM-SIAM Symposium on Discrete Algorithms , SODA ’21, page 2212–2228, USA, 2021. Society for Industrial and Applied Mathematics. [HLM +26] Jun-Ting Hsieh, Daniel Z Lee, Sidhanth Mohanty, Aaron Putterman, and Rachel Yun Zhang. Sparsifying cayley graphs on every group. In Proceedings of the 2026 Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) , pages 6029–6041. SIAM, 2026. [HR16] Ishay Haviv and Oded Regev. The restricted isometry property of subsampled fourier matrices. In Robert Krauthgamer, editor, Proceedings of the Twenty-Seventh Annual ACM-SIAM Symposium on Discrete Algorithms, SODA 2016, Arlington, VA, USA, January 10-12, 2016 , pages 288–297. SIAM, 2016. [IB13] Rishabh K. Iyer and Jeff A. Bilmes. Submodular optimization with submodular cover and submodular knapsack constraints. In Christopher J. C. Burges, L´ eon Bottou, Zoubin Ghahramani, and Kilian Q. Weinberger, editors, Advances in Neural Information Processing Systems 26: 27th Annual Conference on Neural Information Processing Systems 2013. Proceedings of a meeting held December 5-8, 2013, Lake Tahoe, Nevada, United States , pages 2436–2444, 2013. [JL84] W. Johnson and J. Lindenstrauss. Extensions of Lipshitz mapping into Hilbert space. 
+
+Contemporary Mathematics , 26:189–206, 1984. [JLLS23] Arun Jambulapati, James R. Lee, Yang P. Liu, and Aaron Sidford. Sparsifying sums of norms. In 
+
+64th IEEE Annual Symposium on Foundations of Computer Science, FOCS 2023 , pages 1953– 1962. IEEE, 2023. 25 [JLLS24] Arun Jambulapati, James R. Lee, Yang P. Liu, and Aaron Sidford. Sparsifying generalized linear models. In Proceedings of the 56th Annual ACM Symposium on Theory of Computing, STOC 2024 , pages 1665–1675. ACM, 2024. [JLS23] Arun Jambulapati, Yang P. Liu, and Aaron Sidford. Chaining, group leverage score overestimates, and fast spectral hypergraph sparsification. In Barna Saha and Rocco A. Servedio, editors, 
+
+Proceedings of the 55th Annual ACM Symposium on Theory of Computing, STOC 2023, Orlando, FL, USA, June 20-23, 2023 , pages 196–206. ACM, 2023. [JLSZ24] Haotian Jiang, Yin Tat Lee, Zhao Song, and Lichen Zhang. Convex minimization with integer minima in ˜O(n4) time. In David P. Woodruff, editor, Proceedings of the 2024 ACM-SIAM Symposium on Discrete Algorithms, SODA 2024, Alexandria, VA, USA, January 7-10, 2024 ,pages 3659–3684. SIAM, 2024. [KK15] Dmitry Kogan and Robert Krauthgamer. Sketching cuts in graphs and hypergraphs. In Tim Roughgarden, editor, Proceedings of the 2015 Conference on Innovations in Theoretical Computer Science, ITCS 2015, Rehovot, Israel, January 11-13, 2015 , pages 367–376. ACM, 2015. [KK24] Yotam Kenneth and Robert Krauthgamer. Cut sparsification and succinct representation of submodular hypergraphs. In Karl Bringmann, Martin Grohe, Gabriele Puppis, and Ola Svensson, editors, 51st International Colloquium on Automata, Languages, and Programming, ICALP 2024 ,volume 297 of LIPIcs , pages 97:1–97:17. Schloss Dagstuhl - Leibniz-Zentrum f¨ ur Informatik, 2024. [KKTY21] Michael Kapralov, Robert Krauthgamer, Jakab Tardos, and Yuichi Yoshida. Towards tight bounds for spectral sparsification of hypergraphs. In Samir Khuller and Virginia Vassilevska Williams, editors, STOC ’21: 53rd Annual ACM SIGACT Symposium on Theory of Computing, 2021 , pages 598–611. ACM, 2021. [KPS24a] Sanjeev Khanna, Aaron (Louie) Putterman, and Madhu Sudan. Almost-tight bounds on preserving cuts in classes of submodular hypergraphs. In Karl Bringmann, Martin Grohe, Gabriele Puppis, and Ola Svensson, editors, 51st International Colloquium on Automata, Languages, and Programming, ICALP 2024, Tallinn, Estonia, July 8-12, 2024 , LIPIcs, pages 98:1–98:17. Schloss Dagstuhl - Leibniz-Zentrum f¨ ur Informatik, 2024. [KPS24b] Sanjeev Khanna, Aaron (Louie) Putterman, and Madhu Sudan. Code sparsification and its applications. In David P. Woodruff, editor, Proceedings of the 2024 ACM-SIAM Symposium on Discrete Algorithms, SODA 2024 , pages 5145–5168. SIAM, 2024. [KPS25] Sanjeev Khanna, Aaron Putterman, and Madhu Sudan. Efficient algorithms and new characterizations for csp sparsification. In Proceedings of the 57th Annual ACM Symposium on Theory of Computing , pages 407–416, 2025. [KZ23] Jannik Kudla and Stanislav Zivn´ y. Sparsification of monotone k-submodular functions of low curvature. CoRR , abs/2302.03143, 2023. [Lee23] James R. Lee. Spectral hypergraph sparsification via chaining. In Barna Saha and Rocco A. Servedio, editors, Proceedings of the 55th Annual ACM Symposium on Theory of Computing, STOC 2023, Orlando, FL, USA, June 20-23, 2023 , pages 207–218. ACM, 2023. [Lov82] L´ aszl´ o Lov´ asz. Submodular functions and convexity. In Achim Bachem, Bernhard Korte, and Martin Gr¨ otschel, editors, Mathematical Programming The State of the Art, XIth International Symposium on Mathematical Programming, Bonn, Germany, August 23-27, 1982 , pages 235–257. Springer, 1982. [LSW15] Yin Tat Lee, Aaron Sidford, and Sam Chiu-wai Wong. A faster cutting plane method and its implications for combinatorial and convex optimization. In Venkatesan Guruswami, editor, IEEE 56th Annual Symposium on Foundations of Computer Science, FOCS 2015, Berkeley, CA, USA, 17-20 October, 2015 , pages 1049–1065. IEEE Computer Society, 2015. 26 [MU05] Michael Mitzenmacher and Eli Upfal. Probability and Computing: Randomized Algorithms and Probabilistic Analysis . Cambridge University Press, 2005. [OST23] Kazusato Oko, Shinsaku Sakaue, and Shin-ichi Tanigawa. Nearly tight spectral sparsification of directed hypergraphs. In Kousha Etessami, Uriel Feige, and Gabriele Puppis, editors, 50th International Colloquium on Automata, Languages, and Programming, ICALP 2023, Paderborn, Germany, July 10-14, 2023 , volume 261 of LIPIcs , pages 94:1–94:19. Schloss Dagstuhl - Leibniz-Zentrum f¨ ur Informatik, 2023. [Qua24] Kent Quanrud. Quotient sparsification for submodular functions. In David P. Woodruff, editor, Proceedings of the 2024 ACM-SIAM Symposium on Discrete Algorithms, SODA 2024, Alexandria, VA, USA, January 7-10, 2024 , pages 5209–5248. SIAM, 2024. [RV08] Mark Rudelson and Roman Vershynin. On sparse reconstruction from fourier and gaussian measurements. Communications on Pure and Applied Mathematics , 61(8):1025–1045, 2008. [RY22] Akbar Rafiey and Yuichi Yoshida. Sparsification of decomposable submodular functions. In 
+
+Thirty-Sixth AAAI Conference on Artificial Intelligence, AAAI 2022 , pages 10336–10344. AAAI Press, 2022. [SF11] Zoya Svitkina and Lisa Fleischer. Submodular approximation: Sampling-based algorithms and lower bounds. SIAM J. Comput. , 40(6):1715–1737, 2011. [ST04] Daniel A. Spielman and Shang-Hua Teng. Nearly-linear time algorithms for graph partitioning, graph sparsification, and solving linear systems. In Proceedings of the Thirty-Sixth Annual ACM Symposium on Theory of Computing , STOC ’04, page 81–90, New York, NY, USA, 2004. Association for Computing Machinery. [SY19] Tasuku Soma and Yuichi Yoshida. Spectral sparsification of hypergraphs. In Timothy M. Chan, editor, Proceedings of the Thirtieth Annual ACM-SIAM Symposium on Discrete Algorithms, SODA 2019 , pages 2570–2581. SIAM, 2019. [Tal90] Michel Talagrand. Embedding subspaces of l1 into ln 1. Proceedings of the American Mathematical Society , 108(2):363–369, 1990. [VBK21] Nate Veldt, Austin R Benson, and Jon Kleinberg. Approximate decomposable submodular function minimization for cardinality-based components. In M. Ranzato, A. Beygelzimer, Y. Dauphin, P.S. Liang, and J. Wortman Vaughan, editors, Advances in Neural Information Processing Systems , volume 34, pages 3744–3756. Curran Associates, Inc., 2021. [VBK23] Nate Veldt, Austin R. Benson, and Jon Kleinberg. Augmented sparsifiers for generalized hypergraph cuts. Journal of Machine Learning Research , 24(207):1–50, 2023. [Vis13] Nisheeth K. Vishnoi. Lx = b laplacian solvers and their algorithmic applications. Foundations and Trends in Theoretical Computer Science , 8(1-2):1–141, 05 2013. [WY23] David P. Woodruff and Taisuke Yasuda. Sharper bounds for ℓp sensitivity sampling. In 
+
+International Conference on Machine Learning, ICML 2023, 23-29 July 2023 , volume 202 of 
+
+Proceedings of Machine Learning Research , pages 37238–37272. PMLR, 2023. 
+
+# A Appendix 
+
+## A.1 Proof of Lemma 2.4 
+
+Let OPT (k) 
+
+> u,v
+
+be the optimal value, and let S∗ be an optimal set. The corresponding indicator vector 1S∗ ∈
+
+[0 , 1] n is feasible for the convex relaxation in Algorithm 1. Since bF (1S∗ ) = F (S∗), 
+
+bF (x∗) ≤ bF (1S∗ ) = F (S∗) = OPT (k) 
+
+> u,v
+
+.
+
+27 For any θ ∈ [α, 1], the threshold set Sθ = {j ∈ V : x∗(j) ≥ θ} satisfies 
+
+k ≥ X
+
+> j∈V
+
+x∗(j) ≥ X
+
+> j∈Sθ
+
+x∗(j) ≥ α|Sθ |.
+
+Hence |Sθ | ≤ k/α .It remains to find a threshold with small objective value. By the integral definition of the Lov´ asz extension in (3), Z 1
+
+> α
+
+F (St) dθ ≤
+
+Z 10
+
+F (Sθ ) dθ = bF (x∗) ≤ OPT (k) 
+
+> u,v
+
+.
+
+Since the interval [ α, 1] has length 1 − α, the Mean Value Theorem for Integrals gives a threshold θ ∈ [α, 1] such that F (Sθ ) ≤ OPT (k) 
+
+> u,v
+
+/(1 − α). Since x(u) = 1 and x(v) = 0, we have u ∈ Sθ and v / ∈ Sθ .The value of Sθ changes only at thresholds in {x∗(j) : x∗(j) ≥ α}, together with the endpoint α.Algorithm 1 scans these critical thresholds and therefore returns a set with the desired properties. 
+
+## A.2 Proof of Lemma 2.6 
+
+We prove that the zero set of a nonnegative submodular function can be characterized by directed edges. Let Z := {S : f (S) = 0 }. If A, B ∈ Z , then submodularity gives f (A) + f (B) ≥ f (A ∪ B) + f (A ∩ B). Since 
+
+f (A) = f (B) = 0 and f is nonnegative, both f (A ∪ B) and f (A ∩ B) must be zero. Thus Z is closed under finite unions and intersections, i.e., it is a ring of sets. Moreover, ∅ ∈ Z and [ n] ∈ Z by assumption. We construct the directed edge set E on [ n] as follows: 
+
+E = {(u, v ) ∈ [n] × [n] | u̸ = v, ∀T ∈ Z , u ∈ T =⇒ v ∈ T }.
+
+This property is equivalent to μ > 0 in Algorithm 2: no zero set separates u from v.First, suppose that a zero set S ∈ Z cuts a directed edge ( u, v ) ∈ E. Then u ∈ S and v / ∈ S. However, by construction of E, every zero set containing u must also contain v. Applying this to S gives v ∈ S, a contradiction. Therefore, no zero set cuts an edge in E.Conversely, let S ⊆ [n] be a set that does not cut any directed edge in E. We show that S ∈ Z . The case S = ∅ is immediate, so assume S̸ = ∅. For each u ∈ S, define the subfamily of zero sets containing u:
+
+Zu = {T ∈ Z | u ∈ T }
+
+Since [ n] ∈ Z and u ∈ [n], the subfamily Zu is nonempty. Because Z is closed under intersection, the core zero set 
+
+Au := \ 
+
+> T∈Z u
+
+T
+
+also lies in Z. By definition, u ∈ Au. Furthermore, for any element v ∈ Au, every zero set containing u also contains v. By construction, this means that the directed edge ( u, v ) belongs to E. Since S cuts no edge in 
+
+E and u ∈ S, it follows that v ∈ S. Thus Au ⊆ S for every u ∈ S.Finally, we define the aggregated set A := S 
+
+> u∈S
+
+Au. Since each Au ∈ Z and the family Z is closed under finite union, we have A ∈ Z . We now verify that S = A:1. For any u ∈ S, we have u ∈ Au ⊆ A, which implies S ⊆ A.2. Since Au ⊆ S holds for all u ∈ S, their union satisfies A ⊆ S.Therefore, S = A ∈ Z , which implies f (S) = 0 and completes the proof. 
+
+## A.3 Proof of Lemma 2.7 
+
+We will use the following interval property of Boolean submodular functions: if A ⊆ B and f (A) = f (B) = 1, then f (S) = 1 for every A ⊆ S ⊆ B. For contradiction, if there exists such an S with f (S) = 0, we choose a minimal one by inclusion and pick i ∈ S \ A such that f (S \ { i}) = 1. Let ∆ i(T ) := f (T ∪ { i}) − f (T )28 denote the marginal gain of f , which shall be non-increasing. However, ∆ i(S \ { i}) = −1 and ∆ i(B \ { i}) := 
+
+f (B) − f (B \ { i}) is non-negative, which provide a contradiction. Now we are ready to prove that L and R defined in Lemma 2.7 have the desired property. Let Z := {S ⊆
+
+[n] : f (S) = 0 }. Consider any S with f (S) = 1. If S ∩ L = ∅, then each singleton {i} with i ∈ S lies in Z.The union-closure of Z implies S ∈ Z , which gives a contradiction. Hence S ∩L̸ = ∅. Similarly, if S ∩R = ∅,then for every j / ∈ S we have [ n] \ { j} ∈ Z . The intersection-closure of Z implies that S = T 
+
+> j / ∈S
+
+([ n] \ { j})is in Z, which gives a contradiction. Thus S ∩ R̸ = ∅.Conversely, suppose S ∩ L̸ = ∅ and S ∩ R̸ = ∅. Choose i ∈ S ∩ L and j ∈ S ∩ R. Then 
+
+{i} ⊆ S ⊆ [n] \ { j}, f ({i}) = f ([ n] \ { j}) = 1 .
+
+The interval property gives f (S) = 1. This completes the proof. 
+
+## A.4 Proof of Corollary 3.2 
+
+Lemma A.1. Let f1, . . . , f m : {0, 1}n → R≥0 be nonnegative functions, S be a subset of {0, 1}n, and 
+
+F (S) := Pmi=1 fi(S). Given overestimated importance ρ1, . . . , ρ m satisfying ρi ≥ max S∈S fi(S)  
+
+> F(S)
+
+for every 
+
+i ∈ [m], there exists a sampling algorithm that, for every ϵ, δ ∈ (0 , 1] , outputs a weight vector w ∈ Rm 
+
+> ≥0
+
+with 
+
+O  log( |S| /δ ) 
+
+> ϵ2
+
+· P 
+
+> i∈[m]
+
+ρi
+
+ non-zero entries such that 
+
+F (S) = (1 ± ϵ) ·
+
+
+
+> m
+
+X
+
+> j=1
+
+wj · fj (S)
+
+ , ∀S ⊂ S , (15) 
+
+with probability at least 1 − δ,Proof. Set κ := 3 ln(4 |S| /δ ) 
+
+> ϵ2
+
+and pi := min {1, κρ i}. Since choosing deterministically can only reduce the approximation error, one may assume κρ i ≤ 1 for every i ∈ [m]. Independently for each i ∈ [m], define 
+
+wi := 
+
+(
+
+1/p i, with probability pi,
+
+0, with probability 1 − pi.
+
+Therefore E[wifi(S)] = fi(S). Fix S ∈ S . If F (S) = 0, then nonnegativity implies fi(S) = 0 for every i, so (5) holds. Assume F (S) > 0. For every i ∈ [m] with fi(S) > 0, the importance bound gives 0 ≤ wifi(S) ≤ fi(S)
+
+pi
+
+≤ F (S)
+
+κ .
+
+Thus each wifi(S) lies in [0 , F (S)/κ ]. Applying Theorem 2.1 with a = F (S)/κ and μ = F (S) yields 
+
+P
+
+" mX
+
+> i=1
+
+wifi(S) − F (S) ≥ ϵF (S)
+
+#
+
+≤ 2 exp 
+
+
+
+− ϵ2F (S)3F (S)/κ 
+
+
+
+= 2 exp 
+
+
+
+− κϵ 2
+
+3
+
+
+
+= δ
+
+2|S| .
+
+By a union bound over all S ∈ S , the approximation guarantee fails for at least one feasible set with probability at most δ/ 2. It remains to bound the number of nonzero entries on w. Let the sparsity ∥w∥0 = Pmi=1 Xi, where the Xi
+
+are independent Bernoulli random variables with EXi = pi. Hence E∥w∥0 = Pmi=1 pi ≤ κ Pmi=1 ρi. Applying Theorem 2.1 to ∥w∥0 with a = 1, μ = E∥w∥0 + 3 ln(4 /δ ), and ϵ = 1, we have 
+
+P
+
+h
+
+∥w∥0 ≥ 2E∥w∥0 + 3 ln(4 /δ )
+
+i
+
+≤ 2 exp 
+
+
+
+− E∥w∥0 + 3 ln(4 /δ )3
+
+
+
+≤ δ
+
+2 .
+
+Combining the approximation event and the sparsity event proves the high probability guarantees. 29 Proof of Corollary 3.2. Run Algorithm 4 to obtain oversampling values {ρ(k) 
+
+> i
+
+}mi=1 . By Theorem 3.1, these satisfy ρ(k) 
+
+> i
+
+≥ σ(k) 
+
+> i
+
+for every i and mX
+
+> i=1
+
+ρ(k) 
+
+> i
+
+= O(nk ).
+
+Applying Lemma A.1 to {fi}mi=1 , {ρ(k) 
+
+> i
+
+}mi=1 and S =  [n]
+
+> ≤k
+
+ gives, with probability 0 .99, a sparsification 
+
+w1, . . . , w m of sparsity O( nk 2 log nϵ2 ) such that 
+
+F (S) = (1 ± ϵ) X
+
+> i
+
+wifi(S), ∀S ∈
+
+ [n]
+
+≤ k
+
+
+
+.
+
+For the running time, the dominating cost is Algorithm 4, namely O mn 2 + mn · T eval (fi) + n2 · T min (F ) + 
+
+n2 · T eval (F ) by Theorem 3.1; the sampling step adds O(m) time. 30

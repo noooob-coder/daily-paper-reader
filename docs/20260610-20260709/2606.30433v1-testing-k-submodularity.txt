@@ -1,0 +1,3272 @@
+Title: Testing k-submodularity
+
+URL Source: https://arxiv.org/pdf/2606.30433v1
+
+Published Time: Tue, 30 Jun 2026 02:29:48 GMT
+
+Number of Pages: 45
+
+Markdown Content:
+# Testing k-submodularity 
+
+Themistoklis Haris Boston University Diptaksho Palit ∗
+
+Boston University June 30, 2026 
+
+Abstract 
+
+We initiate the study of property testing for k–submodular functions, a higher-dimensional analogue of submodular functions defined on partial partitions of a ground set. While k–submodularity retains the diminishing-returns flavor of ordinary submodularity, it also intro-duces a pairwise monotonicity constraint comparing competing assignments of the same element. This additional local structure makes the testing problem qualitatively different from the clas-sical case. Our results show a sharp contrast between distance regimes. In the ℓp regime for p ≥ 1, we prove that every bounded k–submodular function is close to a junta on the hypergrid. Combined with an implicit-learning tester for hypergrid domains, this yields a constant-query tester for 
+
+k–submodularity. In the Hamming distance regime, k–submodularity admits two qualitatively different local witnesses—violated squares for diminishing marginal gains, and violated triangles 
+
+for pairwise-monotonicity failures—and the latter has no counterpart at k = 1 . We prove density theorems for both witness types via repair on filters and ideals of partial partitions, yielding non-adaptive, one-sided sub-exponential-query testers for the two component properties of k–submodularity. We then exhibit a configuration in which the two repair directions are forced into opposition on a shared vertex, identifying a structural barrier to combining these into a tester for the full property. Finally, for bounded-range functions, we give an adaptive tester for monotone k–submodularity via a pseudo-DNF representation and learning on the hypergrid. Several of the structural and learning tools developed here may be useful for testing other properties over product domains. 
+
+> ∗
+
+D.P. was supported by the U.S. National Science Foundation under Grant No. 2022446. 
+
+> arXiv:2606.30433v1 [cs.DS] 29 Jun 2026
+
+# Contents 
+
+1 Introduction 1
+
+1.1 Our Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21.2 Prior Work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41.3 Technical Overview . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41.4 Discussion and Open Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51.5 Organization . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+
+2 Preliminaries 63 Junta approximation of k–submodular functions 7
+
+3.1 Setup . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 73.2 Weak junta approximation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 93.3 Proof of Theorem 1.2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14 
+
+4 Testing by implicit-learning in the hypergrid 14 
+
+4.1 Setup . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15 4.2 Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17 
+
+5 Towards testing k–submodularity in the ℓ0-norm 21 
+
+5.1 Setup . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21 5.2 Testing diminishing marginal gains . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22 5.2.1 Algorithm . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22 5.2.2 Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22 5.3 Testing pairwise monotonicity . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28 5.3.1 Algorithm . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28 5.3.2 Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28 5.4 An obstruction to component-wise local repair . . . . . . . . . . . . . . . . . . . . . . 30 
+
+6 Testing in the bounded range setting 31 
+
+6.1 Pseudo-DNF representation of monotone k–submodular functions . . . . . . . . . . . 32 6.2 Switching lemma for pseudo-DNF functions . . . . . . . . . . . . . . . . . . . . . . . 33 6.3 Learning pseudo-DNF functions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35 
+
+A Fourier Analysis On the Hypergrid 39 
+
+A.1 Influences in the Hypergrid . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40 A.2 Juntas . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 42 A.3 Estimating the influence of a set of coordinates . . . . . . . . . . . . . . . . . . . . . 43 1 Introduction 
+
+Submodularity is one of the canonical examples of a global property with a simple local interpreta-tion. A set function is submodular when it satisfies the principle of diminishing marginal returns :the incremental value of adding an element can only decrease as the set to which it is added grows. Formally, a set function f : 2 [n] → R is said to be submodular if, for all subsets X, Y ⊆ [n], it satisfies the inequality: 
+
+f (X) + f (Y ) ≥ f (X ∩ Y ) + f (X ∪ Y ).
+
+This local-to-global nature makes submodularity a natural target for property testing [GGR98], where one is given oracle access to an unknown function and must distinguish functions satisfying a property from those that are far from satisfying it. Yet even for ordinary submodularity, the query complexity of testing remains poorly understood. Seshadhri and Vondrák [SV14] gave a tester using roughly (1 /ε )√n queries and proved a linear lower bound; the latter was later improved to a nearly quadratic lower bound by Hatami and Vondrák [HV]. The resulting exponential gap has remained open, and has motivated the study of more structured regimes, such as bounded-range submodular functions [RY13] and testing under ℓp distance rather than Hamming distance [BB16]. In this work we ask what happens to this picture for a higher-dimensional analogue of submodularity. For a fixed integer k ≥ 1, a point in [k + 1] n can be viewed as a partial partition of the ground set 
+
+[n]: each element is either assigned to one of k parts, or left unassigned. A function on these partial partitions is k–submodular if marginal gains diminish no matter which part an element is assigned to. The case k = 1 is ordinary submodularity, while already for k = 2 the domain has multiple incompatible directions in which a single element may be added. This function class has been studied extensively in optimization [OY15, EN22], with applications including tensor placement [OY15] and online ad allocation [FHK +10]. From a testing perspective, k–submodularity is not merely submodularity on a larger domain. A useful characterization, due to Ward and Živný [WŽ16], decomposes k–submodularity into two conditions. The first is diminishing marginal gains , which generalizes the familiar submodular inequality inside each direction of the hypergrid. The second is pairwise monotonicity , a constraint comparing the marginal gains of assigning the same element to two different parts. One way to understand this decomposition is to separate two kinds of local interactions. When two partial partitions make compatible choices, k–submodularity behaves like ordinary diminishing returns along the corresponding direction. When they make incompatible choices for the same element, the join operation discards that element from both parts; the resulting inequality says that assigning the element to two different parts cannot have two strongly negative marginal gains at the same time. This second condition has no analogue when k = 1 , and it is the source of much of the new combinatorial structure in the testing problem. We initiate the study of testing k–submodularity. Our results show a sharp contrast between two distance regimes. In the ℓp regime, analytic structure survives the passage from the Boolean hypercube to the hypergrid: we prove a junta-approximation theorem for k–submodular functions and combine it with an implicit-learning tester on hypergrids. In the Hamming distance regime, the local structure fragments: we obtain testers for the two local constraints by developing square and triangle witness structures, and show that their repair procedures expose a genuine obstruction 1to the standard local-repair paradigm for full k–submodularity. Along the way, we develop testing and learning tools for hypergrid domains that may be useful beyond this problem. 
+
+1.1 Our Results 
+
+We organize our contributions around three questions. First, does the analytic structure that makes submodularity testable in ℓp distance survive on the richer domain of partial partitions? Second, in the Hamming distance regime, can the local-violation framework for submodularity be adapted to the two distinct constraints that characterize k–submodularity? Third, can bounded range assumptions recover efficient testability for a meaningful subclass of k–submodular functions? 
+
+ℓp testing from hypergrid junta structure. Our first result is a constant-query tester for k–submodularity in ℓp distance. Here and throughout this section, constant means independent of the ambient dimension n.
+
+Theorem 1.1. For all p ≥ 1, there exists an adaptive, one-sided error ℓp-tester for k-submodularity making q =   pε
+
+2 · 2( pε )2 log ( pε ) queries. 
+
+The main structural input is not a black-box reduction to the submodular case. We prove that every bounded k–submodular function is close to a function depending on only a small number of coordinates, even though each coordinate can move in k competing directions. This requires choosing influential coordinates in a way that respects all parts of a partial partition, and uses the fact that k–submodular functions satisfy a self-bounding variance inequality. 
+
+Theorem 1.2. Let f : [ k + 1] J → [0 , 1] be a k–submodular function and ε > 0 be a small enough constant. Then there exists a k–submodular function h : [ k + 1] J → [0 , 1] that depends only on 
+
+J′ ⊆ J dimensions, where 
+
+|J′| = O
+
+ 1
+
+ε2 · log 1
+
+ε
+
+
+
+,
+
+and the function h satisfies 
+
+∥f − h∥2 ≤ ε. 
+
+We then develop the testing component needed to turn this structure into an algorithm. The implicit-learning framework of Blais and Bommireddi [BB16] relies on identifying influential coor-dinates and checking consistency with a small junta. We formulate and analyze this framework on hypergrid domains using Fourier analysis over generalized product spaces, and simplify parts of the original argument by separating the learning and final testing samples. 
+
+Theorem 1.3. Let p ≥ 1. Suppose P ⊆ { f : [ k + 1] n → [0 , 1] } is a property of functions such that for any f ∈ P there exists a κ-junta h : [ k + 1] n → [0 , 1] satisfying || f − h|| 2 ≤ ε. Then, there exists a tester that, given query access to an unknown function f , will make ε−9 · 2O(κ log κ) queries to f
+
+and with probability at least 2/3 accept if f ∈ P and reject if f is ε-far from P in the ℓ2 norm. 
+
+Local testing in Hamming distance. Our second set of results addresses the Hamming-distance regime, where the Seshadhri–Vondrák local-repair paradigm for ordinary submodularity does not extend directly. Pairwise monotonicity is vacuous when k = 1 , but on the hypergrid its violations 2form a new witness shape— triangles —incomparable with the squares that witness diminishing-marginal-gain failures. Repair likewise shifts from Boolean subcubes to filters and ideals of partial partitions, and the density arguments must be re-proved in this setting. We obtain non-adaptive, one-sided testers for the two component properties of k–submodularity: 
+
+Theorem 1.4 (Theorem 5.4 and Theorem 5.10) . Let f : [ k + 1] n → R be given via oracle access. There exist non-adaptive, one-sided error testers for the diminishing marginal gains and pairwise monotonicity properties with the following guarantees: 
+
+• If f satisfies the property, the tester accepts with probability 1.
+
+• If f is ε-far from the property (i.e., at least ε · [k + 1] n values must be modified to satisfy it), the tester rejects with probability at least 2/3.The tester for diminishing marginal gains makes q = 4 n2 · (1 /ε )Θ( √n log n) queries; the tester for pairwise monotonicity makes q = 3 kn · (1 /ε )Θ( √n log n) queries. 
+
+Notably, only the pairwise-monotonicity tester has query complexity depending on k, despite k
+
+governing the structure of the domain. Combined, these results expose a structural difference between k–submodularity and ordinary sub-modularity that the analytic ( ℓp) regime does not see. In Section 5.4 we exhibit an explicit config-uration (Figure 3) on a high item-weight filter in which repairing a triangle violation forces value changes in the opposite direction from those needed to repair an overlapping square violation, on a shared vertex. The two repair directions are not merely incompatible at one point—they are jointly inconsistent across an entire region. We record this as Observation 5.14: it rules out the natural component-wise extension of local repair to full k–submodularity, and isolates a concrete barrier that any sub-exponential local-witness tester must overcome by enlarging the witness vocabulary beyond squares and triangles. 
+
+Bounded range and monotone k–submodularity. Finally, we show that efficient Hamming-distance testing can be recovered for monotone k–submodular functions with bounded range. The re-sult is again obtained through learning, but the relevant representation is no longer a junta. Instead, we utilize pseudo-DNF representations for functions on the hypergrid and prove that bounded-range monotone k–submodular functions have bounded-width pseudo-DNFs. 
+
+Theorem 1.5. Let ε, δ ∈ (0 , 1) be constants. There exists a tester T which, given query access to a function f : [ k + 1] n → { 0, 1, · · · , r } satisfies the following. 1. If f is monotone k–submodular, then T accepts with probability ≥ 1 − δ.2. If f is ε-far from monotone k–submodularity, then T rejects with probability ≥ 1 − δ.3. T makes at most poly (n, 1/ε, 1/δ, (kr )O(rk 2 log( r/ε )) ) queries. 
+
+The learning result for bounded-width pseudo-DNFs uses a hypergrid version of the switching-lemma/Fourier-sparsity route and yields a tester via the Kushilevitz-Mansour algorithm. We expect this learner to be useful beyond k–submodularity. 31.2 Prior Work 
+
+Testing whether a given function is submodular was first examined by Parnas, Ron and Rubinfeld [PRR03], who studied the limited setting of testing for a class of matrices called Monge matrices . In its full generality, the problem was considered by Seshadhri and Vondrák [SV14]. They developed the local-witness and repair framework for Hamming-distance testing on the Boolean hypercube, proving an upper bound of (1 /ε )O(√n log n) and a linear lower bound. The latter was later improved to Ω( n2/ log n) by Hatami and Vondrák [HV]. Blais and Bommireddi [BB16] subsequently studied the problem in the ℓp norm, and using an approximation result from [FV16], designed an implicit-learning tester with constant query complexity in the input length. Raskhodnikova and Yaroslavtsev [RY13] studied bounded-range submodular functions through a learning-based approach and proved a polynomial-time upper bound in this regime. Chakrabarty and Huang [CH15] studied the problem of testing for coverage functions, which are a special type of submodular function. Our work is informed most directly by the three submodularity-testing frameworks of Seshadhri and Vondrák [SV14], Blais and Bommireddi [BB16], and Raskhodnikova and Yaroslavtsev [RY13]. These works provide the conceptual starting points for the three regimes we study. The passage to k–submodularity introduces new difficulties in each case: local witnesses split into squares and triangles in the Hamming regime, influential coordinates must account for competing assignments in the ℓp regime, and bounded-range learning requires representations over the hypergrid rather than the Boolean cube. To our knowledge, there is no prior work on testing k-submodularity, though the property has been studied extensively from the optimization perspective [OY15, EN22]. We also use the structural characterization of Ward and Živný [WŽ16], which identifies k–submodularity with the conjunction of diminishing marginal gains and pairwise monotonicity. 
+
+1.3 Technical Overview 
+
+The main technical theme is that the hypergrid introduces several inequivalent notions of locality. In the ℓp regime, locality is analytic and is captured by influential coordinates. In the Hamming regime, locality is combinatorial and is captured by small violated configurations. For bounded-range functions, locality appears through compact symbolic representations. In each part of the paper we develop the corresponding notion of locality for partial partitions. 
+
+The analytic regime: finding the right influential coordinates. The ℓp tester has two ingredients: a junta-approximation theorem for k–submodular functions, and a tester for properties that are close to juntas on the hypergrid. The obstacle in the first ingredient is that a coordinate has 
+
+k possible nonzero directions. Several natural ways of declaring a coordinate influential in one part at a time almost work, but fail to interact correctly with the boosting lemma for down-monotone families (Lemma 3.3). Our solution is to define the relevant influence threshold by looking across all partitions of the re-maining coordinates. This lets the selection rule remain compatible with the combinatorial boosting argument while still respecting the multi-directional nature of the domain. The second key input is a variance bound: we prove that k–submodular functions are 2-self bounding (Lemma 3.5). Together, these ingredients yield a junta depending on only O(ε−2 log(1 /ε )) coordinates. 4Once the junta structure is established, the testing step is conceptually separate. We analyze implicit learning directly on [k + 1] n using Fourier analysis over product domains. The tester identifies a candidate set of influential coordinates and then checks whether the observed behavior is consistent with a junta from the target property. Using an independent sample in the final testing stage also simplifies the decorrelation issues that arise in the original Boolean-domain analysis of [BB16]. 
+
+The Hamming regime: local witnesses and repair. In Hamming distance, a tester needs many local witnesses whenever the function is far from the property. For ordinary submodularity, the relevant witness is a violated square in the Boolean hypercube, and the analysis of Seshadhri and Vondrák [SV14] shows that few violated squares imply a global repair. For k–submodularity, a single witness shape is no longer sufficient. Using the characterization of Ward and Živný [WŽ16], we separate the property into diminishing marginal gains and pairwise monotonicity. Diminishing marginal gains is witnessed by generalized violated squares, while pair-wise monotonicity is witnessed by violated triangles. We prove density statements for both witnesses by designing repair procedures on large inclusion-closed regions of the hypergrid: ideals {Y ⪯ X}
+
+and filters {Y ⪰ X}. This gives sub-exponential testers for the two component properties. The same repair viewpoint also yields a structural observation about the full Hamming-distance problem (Observation 5.14, illustrated in Figure 3). On high item-weight filters, the repair direction needed for a violated square is forced into conflict with the repair direction needed for an overlapping violated triangle on a shared vertex. This is not a limitation of our proof—it is a structural property of the problem: any tester built on the squares-and-triangles vocabulary, no matter how the repair is organized, must encounter a configuration of this kind. A sub-exponential tester for full k–submodularity in Hamming distance therefore requires an enriched witness vocabulary, not merely a more clever combination of square and triangle repairs. 
+
+The bounded-range regime: representation before testing. For bounded-range monotone 
+
+k–submodular functions, we take a representation-theoretic route. We first show that such functions admit bounded-width pseudo-DNF representations over the hypergrid (see Definition 6.2). This representation captures the monotone threshold-like structure imposed jointly by bounded range and diminishing marginal gains. We then prove a hypergrid switching lemma for pseudo-DNFs, using low-depth k-ary decision trees in place of binary trees. Combined with Fourier analysis on the hypergrid, this implies sparse Fourier approximation for bounded-width pseudo-DNFs. The resulting learner, together with the Kushilevitz-Mansour algorithm [KM93], yields the bounded-range tester. 
+
+1.4 Discussion and Open Problems 
+
+Our results leave several natural questions open. The most immediate is whether full k–submodularity can be tested in Hamming distance with sub-exponential query complexity. Our component testers for diminishing marginal gains and pairwise monotonicity show that each constraint has many local witnesses when violated, but the repair procedures for the two constraints can be forced to conflict. Resolving this—either by exhibiting a richer witness family with a compatible repair procedure, or by proving a sub-exponential lower bound that confirms the barrier is fundamental—is, in our view, the right next step in this regime. 5A second direction is to understand the bounded-range setting without monotonicity. Our tester in this regime relies on a pseudo-DNF representation for monotone k–submodular functions, and it is unclear whether a comparable representation exists for non-monotone functions. Finally, it would be interesting to prove lower bounds for testing k–submodularity. The known lower bounds for submodularity do not transfer directly, since natural embeddings can destroy pairwise monotonicity. Thus even formulating the right hard instances appears to require using the genuinely multi-part structure of the domain. 
+
+1.5 Organization 
+
+The paper is organized as follows. In Section 2, we formally define the problem and related structures on the hypergrid. In Section 3, we prove the junta approximability theorem for k–submodular functions. In Section 4, we prove the hypergrid implicit-learning theorem and derive our ℓp tester. In Section 5, we develop Hamming-distance testers for diminishing marginal gains and pairwise monotonicity , and analyze the obstruction to combining their repairs into a local-repair tester for full k–submodularity. In Section 6 we prove our ℓ0 tester for monotone k–submodularity in the bounded range regime. 
+
+# 2 Preliminaries 
+
+Definition 2.1 (Partial partition) . A partial partition of [n] into k subsets is defined X = ( X1, ..., X k),where each Xi ⊆ [n] and Xi ∩ Xj = ∅ for all i̸ = j ∈ [k]. We let Xk+1 = [ n] \ ∪ ki=1 Xi, and this allows us to associate partial partitions of [n] into k subsets with the hypergrid [k + 1] n (each element of 
+
+[n] is associated to a bucket in [k + 1] , yielding a vector in [k + 1] n). If e / ∈ Xk+1 , we say that e ∈ X.We impose a partial order on partial partitions by defining X ⪯ Y if and only if Xi ⊆ Yi for all 
+
+i ∈ [k]. We let |X| denote the item-weight of a partial partition, which is the total number of items picked. Numerically, this is equal to Pki=1 |Xi|.
+
+Definition 2.2 (Marginal gains) . Define the marginal gains of a function f on a partial partition 
+
+X with respect to an index i ∈ [k] and an element e ∈ Xk+1 as 
+
+∆f (X, i, e ) := f (X1, ..., X i ∪ { e}, ..., X k) − f (X).
+
+Letting Xie := ( X1, ..., X i ∪ { e}, ..., X k), we can rewrite this as ∆f (X, i, e ) = f (Xie) − f (X).
+
+Definition 2.3 (k–submodularity) . A function f : [ k + 1] n → R is k–submodular if, for all partial partitions X, Y , the following holds. 
+
+f (X) + f (Y ) ≥ f (X ⊔ Y ) + f (X ⊓ Y ),
+
+where X⊓Y := ( X1∩Y1, · · · , X k∩Yk) and X⊔Y = (X1 ∪ Y1) \ S
+
+> i̸=1
+
+(Xi ∪ Yi), · · · , (Xk ∪ Yk) \ S
+
+> i̸=k
+
+(Xi ∪ Yi)
+
+!
+
+.
+
+The following theorem of Ward and Živn` y [WŽ16] gives us an equivalent definition of k–submodularity, one that is described by two more intuitive properties. The intuition is that every local comparison between two partial partitions can be decomposed into compatible and conflicting moves. Compat-ible moves are governed by the usual diminishing-returns principle: adding an unassigned element 6to part i becomes less valuable as the current partial partition grows. Conflicting moves arise only when the same element could be assigned to two different parts. For example, comparing Xie and 
+
+Xje gives Xie ⊓ Xje = X and Xie ⊔ Xje = X, so the k–submodular inequality becomes 
+
+∆f (X, i, e ) + ∆ f (X, j, e ) ≥ 0.
+
+Thus pairwise monotonicity is the local condition that prevents two competing assignments of the same element from both being too costly. 
+
+Theorem 2.4. [WŽ16] A function f : [ k + 1] n → R is k–submodular if and only if the following two conditions hold. 
+
+• Diminishing marginal gains. For all partial partitions X, Y such that X ⪯ Y , e / ∈ Y , and 
+
+i ∈ [k], the following holds. 
+
+∆f (X, i, e ) ≥ ∆f (Y, i, e ).
+
+• Pairwise monotonicity. For all partial partitions X, e / ∈ X, and i̸ = j ∈ [k], the following holds. 
+
+∆f (X, i, e ) + ∆ f (X, j, e ) ≥ 0.
+
+# 3 Junta approximation of k–submodular functions 
+
+In the following two sections, we prove the structural and algorithmic ingredients behind our ℓp
+
+tester for k–submodularity. The structural ingredient is a junta approximation theorem for k–submodular functions on the hypergrid. The main difficulty is choosing influential coordinates in a way that accounts for all k directions of a coordinate while still giving a dimension-independent approximation. This approximation theorem, combined with an implicit learning tester for properties on hypergrids with a good junta approximation, yields the desired tester. We prove the following approximation theorem. 
+
+Theorem 3.1 (Reminder of Theorem 1.2) . Let f : [ k + 1] J → [0 , 1] be a k–submodular function and 
+
+ε > 0 be a small enough constant. Then there exists a k–submodular function h : [ k + 1] J → [0 , 1] 
+
+that depends only on J′ ⊆ J dimensions, where 
+
+|J′| = O
+
+ 1
+
+ε2 · log 1
+
+ε
+
+
+
+,
+
+and the functions h satisfies 
+
+∥f − h∥2 ≤ ε. 
+
+Before we get to the proof of Theorem 1.2, we first set up some necessary machinery. 
+
+3.1 Setup 
+
+There are three main parts to the setup. 
+
+Boosting lemma. We cite the following boosting lemma due Goemans and Vondrák [GV06]. 7Definition 3.2 (Down-monotone family) . Let X be a finite set and F ⊆ 2X be a collection of subsets of X. The family F is called down-monotone if the following condition holds. 
+
+A ∈ F ∧ B ⊆ A =⇒ B ∈ F .
+
+Lemma 3.3 ([GV06] Boosting lemma) . Let X be a finite set and F ⊆ 2X be a down-monotone family. For p ∈ (0 , 1) , define 
+
+σp := Pr[ X(p) ∈ F ],
+
+where X(p) is a random subset of X such that each element is picked independently with probability 
+
+p. Then 
+
+σp = (1 − p)ϕ(p),
+
+where ϕ(p) is a non-decreasing function for p ∈ (0 , 1) .
+
+Self–bounding functions and concentration. A very useful tool in bounding the variance of submodular functions comes from the literature of concentration for self–bounding functions. 
+
+Definition 3.4 (Self–bounding function) . A function f : X n → [0 , 1] is α-self–bounding if there exist functions fi : X n−1 → [0 , 1] such that for all x1, · · · , x n ∈ X and all i ∈ [n], the following conditions hold. 1. 0 ≤ f (x1, · · · , x n) − fi(x1, · · · , x i−1, x i+1 , · · · , x n) ≤ 1; and 2. nP
+
+> i=1
+
+(f (x1, ..., x n) − fi(x1, x 2, ..., x i−1, x i+1 , ..., x n)) ≤ αf (x1, ..., x n).
+
+Lemma 3.5 ([BLB03] Bounded variance lemma) . If a function f : X n → [0 , 1] is α-self–bounding then 
+
+Var[ f (X)] ≤ α · E[f (X)] .
+
+Bounded variance of k–submodular functions. Submodular functions that are Lipschitz are self–bounding, which allows us to bound their variance. We show that a similar property holds for 
+
+k–submodular functions. 
+
+Definition 3.6 (Lipschitz function) . A function f : [ k + 1] n → [0 , 1] is α-Lipschitz if |∆f (X, j, i )| ≤ 
+
+α for all i ∈ [n] and j ∈ [k].
+
+Lemma 3.7. Let f : [ k + 1] n → [0 , 1] be 1–Lipschitz and k–submodular. Then: 
+
+Var[ f ] ≤ 2 · E[f ].
+
+Proof. We prove this by showing that f is 2-self–bounding, and invoking Lemma 3.5. For i ∈ [n],define the function fi as 
+
+fi(x1, · · · , x i−1, x i+1 , · · · xn) := min 
+
+> j∈[k+1]
+
+{f (x1, · · · , x i−1, j, x i+1 , x n)}.
+
+Then the first condition 
+
+0 ≤ f (x1, ..., x n) − fi(x1, ..., x i−1, x i+1 , ..., x n) ≤ 1
+
+8holds trivially (by choice of minimum value and the range of f being [0 , 1] ). By pairwise monotonicity of f , the following holds. 
+
+f (x1, ..., x n) − fi(x1, ..., x i−1, x i+1 , ..., x n) ≤ 2 · (f (x1, ..., x n) − f (x1, ..., x i−1, k + 1 , x i+1 , ..., x n)) .
+
+Here, xi = k + 1 corresponds to item i not being put into any bucket. Finally, the following holds for all i ∈ [n] due to the marginal gains property. 
+
+f (x1, ..., x n)−f (x1, ..., x i−1, k +1 , x i+1 , ..., x n) ≤ f (x1, · · · , x i, k +1 , · · · , k +1) −f (x1, · · · , x i−1, k +1 , · · · , k +1) .
+
+This yields the desired condition. 
+
+> n
+
+X
+
+> i=1
+
+(f (x1, · · · , x n) − fi(x1, · · · , x i−1, x i+1 , · · · , x n)) 
+
+≤
+
+> n
+
+X
+
+> i=1
+
+2 · (( f (x1, · · · , x n) − f (x1, · · · , x i−1, k + 1 , x i+1 , · · · , x n)) 
+
+≤
+
+> n
+
+X
+
+> i=1
+
+2 · (f (x1, · · · , x i, k + 1 , · · · ) − f (x1, · · · , x i−1, k + 1 , · · · )) 
+
+≤ 2 · f (x1, · · · , x n).
+
+We have thus shown that f is 2-self–bounding, and by Lemma 3.7, Var[ f ] ≤ 2 · E[f ].
+
+3.2 Weak junta approximation 
+
+We first prove the following “weak” junta approximation for k–submodular functions. 
+
+Theorem 3.8 (Weak junta approximation) . Let f : [ k + 1] J → [0 , 1] be a k–submodular function and ε ∈ (0 , 1) be a constant. Then there exists a k–submodular function h : [ k + 1] J → [0 , 1] that depends only on J′ ⊆ J dimensions, where 
+
+|J′| ≤ 32 
+
+ε2 · log 8|J|
+
+ε2 ,
+
+and the function h satisfies 
+
+∥f − h∥2 := 
+
+
+
+Ex∈[k+1] J
+
+(f (x) − h(x)) 2 12
+
+≤ 12 · ε. 
+
+We prove Theorem 3.8 by first describing a procedure to construct the set J′ and then showing that there exists a J′-junta satisfying the desired properties. Let S ⊆ J and P : J → [k + 1] n be some partition function over J. We denote by SP the point on the hypergrid obtained by placing each i ∈ S into bucket P (i). We denote by S(δ)P a random set generated by sampling each element in S independently with probability δ.9Algorithm 1 Identifying the junta set J′ 
+
+> 1:
+
+Input: Oracle access to k–submodular function f : [ k + 1] J → [0 , 1] ; parameters α, δ > 0 
+
+> 2:
+
+S ← ∅ . 
+
+> 3:
+
+while there exists i / ∈ S such that for all partitions P of J we have Pr [∆ f (S(δ)P , P (i), i ) > α ] > 
+
+> 12
+
+do  
+
+> 4:
+
+S ← S ∪ { i} 
+
+> 5:
+
+return J′ = S.First we show that the number of indices picked by Algorithm 1 is small. 
+
+Claim 3.9. The set J′ output by Algorithm 1 satisfies |J′| ≤ 2 
+
+> αδ
+
+.Proof. Let P be an arbitrary partition of J, and X be an arbitrary subset of J. For any i ∈ X, let 
+
+X<i denote the set of items in X that were added to S before i in Algorithm 1. Define 
+
+X+ 
+
+> P
+
+:= {i ∈ X | ∆f (X<i,P , P (i), i ) > α }.
+
+Then by diminishing marginal gains , at the end of the execution of Algorithm 1, we have 
+
+E[f (S(δ)+ 
+
+> P
+
+)] = f (∅) + X
+
+> i∈S(δ)+
+> P
+
+∆f (S(δ)+ 
+
+> <i,P
+
+, P (i), i )
+
+> E[|S(δ)+ 
+
+> P
+
+|] · α. [Assuming f (∅) = 0 WLOG ]
+
+Next, we show that E[|S(δ)+ 
+
+> P
+
+|] ≥ δ·| S| 
+
+> 2
+
+. If that is true, then 
+
+1 ≥ E[f (S(δ)+ 
+
+> P
+
+)] > δ · | S| · α
+
+2 =⇒ | S| ≤ 2
+
+δα .
+
+To prove our claim, we observe that by construction, for all u ∈ S,
+
+Pr[ u ∈ S(δ)+ 
+
+> P
+
+] = Pr[ u ∈ S(δ)] · Pr[∆ f (S(δ)<u,P , P (u), u ) > α ] > δ
+
+2 .
+
+Writing |S(δ)+ 
+
+> P
+
+| = P
+
+> u∈S
+
+Xu, where Xu is the indicator for whether u ∈ S(δ)+ 
+
+> P
+
+, we get 
+
+E[|S(δ)+ 
+
+> P
+
+|] = X
+
+> u∈S
+
+Pr[ Xu] ≥ δ · | S|
+
+2 .
+
+Next, we show that for all partitions P and any “unimportant” coordinate i ∈ J \ J′, the probability of the marginal gains on top of J′ being large with respect to P when adding i to P (i) is very small if we sample elements from J′ with probability kk+1 rather than δ.10 Claim 3.10. For all i ∈ J \ J′, all j ∈ [k], and all partitions P : J′ → [k], the following holds. 
+
+Pr J′( kk+1 )
+
+
+
+∆f
+
+
+
+J′
+
+ kk + 1 
+
+
+
+> P
+
+, j, i 
+
+
+
+> α 
+
+
+
+≤
+
+ 1
+
+k + 1 
+
+ 12δ
+
+.
+
+Proof. Consider the following family of points 
+
+F = X ∈ [k + 1] n | X ⪯ J′ 
+
+> P
+
+and ∆f (X, j, i ) > α 
+
+This is a down-monotone set – if Y ⪯ X ∈ F then Y ∈ F . This is due to diminishing marginal gains – ∆f (Y, j, i ) ≥ ∆( X, j, i ). If we let σp := Pr[ J′(p)P ∈ F ] for p ∈ (0 , 1) , then by Lemma 3.3, 
+
+σp = (1 − p)ϕ(p),
+
+for some non-decreasing function ϕ. The termination condition of Algorithm 1 guarantees that 
+
+σδ := Pr[ J′(δ)P ∈ F ] = (1 − δ)ϕ(δ) ≤ 12 ,
+
+which implies ϕ(δ) ≥ 12δ for δ ≤ 12 . Since ϕ is non-decreasing, we have 
+
+ϕ
+
+ kk + 1 
+
+
+
+≥ ϕ(δ) ≥ 12δ =⇒
+
+σ kk+1 
+
+=
+
+
+
+1 − kk + 1 
+
+ϕ( kk+1 )
+
+≤
+
+ 1
+
+k + 1 
+
+1/2δ
+
+.
+
+We now define our junta function. Let ¯J := J \ J′. Define h : [ k + 1] n → [0 , 1] as 
+
+h(X) := E  
+
+> Y∈[k+1] ¯J
+
+[f (XJ′ , Y )] , (1) where xJ′ is the point in the hypergrid where the coordinates in J′ are assigned as they were in J
+
+and the coordinates in ¯J are non-assigned. First, we show that h is k–submodular. 
+
+Claim 3.11. The function h defined in Equation (1) is k–submodular. Proof. We have to show that h satisfies the two following conditions. 1. Diminishing marginal gains. Let X, Z ∈ [k + 1] n with Z ⪯ X and e / ∈ X. Let j ∈ [k]. Then, we have 
+
+∆h(Z, j, e ) = h(Zie) − h(Z) = 
+
+
+
+0, if j / ∈ J′
+
+E  
+
+> Y∈[k+1] ¯J
+
+[f (( Zie)J′ , Y ) − f (ZJ′ , Y )] , otherwise .
+
+If j / ∈ J′, then ∆h(X, j, e ) = 0 as well, so the diminishing marginal gains condition holds. Otherwise, by the k–submodularity of f , we know that for all y ∈ [k + 1] ¯J ,
+
+f (( Zie)J′ , Y ) − f (ZJ′ , Y ) ≥ f (( Xie)J′ , Y ) − f (XJ′ , Y )
+
+which allows us to conclude that ∆h(Z, j, e ) ≥ ∆h(X, j, e ), and thus that h satisfies diminishing marginal gains. 11 2. Pairwise Monotonicity. Let X ∈ [k + 1] n, i̸ = j ∈ [k] and e ∈ Xk+1 . If e /∈ J, then 
+
+> 12
+
+
+
+h(Xie) + h(Xje )
+
+
+
+= h(X). Otherwise, by the pairwise monotonicity of f ,
+
+12
+
+ h(Xie) + h(Xje ) = E  
+
+> Y∈[k+1] ¯J
+
+12 [f (( Xie)J′ , Y ) − f (( Xje )J′ , Y )] ≥ E  
+
+> Y∈[k+1] ¯J
+
+[f (XJ′ , Y )] = h(X).
+
+We can thus conclude by Theorem 2.4 that h is k–submodular. Our final step is to show that h is a good approximation to f in the ℓ2-norm. 
+
+Definition 3.12 (Bad points) . A point XJ′ in the restricted hypergrid is called bad if there exists 
+
+i ∈ ¯J and j ∈ [k] such that 
+
+∆f (XJ′ , j, i ) > α, 
+
+or there exists i ∈ XJ′
+
+∆f (XJ′ \ i, X J′ (i), i ) < −α. 
+
+The ℓ2 distance can be bounded as below. 
+
+∥h − f ∥22 = E
+
+> X∈[k+1] J
+
+[( f (X) − h(X)) 2]= E 
+
+> XJ′∈[k+1] J′
+
+"
+
+E  
+
+> Y∈[k+1] ¯J
+
+"
+
+(f (XJ′ , Y ) − E  
+
+> Y′∈[k+1] ¯J
+
+f (XJ′ , Y ′))2
+
+## 
+
+= E 
+
+> XJ′∈[k+1] J′
+
+"
+
+Var   
+
+> Y∈[k+1] ¯J
+
+[f (XJ′ , Y )] 
+
+#
+
+≤ Pr[ XJ′ is bad ] + E  
+
+> XJ′∈[k+1] J′good
+
+"
+
+Var   
+
+> Y∈[k+1] ¯J
+
+[f (XJ′ , Y )] 
+
+#
+
+. [Because f (X) ≤ 1] 
+
+We first show that for appropriate parameters to Algorithm 1, the probability that a point is bad is small. 
+
+Claim 3.13. If we set δ = log( k + 1) 2 log(8 · k · | J| · ε−2) in Algorithm 1, then 
+
+Pr XJ′ ∈[k+1] J′ [XJ′ is bad ] ≤ ε2
+
+8 .
+
+Proof. Recall that we consider a uniform distribution over XJ′ ∈ [k + 1] J′
+
+. This distribution is the same as sampling a partition P : J′ → [k] uniformly at random and returning J′
+
+ kk+1 
+
+ 
+
+> P
+
+. To see this, fix an arbitrary point X ∈ [k + 1] J′
+
+. Let A := {i ∈ J′ : xi = k + 1 } and B = J′ \ A. The probability of generating this particular X with the latter sampling procedure is 
+
+Pr[ X] = 
+
+ 1
+
+k + 1 
+
+|A|
+
+·
+
+ kk + 1 
+
+|B|
+
+·
+
+ 1
+
+k
+
+|B|
+
+= 1(k + 1) |J′|
+
+12 So, via a union bound, Claim 3.10 and by plugging in δ = log( k+1) 2 log(8 ·k·| J|· ε−2) , we get that 
+
+Pr[ XJ′ is bad ] = Pr 
+
+> J′
+
+( kk+1 ),P :J′→[k]
+
+ [
+
+> j∈[k]
+
+[ 
+
+> i∈¯J
+
+
+
+∆f
+
+
+
+J′
+
+ kk + 1 
+
+
+
+> P
+
+, j, i 
+
+
+
+> α 
+
+
+
+≤ | ¯J| · k ·
+
+ 1
+
+k + 1 
+
+1/2δ
+
+≤ ε2
+
+8 .
+
+Finally, we show that for appropriate parameters to Algorithm 1, the variance of f (XJ′ , ·) when 
+
+XJ′ is good is small. 
+
+Claim 3.14. If we set α = ε2
+
+16 in Algorithm 1, then 
+
+E  
+
+> XJ′∈[k+1] J′good
+
+Var [f (XJ′ , ·)] ≤ ε2
+
+8 .
+
+Proof. When XJ′ is good, we have that the marginal gain ∆f (XJ′ , j, i ) of adding any i ∈ ¯J to any bucket j ∈ [k] is at most α. Because of diminishing marginal gains , this bounds the marginal gains of f (XJ′ , ·) over its entire domain by α. Also, the marginal gains of f (XJ′ , ·) are at least −α,because if there existed some Y ≥ XJ′ , i ∈ ¯J and j ∈ [k] with ∆f (Y, j, i ) < −α, then by pairwise monotonicity we must have for all j′̸ = j that ∆f (Y, j ′, i ) ≥ α as 
+
+∆f (Y, j, i ) + ∆ f (Y, j ′, i ) ≥ 0.
+
+But this contradicts the upper bound of α to the marginal gains. Thus, f (XJ′ , ·) is α–Lipschitz and we can appeal to Lemma 3.5 to get Var [f (xJ′ , ·)] ≤ 2α · E[f (xJ′ , ·)] ≤ ε2
+
+8 .
+
+We are now ready to finish the proof of Theorem 3.8. 
+
+Proof of Theorem 3.8. We let J′ by the output of Algorithm 1 with input f and parameters 
+
+δ = log( k + 1) 2 log(8 · k · | J| · ε−2) , α = ε2
+
+16 .
+
+Then the function h defined by Equation (1) is the desired junta function. Indeed, combining Claims 3.13 and 3.14, we get 
+
+∥h − f ∥22 ≤ ε2
+
+8 + ε2
+
+8 = ε2
+
+4 .
+
+13 To bound the size of J′, we use Claim 3.9 to get 
+
+|J′| ≤ 2
+
+αδ = 32 · 1log(1 + k) · 1
+
+ε2 · log 8 · k · | J|
+
+ε2 ≤ 32 
+
+ε2 · log 8|J|
+
+ε2 .
+
+Using the weak junta approximation, we are able arrive at our final junta approximation. 
+
+3.3 Proof of Theorem 1.2 
+
+Let f : [ k + 1] n → [0 , 1] be a k–submodular function. We will prove a bound of |J| ≤ 4000  
+
+> ε2
+
+log 1 
+
+> ε2
+
+for the size of the approximating junta. Observe that this bound holds trivially for ε < n −1/2, because then we are allowed to choose J = [ n].For contradiction, suppose that there is ε ∈ (n−1/2, 1/2) for which the statement of Theorem 1.2 does not hold. Let E ⊂ (n−1/2, 1/2) be the set of all ε for which the statement does not hold, and pick an ε ∈ E such that ε < 2 inf E. Then, the statement still holds for ε2 = ε2 < 12 ε.By the statement of Theorem 1.2 for ε2, there is a subset of variables J′ of size |J′| ≤ 4000  
+
+> ε2
+
+log 1 
+
+> ε
+
+≤ 213 
+
+> ε2
+
+and a k–submodular function g depending only on J, such that ∥f − g∥2 ≤ ε2 ≤ 12 ε.Now we apply Theorem 3.8 to g with parameter ε. Thus, there exists a k–submodular function h
+
+such that ∥g − h∥2 ≤ 12 ε, and h depends only on a subset of variables J′′ ⊆ J′, |J′′ | ≤ 32  
+
+> ε2
+
+log 8|J′| 
+
+> ε
+
+.We have |J′| ≤ 213  
+
+> ε2
+
+, and therefore |J′′ | ≤ 32  
+
+> ε2
+
+log 216  
+
+> ε3
+
+≤ 32  
+
+> ε2
+
+log 1 
+
+> ε3
+
+(using ε ≤ 12 ). We conclude that 
+
+|J′′ | ≤ 32  
+
+> ε2
+
+log 1 
+
+> ε3
+
+≤ 4000  
+
+> ε2
+
+log 1 
+
+> ε
+
+as required in Theorem 1.2. By the triangle inequality, we have 
+
+∥f − h∥2 ≤ ∥ f − g∥2 + ∥g − h∥2 ≤ 12 ε + 12 ε = ε.However, this would mean that the statement of Theorem 1.2 holds for ε as well, which is a contra-diction. 
+
+# 4 Testing by implicit-learning in the hypergrid 
+
+Now that we have established Theorem 1.2, it remains to turn junta structure on the hypergrid into a tester. We prove an implicit-learning theorem directly for functions on [k + 1] n: the tester identifies a small set of influential coordinates and then checks whether the observed values are consistent with a junta close to the target property. 
+
+Theorem 4.1 (Reminder of Theorem 1.3) . Let p ≥ 1. Suppose P ⊆ { f : [ k + 1] n → [0 , 1] } is a property of functions such that for any f ∈ P there exists a κ-junta h : [ k + 1] n → [0 , 1] satisfying 
+
+|| f − h|| 2 ≤ ε. Then, there exists a tester that, given query access to an unknown function f , will make ε−9 · 2O(κ log κ) queries to f and with probability at least 2/3 accept if f ∈ P and reject if f is 
+
+ε-far from P in the ℓ2 norm. 
+
+Once established, Theorem 1.3 can be combined with Theorem 1.2 to give us an ℓ2-tester for k-submodularity. The following fact allows us to extend the statement to any p ≥ 1.
+
+Lemma 4.2. For any p ≥ 1, let Qp(P, ε ) be the query complexity of ℓp-testing property P with proximity parameter ε. Then 
+
+Qp(P, ε ) ≤ Q2(P, ε p/ 2).
+
+14 This yields the following corollary. 
+
+Corollary 4.3. For all p ≥ 1 there exists an ℓp-tester for k-submodularity making ( pε )2 · 2( pε )2 log( pε )
+
+queries. 
+
+We set out to prove Theorem 1.3. The tester for properties P that are close to juntas on the hypergrid is given in Algorithm 2. Let F be the set of κ-junta functions that are close to some function in P. The tester determines whether the input function f is close to some junta function in F. It does so by learning a set J of κ high influence coordinates and checking by brute force if 
+
+f could match a junta in F on J. If so, the tester accepts and otherwise it rejects. 
+
+4.1 Setup 
+
+The proof relies on the theory of Fourier Analysis for functions on the hypergrid. We include, as part of Section A, a self-contained treatment of the important concepts and lemmata required. Our main inspiration is the classic text by O’Donnell [O’D21]. We refer the reader unfamiliar with these concepts to that part of the text first, as they will be used extensively in the analysis to follow. In particular, we call the reader’s attention to the definitions of influence and juntas, which we repeat here for structural cohesion. 
+
+Definition 4.4 (Influence) . We define the influence of a set of coordinates S ⊆ [n] as 
+
+If (S) := X  
+
+> a∈Nn
+> ≤k:supp (a)̸⊆ ¯S
+
+ˆf (a)2, (2) 
+
+where ¯S := [ n] \ S.
+
+Influences can be estimated by direct sampling, as detailed in Algorithm 6. 
+
+Lemma 4.5. Algorithm 6 returns an estimate bI(m) 
+
+> f
+
+(S) such that: 
+
+Pr 
+
+h
+
+|bI(m) 
+
+> f
+
+(S) − If (S)| ≥ ε
+
+i
+
+≤ 2e−2ε2m
+
+Definition 4.6 (Junta) . A function f : [ k + 1] n → R is a κ-junta on the set J where |J| = κ if for every x, y ∈ [k + 1] n that satisfy xi = yi for all i ∈ J we have f (x) = f (y).
+
+Various facts about juntas and influences that are referred to in the analysis are included in Section A with proofs. Vital to communicating our algorithm will also be the concept of a core , as described by [BB16]: 
+
+Definition 4.7 (Core of a class of juntas) . Let F be a collection of κ-junta functions f : [ k+1] n → R.We define Fcore as the set of functions h : [ k + 1] κ → R for which there exists f ∈ F and some projection ϕ : [ k + 1] n → [k + 1] κ such that for all x ∈ [k + 1] n we have that f (x) = h(ϕ(x)) .
+
+We also consider rounding a function’s values up to the nearest multiple of a small constant. If F
+
+is a class of functions then F(ε) contains for each f ∈ F a function that approximates f (x) with the nearest multiple of ε.15 Algorithm 2 Testing “near” junta properties via implicit learning  
+
+> 1:
+
+Input: Query access to unknown function f : [ k + 1] n → [0 , 1] . Error ε ∈ (0 , 1/2) , Junta parameter κ ≥ 1. 
+
+> 2:
+
+Parameters : Let L = 20 κ4, m = κ2 
+
+> ε4
+
+and q = 2O(κ) 
+
+> ε5
+> 3:
+
+Draw points x(1) , ..., x (q) uniformly at random from [k + 1] n. 
+
+> 4:
+
+For each label ℓ ∈ [k + 1] q define its group Gℓ := {i ∈ [n] : x(1)  
+
+> i
+
+= ℓ1, ..., x (q) 
+
+> i
+
+= ℓq}. 
+
+> 5:
+
+Let P1, ..., P L be a random equi-partition of the labels [k + 1] q. 
+
+> 6:
+
+Initial Pruning Phase  
+
+> 7:
+
+Find κ parts Pi1 , ..., P iκ for which the approximate influence of the remaining coordinates is minimized: 
+
+(i1, ...i κ) ← arg min 
+
+> J⊂[L]: |J|=κ
+
+bI(m)
+
+> f
+
+[n] \ [
+
+> j∈J
+
+[
+
+> ℓ∈Pj
+
+Gℓ
+
+ 
+
+> 8:
+
+Tree Pruning Phase: Let (P (0)  
+
+> i1
+
+, ..., P (0)  
+
+> iκ
+
+) ← (Pi1 , ..., P iκ ) 
+
+> 9:
+
+For j ∈ [κ], r ∈ [R], and s ∈ { 0, 1}, define C(r) 
+
+> j
+
+:= S 
+
+> ℓ∈P(r)
+> ij
+
+Gℓ and C(r) 
+
+> j,s
+
+:= S 
+
+> ℓ∈P(r)
+> ij ,s
+
+Gℓ 
+
+> 10:
+
+for r = 0 to R do  
+
+> 11:
+
+Randomly equipartition each P (r) 
+
+> ij
+
+into two parts P (r)  
+
+> ij,0
+
+and P (r) 
+
+> ij,1
+
+. 
+
+> 12:
+
+Find the optimal way to remove half of all coordinates: Let s∗ ∈ { 0, 1}κ be defined as: 
+
+s∗ = arg min 
+
+> s∈{ 0,1}κ
+
+bI(m)
+
+> f
+
+[n] \
+
+> κ
+
+[
+
+> j=1
+
+C(r)
+
+> j,s j
+
+ 
+
+> 13:
+
+Let P (ℓ+1)  
+
+> ij
+
+← P ℓij ,s ∗ 
+
+> j
+
+for all j ∈ [κ] 
+
+> 14:
+
+Testing Phase  
+
+> 15:
+
+Let B ← κS
+
+> j=1
+
+C(R) 
+
+> j
+
+be the final set of coordinates we collected.  
+
+> 16:
+
+if bI(m) 
+
+> f
+
+([ n] \ B) > 5ε2 then  
+
+> 17:
+
+Output Reject  
+
+> 18:
+
+Pick any subset J = ( j1, ..., j κ) of κ coordinates arbitrarily from B. 
+
+> 19:
+
+Let ϕ : [ k + 1] n → [k + 1] κ be the projection ϕ(x)ℓ = ( xJ )jℓ for ℓ ∈ [κ]. 
+
+> 20:
+
+Sample a fresh batch of points y(1) , ..., y (m) uniformly at random from [k + 1] n 
+
+> 21:
+
+for h ∈ F (ε) 
+
+> core
+
+do  
+
+> 22:
+
+if 1
+
+> mm
+
+P
+
+> i=1
+
+(f (y(i)) − h(ϕ(y(i))) 2 ≤ ε then  
+
+> 23:
+
+Output Accept  
+
+> 24:
+
+Output Reject 
+
+16 4.2 Analysis 
+
+Our analysis is structured according to the analysis of [BB16] for the hypercube case. However, we simplify and augment their arguments in certain ways. 
+
+• We use a fresh sample in the “Testing Phase” of the algorithm to avoid a complicated de-correlation argument (Lemma 3.2 in [BB16]) 
+
+• We significantly simplify the proof of Lemma 3.1 (our Lemma 4.8) 
+
+• We obtain more convenient constants by adjusting the algorithm and analysis. We first show that the set of coordinates B we obtain has high influence: 
+
+Lemma 4.8 (High influence coordinates are recovered) . Suppose f is ε-close to a κ junta. Then the set B obtained by Algorithm 2 is such that with probability at least 9/10 ,
+
+If ([ n] \ B) ≤ 5ε2.
+
+Proof. Suppose we condition on the event that Algorithm 6 returns an accurate estimate within additive error ε2/κ for all the times it is invoked. To guarantee this with probability at least 5/6,we set m = κ2/ε 4 in Lemma 4.5. Let g be the κ-junta that f is close to. WLOG, suppose that g is a junta on the set [κ] of coordinates. We will condition on the event that all the coordinates in [κ]
+
+lie in different parts of the original equi-partition. The probability that this event does not happen is at most κ2/L ≤ 120 κ2 ≤ 1/20 .For 0 ≤ r ≤ R, consider all the variables eliminated prior to iteration s of the tree pruning stage: 
+
+Lr := [ n] \
+
+> κ
+
+[
+
+> j=1
+
+C(r)
+
+> j
+
+We have that: 
+
+If ([ n] \ B) = If (LR) = If (L0) + 
+
+> R
+
+X
+
+> r=1
+
+(If (Lr) − If (Lr−1)) 
+
+We bound this quantity in steps: 1. By Lemma A.3 we have that If ([ n] \ [κ]) ≤ (pIg([ n] \ [κ]) + ε)2 = ε2 since g is a junta on [κ].Also, Algorithm 6 returns an estimate with additive error ε2/κ , which means that 
+
+If (L0) ≤ 2ε2
+
+because influence is a monotone function and Algorithm 2 exhaustively examines all subsets of the form [n] \ S with |S| = κ · | P1|.2. We split the iterations [R] into two sets. Let 
+
+E := {r ≤ R : ( Lr \ Lr−1) ∩ [κ]̸ = ∅} 
+
+be the set of rounds where a coordinate in [κ] is eliminated. We have: 
+
+> R
+
+X
+
+> r=1
+
+(If (Lr) − If (Lr−1)) = X
+
+> r∈E
+
+(If (Lr) − If (Lr−1)) + X
+
+> r / ∈E
+
+(If (Lr) − If (Lr−1)) 
+
+17 • For the second term: 
+
+X
+
+> r / ∈E
+
+(If (Lr) − If (Lr−1)) = X
+
+> r / ∈E
+
+X  
+
+> a∈Nn
+> ≤k
+> supp (a)̸⊆ Lr,supp (a)⊆Lr−1
+
+ˆf (a)2 ≤ X
+
+> a∈Nn
+> ≤k
+> supp (a)̸⊆ [κ]
+
+ˆf (a)2 = If ([ n] \ [κ]) ≤ ε2
+
+• For the first term, let Sr := Lr \ Lr−1. By the sub-additivity property of influence (Lemma A.4), we have that: 
+
+X
+
+> r∈E
+
+(If (Lr) − If (Lr−1)) ≤ X
+
+> r∈E
+
+If (Sr) = X
+
+> r∈E
+
+If
+
+
+
+> κ
+
+[
+
+> j=1
+
+C(r)
+
+> j, 1−s∗
+> j
+
+
+
+Our algorithm determines s∗ so that the complement influence is minimized. Because 
+
+r ∈ E , we know that Sr ∩ [κ]̸ = ∅. In fact, we have assumed that |[κ] ∩ Sr| = 1 . Also, if we let S′ 
+
+> r
+
+:= κS
+
+> j=1
+
+C(r)
+
+> j,s ∗
+> j
+
+be the set of coordinates we keep, we know in particular that 
+
+[κ] ∩ S′ 
+
+> r
+
+= ∅. Due to the selection of Sr and the accuracy guarantee of Algorithm 6, we have: 
+
+If (Sr) ≤ ε2
+
+κ + If (S′
+
+> r
+
+)
+
+And since S′ 
+
+> r
+
+⊆ [n] \ [k], we have we have: 
+
+X
+
+> r∈E
+
+(If (Lr) − If (Lr−1)) ≤ κ · ε2
+
+κ + X
+
+> r∈E
+
+If (S′
+
+> r
+
+) ≤ ε2 + If ([ n] \ [κ]) ≤ 2ε2
+
+Putting it all together, we get that 
+
+If ([ n] \ B) ≤ 5ε2.
+
+Another useful lemma that we will need says that our calculation in Line 22 approximates the distance of g to h = hcore ◦ ϕ. The proof uses the ideas of [BB16], adapted for the hypergrid setting. We simplify the proof quite a bit though by using a fresh batch of samples y(1) , ..., y (m) to avoid the randomization decoupling argument done in the original proof. 
+
+Lemma 4.9. Suppose f : [ k + 1] n → [0 , 1] satisfies dist 2(f, g ) ≤ ε for some κ-junta g. Then, for every hcore ∈ F (ε)
+
+> core
+
+, if ϕ is the mapping defined in Line 19 of Algorithm 2, we have for the function 
+
+h = hcore ◦ ϕ that: 
+
+Pr 
+
+> y(1) ,...,y (q)
+
+ 1
+
+q
+
+> q
+
+X
+
+> i=1
+
+(f (y(i)) − h(y(i))) 2
+
+!1/2
+
+− dist 2(g, h ) > 3ε
+
+ ≤ 2e−16 qε 4
+
+Proof. The empirical square distance 
+
+dist X (f, h )2 := 1
+
+q
+
+> q
+
+X
+
+> i=1
+
+(f (y(i)) − g(y(i))) 2
+
+18 is an unbiased estimator of dist 2(f, g ) when the y(i) are drawn independently and uniformly at random. As a result, Hoeffding’s inequality establishes that: 
+
+Pr [dist X (f, g ) > dist( f, g ) + ε] ≥ 1 − e−16 mε 4
+
+Now, the triangle inequality says that dist X (f, h ) ≤ dist X (f, g ) + dist X (g, h ) ≤ 2ε + dist X (g, h ),except with probability e−16 qε 4
+
+. Another application of Hoeffding’s inequality gives us that, except with probability e−16 qε 4
+
+, the distances dist X (g, h ) and dist( g, h ) are ε-close, which establishes the claim. The following Lemmata express the guarantees of the tester: 
+
+Lemma 4.10. Let f : [ k + 1] n → [0 , 1] and F be a property of κ-junta functions on the hypergrid such that there exists some g ∈ F for which dist( f, g ) ≤ ε/ 16 . Then, Algorithm 2 accepts with probability at least 5/6.Proof. We will first proceed by substituting ε ← ε/ 16 . By Lemma 4.8, the tester rejects in Line 17 with probability at most 1/10 . Assuming it did not reject, we show that there exists, with probability at least 1/10 , some h ∈ F (ε) 
+
+> core
+
+for which Line 23 accepts. Let us assume WLOG that 
+
+g ∈ F is a κ-junta on set [κ]. For the set of coordinates J collected from B in Line 18, let 
+
+J′ := [ k] ∩ J and assume WLOG that J′ = [ κ′]. Consider the following chain of functions, as shown in the diagram below: Let gcore ∈ F core be the core of function g and its ε-approximation hcore . Let 
+
+h = hcore ◦ ϕ, where ϕ is the mapping defined in Line 19 of Algorithm 2. Also let h∗ ∈ F (ε) be the direct ε-approximation of g.
+
+f g gcore hcore h
+
+h∗
+
+Fcore F (ε)
+
+> core
+
+F (ε)
+
+φ
+
+19 We have the following bound on dist 2(g, h ):
+
+dist 2(g, h ) ≤ dist 2(g, h ∗) + dist 2(h∗, h )
+
+≤ ε + E
+
+> x∼[k+1] n
+
+[( hcore (ϕ(x)) − h∗(x)) 2]1/2
+
+≤ ε + E
+
+> x∼[k+1] n
+
+[( hcore (x1, ..., x κ′ , x i1 , ..., x iκ−κ′+1 ) − hcore (x1, ..., x κ)) 2]1/2
+
+= ε + Ihcore ([ κ] \ [κ′]) 1/2
+
+= ε + Ih∗ ([ n] \ [κ′]) 1/2
+
+≤ ε + Ig([ n] \ [k′]) 1/2 + dist 2(g, h ∗) (By Lemma A.3) 
+
+≤ ε + Ig([ n] \ B)1/2 + dist 2(g, h ∗)
+
+≤ ε + Ig([ n] \ B)1/2 + dist 2(g, h ∗) (g is a junta on [κ])
+
+≤ 2ε + If ([ n] \ B)1/2 + dist 2(f, g )
+
+≤ 8ε (By Lemma 4.8) To finish the proof, we substitute ε/ 16 in place of ε and use Lemma 4.9 to argue that our empirical estimator is accurate and thus the tester accepts with probability at least 5/6.
+
+Lemma 4.11. Let f : [ k + 1] n → [0 , 1] . If for any κ-junta g it is true that dist 2(f, g ) > 6ε,Algorithm 2 rejects with probability at least 5/6.Proof. We will need the following Lemma from [BWY12], which we will state for the hypergrid domain, its proof remaining essentially unchanged: 
+
+Lemma 4.12. Let f : [ k + 1] n → [0 , 1] be ε-far from any κ-junta. Suppose we partition [n] into 
+
+r > κ 2 parts P1, ..., P r. Then with probability at least 5/6, any union J of κ parts from P has 
+
+If ([ n] \ J) ≥ ε2/4.
+
+We can invoke this Lemma since we initially partitioned [n] into more than 20 κ2 parts and we’re picking B as a subset of a collection of κ of those parts. Thus: 
+
+If ([ n] \ B) ≥ 9ε2
+
+Assuming accuracy of Algorithm 6 to within ε2/κ , Line 17 rejects with probability at least 5/6.
+
+Lemma 4.13. Let f : [ k+1] n → [0 , 1] be such that for some κ-junta g it is true that dist 2(f, g ) ≤ 6ε.Suppose also that for all g′ ∈ F we have that dist 2(f, g ′) > ε . Then, with probability at least 5/6,Algorithm 2 rejects. Proof. We wish to show that the condition of Line 22 is never satisfied. Let hcore ∈ F (ε) 
+
+> core
+
+and 
+
+ϕ : [ k + 1] n → [k + 1] κ be any projection. Let h := hcore ◦ ϕ ∈ F (ε). We aim to establish a lower bound for dist 2(g, h ). Indeed, the triangle inequality gives: 
+
+dist 2(g, h ) ≥ dist 2(f, h ) − dist 2(f, g ) ≥ 7ε
+
+20 Invoking Lemma 4.9 with a union bound over |F (ε)| ≤ (1 /ε )2k
+
+means that Line 22 will never be satisfied with probability at least 5/6.Finally, we can put everything together: 
+
+Proof of Theorem 1.3. Let F = {g is a κ-junta s.t. ∃f ∈ P : || f − g|| 2 ≤ ε/ 16 } be the collection of all κ-juntas close to some function f ∈ P . This is a property on κ-junta functions. We run Algorithm 2 against F: If f ∈ P , then, by Lemma 4.10, Algorithm 2 accepts with probability at least 5/6. If f is ε-far from P but close to a junta, we reject with probability at least 5/6
+
+by Lemma 4.13, and if f is far from any κ-junta we also reject with probability at least 5/6 by Lemma 4.11. As a result, combining this with the guarantee from Lemma 4.5, if f is ε-far from P,we reject with probability at least 2/3, as required by the theorem. 
+
+# 5 Towards testing k–submodularity in the ℓ0-norm 
+
+In this section, we develop the local-witness theory for the two constraints that characterize k–submodularity in Hamming distance. For diminishing marginal gains, the witnesses are generalized violated squares. For pairwise monotonicity, the witnesses are violated triangles. We prove that if either constraint is far from being satisfied, then the corresponding witnesses are dense enough to be found by a non-adaptive one-sided tester. The key step in both cases is a repair argument over ideals and filters in the hypergrid. 
+
+5.1 Setup 
+
+Definition 5.1 (Violating square) . Let i, j ∈ [k], X ∈ [k + 1] n, and e̸ = g ∈ Xk+1 . We call 
+
+{X, X ie, X jg , X (i,j )(e,g )} a square . For a function f : [ k + 1] n → R, this is called an f –violating square 
+
+if 
+
+f (Xie) − f (X) < f (X(i,j )(e,g )) − f (Xjg ),
+
+that is, it violates the diminishing marginal gains property. 
+
+X
+
+Xjg Xie
+
+X(i,j )(e,g )
+
+Figure 1: A square. An inductive argument shows that absence of violating squares is equivalent to the diminishing marginal gains property: 
+
+Proposition 5.2. A function f : [ k + 1] n → R satisfies the diminishing marginal gains property if and only if it has no violating squares. 
+
+21 Proof. If a function satisfies the diminishing marginal gains property, then it is easy to see that it has no violating squares: take Y = Xjg . We show the converse by considering X ⪯ Y , e / ∈ Y and 
+
+i ∈ [k]. Suppose e1, ..., e ℓ are the elements of Y not in X ⊓ Y that have Y (e)̸ = k + 1 . Then we have that: 
+
+f (Xie) − f (X) ≥ f (Xi,Y (e1) 
+
+> e,e 1
+
+) − f (XY (e1) 
+
+> e1
+
+)
+
+By induction we can telescopically build the partial partition Y on the right hand side and recover the diminishing marginal gains property. 
+
+Definition 5.3 (Violating triangle) . Let X ∈ [k + 1] n, i̸ = j ∈ [k], and e ∈ Xk+1 . We call 
+
+{x, X ie, X je } a triangle . For a function f : [ k + 1] n → R, this is called an f –violating triangle if 
+
+f (Xie) + f (Xje )2 < f (X),
+
+that is, it violates the pairwise monotonicity condition. 
+
+X
+
+Xie Xje
+
+Figure 2: A triangle. 
+
+5.2 Testing diminishing marginal gains 
+
+5.2.1 Algorithm Algorithm 3 A tester for diminishing marginal gains  
+
+> 1:
+
+Input: Parameters k, n , a query oracle for function f : [ k + 1] n → R, and an error parameter 
+
+ε > 0. 
+
+> 2:
+
+for n2 · (1 /ε )Θ( √n log n) iterations do  
+
+> 3:
+
+sample the following uniformly at random.  
+
+> 4:
+
+A point X ∈ [k + 1] n from the hypercube,  
+
+> 5:
+
+two (possibly same) indices i, j ∈ [k], and  
+
+> 6:
+
+two elements e̸ = g ∈ Xk+1 . 
+
+> 7:
+
+if {X, X ie, X jg , X (i,j )(e,g )} is an f –violating square then  
+
+> 8:
+
+reject . 
+
+> 9:
+
+accept .
+
+5.2.2 Analysis 
+
+We prove the following theorem. 
+
+Theorem 5.4. Algorithm 3 has the following properties. 1. If f has diminishing marginal gains , then Algorithm 3 accepts with probability 1.
+
+22 2. If f is ε-far from diminishing marginal gains , then Algorithm 3 rejects with probability at least 2/3.3. Algorithm 3 makes q = 4 n2 · (1 /ε )Θ( √n log n) queries. 
+
+Items 1 and 3 are easy to verify – they are direct consequences of Theorem 2.4 and the description of Algorithm 3, respectively. The rest of this section will be dedicated to proving Item 2. Intuitively, our proof proceeds as follows. We first show that if a function f has a “low density” of violating squares, then it can be made to have the diminishing marginal gains property by changing the values of only a “few” points. By contrapositive, this means that a function that is “far” from 
+
+diminishing marginal gains must have a “high density” of witnesses, which implies the correctness of our tester. To “repair” a function f towards diminishing marginal gains , we modify its values over a union of ideals and filters , defined as follows. 
+
+Definition 5.5 (Ideal) . Let X ∈ [k + 1] n. The Ideal of X is defined as 
+
+I(X) := {Y | Y ⪯ X}.
+
+Definition 5.6 (Filter) . Let X ∈ [k + 1] n. The Filter of X is defined as 
+
+F (X) := {Y | X ⪯ Y }.
+
+We start with the following “repair” lemma for violating squares. 
+
+Lemma 5.7 (Square repair lemma) . Let f : [ k + 1] n → R be a function in which {X, X ie, X jg , X (i,j )(e,g )}
+
+is an f –violating square. There is a way to change only the values of the ideal I(X) or the filter 
+
+F (X(i,j )(e,g )) to obtain a function f ′ in which {X, X ie, X jg , X (i,j )(e,g )} is no longer an f ′–violating square, and no additional f ′–violating squares have been introduced. Proof. Because {X, X ie, X jg , X (i,j )(e,g )} is an f –violating square, we have 
+
+∆X := f (X) + f (X(i,j )(e,g )) − f (Xie) − f (Xjg ) > 0.
+
+Fix any constant ∆ ≥ ∆X . We obtain f ′ by subtracting ∆ from f (Y ) for all Y ∈ I(X). Clearly, this repairs the f –violating square itself, but we must also argue that it does not introduce any new 
+
+f ′–violating squares. Let {Y, Y i′ 
+
+> e′
+
+, Y j′ 
+
+> g′
+
+, Y (i′,j ′)(e′,g ′) } be an f ′–violating square that is not f –violating. If Y̸ ⪯ X, then none of the values in the square were modified. So we can assume Y ⪯ X. We consider the following cases. 1. Neither Y i′
+
+> e′
+
+̸ ⪯ X nor Y j′
+
+> g′
+
+̸ ⪯ X. Then the points Y i′ 
+
+> e′
+
+, Y j′ 
+
+> g′
+
+, Y (i′,j ′)(e′,g ′) are not modified. Thus, the value of this square is 
+
+(f (Y ) − ∆) + f (Y (i′,j ′)(e′,g ′) ) − f (Y j′ 
+
+> g′
+
+) − f (Y i′ 
+
+> e′
+
+) = f (Y ) + f (Y (i′,j ′)(e′,g ′) ) − f (Y j′ 
+
+> g′
+
+) − f (Y i′ 
+
+> e′
+
+) − ∆ ≤ − ∆.
+
+2. Only Y i′
+
+> e′
+
+̸ ⪯ X and Y j′ 
+
+> g′
+
+⪯ X. Then the points Y i′ 
+
+> e′
+
+, Y (i′,j ′)(e′,g ′) are not modified. Thus, the value of this square is 
+
+(f (Y ) − ∆) + f (Y (i′,j ′)(e′,g ′) ) − (f (Y j′ 
+
+> g′
+
+) − ∆) − f (Y i′ 
+
+> e′
+
+) = f (Y ) + f (Y (i′,j ′)(e′,g ′) ) − f (Y j′ 
+
+> g′
+
+) − f (Y i′ 
+
+> e′
+
+) ≤ 0.
+
+23 The case of Y i′ 
+
+> e′
+
+⪯ X and Y j′
+
+> g′
+
+̸ ⪯ X is symmetric and identical. 3. Both Y i′ 
+
+> e′
+
+⪯ X and Y j′ 
+
+> g′
+
+⪯ X. Then Y (i′,j ′)(e′,g ′) ⪯ X, and all the points are modified. Thus, the value of this square is 
+
+(f (Y )−∆)+( f (Y (i′,j ′)(e′,g ′) )−∆) −(f (Y j′ 
+
+> g′
+
+)−∆) −(f (Y i′ 
+
+> e′
+
+)−∆) = f (Y )+ f (Y (i′,j ′)(e′,g ′) )−f (Y j′ 
+
+> g′
+
+)−f (Y i′ 
+
+> e′
+
+) ≤ 0.
+
+As a result, we have shown that no new violating squares are introduced after changing all the values in I(X), and the original violating square rooted in X is repaired. An identical argument suffices to prove that subtracting ∆ from the filter F (X(i,j )(e,g )) has the same consequence. The proof of this lemma also implies the following corollary. 
+
+Corollary 5.8. Let f : [ k + 1] n → R be a function and X ∈ [k + 1] n be a domain point. For any constant ∆ > 0, the function f ′ obtained by subtracting ∆ from f (Y ) for all Y ∈ I(X) or all 
+
+Y ∈ F (X) does not introduce any new f ′–violating squares. 
+
+Next, we prove the following density lemma. 
+
+Lemma 5.9. Let f : [ k + 1] n → R be a function with m violating squares. If m ≤ ε√n log n · (k + 1) n
+
+for ε ∈ (0 , e −5), then f can be made to have diminishing marginal gains by changing at most 
+
+ε · (k + 1) n values. Proof. The proof is a counting argument on the number of points we will need to change by the square repair procedure above. We enumerate all m violating squares and arrange them in order of item-weight (equal to Pki=1 |Xi|) of the bottom point. We split the hypercube evenly based on item-weight. It can be verified that this split occurs at weight nk k+1 .1. For violating squares where the bottom vertex has item-weight ≤ nk k+1 , we repair them by modifying values in the ideal. Let I denote the bottom vertex in these violating squares. Then the total number of modified points is |∪ X∈I I(X)|.2. For violating squares where the bottom vertex has item-weight > nk k+1 , we repair them by modifying values in the filter. Let F denote the top vertex in these violating squares. Then the total number of modified points is |∪ X∈F F (X)|.We first prove the counting argument for Item 1. We estimate this cardinality by combining two different bounds across levels of the hypergrid. Let Lj := {X ∈ [k + 1] n : |X| ≤ j}. Then we can write 
+
+[
+
+> X∈I
+
+I(X) =
+
+> nk k+1
+
+X
+
+> j=0
+
+[
+
+> X∈I
+
+(I(X) ∩ Lj ) .
+
+We can bound these terms in two ways. First, we have 
+
+[
+
+> X∈I
+
+(I(X) ∩ Lj ) ≤ X
+
+> X∈I
+
+|I(X) ∩ Lj | = X
+
+> X∈I
+
+|X|
+
+j
+
+
+
+≤ | I| · 
+
+ nk k+1 
+
+j
+
+
+
+.
+
+24 Second, there is the more trivial bound of 
+
+[
+
+> X∈I
+
+(I(X) ∩ Lj ) ≤ | Lj | =
+
+nj
+
+
+
+· kj .
+
+This second bound is reminiscent of the binomial distribution Bin 
+
+
+
+n, kk+1 
+
+
+
+. Combining this with a Chernoff bound, we can get an upper bound on the number of points with item-weight far from the mean. Now we just have to use the correct bound depending on j.1. If j ≤ nk k+1 − α
+
+q nk k+1 for some constant α, then   
+
+> nk k+1 −α
+> qnk k+1
+
+X
+
+> j=0
+
+nj
+
+
+
+· kj = ( k + 1) n  
+
+> nk k+1 −α
+> qnk k+1
+
+X
+
+> j=0
+
+nj
+
+
+
+·
+
+ kk + 1 
+
+j  1
+
+k + 1 
+
+n−j
+
+= ( k + 1) n · Pr 
+
+"
+
+Z ≤ nk k + 1 − α
+
+r nk k + 1 
+
+# 
+
+Z ∼ Bin 
+
+
+
+n, kk + 1 
+
+ 
+
+= ( k + 1) n · Pr 
+
+
+
+Z ≤ (1 − δ) nk k + 1 
+
+ Letting δ = α
+
+q nk k+1 
+
+
+
+≤ (k + 1) n · e−δ2nk/ 2( k+1) [Chernoff bound ]= ( k + 1) n · e−α2/2.
+
+2. If j > nk k+1 − α
+
+q nk k+1 , then 
+
+> nk k+1
+
+X   
+
+> j=nk k+1 −α
+> qnk k+1
+
+|I| · 
+
+ nk k+1 
+
+j
+
+
+
+= |I| ·  
+
+> α
+> qnk k+1
+
+X
+
+> j=0
+
+ nk k+1 
+
+j
+
+
+
+≤ | I| · 
+
+ nk k + 1 
+
+α 
+
+> qnk k+1
+
+≤ | I| · nα√n
+
+= |I| · eα√n ln n.
+
+25 Finally, setting α = 12 ln ε−1 yields 
+
+[
+
+> X∈I
+
+I(X) =
+
+> nk k+1
+
+X
+
+> j=0
+
+[
+
+> X∈I
+
+(I(X) ∩ Lj ) [Splitting by item-weight ]=  
+
+> nk k+1 −α
+> qnk k+1
+
+X
+
+> j=0
+
+[
+
+> X∈I
+
+(I(X) ∩ Lj ) +
+
+> nk k+1
+
+X   
+
+> j=nk k+1 −α
+> qnk k+1
+
+[
+
+> X∈I
+
+(I(X) ∩ Lj ) [Splitting the sum ]
+
+≤  
+
+> nk k+1 −α
+> qnk k+1
+
+X
+
+> j=0
+
+nj
+
+
+
+· kj +
+
+> nk k+1
+
+X   
+
+> j=nk k+1 −α
+> qnk k+1
+
+|I| · 
+
+ nk k+1 
+
+j
+
+
+
+[Discussed bounds ]
+
+≤ (k + 1) n · e−α2/2 + |I| · eα√n ln n [From case analysis ]
+
+≤ (k + 1) n · e−α2/2 + m · eα√n ln n [|I| ≤ m]
+
+≤ (k + 1) n · e−α2/2 + ( k + 1) n · ε√n ln n · eα√n ln n [m ≤ (k + 1) n · ε√n ln n]= ( k + 1) n · ε 18 ln ε−1
+
++ ( k + 1) n · ε√n ln n · ε− 12   
+
+> √nln n
+
+[α = 1 /2 · ln ε−1]
+
+≤ (k + 1) n ·
+
+
+
+ε 18 ln ε−1
+
++ ε 12  
+
+> √nln n
+
+
+
+[Simplifying ]
+
+≤ ε
+
+2 · (k + 1) n. [ε ∈ (0 , e −5)] 
+
+This concludes the counting argument for Item 1. The counting argument for Item 2 is almost identical. We split the filters by level, and for j ≥ 
+
+> nk k+1
+
++ α
+
+q nk k+1 , the Chernoff-inequality based upper bound still holds. For j < nk k+1 + α
+
+q nk k+1 , we 26 get the following bound.   
+
+> nk k+1 +α
+> qnk k+1
+
+X 
+
+> j=nk k+1
+
+[
+
+> X∈F
+
+(F (X) ∩ Lj ) ≤ X
+
+> X∈F
+
+|F (X) ∩ Lj |
+
+=  
+
+> nk k+1 +α
+> qnk k+1
+
+X 
+
+> j=nk k+1
+
+X
+
+> X∈F
+
+n − | X|
+
+j − | X|
+
+
+
+kj−| X|
+
+≤  
+
+> nk k+1 +α
+> qnk k+1
+
+X 
+
+> j=nk k+1
+
+X
+
+> X∈F
+
+ nk+1 
+
+j − | X|
+
+
+
+kj−| X|
+
+≤  
+
+> nk k+1 +α
+> qnk k+1
+
+X 
+
+> j=nk k+1
+
+X
+
+> X∈F
+
+ nk + 1 
+
+j−| X|
+
+kj−| X|
+
+≤  
+
+> nk k+1 +α
+> qnk k+1
+
+X 
+
+> j=nk k+1
+
+X
+
+> X∈F
+
+nj−| X|
+
+≤  
+
+> nk k+1 +α
+> qnk k+1
+
+X 
+
+> j=nk k+1
+
+|F | · nj− nk k+1 
+
+≤ | F | · nα 
+
+> qnk k+1
+
+≤ | F | · nα√n
+
+= |F | · eα√n ln n.
+
+The rest of the counting argument is exactly the same and thus omitted. In conclusion, we need to modify ≤ ε·(k+1) n values to make f have diminishing marginal gains .We are now ready to finish the analysis of our tester. 
+
+Proof of Theorem 5.4. We prove each part separately. 1. By Theorem 2.4, a function with diminishing marginal gains does not have any f –violating squares. As a result, the tester will always accept .2. By the contrapositive of Lemma 5.9, a function that is ε-far from diminishing marginal gains 
+
+has at least (k + 1) n · ε√n ln n violating squares. The total number of squares is  n
+
+> 2
+
+ · k2 · (k +1) n−2 = Θ( n2(k + 1) n). Thus, by the witness lemma, n2 · (1 /ε )Θ( √n log n) queries suffice to catch an f –violating square with high probability. 3. This follows trivially from the design of the algorithm. 27 This completes the analysis of Algorithm 3. 
+
+5.3 Testing pairwise monotonicity 
+
+5.3.1 Algorithm Algorithm 4 A tester for pairwise monotonicity  
+
+> 1:
+
+Input: Parameters k, n , a query oracle for function f : [ k + 1] n → R, and an error parameter 
+
+ε > 0. 
+
+> 2:
+
+for kn · (1 /ε )Θ( √n log n) iterations do  
+
+> 3:
+
+sample the following uniformly at random.  
+
+> 4:
+
+A point X ∈ [k + 1] n from the hypercube,  
+
+> 5:
+
+two indices i̸ = j ∈ [k], and  
+
+> 6:
+
+an element e ∈ Xk+1 . 
+
+> 7:
+
+if {X, X ie, X je } is an f –violating triangle then  
+
+> 8:
+
+reject . 
+
+> 9:
+
+accept .
+
+5.3.2 Analysis 
+
+We prove the following theorem. 
+
+Theorem 5.10. Algorithm 4 has the following properties. 1. If f has pairwise monotonicity , then Algorithm 4 accepts with probability 1.2. If f is ε-far from pairwise monotonicity , then Algorithm 4 rejects with probability at least 
+
+2/3.3. Algorithm 4 makes q = 3 kn · (1 /ε )Θ( √n log n) queries. 
+
+Items 1 and 3 are easy to verify – they are direct consequences of Theorem 2.4 and the description of Algorithm 4, respectively. The rest of this section will be dedicated to proving Item 2. The proof sketch is very similar to that of the previous section. We first show that if a function f
+
+has a “low density” of violating triangles, then it can be made to have the pairwise monotonicity 
+
+property by changing the values of only a “few” points. By contrapositive, this means that a function that is “far” from pairwise monotonicity must have a “high density” of witnesses, which implies the correctness of our tester. To “repair” a function f towards pairwise monotonicity , we modify its values over a union of ideals and filters .We start with the following “repair” lemma for violating triangles. 
+
+Lemma 5.11 (Triangle repair lemma) . Let f : [ k + 1] n → R be a function in which {X, X ie, X je }
+
+is an f –violating triangle. There is a way to change only the values of the ideal I(X) or the filter 
+
+F (Xie) or F (Xje ) to obtain a function f ′ in which {X, X ie, X je } is no longer an f ′–violating triangle, and no additional f ′–violating triangles have been introduced. 
+
+28 Proof. Because {X, X ie, X je } is an f –violating triangle, we have 
+
+∆X := 2 · f (X) − f (Xie) − f (Xje ) > 0.
+
+Fix any constant ∆ ≥ ∆X . We obtain f ′ by subtracting ∆ from f (Y ) for all Y ∈ I(X). Clearly, this repairs the f –violating triangle itself, but we must also argue that it does not introduce any new f ′–violating triangles. Let {Y, Y i′ 
+
+> e′
+
+, Y j′ 
+
+> e′
+
+} be an f ′–violating triangle that is not f –violating. If Y̸ ⪯ X, then none of the values in the triangle were modified. So we can assume Y ⪯ X. We consider the following cases. 1. Neither Y i′
+
+> e′
+
+̸ ⪯ X nor Y j′
+
+> e′
+
+̸ ⪯ X. Then the points Y i′ 
+
+> e′
+
+, Y j′ 
+
+> e′
+
+are not modified. Thus, the value of this triangle is 
+
+2 · (f (Y ) − ∆) − f (Y i′ 
+
+> e′
+
+) − f (Y j′ 
+
+> e′
+
+) = f (Y ) − f (Y i′ 
+
+> e′
+
+) − f (Y j′ 
+
+> e′
+
+) − 2∆ ≤ − 2∆ .
+
+2. Only Y i′
+
+> e′
+
+̸ ⪯ X and Y j′ 
+
+> e′
+
+⪯ X. Then the point Y i′ 
+
+> e′
+
+is not modified. Thus, the value of this triangle is 
+
+2 · (f (Y ) − ∆) − (f (Y j′ 
+
+> e′
+
+) − ∆) − f (Y i′ 
+
+> e′
+
+) = f (Y ) − f (Y j′ 
+
+> e′
+
+) − f (Y i′ 
+
+> e′
+
+) − ∆ ≤ − ∆.
+
+The case of Y i′ 
+
+> e′
+
+⪯ X and Y j′
+
+> e′
+
+̸ ⪯ X is symmetric and identical. As a result, we have shown that no new violating triangles are introduced after changing all the values in I(X), and the original violating triangle rooted in X is repaired. A similar argument suffices to prove that adding ∆ to the filter F (Xie) or F (Xje ) has the same consequence. The proof of this lemma also implies the following corollary. 
+
+Corollary 5.12. Let f : [ k + 1] n → R be a function and X ∈ [k + 1] n be a domain point. For any constant ∆ > 0, the function f ′ obtained by subtracting ∆ from f (Y ) from all Y ∈ I(X) or adding 
+
+∆ to f (Y ) for all Y ∈ F (X) does not introduce any new f ′–violating triangles. 
+
+Next, we prove the following density lemma. 
+
+Lemma 5.13. Let f : [ k+1] n → R be a function with m violating triangles. If m ≤ ε√n log n ·(k+1) n
+
+for ε ∈ (0 , e −5), then f can be made to have pairwise monotonicity by changing at most ε · (k + 1) n
+
+values. Proof. Same as the proof of Lemma 5.9. We are now ready to finish the analysis of our tester. 
+
+Proof of Theorem 5.10. We prove each part separately. 1. By Theorem 2.4, a function with pairwise monotonicity does not have any f –violating trian-gles. As a result, the tester will always accept .29 2. By the contrapositive of Lemma 5.13, a function that is ε-far from pairwise monotonicity has at least (k+1) n ·ε√n ln n violating triangles. The total number of triangles is  k
+
+> 2
+
+·n·(k+1) n−1 =Θ( kn (k + 1) n). Thus, by the witness lemma, kn · (1 /ε )Θ( √n log n) queries suffice to catch an 
+
+f –violating triangle with high probability. 3. This follows trivially from the design of the algorithm. This completes the analysis of Algorithm 4. 
+
+5.4 An obstruction to component-wise local repair 
+
+The component testers of the previous two sections each rest on a dense witness theorem and a local repair argument. A natural attempt at a tester for full k–submodularity is to apply both component testers in parallel and union-bound the failure probability over the two repair arguments. We now show that this attempt cannot succeed: there exist configurations on which the repair direction prescribed by a triangle witness is forced to oppose the repair direction prescribed by an overlapping square witness on a shared vertex. For ideals rooted at item-weight ≤ nk k+1 , the repairs for both witness types proceed downward and can be aligned. The obstruction lives in the upward direction. On filters rooted at item-weight 
+
+> nk k+1 , repairing a violated square requires subtracting ∆ > 0 from a vertex, whereas repairing a violated triangle in the same filter requires adding ∆ > 0 to that vertex. The configuration in Figure 3 realizes both demands simultaneously on the vertices x2 and x3.                                           
+
+> f({1},{2},{3,4}) = 3
+> f({1,5},{2},{3,4}) = 2 f({1},{2,5},{3,4}) = 2
+> f({1,5},{2},{3}) = 1 f({1},{2,5},{3}) = 1 f({1,5},{2},{4}) = 1 f({1},{2,5},{4}) = 1
+> f({1,5},{2},{} ) = 2 f({1},{2,5},{} ) = 2
+> triangle
+> square square
+
+Figure 3: A configuration on a high item-weight filter realizing two incompatible local violations. The red edges form a violating triangle on item 5 above x1: assigning item 5 to part 1 (giving x2)or to part 2 (giving x3) both yield marginal −1, summing to −2 < 0. The blue edges form two violating squares for diminishing marginal gains on items 3 and 4 in part 3, above x8 (left) and 
+
+x9 (right). Repairing the triangle requires raising f (x2) or f (x3); repairing the squares requires lowering the same values. A direct check on the values in Figure 3 confirms both violations. The triangle on item 5 above 
+
+x1 has total marginal −2, and the two squares above x8 and x9 each exhibit a strictly increasing marginal as the partial partition grows. Repairing the triangle by a local modification of magnitude 
+
+∆ requires adding ∆ to f (x2) or to f (x3); repairing either square by a local modification of the same magnitude requires subtracting ∆ from the corresponding vertex. The two demands are jointly 30 inconsistent on the shared vertices. The configuration is not isolated to a small region of the hypergrid. Embedding the same value pattern into any high-item-weight filter on a larger domain produces an instance of the same conflict, so an ideal-only repair strategy that avoids upward filters cannot route around it without losing the balance argument that makes the component testers work. 
+
+Observation 5.14 (Component-wise repair is insufficient) . For every k ≥ 2 there exist functions 
+
+f : [ k + 1] n → R and high item-weight filters on which a violated triangle witness and an overlapping violated square witness prescribe local repairs of opposite sign on a common vertex. In particular, the standard component-wise repair argument—repair triangles and squares independently and combine via union bound—does not yield a tester for k-submodularity. 
+
+Observation 5.14 does not rule out a Hamming-distance tester for k-submodularity; it shows only that obtaining one will require either a richer witness vocabulary that simultaneously certifies both component constraints, or a non-local repair scheme that mediates between square and triangle repairs across the hypergrid. 
+
+# 6 Testing in the bounded range setting 
+
+In this section, we recover efficient Hamming-distance testing for monotone k–submodular functions when the range is restricted to {0, 1, . . . , r }. The route is representation-theoretic: bounded range and monotonicity force a compact pseudo-DNF structure on the hypergrid, and this structure can be learned. Our proof has the following outline. 1. In Section 6.1 we prove that monotone k–submodular functions (in fact, monotone functions with diminishing marginal gains) with bounded range can be represented by a pseudo-DNF (which we will define shortly) of bounded width. 2. In Section 6.2 we prove that any function that can be represented by a pseudo-DNF of bounded width has low-depth decision trees under random restrictions. 3. In Section 6.3 we relate low-depth decision trees to low-degree Fourier coefficients and prove that such functions have a sparse Fourier approximation. Combining these results, we get a learning algorithm for monotone k–submodularity (using the Kushilevitz-Mansour learning algorithm, which extends to functions defined on the hypergrid). Formally, we prove Theorem 1.5. 
+
+Theorem 6.1 (Reminder of Theorem 1.5) . Let ε, δ ∈ (0 , 1) be constants. There exists a tester T
+
+which, given query access to a function f : [ k + 1] n → { 0, 1, · · · , r } satisfies the following. 1. If f is monotone k–submodular, then T accepts with probability ≥ 1 − δ.2. If f is ε-far from monotone k–submodularity, then T rejects with probability ≥ 1 − δ.3. T makes at most poly (n, 1/ε, 1/δ, (kr )O(rk 2 log( r/ε )) ) queries. 
+
+31 6.1 Pseudo-DNF representation of monotone k–submodular functions 
+
+We first define a pseudo-DNF function on a hypergrid, which is an extension of pseudo-Boolean DNFs defined on the hypercube in [RY13]. 
+
+Definition 6.2 (Pseudo-DNF) . A Pseudo-DNF of width w and size s is an expression of the form 
+
+f (x1, . . . , x n) = s
+
+max 
+
+> t=1
+
+at ·
+
+ ^
+
+> (i,p )∈At
+
+1[xi = p]
+
+ ,
+
+where at are constants, At ⊆ [n] × [k + 1] , and |At| ≤ w for t ∈ [s]. The class of all pseudo-DNFs of width w with constants at ∈ { 0, . . . , r } is denoted DNF w,r .
+
+The difference between pseudo-DNFs and pseudo-Boolean DNFs is that the xi variables are no longer 1 or 0, so we use indicator functions instead of xi and xi. Having defined pseudo-DNFs, we are ready to state the main theorem of this subsection. 
+
+Theorem 6.3. Each monotone k–submodular function f : [ k + 1] n → { 0, · · · , r } can be represented by a pseudo-DNF of width r with constants at ∈ { 0, . . . , r }.Proof. Algorithm 5 below with the initial call Montone-DNF (f, ∅) returns the collection of clauses representing the function f .
+
+Algorithm 5 Monotone-DNF (f, X ) 
+
+> 1:
+
+Input: Oracle access to f : [ k + 1] n → { 0, . . . , r }; assignment X of items to buckets  
+
+> 2:
+
+Output: Collection C of clauses of width at most r 
+
+> 3:
+
+C ← f (X) · V
+
+> (i,p )∈X
+
+1[xi = p] 
+
+> 4:
+
+for all j ∈ [n] \ X do  
+
+> 5:
+
+for all q ∈ [k] do  
+
+> 6:
+
+if f (Xqj ) > f (X) then  
+
+> 7:
+
+C ← C ∪ Monotone-DNF (f, X qj ) 
+
+> 8:
+
+return C
+
+It is easy to see that the width of the clauses is at most r, given that the recursion depth is bounded by the range of f , and each recursive call adds one item to the assignment S.Next we prove that the pseudo-DNF max Ci∈C Ci exactly represents f . By monotonicity of f , we have the lower bound f (X) ≥ max Ci∈C Ci(X) for any assignment X ∈ [k + 1] n. For the upper bound, we consider the smallest subset Y ⊆ X such that f (X) = f (Y ). Define the set U = {Y \ { i} | i ∈ Y }.Then by construction, f (Z) < f (Y ) for all Y ∈ U . Then by the decreasing marginal gains of f , the subfunction on the ideal I(Y ) is strictly increasing. Thus the recursive call Monotone-DNF (f, Y )
+
+must have been made at some point, implying f (X) = max Ci∈C Ci(Y ) ≤ max Ci∈C Ci(X). This completes the proof of the lemma. 32 6.2 Switching lemma for pseudo-DNF functions 
+
+Before stating our switching lemma for functions on the hypergrid, we first define decision trees and random restrictions for such functions, extending the definitions from the hypercube. 
+
+Definition 6.4 (Decision tree) . A decision tree T is a representation of a function f : [ k +1] n → R.It consists of a rooted (k + 1) -ary tree in which the internal nodes are labelled by coordinates i ∈ [n],the outgoing edges of each internal node are labelled by a value in [k + 1] , and the leaves are labelled by real numbers. No coordinate i ∈ [n] appears more than once on a root-to-leaf path. Each input x ∈ [k + 1] n corresponds to a computation path in the tree T from the root to a leaf. When the computation path reaches an internal node labelled by a coordinate i ∈ [n], we say that T
+
+queries xi. The computation path then follows the outgoing edge labelled by by xi. The output of T
+
+(and hence f ) is the label of the leaf reached by the computation path. We identify a tree with the function it computes. The depth s of a decision tree T is the maximum length of any root-to-leaf path in T . For a function 
+
+f , DT (f ) is the minimum depth of a decision tree computing f .
+
+Definition 6.5 (Random restriction) . A restriction ρ is a mapping of the input variables of a function to [k + 1] ∪ { ⋆}. The function obtained from f (x1, . . . , x n) by applying a restriction ρ is denoted f |ρ. The inputs of f |ρ are those xi for which ρ(xi) = ⋆ while all other variables are set according to ρ.A variable xi is live with respect to a restriction ρ if ρ(xi) = ⋆. The set of live variables with respect to ρ is denoted live (ρ). A random restriction ρ with parameter p ∈ (0 , 1) is obtained by setting each 
+
+xi, independently, to a value in [k + 1] ∪ { ⋆}, so that Pr[ ρ(xi) = ⋆] = p and Pr[ ρ(xi) = q] = (1 − p)/q 
+
+for all q ∈ [k + 1] .
+
+We now state our version of a switching lemma for functions on the hypergrid. 
+
+Lemma 6.6 (Switching lemma for pseudo-DNFs) . Let f ∈ DNF w,r and ρ be a random restriction with parameter p. Then 
+
+Pr[ DT (f |ρ) ≥ s] < (2( k + 1) 2pw )s.
+
+Proof. We follow the proof outline of the switching lemma from [RY13], making necessary modifi-cations for the hypergrid, and also removing the dependence on the range of the function. Assume an arbitrary total order on the indices, and given the pseudo-DNF F for f , arrange the clauses in descending order of their corresponding constant, breaking ties arbitrarily. For any restriction ρ,the simplified formula Fρ also follows the same ordering of clauses. 
+
+Definition 6.7 (Canonical decision tree) . The canonical labelled decision tree for F , denoted T (F )
+
+is defined inductively as follows. 1. If F is a constant function, then T (F ) consists of a single leaf node labelled by the appropriate constant. 2. Let C be the first clause of F and K be the set of variables appearing in C. Then T (F ) starts with a complete (k +1) -ary tree for K, which queries the variables of K in order of the indices. Each leaf vρ of the tree is associated with a restriction ρ of the variables in K. The unique 
+
+33 restriction satisfying C is labelled with the value of the clause C. The other leaves are replaced by T (Fρ), which is defined recursively. 
+
+Let Rℓn be the set of all restrictions ρ of n variables that has exactly ℓ live variables. We restate our lemma in terms of Rℓn.
+
+Lemma 6.8. Let F be a pseudo-DNF representing a function f ∈ DN F w,r , s ≥ 0, p ≤ 1/7, and 
+
+ℓ = pn . Then 
+
+{ρ ∈ R ℓn | | T (Fρ)| ≥ s}
+
+|R ℓn| < (2( k + 1) 2pw )s.
+
+Proof. Let stars (w, s ) be the set of all sequences β = ( β1, . . . , β t) such that for each j ∈ [t], the coordinate βj ∈ { ⋆, _}w \ { _}w and such that the total number of ⋆’s in all the βj ’s is s. Let 
+
+S ⊆ R ℓn be the set of restrictions ρ such that |T (Fρ)| ≥ s. We will define an injective mapping from 
+
+S to the cartesian product Rℓ−sn × stars (w, s ) × [( k + 1) s] × [r].Let F = max i Ci. We use π to denote both a restriction and a path in the canonical labelled decision tree, which sets variables according to π. Suppose ρ ∈ S and π is the restriction associated with the lexicographically first path in T (Fρ) of length at least s. Trim the last variables in π along the path π so that |π| = s. The image of ρ is defined by following the path π in the canonical labelled decision tree for Fρ.Let Cv1 be the first clause of F not falsified by ρ. Let K be the set of variables in Cv1 |ρ and let σ1
+
+be the unique restriction of variables in K that satisfies Cv1 |ρ. Let π1 be the part of π that sets the variables in K. If π1 does not set all the variables in K, then we shorten σ1 to the variables that appear in π1. Define β1 ∈ { ⋆, _}w based on the fixed ordering of the variables in the term Cv1 by the letting the jth component of β1 be ⋆ if and only if the jth variable of Cv1 is set by σ1. Since 
+
+Cv1 |ρ is not empty, β1 has at least one ⋆. From Cv1 and β1 it is possible to reconstruct σ1.By definition of T (Fρ), the restriction π \ π1 labels a path in the canonical labelled decision tree 
+
+T (Fρπ 1 ). If π̸ = π1, we repeat the argument above, replacing π and ρ with π\π1 and ρπ 1 respectively. We repeat this process until the round t in which π1π2 . . . π t = π.Let σ = σ1σ2 . . . σ t. We define δ ∈ [k + 1] s to be a vector that indicates the value of each variable set by π. We define the image of ρ in the injective mapping as a tuple ⟨ρσ 1 . . . σ t, (β1, . . . , β t), δ ⟩.It remains to show that the defined mapping is injective. We will show how to invert it by re-constructing ρ from the image. The reconstruction procedure is iterative. In one stage of the reconstruction, we recover π1 . . . π i−1σ1 . . . σ i−1 and construct ρπ 1 . . . π i−1σi . . . σ t. Recall that for 
+
+i < t , the restriction ρπ 1 . . . π i−1σi satisfies the term Cvi but does not satisfy terms Cj for all j < v i.This holds if we extend the restriction by appending σi+1 . . . σ t. Thus, we can recover vi as the index of the first clause of F that is not falsified by ρπ 1 . . . π i−1σi . . . σ t. Now, based on Cvi and βi, we can determine σi. Since we know σ1 . . . σ i, using the vector δ we can determine πi. We can now change 
+
+ρπ 1 . . . π i−1σi . . . σ t to ρπ 1 . . . π iσi+1 . . . σ t. Finally, given all the values of the πi we reconstruct ρ
+
+by removing the variables π1 . . . π t from the restriction. The computation in the following claim completes the proof of the switching lemma. 34 Claim 6.9 (Extension of [Bea94]) . For p < 1/7 and p = ℓ/n , the following holds. 
+
+Rℓ−sn · | stars (w, s )| · (k + 1) s
+
+|R ℓn| < (2( k + 1) 2pw )s.
+
+Proof. We have |R ℓn| =  nℓ
+
+kn−ℓ, so 
+
+|R ℓ−sn ||R ℓn| ≤ (kℓ )s
+
+(n − ℓ)s .
+
+We use the following bound on |stars (w, s )|
+
+Proposition 6.10 ([Bea94, Lemma 2]) . |stars (w, s )| < (w/ ln 2) s.
+
+Using Proposition 6.10, we get 
+
+|S||R ℓn| ≤ |R ℓ−sn ||R ℓn| · | stars (w, s )| · (k + 1) s
+
+≤
+
+ (k + 1) 2ℓw 
+
+(n − ℓ) ln 2 
+
+s
+
+=
+
+ (k + 1) 2pw 
+
+(1 − p) ln 2 
+
+s
+
+.
+
+For p < 1/7, the last expression is at most (2( k + 1) 2pw )s
+
+6.3 Learning pseudo-DNF functions 
+
+In this section, we use Lemma 6.6 to prove a learning result for pseudo-DNF functions, which implies a tester. As before, our proof outline follows [RY13], making necessary modifications for the hypergrid. Let Rr denote the set of multiples of 2/(r − 1) in the interval [−1, 1] , namely Rr = {− 1, −1 + 2 /(r −
+
+1) , . . . , 1 − 2/(r − 1) , 1}. First, we apply a transformation of the range by mapping {0, . . . , r } to 
+
+Rr. Formally, in this section instead of functions f : [ k + 1] n → { 0, . . . , r } we consider functions 
+
+f ′ : [ k + 1] n → [−1, 1] defined as f ′(x1, . . . , x n) = 2 /(r − 1) · f (x1, . . . , x n) − 1. Since this mapping is bijective, learning algorithms for the class of functions represented by pseudo-Boolean DNF formulas of width k with constants in Rr is sufficient for our result. Let α ∈ Nn 
+
+> ≤k
+
+denote a standard Fourier basis vector for [k + 1] n and ˆf (α) the Fourier coefficient of 
+
+f (see definitions in Section A). 
+
+Definition 6.11. A function g ε -approximates a function f if E[( f − g)2] ≤ ε. A function is M -sparse if it has at most M nonzero Fourier coefficients. The Fourier degree of a function, deg( f ),is the size of the vector α with the largest support such that ˆf (α)̸ = 0 .
+
+The following guarantee about approximation of functions in DN F w,r by sparse functions is the key lemma for this section. 
+
+Theorem 6.12. Every function f ∈ DN F w,r can be ε-approximated by an M -sparse function with 
+
+M = ( wk )O(wk 2 log(2 /ε )) .
+
+35 Proof. We generalize the following key lemmas from [RY13], which relies on multiple applications of the switching lemma. 
+
+Lemma 6.13. For every function f ∈ DN F w,r ,
+
+X 
+
+> α:|α|>28 w(k+1) 2log(2 /ε )
+
+ˆf (α)2 ≤ ε/ 2.
+
+Proof. The proof relies on the following result. 
+
+Proposition 6.14 (Implicit in [O’D21]) . Let f : [ k + 1] n → [−1, 1] and fρ be a random restriction with parameter p. Then for every t ∈ [n],
+
+X
+
+> |α|>t
+
+ˆf (α)2 ≤ Pr ρ[deg( f |ρ) ≥ tp/ 2] .
+
+Because deg( f |ρ) ≤ DT (f |ρ) and thus Pr ρ[deg( f |ρ) ≥ tp/ 2] ≤ Pr ρ[DT (f |ρ) ≥ tp/ 2] . By using Lemma 6.6 and setting p = 1 /4w(k + 1) 2 and t = 8 w(k + 1) 2 log(2 /ε ), we complete the proof. The next lemma bounds the ℓ1-norm of Fourier coefficients corresponding to bounded vectors. 
+
+Lemma 6.15. For every f ∈ DNF k,r and τ ∈ [n],
+
+X
+
+> α:|α|≤ τ
+
+| ˆf (α)| ≤ (wk )O(τ ).
+
+Proof. Let L1,t (f ) = P 
+
+> |α|=t
+
+| ˆf (α)|. and L1(f ) = Pnt=0 L1,t (f ) = P 
+
+> α
+
+| ˆf (α)|. We use the following bound on L1(f ) for decision trees. 
+
+Proposition 6.16 (Implicit in [O’D21]) . Consider a function f : [ k + 1] n → [−1, 1] , such that 
+
+DT (f ) ≤ s. Then L1(f ) ≤ (k + 1) s.
+
+We show the following generalization of Proposition 4.6 in [RY13] for DN F w,r .
+
+Proposition 6.17. Let f ∈ DN F w,r and let ρ be a random restriction of f with parameter p ≤
+
+1/4w(k + 1) 3. Then Eρ[L1(f |ρ)] ≤ 2.Proof. By definition of expectation, 
+
+Eρ[L1(f |ρ)] = 
+
+> n
+
+X
+
+> s=0
+
+Pr[ DT (f |ρ) = s] · Eρ[L1(f |ρ) | DT (f |ρ) = s].
+
+By Proposition 6.16, for all ρ such that DT (f |ρ) = s, it holds that L1(f ) ≤ (k + 1) s. By Lemma 6.6, 
+
+Pr ρ[DT (f |ρ) ≥ s] < (2( k + 1) 2pw )s. Therefore, Eρ[L1(f |ρ)] ≤ Pns=0 (2( k + 1) 2pw )s · (k + 1) s =Pns=0 (2 w(k + 1) 3p)s. For p ≤ 1/4w(k + 1) 3, the proof follows. 36 Next we use the following generalization of Proposition 4.7 in [RY13] to bound L1,t (f ). The proof is identical and thus omitted. 
+
+Proposition 6.18 (Implicit in [RY13]) . For f : [ k + 1] n → [−1, 1] and a random restriction ρ with parameter p,
+
+L1,t (f ) ≤
+
+ 1
+
+p
+
+t
+
+Eρ[L1,t (f |ρ)] .
+
+Note that P 
+
+> α:|α|≤ τ
+
+| ˆf (α)| = Pτt= L1,t (f ). By setting p = 1 /4w(k + 1) 3 and using Propositions 6.17 and 6.18, we get L1,t (f ) ≤ 2(4 w(k + 1) 3)t. Thus, P 
+
+> α:|α|≤ τ
+
+| ˆf (α)| ≤ (wk )O(τ ), completing the proof of Lemma 6.15. Let τ = 28 w(k + 1) 2 log(2 /ε ) and L = P 
+
+> α:|α|≤ τ
+
+| ˆf (α)|. Let G = {α : | ˆf (α)| ≥ ε/ 2L, |α| ≤ τ } and 
+
+g(x) = P 
+
+> α∈G
+
+ˆf (S)ϕα(x). We will show that g is M -sparse and that it ε-approximates f .By an averaging argument, |G| ≤ 2L2/ε . Thus, function g is M -sparse, where M ≤ 2L2/ε . By Lemma 6.15, L = ( wk )O(τ ) = ( wk )O(wk 2 log(2 /ε )) . Thus, M = ( wk )O(wk 2 log(2 /ε )) , as claimed in the theorem statement By definition of g and by Parseval’s identity, 
+
+E[( f − g)2] = X
+
+> α̸∈ G
+
+ˆf 2(α)= X
+
+> α:|α|>τ
+
+ˆf 2(α) + X  
+
+> α:|α|≤ τ, |ˆf2(α)|≤ ε/ 2L
+
+ˆf 2(α).
+
+By Lemma 6.13, the first summation is at most ε/ 2. For the second summation, we get 
+
+X  
+
+> α:|α|≤ τ, |ˆf2(α)|≤ ε/ 2L
+
+ˆf 2(α) ≤ max   
+
+> α:|ˆf(α)|≤ ε/ 2L
+
+| ˆf (α)
+
+!  X
+
+> α:|α|≤ τ
+
+| ˆf (α)|
+
+
+
+≤ ε
+
+2L · L = ε/ 2.
+
+This implies that E[( f − g)2] ≤ ε and thus g ε -approximates f .
+
+Proof of Theorem 1.5. From Theorem 6.3, we know that monotone k–submodular functions f ∈
+
+DN F r,r We will use the following learning algorithm of Kushilevitz and Mansour, which extends to the hypergrid. 
+
+Theorem 6.19 ([KM93]) . If f can be ε-approximated by an M -sparse function, then there is a randomized algorithm running in time poly( M, n, 1/ε, log(1 /δ )) that outputs h such that E[( f −
+
+h)2] ≤ O(ε) with probability at least 1 − δ.
+
+Setting the approximation parameter in Theorem 6.19 to be ε′ = ε/Cr 2 for a large enough constant 
+
+C and taking M = ( rk )O(rk 2 log(2 /ε )) we get an algorithm which returns a function h that (ε/r 2)-approximates f . The running time of such an algorithm is polynomial in n, (rk )O(rk 2 log(2 /ε )) , r 2,
+
+37 and log(1 /δ ). By Proposition 6.20, if we round the values of h in every point to the nearest multiple of 2/(r − 1) , we will get a function h′, such that Pr x∈[k+1] n [h′(x)̸ = f (x)] ≤ ε.
+
+Proposition 6.20. Let h : [ k + 1] n → [−1, 1] be an ε-approximation for f : [ k + 1] n → Rr.Let g be the function defined by g(x) = arg min y∈Rr |h(x) − y|, breaking ties arbitrarily. Then 
+
+Pr x∈[k+1] n [g(x)̸ = f (x)] ≤ ε(r − 1) 2.Proof. Observe that |f (x) − h(x)|2 ≥ 1/r 2 whenever f (x)̸ = g(x). This implies 
+
+Pr x∈[k+1] n [g(x)̸ = f (x)] ≤ Pr x∈[k+1] n [( r − 1) 2 · | f (x) − h(x)|2 ≥ 1] 
+
+≤ Ex∈[k+1] n [( r − 1) 2 · | f (x) − h(x)|2]
+
+≤ (r − 1) 2 · Ex∈[k+1] n [|f (x) − h(x)|2] ≤ ε(r − 1) 2,
+
+where the last inequality follows from the definition of ε-approximation. Finally, using the folklore result that a learner with query complexity q(n, ε ) implies a tester with query complexity q(n, ε/ 2) , we complete the proof of Theorem 1.5. 
+
+# Acknowledgements 
+
+T.H. worked on k-submodularity testing as a final project for the 2024 Sublinear Algorithms course taught by Ronitt Rubinfeld. T.H. and D.P. started working on this project for a course on Sublinear Algorithms taught by Sofya Raskhodnikova [Ras25]. We thank Fabian Spaeh for inspiring us to investigate this question through his work on k-submodular optimization. 
+
+# References 
+
+[BB16] Eric Blais and Abhinav Bommireddi. Testing submodularity and other properties of valuation functions. arXiv preprint arXiv:1611.07879 , 2016. [Bea94] Paul Beame. A primer on the switching lemma. https://users.cs.duke.edu/~reif/ courses/complectures/Beame/SwitchingLemmaPrimer.pdf , 1994. Accessed: 2025-07-11. [BLB03] Stéphane Boucheron, Gábor Lugosi, and Olivier Bousquet. Concentration inequalities. In Summer school on machine learning , pages 208–240. Springer, 2003. [BWY12] Eric Blais, Amit Weinstein, and Yuichi Yoshida. Partially symmetric functions are efficiently isomorphism-testable. In 2012 IEEE 53rd Annual Symposium on Foundations of Computer Science , pages 551–560. IEEE, 2012. [CH15] Deeparnab Chakrabarty and Zhiyi Huang. Recognizing coverage functions. SIAM Jour-nal on Discrete Mathematics , 29(3):1585–1599, 2015. [EN22] Alina Ene and Huy Nguyen. Streaming algorithm for monotone k-submodular maxi-mization with cardinality constraints. In International Conference on Machine Learning ,pages 5944–5967. PMLR, 2022. 38 [FHK +10] Jon Feldman, Monika Henzinger, Nitish Korula, Vahab S Mirrokni, and Cliff Stein. Online stochastic packing applied to display ad allocation. In European Symposium on Algorithms , pages 182–194. Springer, 2010. [FV16] Vitaly Feldman and Jan Vondrák. Optimal bounds on approximation of submodular and xos functions by juntas. SIAM Journal on Computing , 45(3):1129–1170, 2016. [GGR98] Oded Goldreich, Shari Goldwasser, and Dana Ron. Property testing and its connection to learning and approximation. Journal of the ACM (JACM) , 45(4):653–750, 1998. [GV06] Michel X Goemans and Jan Vondrák. Covering minimum spanning trees of random subgraphs. Random Structures & Algorithms , 29(3):257–276, 2006. [HV] Pooya Hatami and Jan Vondrák. [KM93] Eyal Kushilevitz and Yishay Mansour. Learning decision trees using the fourier spectrum. 
+
+SIAM J. Comput. , 22(6):1331–1348, 1993. [O’D21] Ryan O’Donnell. Analysis of boolean functions. arXiv preprint arXiv:2105.10386 , 2021. [OY15] Naoto Ohsaka and Yuichi Yoshida. Monotone k-submodular function maximization with size constraints. Advances in Neural Information Processing Systems , 28, 2015. [PRR03] Michal Parnas, Dana Ron, and Ronitt Rubinfeld. On testing convexity and submodu-larity. SIAM Journal on Computing , 32(5):1158–1184, 2003. [Ras25] Sofya Raskhodnikova. CS 599: Sublinear Algorithms (Spring 2025). https:// cs-people.bu.edu/sofya/sublinear-course/ , 2025. Retrieved on 10 October, 2025. [RY13] Sofya Raskhodnikova and Grigory Yaroslavtsev. Learning pseudo-boolean k -dnf and submodular functions. In Sanjeev Khanna, editor, Proceedings of the Twenty-Fourth Annual ACM-SIAM Symposium on Discrete Algorithms, SODA 2013, New Orleans, Louisiana, USA, January 6-8, 2013 , pages 1356–1368. SIAM, 2013. [SV14] Comandur Seshadhri and Jan Vondrák. Is submodularity testable? Algorithmica ,69(1):1–25, 2014. [WŽ16] Justin Ward and Stanislav Živn` y. Maximizing k-submodular functions and beyond. 
+
+ACM Transactions on Algorithms (TALG) , 12(4):1–26, 2016. 
+
+# A Fourier Analysis On the Hypergrid 
+
+The implicit-learning tester in Section 4 relies on identifying influential coordinates of functions on 
+
+[k + 1] n. We use Fourier analysis over product domains to define and estimate these influences. This appendix collects the Fourier-analytic facts used in the tester. For background on the Boolean case, see O’Donnell [O’D21]. Let Ω := [ k + 1] , π = π 1
+
+> k+1
+
+be the uniform distribution over Ω and L2(Ω , π ) be the inner product space on the set of functions {f : Ω → R} with inner product 
+
+⟨f, g ⟩ := E
+
+> x∼πk
+
+[f (x)g(x)] .
+
+39 A Fourier basis Φ = {ϕ0, ..., ϕ k} is an orthonormal basis of L2(Ω , π ) where ϕ0 = 1 . Fourier bases always exist and do not have to be unique, by the Gram–Schmidt process. Fixing such a basis arbitrarily, define the corresponding product basis as the set of all products between functions in 
+
+Φ: Φ⊗n := ( ϕa)a∈Nn 
+
+> ≤k
+
+, where for x ∈ [k + 1] n we have 
+
+ϕa(x) := 
+
+> n
+
+Y
+
+> i=1
+
+ϕai (xi).
+
+This is an analogue to taking as a basis for all Boolean functions a set indexed by all the points in the hypercube. In the hypergrid we consider all possible assignments of the n items to k + 1 
+
+buckets. It is easy to check [O’D21] that Φ⊗n is a Fourier basis for L2(Ω n, π ⊗n), and so for every 
+
+f : [ k + 1] n → R we can write 
+
+f = X
+
+> a∈Nn
+> ≤k
+
+ˆf (a) · ϕa(x),
+
+where { ˆf (a) : a ∈ Nn
+
+> ≤k
+
+} are the Fourier coefficients of f . Note that a = 0 indexes the constant function ϕa = 1 . We define the support of a ∈ Nn 
+
+> ≤k
+
+as the set of its non-zero coordinates supp (a) := {i ∈ [n] : ai̸ = 0 }.
+
+Expanding the classic results from Boolean function analysis, the following identities hold regardless of the product Fourier Basis we pick for L2(Ω n, π ⊗nk ).1. Parseval’s Identity. E[f (x)2] = P
+
+> a∈Nn
+> ≤k
+
+ˆf (a)2.2. Variance Identity. Var [f (x)] = P
+
+> a̸=0
+
+ˆf (a)2.3. Plancherel’s Identity. ⟨f, g ⟩ = P
+
+> a∈Nn
+> ≤k
+
+ˆf (a) · ˆg(a).We also define the distance between two functions over Ωn in the standard way. For p ≥ 1, we have: 
+
+dist p(f, g ) = E
+
+> x∈[k+1] n
+
+[( f (x) − g(x)) p]1/p 
+
+A.1 Influences in the Hypergrid 
+
+Influence for a set of coordinates extends the well known definition for a single coordinate [BB16, O’D21]. 
+
+Definition A.1 (Influence) . We define the influence of a set of coordinates S ⊆ [n] as 
+
+If (S) := X  
+
+> a∈Nn
+> ≤k:supp (a)̸⊆ ¯S
+
+ˆf (a)2, (3) 
+
+where ¯S := [ n] \ S.
+
+40 As in the Boolean function case, the influence of a set of coordinates has a number of useful properties. 
+
+Lemma A.2 (Influence as expected bias) . For any coordinate subset S ⊆ [n] we have 
+
+If (S) = E
+
+> x∼π⊕n
+
+
+
+Var  
+
+> y∼π⊕S
+
+[f (x ¯S , y )] 
+
+
+
+, (4) 
+
+where x ¯S is the restriction of the coordinates of x to ¯S.Proof. Let ES be the linear operator that takes the value of f (x) uniformly averaged over the coordinates in S, leaving ¯S unchanged. Define 
+
+f ⊆ ¯S (x) := ( ES f )( x) = E
+
+> x′∼π⊗S
+
+f (x ¯S , x ′).
+
+As ES is a linear operator, we have that 
+
+ES f = ES
+
+X
+
+> a∈Nn
+> ≤k
+
+ˆf (a)ϕa = X
+
+> a∈Nn
+> ≤k
+
+ˆf (a) · ES ϕa.
+
+And so ϕ⊆ ¯Sa = ES ϕa. If supp (a) ⊆ ¯S then ϕa only depends on ¯S, which means that ϕ⊆ ¯Sa = ϕa.Otherwise, we have 
+
+ϕ⊆ ¯Sa (x) = E
+
+> x′∼π⊗S
+
+[ϕa ¯S (x ¯S ) · ϕaS (x′)] = ϕa ¯S (x ¯S ) · Y
+
+> i∈S
+
+E
+
+> x′′ ∼π
+
+ϕai (x′′ ).
+
+Since supp (a)̸ ⊆ ¯S we must have at least some i ∈ S such that ai̸ = 0 , so for that i we have by definition that 
+
+E
+
+> x′′ ∼π
+
+ϕai (x′′ ) = ⟨ϕai , ϕ 0⟩ = 0 
+
+due to the orthonormality of the Fourier basis. As a result, we have that 
+
+ES f = X  
+
+> a∈Nn
+> ≤k:supp (a)⊆¯S
+
+ˆf (a)2.
+
+Now let LS f := f − ES f . We have that 
+
+LS f = X  
+
+> a∈Nn
+> ≤k:supp (a)̸⊆ ¯S
+
+ˆf (a)2.
+
+By Parseval’s identity we have that 
+
+If (S) = || LS f || 2 = E
+
+> x∼π⊗n
+
+(f (x) − ES f (x)) 2.
+
+And thus finally we can see that: 
+
+If (S) = E   
+
+> x¯S∼π⊗¯S
+
+
+
+E
+
+> y∼π⊗S
+
+(f (x ¯S , y ) − ES f (x ¯S , y )) 2
+
+
+
+= E   
+
+> x¯S∼π⊗¯S
+
+
+
+Var  
+
+> y∼π⊗S
+
+f (x ¯S , y )
+
+
+
+= E
+
+> x∼π⊗n
+
+
+
+Var  
+
+> y∼π⊗S
+
+f (x ¯S , y )
+
+
+
+,
+
+as claimed. 41 The following auxiliary lemma bounds the influence difference of any set S with respect to two functions that are close to each other: 
+
+Lemma A.3 (Influence shift under function shift) . Let f, g : [ k + 1] n → [0 , 1] satisfy || f − g|| 2 ≤ ε.Then for any set S ⊆ [n] we have: 
+
+q
+
+If (S) −
+
+q
+
+Ig(S) ≤ ε
+
+Proof. Recall that (ES f )( x) = E
+
+> y∼π⊗S
+
+f (x ¯S , y ). We found that: 
+
+If (S) = E
+
+> x∼πn
+
+[( f (x) − (ES f )( x)) 2] = || f − (ES f )|| 22
+
+And thus by the triangle inequality we have: 
+
+q
+
+If (S) −
+
+q
+
+Ig(S) = | || f − (ES f )|| 2 − || g − ES g|| 2 | (By Lemma A.7) 
+
+≤ | || f − (ES g)|| 2 − || g − ES g|| 2 |≤ || f − g|| 2 (triangle inequality) 
+
+≤ ε
+
+Lemma A.4 (Sub-additivity of Influence) . Let S, T ⊆ [n]. We have that: 
+
+If (S ∪ T ) ≤ If (S) + If (T )
+
+Proof. Using the standard definition of influence, we have: 
+
+If (S ∪ T ) = X 
+
+> supp (a)∩(S∩T)̸=∅
+
+ˆf (a)2 ≤ X 
+
+> supp (a)∩S̸=∅
+
+ˆf (a)2 + X 
+
+> supp (a)∩T̸=∅
+
+ˆf (a)2 = If (S) + If (T )
+
+A.2 Juntas 
+
+A junta is a function depending on a small set of coordinates: 
+
+Definition A.5 (Junta) . A function f : [ k + 1] n → R is a κ-junta on the set J where |J| = κ if for every x, y ∈ [k + 1] n that satisfy xi = yi for all i ∈ J we have f (x) = f (y).
+
+The function ES f we defined in the proof of Lemma A.2 is known with a more general name as the 
+
+projection of f onto coordinate set ¯S. It is a junta on ¯S and in fact is the closest junta to f on ¯S:
+
+Definition A.6 (Projection to a set of coordinates) . The function: 
+
+ES f (x) = E
+
+> y∼π⊗S
+
+f (x ¯S , y )
+
+is called the projection of f onto coordinate set ¯S
+
+42 Lemma A.7. Let g by any junta on ¯S. Then: 
+
+|| f − ES f || 2 ≤ || f − g|| 2
+
+Proof. We claim that f − ES f and ES f − g are orthogonal in L2(Ω n, π ⊗nk ). That is because f − ES f
+
+depends only on variables from S and ES f − g depends only on variables from ¯S, so their inner product is zero. Thus: 
+
+|| f − g|| 22 = || f − ES f + ES f − g|| 22 = || f − ES f || 2 + || ES f − g|| 22 ≥ || f − ES f || 22
+
+A.3 Estimating the influence of a set of coordinates 
+
+Given query access to a function f : [ k + 1] n → [0 , 1] and a set of coordinates S ⊆ [n], we can estimate If (S) through a set of examples. This is done via the following algorithm: 
+
+Algorithm 6 Estimating the influence of a set of variables  
+
+> 1:
+
+Input: Query access to function f : [ k + 1] n → [0 , 1] , number of samples m. 
+
+> 2:
+
+Sample x1, ..., x m ∼ π⊗ ¯S 
+
+> 3:
+
+Sample y1, ..., y m ∼ π⊗S 
+
+> 4:
+
+Sample y′
+
+> 1
+
+, ..., y ′ 
+
+> m
+
+∼ π⊗S 
+
+> 5:
+
+Return bI(m) 
+
+> f
+
+(S) := 1
+
+> m2
+> m
+
+P
+
+> i=1
+> m
+
+P
+
+> j=1
+
+(f (xi, y i) − f (xi, y ′ 
+
+> j
+
+)) 2
+
+Lemma A.8 (Lemma 4.5) . Algorithm 6 returns an estimate bI(m) 
+
+> f
+
+(S) such that: 
+
+Pr 
+
+h
+
+|bI(m) 
+
+> f
+
+(S) − If (S)| ≥ ε
+
+i
+
+≤ 2e−2ε2m
+
+Proof. Let bVf (xi, y i) := 1
+
+> mm
+
+P
+
+> j=1
+
+(f (xi, y i)−f (xi, y ′ 
+
+> j
+
+)) 2. We know that Ey′ 
+
+> j
+
+[ bVf (xi, y i)] = Var y∼[k+1] S [f (xi, y )] 
+
+and we further have that bVf (xi, y i) ∈ [0 , 1] because the range of f is [0 , 1] . Further, we have that: 
+
+E[bI(m) 
+
+> f
+
+(S)] = E
+
+> xi,y i,y ′
+> j
+
+"
+
+1
+
+m
+
+> m
+
+X
+
+> i=1
+
+bVf (xi, y i)
+
+#
+
+= 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+E
+
+> xi,y i
+
+"
+
+E
+
+> y′
+> j
+
+[ bVf (xi, y i)] 
+
+#
+
+= E
+
+> x∼π⊕n
+
+
+
+Var  
+
+> y∼π⊕S
+
+[f (x ¯S , y )] 
+
+
+
+= If (S)
+
+A straightforward application of Hoeffding’s inequality then gives: 
+
+Pr 
+
+h
+
+|bI(m) 
+
+> f
+
+(S) − If (S)| ≥ ε
+
+i
+
+≤ 2 exp( −2ε2m)
+
+43
