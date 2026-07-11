@@ -1,0 +1,546 @@
+Title: MORL-A2C: Multi-Objective Reinforcement Learning Reranker for Optimizing Healthiness in MOPI-HFRS
+
+URL Source: https://arxiv.org/pdf/2606.23603v1
+
+Published Time: Tue, 23 Jun 2026 03:32:14 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# MORL-A2C: Multi-Objective Reinforcement Learning Reranker for Optimizing Healthiness in MOPI-HFRS 
+
+# Aarya Vasantlal 
+
+University of Connecticut Storrs, CT, USA aarya.vasantlal@uconn.edu 
+
+# Joshua Zolla 
+
+University of Connecticut Storrs, CT, USA joshua.zolla@uconn.edu 
+
+# Chuxu Zhang 
+
+University of Connecticut Storrs, CT, USA chuxu.zhang@uconn.edu 
+
+## Abstract 
+
+Unhealthy dietary behavior continues to be a persistent and esca-lating public health issue in the United States, exacerbated by the prevalence of recommendation systems that prioritize user prefer-ence without adequately considering nutritional health. The Multi-Objective Personalized Interpretable Health-aware Food Recom-mendation System (MOPI-HFRS) [ 9], from which this work extends, addresses this limitation by jointly optimizing user preference, per-sonalized health, and nutritional diversity through a Pareto-based optimization framework. However, this approach relies on static, per-step tradeoff solutions which fail to capture the sequential and cumulative nature of dietary decision-making, in which the value of recommending an item depends on what has already been recommended. In this work, we introduce the Multi-Objective Rein-forcement Learning Reranker (MORL-A2C), a sequential decision-making extension to MOPI-HFRS that targets the health-preference axis of the multi-objective problem. Leveraging frozen graph neu-ral network embeddings from MOPI-HFRS, MORL-A2C formulates recommendation as a 𝐾 -step sequential reranking problem, employ-ing an Advantage Actor-Critic (A2C) algorithm to learn a policy balancing relevance and health objectives through a scalarized reward signal. To accelerate convergence and avoid degenerate exploration, the policy is warm-started using behavior cloning pre-training against a strong dot-product ranker derived from the frozen embeddings. In the course of this work, we identify and correct a non-trivial bug in the original MOPI-HFRS evaluation pipeline that understated baseline ranking performance; all RL-based metrics are reported against the corrected baseline. Experimental results on both the macro-nutrient and full-nutrient benchmarks indicate that MORL-A2C achieves a modest reduction in ranking quality relative to the corrected baseline (Recall@20: 25 .64% → 23 .61% ,NDCG@20: 23 .52% → 20 .64% on the macro benchmark) in ex-change for a substantial improvement in personalized health align-ment (H-Score@20: 46 .05% → 69 .57% ), with consistent trends on the full-nutrient benchmark. These findings validate that policy-driven sequential optimization can effectively navigate the health-preference trade-off in multi-objective food recommendation. Our code is publicly available at https://github.com/JoshZ411/MOPI-HFRS-SLC. 
+
+## Keywords 
+
+recommender systems, reinforcement learning, multi-objective op-timization, actor-critic, behavior cloning, health-aware recommen-dation, graph neural networks 
+
+## 1 Introduction 
+
+Diet-related health challenges, while often preventable through healthy eating habits, continue to intensify in the United States. CDC reports indicate that in 2023, every U.S. state had an adult obesity prevalence higher than 20%, with 23 states above 35% and three states above 40%[ 2]. Compounding this is a widespread failure to meet baseline nutritional recommendations: in 2019, only 12.3% of adults met fruit-intake recommendations and only 10.0% met vegetable recommendations[ 4]. As a consequence, 42% of Amer-icans live with at least two chronic conditions and 12% with at least five [ 1]. Despite increasing awareness, existing food recom-mendation platforms still optimize predominantly for engagement and short-term user preference, neglecting the longer-term health consequences of dietary choices. The Multi-Objective Personalized Interpretable Health-aware Food Recommendation System (MOPI-HFRS), the primary sys-tem upon which this work extends, addresses many of these chal-lenges [ 9]. First, it provides an adaptive, per-user interpretation of food healthiness influenced by prior dietary habits, clinical metrics, and biometric data, leveraging the National Health and Nutrition Examination Survey (NHANES). Second, it integrates a downstream LLM-enhanced reasoning module to provide human-interpretable explanations of recommendations. Third, and most relevant to this work, it intelligently balances three competing dietary consider-ations (preference, personalized health, and nutritional diversity) during recommendation. To do so, MOPI-HFRS employs Pareto-based multi-objective optimization via the Multiple-Gradient De-scent Algorithm (MGDA) [ 9], computing a non-dominated descent direction at each training step. Although effective in producing locally non-dominated solutions, this approach is fundamentally myopic; it treats each optimization step as an independent problem and does not account for the se-quential nature of recommendation decisions. The value of recom-mending a particular food at position 𝑡 depends on what has already been recommended at positions 1, . . . , 𝑡 − 1, a cumulative coverage signal that static one-shot optimization cannot capture. Addition-ally, MGDA optimizes losses, not the actual ranking metrics or health alignment metrics ultimately reported at evaluation time. To address these limitations, we propose the Multi-Objective Rein-forcement Learning Reranker (MORL-A2C), a novel extension that reframes the health-preference component of the recommendation problem as a sequential decision-making task. Rather than select-ing items via static optimization, MORL-A2C learns a policy that constructs a ranked list of 𝐾 recommendations over multiple steps, optimizing for long-term cumulative reward along the relevance and health objectives. This enables the modeling of interactions between items within a recommendation list and the capture of 
+
+> arXiv:2606.23603v1 [cs.LG] 22 Jun 2026 Vasantlal, Zolla, and Zhang
+
+delayed tradeoffs between user preference and personalized health alignment. Our framework builds on the existing MOPI-HFRS architecture by treating its pretrained user and food GNN embeddings as a fixed representation space. On top of this representation, we introduce a reinforcement learning agent trained using an Advantage Actor-Critic (A2C) algorithm. The agent interacts with a deterministic, simulated environment that evaluates recommendations against held-out positives and user health tags, producing a scalarized two-component reward signal that guides policy learning. The policy is warm-started via behavior cloning from a strong dot-product ranker, allowing the system to begin training from a high-quality initialization rather than exploring randomly over the very large food action space. We note that the current formulation focuses on the health-preference trade-off; incorporating diversity as an explicit reward component is a natural extension discussed in Sec-tion 7. Notably, in the course of evaluating MORL-A2C, we discovered and corrected a non-trivial bug in the original MOPI-HFRS evalua-tion pipeline that affected reported ranking metrics. We report all results against this corrected baseline, and the experimental section explicitly compares (i) the original MOPI-HFRS reported metrics, (ii) the bug-fixed MOPI-HFRS metrics, and (iii) MORL-A2C metrics, to provide an honest and fair picture of where the proposed system stands. 
+
+## 2 Related Works 2.1 Multi-Objective Recommender Systems 
+
+Modern recommender systems, including the food recommenda-tion problem we address, frequently sit on the active research front of Graph Neural Network (GNN)-based recommendation. As in MOPI-HFRS, user–item interactions are represented as edges in a bipartite graph, and refined embeddings are produced by propa-gating relational information through the graph structure. Simpler systems optimize a single objective such as top-𝐾 relevance rank-ing, but many real-world deployments require balancing multiple objectives that may be in tension. Such problems are referred to as Multi-Objective Recommender Systems (MORS) problems [ 3 ]. Approaches range from linear scalarization of multiple losses, to constrained optimization, to Pareto-based methods that aim for non-dominated solutions in objective space. Each has tradeoffs in terms of weight sensitivity, computational cost, and ability to express objective interactions. 
+
+## 2.2 MOPI-HFRS Pareto Optimization 
+
+MOPI-HFRS applies Pareto optimization via MGDA, which com-putes a Pareto-feasible descent direction at each training step by minimizing the norm of a convex combination of objective gradi-ents. Three losses are jointly optimized. To encourage user preference, the framework defines a Bayesian Personalized Ranking (BPR) loss: 
+
+LBPR = −∑︁  
+
+> (𝑢,𝑖,𝑗 )
+
+ln 𝜎 ( ˆ𝑦 𝑢𝑖 𝑗 ) + 𝜆 ∥Θ∥2 ,
+
+where ˆ𝑦 𝑢𝑖 𝑗 = ˆ𝑦 𝑢𝑖 − ˆ𝑦 𝑢 𝑗 is the predicted score difference between a positively interacted food 𝑖 and a sampled non-interacted food 𝑗 
+
+for user 𝑢 .Personalized health is captured through tag overlap: 
+
+Lhealth = −∑︁  
+
+> (𝑢,𝑖,𝑗 )
+
+ln  (I ( 𝑡 𝑢 , 𝑡 𝑖 ) − I ( 𝑡 𝑢 , 𝑡 𝑗 )) · 𝜎 ( ˆ𝑦 𝑢𝑖 𝑗 ),
+
+where I ( 𝑡 𝑢 , 𝑡 · ) denotes Jaccard similarity between user and food health-tag vectors. Diversity is captured by a third loss penalizing pairwise embed-ding similarity within the recommended set: 
+
+Ldiversity = −∑︁  
+
+> (𝑢,𝑖,𝑗 )
+
+ln 𝜎 1 −∑︁  
+
+> 𝑖,𝑗 ∈ N 𝑢
+
+cos (f𝑖 , f𝑗 ) · ˆ𝑦 𝑢𝑖 
+
+!
+
+,
+
+where N𝑢 is the set of foods recommended to user 𝑢 , f𝑖 and f𝑗 are their embedding vectors. MGDA solves 
+
+LPareto = min  
+
+> {𝛼 𝑘 }
+> 𝐾
+
+∑︁ 
+
+> 𝑘 =1
+
+𝛼 𝑘 ∇𝜃 L𝑘 (G ; 𝜃 )
+
+to find the minimum-norm descent direction inside the convex hull of objective gradients. While this guarantees non-dominated solu-tions locally , it does not account for sequential dependencies across positions in a recommendation list, nor does it directly optimize ranking-quality metrics that are inherently non-differentiable. Of these three objectives, the health-preference trade-off ( LBPR and 
+
+Lhealth ) is the focus of our RL extension; diversity optimization via 
+
+Ldiversity is left to future work (Section 7). 
+
+## 2.3 Reinforcement Learning for Recommendation 
+
+Reinforcement Learning (RL) is a framework in which an agent learns an optimal policy by interacting with an environment. At each step, the agent observes a state, selects an action via an explo-ration policy, and receives a reward; over time, it adjusts a policy 𝜋 𝜃 
+
+to maximize expected cumulative discounted reward EÍ 𝑇 𝑡 =0 𝛾 𝑡 𝑟 𝑡 
+
+.Unlike traditional supervised optimization, RL methods can model delayed and compounding effects, making them well-suited to rec-ommendation tasks where actions interact: session-based recom-mendation, slate optimization, and sequential item selection have all benefited from RL formulations [5]. 
+
+## 2.4 Multi-Objective Reinforcement Learning 
+
+Extending RL to multiple objectives introduces vector-valued re-wards v𝑡 = (𝑣 𝑡, 1, . . . , 𝑣 𝑡,𝐾 ). Multi-Objective Reinforcement Learning (MORL) addresses optimization in this setting, often through scalar-ization functions that aggregate components into a single scalar reward, parameterized by a weight vector w:
+
+𝑣 w = 𝑓 (v, w) =
+
+> 𝐾
+
+∑︁ 
+
+> 𝑘 =1
+
+𝑤 𝑘 𝑣 𝑘 .
+
+Multi-policy MORL methods aim to approximate the entire Pareto frontier of optimal policies [ 8 ], but are typically computationally infeasible at the scale of large catalogs and large embedding spaces. As such, single-policy MORL with scalarized rewards is the pre-dominant practical alternative, with extensions including dynamic MORL-A2C: Multi-Objective Reinforcement Learning Reranker for Optimizing Healthiness in MOPI-HFRS 
+
+and state-dependent weighting [ 6]. We adopt a single-policy, fixed-coefficient scalarization in this work as a tractable starting point. 
+
+## 2.5 Policy Gradient Methods and Actor-Critic Learning 
+
+Policy gradient methods directly optimize a parameterized policy 
+
+𝜋 𝜃 (𝑎 | 𝑠 ) via gradient ascent on expected return. The classical REINFORCE algorithm uses 
+
+∇𝐽 (𝜃 ) = E[𝐺 𝑡 · ∇ 𝜃 log 𝜋 𝜃 (𝑎 𝑡 | 𝑠 𝑡 )] ,
+
+where 𝐺 𝑡 = Í𝑇 𝑡 ′=𝑡 𝛾 𝑡 ′
+
+𝑟 𝑡 ′ is the cumulative discounted return. Al-though conceptually simple, REINFORCE suffers from high vari-ance, particularly when reward magnitudes vary substantially or re-wards are sparse, both of which are characteristic of multi-objective recommendation, where scalarized reward magnitudes shift with weight choices. Actor-critic methods extend policy gradients by introducing a learned value function 𝑉 𝜙 (𝑠 ) that serves as a state-dependent baseline, replacing the raw return with the advantage 
+
+𝐴 𝑡 = 𝐺 𝑡 − 𝑉 𝜙 (𝑠 𝑡 ),
+
+yielding the lower-variance gradient estimator 
+
+∇𝐽 (𝜃 ) = E[𝐴 𝑡 · ∇ 𝜃 log 𝜋 𝜃 (𝑎 𝑡 | 𝑠 𝑡 )] .
+
+The Advantage Actor-Critic (A2C) framework jointly trains an actor (policy) and a critic (value head) by minimizing 
+
+L = −∑︁ 
+
+> 𝑡
+
+𝐴 𝑡 log 𝜋 𝜃 (𝑎 𝑡 | 𝑠 𝑡 )
+
+| {z }
+
+> Lpolicy
+
++𝜆 𝑣 MSE (𝑉 𝜙 (𝑠 𝑡 ), 𝐺 𝑡 )
+
+| {z }
+
+> Lvalue
+
+−𝜆 𝑒 H ( 𝜋 𝜃 (· | 𝑠 𝑡 )) 
+
+| {z }
+
+> entropy
+
+,
+
+where 𝜆 𝑣 and 𝜆 𝑒 control the relative weight of value estimation and entropy-based exploration. A2C is particularly well-suited to recommendation problems with very large discrete action spaces, where it avoids the need for explicit per-step maximization over all actions, as required in value-based methods such as DQN. 
+
+## 2.6 Behavior Cloning Pretraining 
+
+A persistent challenge in applying RL to large-catalog recommen-dation is that policies trained from random initialization rarely escape early-training collapse. The action space spans the entire food catalog, the base reward is sparse, and entropy-driven explo-ration alone is insufficient to consistently discover the small subset of items worth ranking highly for any given user. The standard remedy is behavior cloning (BC): a supervised pretraining stage in which the policy is trained to imitate the decisions of a strong reference model before any reinforcement signal is applied [7]. In recommendation specifically, a pretrained ranking model is a natural source of supervision: it encodes which items are plausible candidates for each user, and its top-ranked predictions provide dense per-step targets that the eventual RL policy can refine rather than rediscover. This warm-start is particularly important in multi-objective settings, where unguided exploration tends to converge on degenerate policies that maximize only one reward component; for instance, repeatedly selecting items with broad health-tag coverage regardless of whether the user would ever interact with them. By grounding the policy near a strong relevance prior, BC pretraining ensures that subsequent multi-objective RL refinement perturbs around a sensible baseline rather than searching from scratch in an essentially unstructured action space. 
+
+## 3 Problem Formulation 
+
+We now formalize the recommendation problem addressed by MORL-A2C. Our goal is to leverage the strengths of MOPI-HFRS while replacing its static GNN-based ranking with a sequential RL policy that jointly optimizes relevance and health alignment through a scalarized per-step reward, using frozen GNN embed-dings as input. 
+
+## 3.1 Graph and Representation Preliminaries 
+
+Let U denote the set of users and F denote the set of food items. Interaction data is represented as the bipartite graph 
+
+G = (U , F , E, 𝑋 U, 𝑋 F ),
+
+where (𝑢, 𝑓 ) ∈ E indicates a user–food interaction and 𝑋 U, 𝑋 F
+
+contain user demographic / health features and food nutritional attributes respectively. A graph neural encoder 𝐹 Θ, identical to the SGSL-based encoder in MOPI-HFRS, produces user and food embeddings 
+
+𝐸 user  
+
+> final
+
+∈ R| U | × 𝑑 , 𝐸 food  
+
+> final
+
+∈ R| F | × 𝑑 ,
+
+which serve as the representational backbone of the RL environ-ment. In MORL-A2C, 𝐹 Θ is trained as in MOPI-HFRS and then frozen ;the RL agent operates over a fixed embedding space, focusing all learning capacity on policy optimization rather than representation learning. 
+
+## 3.2 Sequential Recommendation as a Markov Decision Process 
+
+We reformulate the multi-objective recommendation task as a Markov Decision Process (MDP) 
+
+(S , A, 𝑃, R, 𝛾 ),
+
+in which the agent constructs the top-𝐾 recommendation list for each user one item at a time. This stands in contrast to MOPI-HFRS, where the entire top-𝐾 list is produced in a single, embedding-based scoring pass. Figure 1 illustrates this setup at a high level: the agent selects items from the food catalog one at a time on behalf of each user, conditioned on user demographics, health tags, and item nutritional attributes. 
+
+State Space S. At step 𝑡 ∈ { 0, 1, . . . , 𝐾 −1} within a user’s episode, the state 𝑠 𝑡 ∈ S encodes both the user and the partially-constructed recommendation list: 
+
+𝑠 𝑡 =  ℎ𝑢 ; ¯ 𝑒 𝑡 ; c𝑡 ; 𝑡 /𝐾  ∈ R2𝑑 +| 𝑇 |+ 1,
+
+where: 
+
+• ℎ𝑢 ∈ R𝑑 is the frozen user embedding from 𝐸 user 
+
+> final
+
+;
+
+• ¯𝑒 𝑡 ∈ R𝑑 is the running mean of the embeddings of items selected at positions 1, . . . , 𝑡 ;
+
+• c𝑡 ∈ { 0, 1}|𝑇 | is the cumulative tag coverage vector, record-ing which health tags have been touched by any item al-ready selected; 
+
+• 𝑡 /𝐾 is a normalized timestep encoding. Vasantlal, Zolla, and Zhang 
+
+Figure 1: Conceptual illustration of the MORL-A2C agent’s decision setting. For each user (top: ID, demographics, clin-ical info, and health tags), the agent selects from an action space comprising the available food catalog. Each food item carries descriptive features (ingredients, category) and a set of nutritional health tags. At each step, the agent chooses one item to add to the user’s top-𝐾 recommendation list, with the choice informed by the frozen GNN embeddings of the user and the candidate items. 
+
+This state representation explicitly encodes the structure of sequen-tial recommendation: which items are still “remaining” (via ¯𝑒 𝑡 and 
+
+c𝑡 ), how far along the agent is in the list, and what the user looks like in embedding space. Unlike a contextual bandit, the state evolves nontrivially across the episode, allowing the policy to reason about 
+
+position-dependent value. 
+
+Action Space A. At each step 𝑡 , the agent selects one food item to add to the list. Items already selected during the current episode are removed from the candidate set, so A𝑡 = F \ { 𝑎 0, . . . , 𝑎 𝑡 −1 }.The default candidate pool is the full food catalog. 
+
+Transition Function 𝑃 . Transitions are deterministic: given 𝑠 𝑡 and selected action 𝑎 𝑡 ,
+
+¯𝑒 𝑡 +1 = 𝑡 · ¯𝑒 𝑡 + 𝑒 𝑎 𝑡 
+
+𝑡 + 1 , c𝑡 +1 = clip  c𝑡 + t𝑎 𝑡 , 0, 1 ,
+
+and the candidate set is updated by removing 𝑎 𝑡 . Episodes terminate after 𝐾 items have been selected. 
+
+Reward Function R. At each step, the environment returns a two-component reward: 
+
+r𝑡 = (𝑟 rel  
+
+> 𝑡
+
+, 𝑟 health  
+
+> 𝑡
+
+),
+
+where 𝑟 rel  
+
+> 𝑡
+
+= 1[𝑎 𝑡 ∈ P train  
+
+> 𝑢
+
+] rewards items in the user’s training-time positive set, and 𝑟 health  
+
+> 𝑡
+
+= 1[t𝑎 𝑡 ∧ t𝑢 ≠ 0] rewards items sharing at least one health tag with the user. The two components are scalarized via a fixed coefficient 𝛽 :
+
+𝑟 𝑡 = 𝑟 rel  
+
+> 𝑡
+
++ 𝛽 · 𝑟 health  
+
+> 𝑡
+
+.
+
+The relative weighting controls the relevance–health tradeoff and is the primary lever for shaping policy behavior. 
+
+Discount Factor 𝛾 . Future rewards are discounted by 𝛾 ∈ ( 0, 1],reflecting that recommendations earlier in the list contribute most directly to evaluation metrics such as NDCG@ 𝐾 .
+
+## 3.3 Learning Objective 
+
+The agent learns a stochastic policy 𝜋 𝜃 (𝑎 | 𝑠 ) that maximizes the expected discounted return 
+
+𝐽 (𝜃 ) = E𝑢 ∼U , 𝜏 ∼𝜋 𝜃 
+
+"𝐾 −1∑︁  
+
+> 𝑡 =0
+
+𝛾 𝑡 𝑟 𝑡 
+
+#
+
+,
+
+where 𝜏 = (𝑠 0, 𝑎 0, . . . , 𝑠 𝐾 −1, 𝑎 𝐾 −1) is a trajectory generated by rolling out the policy from a sampled user. Because the agent makes 𝐾 
+
+decisions per user with each decision conditioned on previous selections, the policy can shape set-level properties of the recom-mendation list (tag coverage, item diversity, position-aware health balance, etc.) that one-shot rankers cannot natively express. 
+
+## 3.4 Why Sequential Optimization Matters 
+
+Static, embedding-based scoring of the form ˆ𝑦 𝑢𝑖 = ⟨ℎ𝑢 , 𝑒 𝑖 ⟩, as used in MOPI-HFRS, makes per-item decisions that are independent across positions. Once embeddings are fixed, the top-𝐾 list is a deterministic argsort. Two consequences follow: (1) No interaction between recommendations. If the top scoring item already covers a critical health tag, the sec-ond item still receives no value for covering that tag, even though doing so adds nothing on the margin. Conversely, an item that would fill an uncovered tag gap receives no extra credit. (2) No optimization of non-differentiable metrics. Rank-ing metrics (Recall@ 𝐾 , NDCG@ 𝐾 ) and tag-overlap-style health metrics (H-Score@ 𝐾 ) are not directly differentiable. Static optimization minimizes surrogate losses (BPR, Jaccard-weighted BPR, cosine-similarity penalty) and relies on these surrogates to correlate with the actual evaluation criteria. By formulating recommendation as a 𝐾 -step MDP, MORL-A2C optimizes policies , or mappings from states to action distributions, against a reward signal that more directly reflects the evaluation criteria of the system. The state explicitly carries the partially-constructed list, so the policy can adapt its choice at position 𝑡 
+
+based on what is already covered. 
+
+## 4 Methodology and Model 
+
+This section describes the architecture and training procedure for MORL-A2C: (i) a fixed graph encoder inherited from MOPI-HFRS that produces user and food embeddings; (ii) a sequential environment exposing the MDP defined above; and (iii) an actor-critic learner with behavior cloning pretraining that produces the deployment-time policy. 
+
+## 4.1 Frozen GNN Encoder 
+
+The base GNN encoder 𝐹 Θ is trained exactly as in MOPI-HFRS, using its joint preference / health / diversity loss formulation, and then frozen. A forward pass yields 𝐸 user  
+
+> final
+
+and 𝐸 food  
+
+> final
+
+, which the agent MORL-A2C: Multi-Objective Reinforcement Learning Reranker for Optimizing Healthiness in MOPI-HFRS 
+
+Figure 2: Advantage Actor-Critic loop for MORL-A2C. The actor MLP samples action 𝑎 𝑡 from 𝜋 𝜃 (· | 𝑠 𝑡 ); the environment returns the scalarized reward 𝑟 𝑡 = 𝑟 rel + 𝛽 · 𝑟 health and the next state 𝑠 𝑡 +1, where the state components 𝑢, 𝑒 𝑡 , 𝑐 𝑡 , 𝑡 correspond to ℎ𝑢 , ¯𝑒 𝑡 , c𝑡 , 𝑡 /𝐾 
+
+respectively in the notation of Section 3.2. Discounted returns 𝐺 𝑡 are combined with the critic’s value estimate 𝑉 𝜙 (𝑠 𝑡 ) to produce the advantage 𝐴 𝑡 , which scales the policy gradient. Actor weights are initialized via the behavior cloning stage of Section 4.5 so that A2C refinement begins from a policy that already replicates the dot-product reference ranker. 
+
+treats as fixed feature tensors. This decouples representation learn-ing from policy learning, both lowering training cost and providing a stable embedding geometry against which the policy can spe-cialize. Concretely, the actor and critic MLPs together comprise approximately 271k trainable parameters, while the frozen GNN encoder contains nearly 3.9M; MORL-A2C thus trains fewer than 7% of the parameters in the base model, making the approach well-suited to resource-constrained settings where the full recommender is expensive to retrain. 
+
+## 4.2 Actor and Critic Architectures 
+
+The policy network (actor) takes the current state 𝑠 𝑡 and a candidate matrix 𝐶 𝑡 ∈ R| A 𝑡 | × 𝑑 representing the embeddings of remaining items, and produces logits over the candidate set. Concretely: 
+
+h𝑠 = MLP state (𝑠 𝑡 ),
+
+H𝑐 = MLP cand (𝐶 𝑡 ),ℓ𝑡 = H𝑐 h𝑠 , 𝜋 𝜃 (· | 𝑠 𝑡 ) = softmax (ℓ𝑡 ),
+
+where MLP state is a two-layer ReLU network mapping the (2𝑑 +| 𝑇 |+ 
+
+1)-dimensional state into a hidden space and MLP cand is a single-layer ReLU encoder applied per candidate. Logits are computed as inner products between the encoded state and each encoded candi-date. During training, actions are sampled from 𝜋 𝜃 ; at evaluation time, actions are taken greedily. The critic is a separate MLP 𝑉 𝜙 : R2𝑑 +| 𝑇 |+ 1 → R producing scalar state-value estimates. It receives only the state, not the candidate set, since under the policy distribution, candidate-set effects are already integrated into the expected return. 
+
+## 4.3 Reward Scalarization 
+
+The two-component per-step reward is scalarized using a fixed coefficient: 
+
+𝑟 𝑡 = 𝑟 rel  
+
+> 𝑡
+
++ 𝛽 · 𝑟 health  
+
+> 𝑡
+
+.
+
+Both 𝑟 rel  
+
+> 𝑡
+
+and 𝑟 health  
+
+> 𝑡
+
+lie in {0, 1}, so 𝑟 𝑡 ∈ { 0, 1, 𝛽, 1 + 𝛽 }. Increasing 𝛽 
+
+shifts policy preference toward items that match the user’s health-tag profile, even at the cost of some relevance. We treat 𝛽 as a designer-selected hyperparameter; the question of learning a state-dependent 𝛽 (𝑠 𝑡 ), as in dynamic reward scalarization [ 6], is left to future work. 
+
+## 4.4 A2C Training 
+
+For each training epoch, MORL-A2C samples a batch of users and rolls out one 𝐾 -step episode per user, following 𝜋 𝜃 . Importantly, 
+
+𝜋 𝜃 enters this stage already initialized via behavior cloning (Sec-tion 4.5), so the rollouts driving A2C updates from epoch 1 already reflect strong relevance behavior; A2C refinement perturbs this baseline rather than discovering it. From each trajectory, discounted Vasantlal, Zolla, and Zhang 
+
+returns 
+
+𝐺 𝑡 = 
+
+> 𝐾 −1
+
+∑︁  
+
+> 𝑡 ′=𝑡
+
+𝛾 𝑡 ′ −𝑡 𝑟 𝑡 ′
+
+are computed, and per-step advantages are formed using the critic: 
+
+𝐴 𝑡 = 𝐺 𝑡 − 𝑉 𝜙 (𝑠 𝑡 ).
+
+The policy and value heads are updated jointly by minimizing the standard A2C objective: 
+
+L( 𝜃, 𝜙 ) = −∑︁ 
+
+> 𝑡
+
+𝐴 𝑡 log 𝜋 𝜃 (𝑎 𝑡 | 𝑠 𝑡 )
+
+| {z }
+
+> Lpolicy
+
++ 𝜆 𝑣 ∑︁ 𝑡 
+
+(𝑉 𝜙 (𝑠 𝑡 ) − 𝐺 𝑡 )2
+
+| {z }
+
+> Lvalue
+
+− 𝜆 𝑒 ∑︁ 𝑡 
+
+H ( 𝜋 𝜃 (· | 𝑠 𝑡 )) 
+
+| {z }
+
+> entropy
+
+.
+
+The entropy term encourages exploration over the candidate set, particularly important early in training when the policy might otherwise collapse onto a small number of high-relevance items and never discover health-aligned alternatives. Gradients are clipped and applied via a standard first-order optimizer; the GNN encoder is not updated during this phase. 
+
+## 4.5 Behavior Cloning Pretraining 
+
+To avoid the failure modes described in Section 2.6, we precede A2C training with a behavior cloning stage in which the policy network is trained to reproduce the recommendations of a strong reference ranker derived from the frozen MOPI-HFRS embeddings. The reference ranker scores each user–item pair by inner product, 
+
+ˆ𝑦 𝑢𝑖 = ⟨ℎ𝑢 , 𝑒 𝑖 ⟩, and the GNN’s pre-sorted candidate pool for each user is used directly, with the top-ranked item serving as the supervision target. The BC stage uses the same actor architecture used during A2C: a state-encoder MLP applied to the (frozen) user embedding and a candidate-encoder MLP applied to the (frozen) candidate item embeddings. For each user, the candidate set is the GNN’s pre-sorted pool of 𝑀 items. The supervision target is always the pool’s top-ranked item (index 0), i.e., the item the GNN scores highest. Each user 𝑢 and candidate 𝑐 𝑖 is encoded into 
+
+ℎ𝑠 = MLP state (ℎ𝑢 ), ℎ𝑐 𝑖 = MLP cand (𝑒 𝑐 𝑖 ),
+
+and per-candidate logits are computed as inner products in the encoded space: 
+
+𝑧 𝑖 = ℎ⊤ 
+
+> 𝑠
+
+ℎ𝑐 𝑖 .
+
+The pretraining objective is the per-user negative log-likelihood of the GNN’s top-ranked item under the softmax over the full pool: 
+
+L𝑢 (𝜃 ) = − log exp (𝑧 𝑖 + )
+
+Í𝑀 𝑗 =1 exp (𝑧 𝑗 ) , LBC (𝜃 ) = E𝑢 [L 𝑢 (𝜃 )] .
+
+This is a standard sampled-softmax / contrastive formulation: the policy must assign the highest score to whichever item the GNN ranked first, effectively distilling the GNN’s ranking signal into the policy’s scoring function. Figure 3 summarizes the data flow during this stage. Several aspects of this design are worth noting. First, the loss is computed against a single positive index per user rather than against a soft distribution over all items: the supervision signal is “this is the correct choice” rather than “match this score dis-tribution.” This proves substantially more stable in practice than full-catalog distillation, both because it is computationally tractable and because it avoids forcing the policy to imitate the reference ranker’s calibration on items that the user never actually interacted with. Second, only the actor’s encoder MLPs are updated during BC; the underlying user and item embeddings remain frozen, consis-tent with the broader design principle of decoupling representation learning from policy learning. Third, the architecture used here is identical to the one used during A2C, so the pretrained weights transfer directly into the RL stage with no head-swap or projection layer required. In our experiments, BC pretraining is run for a small number of epochs prior to A2C and produces a policy whose top-𝐾 rollouts already approximate the reference ranker’s top-𝐾 recommenda-tions. From this initialization, A2C refinement under the scalarized relevance/health reward perturbs the policy in directions that im-prove cumulative health alignment while preserving the bulk of its relevance behavior. 
+
+## 4.6 Evaluation Procedure 
+
+At evaluation time, the policy is run greedily for 𝐾 = 20 steps per user, producing a top-20 list against which the same metrics used by MOPI-HFRS are computed (Recall@20, NDCG@20, H-Score@20). Training-time positive interactions are masked from the candidate pool, mirroring the masking convention in the original framework. 
+
+Use of AI Tools. Portions of the MORL-A2C implementation, in-cluding the reinforcement learning environment, actor-critic train-ing loop, and evaluation harness, were developed with assistance of AI tools. All AI-generated code was reviewed, tested, and validated by the authors, who take full responsibility for the implementation and results. 
+
+## 5 Experiments 
+
+This section presents the empirical evaluation of MORL-A2C against the original MOPI-HFRS framework. We focus on the health-preference trade-off, evaluating three metrics: Recall@20 (relevance retrieval), NDCG@20 (rank-aware relevance), and H-Score@20 (personal-ized health alignment). We additionally describe the discovery and correction of an evaluation bug in the MOPI-HFRS reference imple-mentation, which materially affects the comparison. 
+
+## 5.1 Evaluation Protocol 
+
+Our evaluation pipeline mirrors the MOPI-HFRS protocol so that the comparison is faithful: 
+
+• Embedding computation. A forward pass of the (frozen) GNN encoder produces user and food embeddings. 
+
+• Top-𝐾 generation. For MOPI-HFRS, items are ranked by inner product between user and food embeddings, with MORL-A2C: Multi-Objective Reinforcement Learning Reranker for Optimizing Healthiness in MOPI-HFRS 
+
+Figure 3: Behavior cloning pretraining schematic. Frozen user and item embeddings from MOPI-HFRS are passed through the state-encoder and candidate-encoder MLPs to produce ℎ𝑠 and ℎ𝑐 𝑖 . Logits 𝑧 𝑖 = ℎ⊤ 
+
+> 𝑠
+
+ℎ𝑐 𝑖 feed a per-user NLL loss against the GNN’s top-ranked item in the pool, and gradients update only the encoder MLPs; the underlying embeddings remain frozen. Table 1: Hyperparameters for all reported experiments. Where the two benchmarks differ, values are shown as macro / all. Parameter Value 
+
+Behavior Cloning 
+
+BC epochs 50 / 15 BC learning rate 1 × 10 −3
+
+A2C Training 
+
+A2C epochs 5,000 Learning rate 1 × 10 −4
+
+Batch size (users/epoch) 64 Health weight 𝛽 0.5 Entropy weight 𝜆 𝑒 1.5 / 3.0 Candidate pool size 𝑀 full catalog 
+
+Architecture 
+
+State MLP hidden dim 256 State MLP layers 2Candidate MLP layers 1Embedding dim 𝑑 128 training-time positive interactions masked. For MORL-A2C, the policy is rolled out greedily for 𝐾 = 20 steps. 
+
+• Metric computation. Recall@20, NDCG@20, and H-Score@20 are computed against held-out positives and user health-tag profiles. We use the same data splits, graph encoder, and tag scheme as MOPI-HFRS, isolating the change in how the top-𝐾 list is con-structed. Table 1 lists the hyperparameters used for both bench-marks. We focus on three metrics whose baseline values we were able to faithfully reproduce from [ 9]. Two additional diversity-focused metrics reported in [ 9] (AvgTags@20 and %Foods@20) exhibited substantial discrepancies between our reproduction and the published values (e.g., AvgTags@20 differed by approximately 
+
+2×), suggesting differences in metric computation or tag-matrix construction that we were unable to resolve. As our contribution targets the health-preference trade-off, we report the three validated metrics and discuss diversity-aware extensions in Section 7. 
+
+## 5.2 Discovery and Correction of an Evaluation Bug in MOPI-HFRS 
+
+In the course of integrating our RL evaluation harness with the MOPI-HFRS reference codebase, we identified an inconsistency in the evaluation pipeline that systematically understates baseline ranking performance. Specifically, two issues were observed: (1) The GNN evaluation constructed a score matrix of shape 
+
+(num_test_edges × |F |) , one row per test edge, not per unique user, because user embeddings were indexed by the negative-sampling source indices before the score matrix multiply. Retrieving recommendations via top_K_items[user_ id] then used the actual user ID (e.g. 42) as a row index into this edge-indexed matrix, returning the recommendations for the 42 nd test edge rather than those for user 42. (2) The exclusion mask used to remove already-observed inter-actions during top-𝐾 ranking was constructed from negative-edge index tensors used by the BPR sampler, rather than from the actual training-positive interaction set. When both issues are corrected (using the full embedding matri-ces for evaluation scoring and excluding genuine training-positive interactions from the candidate pool), reported ranking metrics for the underlying MOPI-HFRS model improve substantially. We refer to this as the “MOPI-HFRS (bug-fixed)” configuration in Ta-ble 2. Critically, this correction alters evaluation only ; no change is made to the MOPI-HFRS training procedure. We report results against this corrected baseline because comparing MORL-A2C to the artificially-low original numbers would overstate our method’s gains. 
+
+## 5.3 Results 
+
+Table 2 summarizes results on both benchmarks. Three observations stand out. First, the bug-fixed MOPI-HFRS configuration substantially out-performs the originally-reported numbers across all three met-rics on both benchmarks. On the macro benchmark, Recall@20 Vasantlal, Zolla, and Zhang 
+
+Table 2: Comparison of MOPI-HFRS (original and bug-fixed evaluation) and MORL-A2C on both benchmarks. All values are percentages. Best Recall/NDCG is underlined ; best H-Score is bolded. Model Recall@20 NDCG@20 H-Score@20 
+
+Nutrition-macro only 
+
+MOPI-HFRS (as reported) 12.73 10.25 39.40 MOPI-HFRS (bug-fixed) 25.64 23.52 46.05 MORL-A2C 23.61 20.64 69.57 
+
+Nutrition-all 
+
+MOPI-HFRS (as reported) 12.92 10.14 61.13 MOPI-HFRS (bug-fixed) 25.34 22.40 64.85 MORL-A2C 21.53 20.40 90.48 
+
+nearly doubles ( 12 .73 → 25 .64 ) and NDCG@20 more than dou-bles ( 10 .25 → 23 .52 ); similar gains appear on the full-nutrient benchmark. This reinforces the importance of treating evaluation infrastructure as a first-class research artifact: a non-trivial fraction of the reported gap between baseline and proposed methods in this domain may reflect harness-level discrepancies rather than methodological differences. Second, MORL-A2C produces a modest reduction in ranking metrics relative to the corrected baseline. 1 On the macro benchmark, Recall@20 drops by roughly two percentage points ( 25 .64 → 23 .61 )and NDCG@20 by approximately three points ( 23 .52 → 20 .64 ). On the full-nutrient benchmark the pattern holds, with Recall@20 dropping by roughly four points ( 25 .34 → 21 .53 ) and NDCG@20 by two points ( 22 .40 → 20 .40 ). This is an expected consequence of the scalarized reward: the policy optimizes a combination of relevance and health alignment, trading some ranking quality for health gains by design. Third, in exchange for that modest ranking concession, MORL-A2C achieves a substantial gain in personalized health alignment on both benchmarks. On the macro benchmark, H-Score@20 in-creases from 46 .05 to 69 .57 (an absolute improvement of over 23 
+
+percentage points). On the full-nutrient benchmark the gain is even larger: H-Score@20 rises from 64 .85 to 90 .48 (an absolute improvement of over 25 percentage points). This demonstrates that a sequential, policy-driven approach can effectively navigate the health-preference trade-off, buying meaningful improvement on a non-differentiable health metric at modest cost to ranking quality. We note that a simpler non-learned reranking heuristic, for ex-ample greedily selecting the health-tag-maximizing item at each position from the GNN’s top-𝑀 candidates, could also improve H-Score@20 without RL. However, such a heuristic lacks the ability to learn position-dependent trade-offs from the reward signal; it would maximize health greedily at every step rather than balanc-ing cumulative relevance and health across the full list. Evaluating such baselines to isolate the contribution of learned sequential optimization is a natural next step.               
+
+> 1We swept 𝛽 ∈{0.1,0.3,0.5,1,3,5,10 ,20 }on the macro-nutrient validation set.
+> 𝛽 =0.5yielded the best balance of Recall@20 and H-Score@20; higher values further improved H-Score at the cost of sharper ranking degradation.
+
+## 6 Conclusion 
+
+We presented MORL-A2C, a multi-objective reinforcement learning reranker that extends the MOPI-HFRS framework by augmenting its static, MGDA-based Pareto optimization with a sequential, policy-driven decision process targeting the health-preference trade-off. By formulating top-𝐾 recommendation as a 𝐾 -step MDP over frozen GNN embeddings, leveraging an Advantage Actor-Critic algorithm with a scalarized relevance/health reward, and warm-starting the policy via behavior cloning, MORL-A2C is able to optimize set-level objectives such as cumulative health-tag coverage that single-shot rankers cannot natively express. We additionally identified and corrected a non-trivial evaluation bug in the original MOPI-HFRS reference implementation, and reported all results against the corrected baseline. Empirically, MORL-A2C delivers a modest reduction in ranking metrics ( ∼2 points Recall@20, ∼3 points NDCG@20) in exchange for a substantial improvement in personalized health alignment (H-Score@20 from 46 .05 to 69 .57 ), with consistent trends observed on both the macro-nutrient and full-nutrient benchmarks. These findings suggest that policy-space optimization is a pro-ductive direction for health-aware recommendation. By moving from one-shot static ranking to sequential decision-making, the system gains a vocabulary in which set-level health objectives can be expressed and optimized directly. The limitations discussed in Section 7—most notably the absence of an explicit diversity re-ward and the reliance on offline evaluation—define clear next steps; we view the sequential formulation itself, rather than any specific algorithmic choice, as the central contribution of this work. 
+
+## 7 Limitations & Future Work 
+
+While MORL-A2C demonstrates that policy-driven sequential opti-mization can effectively navigate the health-preference trade-off, several limitations remain. 
+
+Diversity. The current reward includes no diversity signal, and preliminary inspection confirms that the policy con-centrates recommendations on a narrow subset of the food catalog. Adding a third reward component penalizing pair-wise embedding similarity within an episode, mirroring 
+
+Ldiversity in [9], is the most immediate extension. 
+
+Metric Reproducibility. Two diversity-focused metrics from [ 9](AvgTags@20 and %Foods@20) exhibited substantial dis-crepancies between our reproduction and the published values. Resolving these is a prerequisite for validating any future diversity reward component. 
+
+Dynamic Scalarization. The fixed 𝛽 universalizes the relevance– health trade-off across all users. Learning a state-conditioned 
+
+𝛽 (𝑠 𝑡 ) [6 ] would allow per-user and per-position adaptation. 
+
+Online Feedback. Rewards currently come from a simulated offline environment; the policy does not observe actual se-quential user feedback. Extending MORL-A2C to an online or hybrid setting would more faithfully capture real dietary decision-making. 
+
+## References    
+
+> [1] Gabriel A. Benavidez, Whitney E. Zahnd, Peiyin Hung, and Jan M. Eberth. 2024. Chronic Disease Prevalence in the US: Sociodemographic and Geographic Vari-ations by Zip Code Tabulation Area. Preventing Chronic Disease 21 (2024).
+
+MORL-A2C: Multi-Objective Reinforcement Learning Reranker for Optimizing Healthiness in MOPI-HFRS 
+
+doi:10.5888/pcd21.230267 Accessed: 2025-09-15. [2] Centers for Disease Control and Prevention. 2024. Adult Obesity Prevalence Maps. U.S. Department of Health and Human Services. https://www.cdc.gov/obesity/ data-and-statistics/adult-obesity-prevalence-maps.html Accessed: 2026-09-15. [3] Dietmar Jannach. 2022. Multi-Objective Recommender Systems: Survey and Challenges. arXiv:2210.10309 [cs.IR] https://arxiv.org/abs/2210.10309 Accessed: 2026-05-29. [4] Seung Hee Lee, Latetia V. Moore, Sohyun Park, Diane M. Harris, and Heidi M. Blanck. 2022. Adults Meeting Fruit and Vegetable Intake Recommendations — United States, 2019. Morbidity and Mortality Weekly Report 71, 1 (2022), 1–9. https://www.cdc.gov/mmwr/volumes/71/wr/mm7101a1.htm Accessed: 2025-09-15. [5] Yuanguo Lin, Yong Liu, Fan Lin, Lixin Zou, Pengcheng Wu, Wenhua Zeng, Huan-huan Chen, and Chunyan Miao. 2024. A Survey on Reinforcement Learning for Recommender Systems. IEEE Transactions on Neural Networks and Learning Systems 35, 10 (2024), 13164–13184. doi:10.1109/TNNLS.2023.3280161 [6] Yining Lu, Zilong Wang, Shiyang Li, Xin Liu, Changlong Yu, Qingyu Yin, Zhan Shi, Zixuan Zhang, and Meng Jiang. 2025. Learning to Optimize Multi-Objective Alignment Through Dynamic Reward Weighting. arXiv:2509.11452 [cs.LG] https: //arxiv.org/abs/2509.11452 Accessed: 2026-02-16. [7] Ram Ramrakhya, Dhruv Batra, Erik Wijmans, and Abhishek Das. 2023. PIRLNav: Pretraining with Imitation and RL Finetuning for ObjectNav. arXiv:2301.07302 [cs.LG] https://arxiv.org/abs/2301.07302 Accessed: 2026-04-05. [8] Kristof Van Moffaert and Ann Nowé. 2014. Multi-Objective Reinforcement Learn-ing using Sets of Pareto Dominating Policies. Journal of Machine Learning Research 
+
+15, 1 (2014), 3483–3512. [9] Zheyuan Zhang, Zehong Wang, Tianyi Ma, Varun Sameer Taneja, Soňa Nel-son, Nhi Ha Lan Le, Keerthiram Murugesan, Mingxuan Ju, Nitesh V. Chawla, Chuxu Zhang, and Yanfang Ye. 2024. MOPI-HFRS: A Multi-Objective Personalized Health-Aware Food Recommendation System with LLM-enhanced Interpretation. arXiv:2412.08847 [cs.IR] https://arxiv.org/abs/2412.08847 Accessed: 2026-02-12.

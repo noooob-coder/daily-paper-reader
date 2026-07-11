@@ -1,17 +1,156 @@
 {
-  "generated_at": "2026-07-11T06:18:38.445158+00:00",
+  "generated_at": "2026-07-11T07:23:40.978537+00:00",
   "updated_date": "20260612-20260711",
   "carryover_days": 9,
   "tag_states": {
     "vla": {
       "updated_date": "20260612-20260711",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2607.02501v1",
+          "source": "arxiv",
+          "title": "Embodied.cpp: A Portable Inference Runtime of Embodied AI Models on Heterogeneous Robots",
+          "abstract": "Embodied AI models now span vision-language-action (VLA) models and world-action models (WAMs), but practical deployment remains fragmented across model-specific Python stacks, backend assumptions, and robot-side glue code, especially on heterogeneous edge devices. Existing inference runtimes are designed mainly for request-response serving and therefore do not satisfy the runtime contract of embodied deployment: multi-rate execution inside closed-loop control, latency-first batch-1 inference on heterogeneous hardware, and extensible embodied interfaces beyond fixed token I/O. We present Embodied.cpp, a portable C++ inference runtime for embodied models. Based on an architectural analysis of representative VLA models and WAMs, Embodied.cpp captures a shared execution path and organizes it into five layers: input adapters, sequence builders, backbone execution, head plugins, and deployment adapters. The runtime provides modular multi-rate execution, latency-first fused inference, and extensible operator and I/O support, enabling deployment across heterogeneous devices, robots, and simulators through one backend abstraction. We evaluate Embodied.cpp on two VLA models, HY-VLA and pi0.5, and on a preliminary WAM benchmark using a LingBot-VA Transformer block. The VLA deployments achieve successful closed-loop execution with 100.0% and 91.0% task success rates, respectively. The WAM benchmark reduces block memory from 312.2 MiB to 88.1 MiB. These results show that Embodied.cpp improves deployment efficiency while preserving high accuracy across diverse embodied model architectures.",
+          "authors": [
+            "Ling Xu",
+            "Chuyu Han",
+            "Borui Li",
+            "Hao Wu",
+            "Shiqi Jiang",
+            "Ting Cao",
+            "Chuanyou Li",
+            "Sheng Zhong",
+            "Shuai Wang"
+          ],
+          "primary_category": "cs.RO",
+          "categories": [
+            "cs.RO",
+            "cs.CV",
+            "cs.OS"
+          ],
+          "published": "2026-07-02T17:58:28+00:00",
+          "link": "https://arxiv.org/pdf/2607.02501v1",
+          "tags": [
+            "keyword:vla",
+            "query:vla"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "portable C++ runtime for embodied VLA models on heterogeneous robots",
+          "llm_evidence_cn": "面向异构机器人的嵌入式VLA模型可移植C++推理运行时",
+          "llm_evidence": "面向异构机器人的嵌入式VLA模型可移植C++推理运行时",
+          "canonical_evidence": "面向异构机器人的嵌入式VLA模型可移植C++推理运行时",
+          "llm_tldr_en": "Embodied.cpp provides a portable C++ inference runtime for VLA and world-action models, enabling closed-loop multi-rate execution on heterogeneous edge hardware.",
+          "llm_tldr_cn": "现有嵌入式AI模型部署依赖碎片化的Python栈和后台假设，难以在异构边缘设备上满足闭环控制的多速率执行需求。本文提出Embodied.cpp，一个面向VLA和世界-动作模型的可移植C++推理运行时，通过架构分析实现延迟优先的批量1推理和可扩展的嵌入式接口。该运行时支持异构硬件上的有效部署，填补了嵌入式AI系统实际落地的关键空白。",
+          "llm_tldr": "现有嵌入式AI模型部署依赖碎片化的Python栈和后台假设，难以在异构边缘设备上满足闭环控制的多速率执行需求。本文提出Embodied.cpp，一个面向VLA和世界-动作模型的可移植C++推理运行时，通过架构分析实现延迟优先的批量1推理和可扩展的嵌入式接口。该运行时支持异构硬件上的有效部署，填补了嵌入式AI系统实际落地的关键空白。",
+          "llm_tags": [
+            "query:vla"
+          ],
+          "matched_query_tag": "query:vla",
+          "matched_query_text": "Embodied AI with vision language action models",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.02501v1",
+          "carry_days": 6
+        },
+        {
+          "id": "2607.02417v1",
+          "source": "arxiv",
+          "title": "LIME: Learning Intent-aware Camera Motion from Egocentric Video",
+          "abstract": "Autonomous robots often need to move their camera before they can act: to inspect an object, reveal an occluded region, or obtain a view that responds to a user's intent. While vision-language navigation translates instructions to base motion and vision-language-action policies map instructions to manipulation actions, language-conditioned camera motion remains comparatively underexplored as a first-class action. We formulate language-conditioned camera motion generation: given a current RGB observation and a free-form natural-language intent, predict a relative target camera pose for the next observation. This task is inherently non-trivial: viewpoint changes are driven by latent perceptual intentions, and a valid motion may operate at different semantic granularity, from entering a room to looking around a corner, inspecting a visible object, or revealing an occluded detail. To model this structure, we mine multi-intention camera-motion supervision from egocentric video, pairing plausible intents and observation-gain descriptions with relative SE(3) target poses. We propose LIME, a vision-language camera-motion generator that combines an auto-regressive observation-gain output with a continuous flow-matching pose head. This design lets the model jointly predict what the next view should reveal while representing multi-hypothesis target views. Across experiments and downstream robotic tasks, we show that LIME can learn to actively choose camera poses from passive human video, turning ordinary egocentric recordings into supervision for intent-aware active perception.",
+          "authors": [
+            "Boyang Sun",
+            "Jiajie Li",
+            "Yung-Hsu Yang",
+            "Chenyangguang Zhang",
+            "Tim Engelbracht",
+            "Sunghwan Hong",
+            "Cesar Cadena",
+            "Marc Pollefeys",
+            "Hermann Blum"
+          ],
+          "primary_category": "cs.RO",
+          "categories": [
+            "cs.RO",
+            "cs.CV",
+            "cs.LG"
+          ],
+          "published": "2026-07-02T16:48:43+00:00",
+          "link": "https://arxiv.org/pdf/2607.02417v1",
+          "tags": [
+            "keyword:vla",
+            "query:vla"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "language-conditioned camera motion generation for embodied AI",
+          "llm_evidence_cn": "语言条件相机运动生成，用于具身AI",
+          "llm_evidence": "语言条件相机运动生成，用于具身AI",
+          "canonical_evidence": "语言条件相机运动生成，用于具身AI",
+          "llm_tldr_en": "Formulates language-conditioned camera motion generation as predicting target camera pose from current RGB observation and free-form natural-language intent, addressing viewpoint changes driven by latent perceptual intentions.",
+          "llm_tldr_cn": "针对语言条件相机运动生成这一新兴问题，提出将当前RGB观察和自由形式自然语言意图映射到相对目标相机姿态，通过数据驱动方式学习意图驱动的视点变化，填补了语言条件动作策略中相机运动作为一级动作的空白。",
+          "llm_tldr": "针对语言条件相机运动生成这一新兴问题，提出将当前RGB观察和自由形式自然语言意图映射到相对目标相机姿态，通过数据驱动方式学习意图驱动的视点变化，填补了语言条件动作策略中相机运动作为一级动作的空白。",
+          "llm_tags": [
+            "query:vla"
+          ],
+          "matched_query_tag": "query:vla",
+          "matched_query_text": "Language conditioned policy learning for robots",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.02417v1",
+          "carry_days": 6
+        }
+      ]
     },
     "d-mesh": {
       "updated_date": "20260612-20260711",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2607.02515v1",
+          "source": "arxiv",
+          "title": "PointDiT: Pixel-Space Diffusion for Monocular Geometry Estimation",
+          "abstract": "State-of-the-art single-image 3D reconstruction methods often rely on complex hybrid architectures and loss functions, or compress geometry into latent spaces in order to leverage pre-trained latent diffusion models. In this work, we show that such architectural overhead and intricate loss formulations are unnecessary. We introduce a minimalist pixel-space Diffusion Transformer, built on a plain ViT, that operates directly on raw 3D point map patches and is conditioned on image tokens from a pre-trained DINOv3. Unlike existing latent diffusion approaches, we train our diffusion backbone entirely from scratch, eliminating the need for point map tokenizers. Despite its simplicity, our approach surpasses complex latent-based diffusion models while remaining significantly simpler than hybrid alternatives. Notably, it produces sharper geometric structure and is more robust in highly ambiguous regions, such as transparent objects.",
+          "authors": [
+            "Haofei Xu",
+            "Rundi Wu",
+            "Philipp Henzler",
+            "Nikolai Kalischek",
+            "Michael Oechsle",
+            "Fabian Manhardt",
+            "Marc Pollefeys",
+            "Andreas Geiger",
+            "Federico Tombari",
+            "Michael Niemeyer"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-07-02T17:59:56+00:00",
+          "link": "https://arxiv.org/pdf/2607.02515v1",
+          "tags": [
+            "keyword:d-mesh",
+            "query:d-mesh"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "monocular geometry estimation generates 3D point maps useful for mesh creation",
+          "llm_evidence_cn": "单图像几何估计生成3D点图，可用于网格创建",
+          "llm_evidence": "单图像几何估计生成3D点图，可用于网格创建",
+          "canonical_evidence": "单图像几何估计生成3D点图，可用于网格创建",
+          "llm_tldr_en": "Proposes PointDiT, a pixel-space diffusion transformer for monocular geometry estimation, directly predicting 3D point maps from a single image without latent compression, outperforming complex latent methods.",
+          "llm_tldr_cn": "现有单图像3D重建方法常依赖复杂的混合架构或潜在空间扩散。本文提出PointDiT，一种基于纯ViT的像素空间扩散Transformer，直接在原始3D点图块上操作，以DINOv3图像令牌为条件，无需点图分词器。从零训练扩散骨干，超越了复杂的潜在扩散模型。该方法简洁高效，为从图像生成3D网格提供了新途径。",
+          "llm_tldr": "现有单图像3D重建方法常依赖复杂的混合架构或潜在空间扩散。本文提出PointDiT，一种基于纯ViT的像素空间扩散Transformer，直接在原始3D点图块上操作，以DINOv3图像令牌为条件，无需点图分词器。从零训练扩散骨干，超越了复杂的潜在扩散模型。该方法简洁高效，为从图像生成3D网格提供了新途径。",
+          "llm_tags": [
+            "query:d-mesh"
+          ],
+          "matched_query_tag": "query:d-mesh",
+          "matched_query_text": "how to generate 3D meshes from images",
+          "matched_requirement_id": "req-16",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.02515v1",
+          "carry_days": 6
+        }
+      ]
     },
     "pref-learn": {
       "updated_date": "20260612-20260711",
@@ -26,7 +165,103 @@
     "recsys": {
       "updated_date": "20260612-20260711",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2607.04270v1",
+          "source": "arxiv",
+          "title": "LBR: Towards Mitigating Length Bias in Large Language Models for Recommendation",
+          "abstract": "Large language models (LLMs) have recently emerged as powerful backbones for recommender systems by reformulating recommendation as a token-level generation task. Despite their promise, we identify a pervasive yet underexplored issue: $\\textit{Length Bias}$. Because items are represented by textual descriptions of varying lengths, LLM-based recommenders can be systematically biased in two ways. On the input side, longer item descriptions occupy more tokens in the context and thus receive disproportionately large aggregate attention mass during user preference modeling. On the output side, decoding based on summed autoregressive log-likelihood score inherently disfavors long items. Worse still, conventional length normalization can introduce an additional bias and even degrade recommendation performance.   To address this problem, we propose $\\textbf{LBR}$ ($\\textbf{L}$ength $\\textbf{B}$ias $\\textbf{R}$eduction), a lightweight and model-agnostic framework for mitigating length bias in LLM-based recommendation. LBR mitigates input-side bias via Length-Aware Attention Calibration, which incorporates a length-dependent offset into attention logits to neutralize attention skew. For the output side, LBR introduces Effective Information Length Normalization, replacing naive token count with an information-theoretic length surrogate derived from the branching structure of the prefix tree. Extensive experiments on three real-world Amazon datasets and two representative LLM-based recommenders demonstrate that LBR substantially alleviates length bias while consistently improving recommendation accuracy and fairness, with negligible additional training and inference overhead (with an average NDCG@5 gain of 16.82%). The code is available at https://github.com/Void-JackLee/LBR.",
+          "authors": [
+            "Hongchen Li",
+            "Bohao Wang",
+            "Jingbang Chen",
+            "Weiqin Yang",
+            "Hang Pan",
+            "Bingde Hu",
+            "Can Wang",
+            "Jiawei Chen"
+          ],
+          "primary_category": "cs.IR",
+          "categories": [
+            "cs.IR",
+            "cs.AI"
+          ],
+          "published": "2026-07-05T12:31:11+00:00",
+          "link": "https://arxiv.org/pdf/2607.04270v1",
+          "tags": [
+            "keyword:MCC",
+            "keyword:decision",
+            "keyword:pref-learn",
+            "keyword:recsys",
+            "query:MCC",
+            "query:decision",
+            "query:pref-learn",
+            "query:recsys"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "LLM-based recommendation length bias",
+          "llm_evidence_cn": "LLM推荐中的长度偏差",
+          "llm_evidence": "LLM推荐中的长度偏差",
+          "canonical_evidence": "LLM推荐中的长度偏差",
+          "llm_tldr_en": "Identifies and mitigates length bias in LLM-based recommenders where longer item descriptions receive disproportionate attention and log-likelihood scoring disfavors long items.",
+          "llm_tldr_cn": "大语言模型作为推荐骨干时存在长度偏差：输入侧长描述获得过多注意力，输出侧自回归似然评分天然歧视长项目。本文系统分析该偏差并提出缓解方法，为LLM推荐系统的公平性奠定基础。",
+          "llm_tldr": "大语言模型作为推荐骨干时存在长度偏差：输入侧长描述获得过多注意力，输出侧自回归似然评分天然歧视长项目。本文系统分析该偏差并提出缓解方法，为LLM推荐系统的公平性奠定基础。",
+          "llm_tags": [
+            "query:recsys"
+          ],
+          "matched_query_tag": "query:recsys",
+          "matched_query_text": "deep learning based recommendation model",
+          "matched_requirement_id": "req-34",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.04270v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2607.03918v1",
+          "source": "arxiv",
+          "title": "Beyond Item Order: Temporal Gap Tokenization for Generative Recommendation with Semantic IDs",
+          "abstract": "Semantic-ID-based generative recommendation has recently emerged as a scalable paradigm for sequential recommendation, where each item is represented by a compact sequence of discrete codes and next-item prediction is formulated as code generation. Existing methods, however, typically construct user histories as sequences of static item identifiers, leaving the elapsed time between consecutive interactions outside the generative input. This temporal blindness is problematic because inter-interaction gaps provide useful cues about interest continuity and preference drift. In this paper, we propose ChronoSID, a lightweight temporal augmentation framework for semantic-ID-based generative recommendation. ChronoSID injects temporal signals into the standard three-stage semantic-ID pipeline from two complementary perspectives. First, we introduce Time-Aware Field-Aware Masked Auto-Encoding (TA-FAMAE), which regularizes item representation learning with an auxiliary time-gap prediction objective. Second, we discretize historical interaction intervals into fixed log-scale gap tokens and interleave them with semantic ID tuples as the encoder input of the sequence-to sequence generator. This design preserves the compact SID generation paradigm while enabling the model to capture time-aware transition patterns. Experiments on Amazon review benchmarks show that ChronoSID consistently improves over ReSID and other competitive generative recommendation baselines. Ablation studies further verify the contribution of both temporal components, and diagnostic analyses show clearer gains under long-gap scenarios where user interests are more likely to drift.",
+          "authors": [
+            "Chengkai Huang",
+            "Tianqi Gao",
+            "Hongtao Huang",
+            "Quan Z. Sheng",
+            "Lina Yao"
+          ],
+          "primary_category": "cs.IR",
+          "categories": [
+            "cs.IR"
+          ],
+          "published": "2026-07-04T15:22:30+00:00",
+          "link": "https://arxiv.org/pdf/2607.03918v1",
+          "tags": [
+            "keyword:MCC",
+            "keyword:pref-learn",
+            "keyword:recsys",
+            "query:MCC",
+            "query:decision",
+            "query:pref-learn",
+            "query:recsys"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "sequential generative recommendation temporal gap",
+          "llm_evidence_cn": "序列生成式推荐时间间隔",
+          "llm_evidence": "序列生成式推荐时间间隔",
+          "canonical_evidence": "序列生成式推荐时间间隔",
+          "llm_tldr_en": "Proposes ChronoSID, a temporal augmentation framework for semantic-ID-based generative recommendation that injects temporal gaps between interactions to model preference drift.",
+          "llm_tldr_cn": "针对现有语义ID生成式推荐忽略用户行为间隔时间的问题，提出ChronoSID框架，通过注入交互间的时间间隔信号来捕捉兴趣连续性和偏好漂移。在多个数据集上验证了该方法的有效性，显著提升了序列推荐的准确性。",
+          "llm_tldr": "针对现有语义ID生成式推荐忽略用户行为间隔时间的问题，提出ChronoSID框架，通过注入交互间的时间间隔信号来捕捉兴趣连续性和偏好漂移。在多个数据集上验证了该方法的有效性，显著提升了序列推荐的准确性。",
+          "llm_tags": [
+            "query:recsys"
+          ],
+          "matched_query_tag": "query:recsys",
+          "matched_query_text": "sequential recommendation model",
+          "matched_requirement_id": "req-35",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.03918v1",
+          "carry_days": 1
+        }
+      ]
     },
     "ci": {
       "updated_date": "20260612-20260711",

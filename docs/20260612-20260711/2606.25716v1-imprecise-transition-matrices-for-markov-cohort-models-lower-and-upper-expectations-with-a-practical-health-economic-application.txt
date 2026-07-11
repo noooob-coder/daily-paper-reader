@@ -1,0 +1,859 @@
+Title: Imprecise Transition Matrices for Markov Cohort Models: Lower and Upper Expectations with a Practical Health Economic Application
+
+URL Source: https://arxiv.org/pdf/2606.25716v1
+
+Published Time: Thu, 25 Jun 2026 00:54:13 GMT
+
+Number of Pages: 27
+
+Markdown Content:
+# Imprecise Transition Matrices for Markov Cohort Models: Lower and Upper Expectations with a Practical Health-Economic Application 
+
+Rowan Iskandar a,b, ∗
+
+> aMedtronic Trading Sàrl, Tolochenaz, VD, Switzerland
+> bCenter for Evidence Synthesis in Health, Department of Health Services, Policy, and Practice, Brown University, Providence, RI, USA
+
+Abstract 
+
+In applied health research, Markov cohort models are built on a precisely specified transition probability matrix. However, in many applications the available evidence—transition counts, structural constraints, and treatment-effect data—identifies a set of admissible matrices rather than one uniquely justified matrix. This paper formulates an imprecise-probability extension in which inference yields lower and upper expectations over an evidence-compatible set of precise Markov cohort models. The contribution differs from existing imprecise Markov-chain work by focusing on finite-horizon co-hort trajectories, additive accumulated outcomes, and transition matrices constructed from empirical transition counts. Under non-empty compact separately specified outgoing-row sets, the lower and upper accumulated out-comes are computed exactly by Bellman-style lower and upper transition op-erators. We prove the envelope theorem, reduction to the classical model, coherence properties of the lower transition operator, and algebraic condi-tions under which a single selected matrix yields a non-robust decision. We then show how multinomial transition counts induce admissible matrix sets through the Imprecise Dirichlet Model. A real-world cost-effectiveness ex-ample of patent foramen ovale closure after cryptogenic stroke illustrates the practical consequence: the empirical transition matrix slightly favors closure, whereas the imprecise analysis yields an incremental net monetary benefit in-  
+
+> ∗Corresponding author.
+> Email address: rowan.iskandar@gmail.com (Rowan Iskandar)
+> arXiv:2606.25716v1 [stat.ME] 24 Jun 2026
+
+terval crossing zero. The method provides both a rigorous lower-expectation formulation and a practical diagnostic for decisions that depend on transition probabilities not fully resolved by the evidence. 
+
+Keywords: imprecise probability, Markov cohort model, lower expectation, transition matrix, Imprecise Dirichlet Model, decision analysis, cost-effectiveness analysis 
+
+1. Introduction 
+
+In applied research in health and medicine, Markov cohort models are of-ten used to simulate the prognosis of a patient or a cohort of patients following an intervention in the absence of long-term data [1, 2, 3]. The prognosis is represented as a stochastic transition model over a finite set of health states. These transitions are governed by transition probability matrices, which are the central numerical objects in such models. Once a matrix has been es-timated, the cohort trajectories and all outcomes are precisely determined. Treating the matrix as fixed is appropriate when the transition probabilities are known or can be estimated with a high degree of certainty. However, it is less satisfactory when the matrix is estimated from sparse transition counts, heterogeneous evidence, and conflicting expert opinions. In those settings, several transition matrices may be compatible with the evidence. This paper treats that situation as an imprecise-probability problem. Instead of assign-ing a probability distribution over possible transition matrices, the analyst specifies the set of matrices that remain compatible with the evidence and structural assumptions. Each element of this set can be viewed as a standard transition probability matrix defining a precise Markov model. Given this set of matrices, we can compute the smallest and largest expected outcomes. Computing these bounds is the lower-envelope view used in imprecise prob-ability [4, 5, 6] and in imprecise Markov models [7, 8, 9]. The lower-envelope view should not be confused with a Bayesian average over a prior distri-bution: all admissible precise models are retained on equal footing. Other related ideas include imprecise Markov chains and lower-transition-operator methods. Existing continuous-time work treats an imprecise model as a set of stochastic processes, computes lower expectations as tight lower bounds over that set, and develops lower transition operators as representational and computational tools for those lower expectations [7, 10, 9]. Discrete-time imprecise Markov chains have been developed in the same 2spirit, with global models and lower and upper expectations of functionals such as time averages and accumulated quantities [11, 12]. Another related literature is robust Markov decision processes, in which dynamic program-ming over a rectangular ambiguity set—one specified independently across states—yields an exact Bellman recursion [13, 14, 15]. In this paper, we extend these ideas to finite-horizon cohort trajectories with additive outcomes, using the same state-vector and transition-matrix objects as cohort models. In this discrete-time setting, the quantities of in-terest are accumulated outcomes, in addition to the probabilities of occupying a state at a future time point. Each such outcome is calculated by summing, over the time horizon, the outcome contribution of each state weighted by the fraction of the cohort occupying it, and may represent survival, cost, quality-adjusted survival, or net monetary benefit. This accumulated-outcome calcu-lation is the formulation used in cohort models and cost-effectiveness analysis, where the cohort is repeatedly redistributed across states according to the transition matrix and outcomes are accumulated over the time horizon of the analyses [2, 3]. The contributions of this paper are as follows. First, we explicate an imprecise Markov cohort model as a set of admissible transition-matrix se-quences and give its lower- and upper-expectation interpretation for additive cohort outcomes, including outcomes that depend on transitions as well as on occupied states. Second, under non-empty compact separately specified outgoing-row sets, we derive exact lower and upper Bellman recursions, prove the coherence of the associated lower transition operators, and show that the resulting accumulated-outcome functional is itself a coherent lower prevision over the admissible set. Third, we establish a performance-difference identity that exactly captures the gap between any two admissible models, and use it to obtain an algebraic diagnostic for determining when the result from a single selected matrix is invariant over the admissible set and when that ma-trix yields a non-robust decision. Fourth, we present a practical construction of admissible transition matrices from multinomial transition counts using the Imprecise Dirichlet Model (IDM), show that the induced row set coin-cides exactly with the IDM credal set, and demonstrate the method with a real-world example from a cost-effectiveness analysis. 32. Preliminaries and notation 
+
+Let 
+
+S = {S1, . . . , S s}
+
+be a finite set of mutually exclusive states, where s is the number of states. We denote by 
+
+L(S) = {f : S → R}
+
+the set of all real-valued functions on S. Because S is finite, elements of L(S)
+
+will be written as column vectors f = ( f (1) , . . . , f (s)) ⊤, where f (i) = f (Si).A transition probability matrix is an s × s matrix P = ( pij )si,j =1 satisfying 
+
+pij ≥ 0 and Psj=1 pij = 1 for every i = 1 , . . . , s . Its ith row is denoted by Pi·. If Xt is the state occupied by one individual at time step t, then 
+
+pij,t = P(Xt+1 = Sj | Xt = Si).A cohort vector is a row vector 
+
+mt = ( mt, 1, . . . , m t,s ), mt,j ≥ 0,
+
+> s
+
+X
+
+> j=1
+
+mt,j = 1 .
+
+It represents the distribution of Xt: mt,j = P(Xt = Sj ). The deterministic cohort trajectory m0, . . . , m T is therefore the sequence of marginal distribu-tions of the stochastic process. For t = 0 , . . . , T , let 
+
+gt ∈ L (S)
+
+be an outcome-contribution function. The number gt(i) is the amount of the chosen outcome assigned to a person in state Si at time step t. Depending on the application, gt may represent survival, utility, cost, net monetary benefit, or an indicator for occupying a target state. Because gt is allowed to depend on the time step, it also represents discounting and other time-varying valuations: a per-step discount factor β ∈ (0 , 1] is encoded by gt(i) = βt ˜gt(i)
+
+for an undiscounted contribution ˜gt. Some applications additionally assign part of the outcome to the act of transitioning; this transition-based case is treated at the end of Section 4. 
+
+3. Classical Markov cohort model 
+
+Given an initial distribution m0 and transition matrices P0, . . . , P T −1, the classical cohort recursion is 
+
+mt+1 = mtPt, t = 0 , . . . , T − 1. (1) 4The accumulated cohort outcome is 
+
+A(P0: T −1) = 
+
+> T
+
+X
+
+> t=0
+
+mtgt, (2) where P0: T −1 denotes the sequence P0, . . . , P T −1, and mt is generated by (1). Equation (2) is the usual cohort accounting: multiply the fraction of the cohort in each state by the outcome contribution assigned to that state, then add across states and time steps. The same accumulated outcome can be written backward. Define Vt ∈L(S) by 
+
+Vt(i) = E
+
+" TX
+
+> ℓ=t
+
+gℓ(Xℓ) Xt = Si
+
+#
+
+,
+
+where ℓ indexes future time steps. Then VT = gT . For t < T , conditioning on the next state gives the Bellman recursion 
+
+VT = gT , Vt = gt + PtVt+1 , t = T − 1, . . . , 0. (3) The forward and backward forms agree: 
+
+m0V0 = A(P0: T −1).
+
+The proof is a direct unrolling of the recursion and is given in the appendix. The key term in the Bellman recursion (3) is PtVt+1 . Its ith component is 
+
+(PtVt+1 )( i) = 
+
+> s
+
+X
+
+> j=1
+
+pij,t Vt+1 (j).
+
+This is the expected outcome remaining after one transition from current state Si. If Pt is fixed, this weighted average is fixed. If several transition matrices remain compatible with the evidence, the same weighted average has a lower and an upper value. That observation is the computational link between Markov cohort models and lower transition operators. 
+
+4. Imprecise transition matrices 
+
+For each time step t = 0 , . . . , T −1, let Pt be a non-empty set of admissible transition probability matrices. A transition-matrix sequence is admissible if 
+
+P0: T −1 ∈ A := P0 × · · · × P T −1.
+
+5The imprecise model is the set of precise Markov cohort models generated by all sequences in A. For any additive outcome A(P0: T −1) defined in (2), the lower and upper accumulated outcomes are 
+
+A = inf   
+
+> P0: T−1∈A
+
+A(P0: T −1), A = sup  
+
+> P0: T−1∈A
+
+A(P0: T −1). (4) These are lower and upper expectations over the admissible set of precise Markov models. The tractable case used for the formal results is the row-separable, or separately specified, one, stated in the following assumption. 
+
+Assumption 1 (Compact separately specified outgoing rows) . For every 
+
+t = 0 , . . . , T − 1 and every i = 1 , . . . , s , Ki,t is a non-empty compact set of complete outgoing rows 
+
+pi,t = ( pi1,t , . . . , p is,t ), pij,t ≥ 0,
+
+> s
+
+X
+
+> j=1
+
+pij,t = 1 .
+
+The admissible matrix set at time step t is 
+
+Pt = {Pt : Pt,i · ∈ K i,t , i = 1 , . . . , s }. (5) The interpretation is that one admissible outgoing row is chosen for each current state and the rows are stacked to form a transition matrix. Compact-ness guarantees that the row-wise infima and suprema below are attained. Separately specified rows are a structural assumption about the admissible set: the admissible outgoing distribution chosen for one state does not con-strain the choice for any other state. This assumption can fail when the rows are linked, through any of three mechanisms that recur below. A shared parameter is a single quantity—such as an underlying event rate or a rel-ative risk—that enters more than one row, so those rows cannot be moved independently. A calibration constraint requires the matrix to reproduce an observed aggregate, such as overall survival or disease prevalence, which cou-ples entries across rows. A treatment-effect model derives one intervention’s transitions from another’s by applying an effect measure, such as a relative risk or hazard ratio, so the two arms’ rows are tied together. Whenever rows are linked in any of these ways, (5) does not hold and the linked matrix set must be optimized as a whole. 6Remark 1 (Time-step-wise versus fixed-matrix admissibility) . The set A =
+
+P0 × · · · × P T −1 allows an admissible matrix to be chosen at each time step. This product structure is the standard rectangular interpretation used by the lower and upper Bellman recursions. If the modeling assumption is instead that a single unknown matrix is fixed for all time steps (so that P0 = · · · =
+
+PT −1 =: P), the admissible set is the diagonal {(P, . . . , P ) : P ∈ P} ⊆ A .Two consequences follow. First, since the diagonal is contained in the rectan-gular set, the rectangular envelope is a valid outer bound for the fixed-matrix envelope: the rectangular lower (upper) value is no larger (no smaller) than its fixed-matrix counterpart. Second, the two envelopes coincide whenever the row-wise minimizer and maximizer selected in (7) can be taken to be the same matrix at every time step. A sufficient condition is that the one-step objective is optimized at a time-invariant row; this holds in particular when each row set is governed by a scalar parameter and the accumulated outcome is monotone in that parameter, in which case the optimizing row is pinned to a parameter endpoint at every step. The example in Section 8 satisfies this condition, so its fixed-matrix endpoint evaluation equals the exact rectangu-lar envelope; when no such time-invariant optimizer exists, the fixed-matrix envelope must be computed by global optimization over P .
+
+For f ∈ L (S), define the lower and upper transition operators 
+
+(T tf )( i) = inf 
+
+> pi,t ∈K i,t
+> s
+
+X
+
+> j=1
+
+pij,t f (j), (T tf )( i) = sup 
+
+> pi,t ∈K i,t
+> s
+
+X
+
+> j=1
+
+pij,t f (j), (6) for i = 1 , . . . , s . These are lower and upper envelopes of the one-step condi-tional expectation of f (Xt+1 ), conditional on Xt = Si.
+
+Proposition 1 (Coherence properties) . Under Assumption 1, T t is a co-herent lower transition operator in the following finite-state sense. For all 
+
+f, h ∈ L (S), all constants c ∈ R, all μ ≥ 0, and all states Si,
+
+(T tf )( i) ≥ min  
+
+> 1≤j≤s
+
+f (j), T t(f + h) ≥ T tf + T th, 
+
+T t(μf ) = μT tf, T t(f + c) = T tf + c. 
+
+It is also monotone: if f ≤ h componentwise, then T tf ≤ T th. The upper operator is conjugate to the lower operator: 
+
+T tf = −T t(−f ).
+
+7The lower bound, super-additivity, and non-negative homogeneity are the defining axioms of a coherent lower prevision in the sense of [4, 6]; con-stant additivity, monotonicity, and the conjugacy relation are consequences. In particular, combining the lower bound with conjugacy gives the two-sided envelope 
+
+min  
+
+> 1≤j≤s
+
+f (j) ≤ (T tf )( i) ≤ (T tf )( i) ≤ max  
+
+> 1≤j≤s
+
+f (j).
+
+Theorem 1 (Envelope Bellman recursion) . Assume Assumption 1 holds for every t = 0 , . . . , T − 1. Define 
+
+V T = V T = gT , V t = gt + T tV t+1 , V t = gt + T tV t+1 , (7) 
+
+for t = T − 1, . . . , 0. Then, for every initial cohort vector m0,
+
+m0V 0 = inf   
+
+> P0: T−1∈A
+
+A(P0: T −1), m0V 0 = sup  
+
+> P0: T−1∈A
+
+A(P0: T −1).
+
+The theorem states that the lower and upper Bellman recursions com-pute the exact lower and upper expectations in (4). The proof is given in the appendix. The result is the discrete-time analogue of the lower-transition-operator view used in imprecise Markov models [7, 9]. The key simplifying condition is the row-separable structure: the worst outgoing row for one cur-rent state can be chosen without constraining the rows for the other current states. 
+
+Corollary 1 (Reduction to the classical model) . If every Pt is a singleton 
+
+{Pt}, then T tf = T tf = Ptf for all f ∈ L (S). Hence (7) reduces to the classical Bellman recursion (3) .
+
+Remark 2 (Coherent lower prevision on accumulated outcomes) . Theorem 1 has a lower-prevision reading. Fix m0 and define the functional E(g0: T ) = 
+
+m0V 0 on outcome sequences g0: T . Because each one-step operator T t is a coherent lower transition operator (Proposition 1) and m0 has non-negative entries summing to one, the composition in (7) preserves the lower bound, super-additivity, and non-negative homogeneity, together with constant addi-tivity and monotonicity. Hence E is a coherent lower prevision on L(S)T +1 ,and E = −E(−· ) is its conjugate upper prevision. The envelope is therefore not a heuristic sensitivity range but the lower expectation of a coherent im-precise model, consistent with the operator view of imprecise Markov chains [7, 9]. 
+
+8Transition-based outcome contributions. Some outcomes are incurred when a transition occurs rather than while a state is occupied; an acute event cost charged on entry to an event state is the canonical example. Let rt(i, j ) ∈ R
+
+be a one-step transition contribution, interpreted as the outcome assigned to a person who moves from Si to Sj during step t. The accumulated outcome (2) generalizes to 
+
+A(P0: T −1) = 
+
+> T
+
+X
+
+> t=0
+
+mtgt + 
+
+> T−1
+
+X
+
+> t=0
+> s
+
+X
+
+> i=1
+> s
+
+X
+
+> j=1
+
+mt,i pij,t rt(i, j ), (8) and the backward recursion (3) becomes 
+
+VT = gT , Vt(i) = gt(i) + 
+
+> s
+
+X
+
+> j=1
+
+pij,t 
+
+ rt(i, j ) + Vt+1 (j), t = T − 1, . . . , 0,
+
+(9) for which the forward–backward equivalence m0V0 = A(P0: T −1) holds verba-tim. For the imprecise model, the only change to the envelope recursion (7) is that the operators act on rt(i, ·) + V t+1 (·) instead of V t+1 (·):
+
+V t(i) = gt(i) + inf 
+
+> pi,t ∈K i,t
+> s
+
+X
+
+> j=1
+
+pij,t 
+
+ rt(i, j ) + V t+1 (j), (10) and analogously for V t with the supremum. Because rt(i, ·) is fixed and the objective in (10) is still linear in the row pi,t , Assumption 1 and the proof of Theorem 1 apply unchanged, so (10) computes the exact lower (upper) envelope of (8). The state-based development of Sections 3–4 is the special case rt ≡ 0. The performance-difference identity of Section 5 extends as well, with the row difference acting on the augmented one-step value rt(i, j ) + 
+
+bVt+1 (j). The example in Section 8 uses exactly such a contribution for the acute recurrent-stroke cost, so it is an instance of (8). 
+
+5. When can a single selected matrix mislead? 
+
+For any transition-matrix sequence supplied to it, the classical cohort calculation returns the correct accumulated outcome; the difficulty is not the arithmetic but the input. When a single selected sequence is treated as uniquely justified, the outcome it produces—and the decision that outcome 9supports—can differ from those of other sequences equally compatible with the evidence. This section makes that dependence precise: a performance-difference identity gives the exact gap between any two admissible models, from which we obtain an algebraic condition for when the selected-matrix result is invariant over the admissible set, and a corresponding test for when it yields a non-robust decision. Let bP0: T −1 ∈ A be the selected sequence used in a classical point analysis, and let bVt be the corresponding backward vector from (3). For any admissible sequence Q0: T −1 ∈ A , let mQt be the cohort trajectory generated by Q.
+
+Proposition 2 (Performance-difference identity) . For any Q0: T −1 ∈ A ,
+
+A(Q0: T −1) − A( bP0: T −1) =  
+
+> T−1
+
+X
+
+> t=0
+
+mQt (Qt − bPt) bVt+1 . (11) Thus the point result is invariant over A if and only if the right-hand side of (11) is zero for every admissible Q0: T −1. Row by row, 
+
+mQt (Qt − bPt) bVt+1 =
+
+> s
+
+X
+
+> i=1
+
+mQt,i sX
+
+> j=1
+
+(qij,t − bpij,t ) bVt+1 (j).
+
+Unresolved transition probabilities can affect the accumulated outcome only if the current state is reached, the admissible outgoing row differs from the selected row, and the row difference moves probability mass among destina-tion states with different remaining outcomes. This algebraic condition is the precise version of the practical warning that an empirical zero should not be confused with a structural impossibility. For decisions, let D(P a, P b; λ) be the incremental net monetary benefit (INMB) for intervention a versus b at willingness-to-pay threshold λ. Define 
+
+D = inf   
+
+> (Pa,P b)∈A ab
+
+D(P a, P b; λ), D = sup   
+
+> (Pa,P b)∈A ab
+
+D(P a, P b; λ),
+
+where Aab is the admissible joint set for the two interventions. When the interventions are informed by separate evidence, Aab = Aa × A b is a product set; writing NMB a and NMB b for the net monetary benefit of each inter-vention, so that D = NMB a − NMB b, the lower endpoint then factorizes as 
+
+D = inf  
+
+> Pa∈A a
+
+NMB a − sup  
+
+> Pb∈A b
+
+NMB b,
+
+10 and analogously D = sup P a NMB a − inf P b NMB b, so the two arms are opti-mized separately by the recursion of Theorem 1. If the arms share parame-ters, Aab is not a product and D must be optimized jointly over the linked set. 
+
+Proposition 3 (Decision robustness) . Suppose the selected matrices recom-mend intervention a, so that 
+
+D( bP a, bP b; λ) > 0.
+
+Then the recommendation is robust over Aab if D > 0. If D ≤ 0, the admissible set does not support a strict recommendation for a against b. If 
+
+D < 0, at least one admissible pair of transition-matrix sequences favors b.
+
+6. Constructing admissible matrices from transition counts 
+
+The previous sections assume that Pt is specified. This section gives a data-based construction using multinomial transition counts and the IDM. Fix current state Si. Let nij be the observed number of transitions from 
+
+Si to Sj , let ni = ( ni1, . . . , n is ), and let Ni = Psj=1 nij . For the true outgoing row pi = ( pi1, . . . , p is ), the usual row likelihood is 
+
+ni | pi ∼ Multinomial( Ni, p i). (12) A classical empirical row uses bpij = nij /N i when Ni > 0. This estimator is convenient but treats observed zeros as zero transition probabilities. The IDM uses a class of Dirichlet priors 
+
+{Dirichlet( αq 1, . . . , αq s) : qj > 0,
+
+> s
+
+X
+
+> j=1
+
+qj = 1 },
+
+where α > 0 is a prior strength. After observing ni, the posterior class is 
+
+{Dirichlet( ni1 + αq 1, . . . , n is + αq s) : qj > 0,
+
+> s
+
+X
+
+> j=1
+
+qj = 1 }.
+
+Optimizing the posterior mean of pij over this class gives 
+
+pij = nij 
+
+Ni + α , pij = nij + αNi + α , j = 1 , . . . , s. (13) 11 The induced IDM row set is 
+
+KIDM i =
+
+(
+
+pi : pij ≥ 0,
+
+> s
+
+X
+
+> j=1
+
+pij = 1 , p ij ≤ pij ≤ pij , j = 1 , . . . , s 
+
+)
+
+. (14) Repeating this construction for all current states and applying structural constraints gives the admissible transition matrices used in (5). The interval endpoints in (13) are not independent parameters; the simplex condition in (14) preserves the fact that each row must sum to one. The next lemma records that this set is exactly the IDM credal set, so it satisfies Assumption 1 and the upper bounds in (14) are in fact redundant. 
+
+Lemma 1 (Exactness of the IDM row set) . With pij , p ij as in (13) , the row set is 
+
+KIDM i =
+
+n
+
+pi : pij ≥ pij (j = 1 , . . . , s ), Psj=1 pij = 1 
+
+o
+
+= conv {v1, . . . , v s},
+
+where 
+
+vk = ni + αe k
+
+Ni + α , k = 1 , . . . , s, 
+
+and ek is the kth standard basis vector. Hence KIDM i is a non-empty compact polytope (the set of IDM posterior means), and the upper bounds pij ≤ pij 
+
+follow from the lower bounds and the simplex constraint. Proof. If P 
+
+> j
+
+pij = 1 and pij ≥ pij for all j, then for each k, pik = 1 −
+
+P  
+
+> j̸=k
+
+pij ≤ 1 − P  
+
+> j̸=k
+
+pij = 1 − Ni−nik  
+
+> Ni+α
+
+= nik +αNi+α = pik , so the upper bounds are redundant. Setting wk = ( pik − pik )( Ni + α)/α gives wk ≥ 0, P 
+
+> k
+
+wk =
+
+ 1 − Ni/(Ni + α)(Ni + α)/α = 1 , and pi = P 
+
+> k
+
+wkvk; conversely every such convex combination meets the constraints. Thus the three sets coincide. The framework does not depend on the IDM. Any non-empty compact row set Ki,t —for instance one defined by a coherent lower prevision, a credal set from linear probability constraints, interval probabilities, or an ϵ-contamination model—can be used in (6) and Theorem 1. We use the IDM in the example because it maps transition counts directly to row sets. 12 7. Computational algorithm 
+
+We provide a computational algorithm and the accompanying code as supplementary files. The computation follows directly from Theorem 1. For a selected outcome contribution gt, set V T = V T = gT . For t = T − 1, . . . , 0,compute the lower and upper one-step expectations in (6) and update V t, V t
+
+using (7). The final interval for the initial cohort is 
+
+[m0V 0, m 0V 0].
+
+For each state Si, the optimization in (6) is a linear program: 
+
+min 
+
+> pi,t ∈K i,t
+> s
+
+X
+
+> j=1
+
+pij,t f (j) or max 
+
+> pi,t ∈K i,t
+> s
+
+X
+
+> j=1
+
+pij,t f (j).
+
+For IDM row sets, the constraints are linear: bounds, non-negativity, and summing to one. Hence the computation is transparent and scales linearly in the number of time steps once the row-level linear programs are solved. The algorithm is as follows: 1. Define the states, initial distribution, time horizon, and outcome con-tributions gt.2. Estimate an empirical transition matrix for comparison. 3. Build IDM row sets from transition counts using (13)–(14). 4. Apply the lower and upper Bellman recursion (7). 5. Report the empirical point result together with the lower and upper outcomes. 6. For decisions, optimize INMB directly rather than optimizing costs and effects separately. 
+
+8. Real-world application: patent foramen ovale closure after cryp-togenic stroke 
+
+We use a cost-effectiveness example to demonstrate how the proposed method can change a decision. The clinical question is whether patent fora-men ovale (PFO) closure is cost-effective compared with medical therapy alone for secondary prevention after cryptogenic stroke. Published economic evaluations have generally found PFO closure cost-effective or cost-saving over longer horizons [16]. The specific aim of this application is to examine 13 the effect of sparse recurrent-stroke evidence near a decision boundary. The code for this example is included as supplementary material. We also con-duct an independent verification: rather than evaluating the model at the interval endpoints, we use the full backward recursion of Theorem 1, applying the lower and upper transition operators at every time step in the transition-reward form (10) to assign a recurrent-stroke cost to each transition. 
+
+8.1. Data on clinical events 
+
+The example uses recurrent-stroke data from two high-risk PFO trials (Table 1). In CLOSE, no stroke occurred among 238 patients assigned to PFO closure, whereas 14 strokes occurred among 235 patients assigned to antiplatelet therapy [17]. In DEFENSE-PFO, 60 patients were enrolled in each arm; ischemic stroke occurred in 0% with closure and 10.5% with medi-cal therapy [18]. We represent the latter as six events in the medical-therapy arm. Patient-years are approximated as the trial size times the follow-up period. 
+
+> Table 1: Transition evidence for recurrent stroke after cryptogenic stroke with high-risk patent foramen ovale (PFO). PY = patient-years.
+
+Trial Strategy Patients Follow-up Events PY CLOSE PFO closure 238 5.3 0 1261.4 CLOSE Medical therapy 235 5.3 14 1245.5 DEFENSE-PFO PFO closure 60 2.8 0 168.0 DEFENSE-PFO Medical therapy 60 2.8 6 168.0 Pooled PFO closure 298 – 0 1429.4 Pooled Medical therapy 295 – 20 1413.5 
+
+Let pstroke be the one-time-step probability of recurrent stroke. The em-pirical probability is 0 for PFO closure and 0.01415 for medical therapy. With IDM prior strength α = 2 , the IDM intervals are 
+
+0 ≤ pclosure stroke ≤ 0.00140 , 0.01413 ≤ pmedical stroke ≤ 0.01554 .
+
+The closure-arm upper bound is small, but it is not zero. This nonzero upper bound is the distinction the empirical matrix hides. Here the patient-years at risk play the role of the multinomial denominator Ni in (13), so 
+
+pstroke is read as a per-time-step rate; for the small magnitudes involved, 14 the difference between a rate and a one-step probability ( p ≈ 1 − e−rate )is negligible. Imprecision is placed only on the recurrent-stroke probability, with the background death probabilities held fixed, so the admissible “no recurrent stroke” row is the one-parameter subfamily {(1 − p − d0, p, d 0) : 
+
+p ∈ [p, p ]} of the full IDM simplex of Lemma 1. 
+
+8.2. Economic model 
+
+The model has three states: no recurrent stroke, after recurrent stroke, and dead. Everyone begins in the no-recurrent-stroke state. The horizon is seven years with 3% discounting. The willingness-to-pay threshold is λ =$150 ,000 per quality-adjusted life-year (QALY), matching the threshold used in the published PFO economic evaluation [16]. Table 2 gives the compact model inputs. 
+
+> Table 2: Inputs for the compact patent foramen ovale (PFO) closure example. QALY = quality-adjusted life-year.
+
+Model parameters Value States no recurrent stroke; after recurrent stroke; dead Initial distribution m0 = (1 , 0, 0) 
+
+Horizon 7 years Discount rate 3% per time step Willingness-to-pay threshold $150 ,000 per QALY One-time closure cost $15 ,000 
+
+Annual cost without recurrent stroke 
+
+$200 
+
+Acute recurrent-stroke cost $40 ,000 
+
+Annual post-stroke cost $8 ,000 
+
+Utility without recurrent stroke 0.86 Utility after recurrent stroke 0.65 Background death probability 0.002 before recurrent stroke; 0.050 after recurrent stroke The empirical matrix sets pclosure stroke = 0 . A precise symmetric Dirichlet posterior mean with strength α = 2 gives pclosure stroke = 0 .00070 and pmedical stroke =0.01484 . The imprecise analysis evaluates all matrices with recurrent-stroke probabilities in the IDM intervals above. 15 8.3. Results 
+
+Table 3 reports discounted incremental net monetary benefit results for PFO closure versus medical therapy. The empirical transition matrix slightly favors closure: INMB is $167 . The precise Dirichlet posterior mean gives the same qualitative conclusion. The IDM analysis changes the interpretation. Its INMB interval crosses zero, from −$1 ,387 to $1 ,618 (Figure 1). Thus the empirical matrix recommends closure, but the evidence-compatible matrix set does not support a robust recommendation at this threshold. Because INMB is monotone in each arm’s single recurrent-stroke probability, the op-timizing transition row is pinned to an interval endpoint at every time step; by Remark 1 the endpoint evaluation reported here coincides with the ex-act lower and upper envelopes of Theorem 1. The supplementary script 
+
+bellman_envelope.R confirms this by computing the same interval directly from the lower and upper transition operators (10).      
+
+> Table 3: Discounted cost-effectiveness results for patent foramen ovale (PFO) closure versus medical therapy. Incremental net monetary benefit (INMB) is reported at a willingness-to-pay threshold λ= $150 ,000 per quality-adjusted life-year (QALY). IDM = Imprecise Dirichlet Model.
+
+Analysis Incremental QALYs Incremental cost INMB Empirical transition matrix 0.0658 $9 ,705 $167 
+
+Precise Dirichlet posterior mean 0.0656 $9 ,727 $115 
+
+IDM lower bound 0.0591 $10 ,251 −$1 ,387 
+
+IDM upper bound 0.0721 $9 ,203 $1 ,618 
+
+−1,500 −1,000 −500 0 500 1,000 1,500 
+
+IDM interval 
+
+empirical = $167 
+
+−$1 ,387 $1 ,618 
+
+zero 
+
+Incremental net monetary benefit for PFO closure 
+
+> Figure 1: Empirical point incremental net monetary benefit (INMB) and Imprecise Dirich-let Model (IDM) interval. The empirical matrix favors patent foramen ovale (PFO) closure, but the IDM interval crosses zero.
+
+16 8.4. Sensitivity to the threshold and the imprecision strength 
+
+The non-robust conclusion is not an artifact of the particular threshold or the IDM strength. Holding α = 2 and sweeping the willingness-to-pay thresh-old λ (Table 4), the empirical point INMB changes sign at λ ≈ $147 ,500 per QALY, whereas the lower and upper envelopes change sign at λ ≈ $173 ,500 
+
+and λ ≈ $127 ,600 . The IDM interval therefore straddles zero throughout the band $127 ,600 < λ < $173 ,500 : PFO closure is a robust choice only above this band and medical therapy only below it. At the $150 ,000 thresh-old used in the published evaluation [16] the decision is non-robust, and at the lower thresholds $50 ,000 and $100 ,000 the imprecise analysis robustly favors medical therapy, even though the empirical point INMB is positive at 
+
+$150 ,000 .The interval width scales with the prior strength, as expected. Recom-puting at the other conventional IDM strength α = 1 gives the INMB interval 
+
+[−$611 , $894] at λ = $150 ,000 , against [−$1 ,387 , $1 ,618] at α = 2 ; both straddle zero, so the non-robustness does not depend on the choice of α.    
+
+> Table 4: Discounted incremental net monetary benefit (INMB) interval for patent foramen ovale (PFO) closure versus medical therapy by willingness-to-pay threshold λ(Imprecise Dirichlet Model (IDM) prior strength α= 2 ). Each interval is the exact lower and upper envelope of Theorem 1. $/QALY = US dollars per quality-adjusted life-year.
+
+Threshold λ ($/QALY) Lower INMB Upper INMB Robustly preferred strategy 50,000 −$7 ,297 −$5 ,596 Medical therapy 100,000 −$4 ,342 −$1 ,989 Medical therapy 150,000 −$1 ,387 $1 ,618 None (non-robust) 200,000 $1 ,568 $5 ,225 PFO closure This example is deliberately compact: it does not claim that PFO closure is cost-ineffective in general, but shows that near a decision boundary a zero event count in a finite trial can be decisive in the empirical transition matrix. The imprecise analysis distinguishes an observed zero from a structural zero and makes the resulting non-robustness visible. 
+
+8.5. Behavior under increasing sparsity 
+
+To show that the phenomenon is not tied to the pooled sample size, we study the three analyses as the amount of evidence varies. We fix a ground truth in which closure genuinely lowers the per-step recurrent-stroke 17 probability, from 0.014 under medical therapy to 0.010 under closure, but not by enough to justify its one-time cost: the true INMB is −$10 ,790 , so the correct decision is medical therapy. For each arm we draw recurrent-stroke counts from a Poisson model with mean N × p, where N is the patient-years at risk per arm, and we vary N from 25 to 3200 . For each simulated data set we form the empirical matrix, the precise symmetric Dirichlet posterior mean ( α = 2 ), and the IDM interval ( α = 2 ), and record the decision each implies at λ = $150 ,000 per QALY. The two point analyses always commit to closure or to medical therapy; the IDM analysis additionally abstains when its INMB interval contains zero. Figure 2 reports, over 16 ,000 replications per sample size, how often each analysis is wrong and how often the IDM abstains. Two patterns emerge. First, under sparsity the point analyses are fre-quently confident and wrong: the empirical matrix recommends the inferior arm in up to about a third of samples near N = 50 , driven by closure-arm sampling zeros that mimic a highly effective treatment, and the precise Dirichlet posterior mean behaves almost identically, so its symmetric prior offers little protection in this regime. Second, the IDM analysis is almost never confidently wrong—its error rate stays below 5% throughout—because it abstains instead, reporting that the evidence does not resolve the decision. As the sample size grows the sampling zeros disappear, the abstention rate falls to zero, and all three analyses converge to the correct recommendation. The IDM thus trades the point analyses’ confident errors for transparent ab-stentions and commits to the correct decision once the evidence can support it. This convergence has a simple analytical counterpart. From the IDM bounds (13), each admissible row spans an interval of half-width α/ (Ni +α) = 
+
+O(α/N i), where Ni is the patient-years informing that row. Because the accumulated outcome is linear in each row, the INMB interval half-width— and hence the width of the non-robust threshold band of Section 8.4—is 
+
+O(α/N ) in the per-arm patient-years N . The imprecision therefore contracts at rate 1/N as evidence accumulates, which is the formal counterpart of the convergence seen in Figure 2. 
+
+9. Discussion 
+
+The paper develops a lower-expectation formulation of the Markov cohort model with imprecise transition probabilities. Rather than attach a single 18 25 50 100 200 400 800 1600 3200 
+
+0
+
+0.5
+
+1
+
+Patient-years at risk per arm ( N )
+
+> Probability
+
+Empirical: wrong decision 
+
+Precise Dirichlet: wrong decision 
+
+IDM: wrong decision 
+
+IDM: abstains 
+
+Figure 2: Decision outcomes under increasing evidence, for a ground truth in which medical therapy is the correct choice (true incremental net monetary benefit (INMB) = −$10 ,790 ). Curves show the probability that each analysis recommends the wrong arm, and the prob-ability that the Imprecise Dirichlet Model (IDM) abstains because its INMB interval con-tains zero, estimated from 16 ,000 simulated trials per sample size at a willingness-to-pay threshold λ = $150 ,000 per quality-adjusted life-year (QALY) and IDM prior strength 
+
+α = 2 . The empirical and precise Dirichlet analyses almost coincide. The IDM is almost never confidently wrong: it abstains under sparsity and converges to the correct decision as evidence accumulates. 
+
+19 value to one selected matrix, the method reports the lower and upper ex-pectation of an additive accumulated outcome over an evidence-compatible set of precise cohort models. The classical cohort model is recovered ex-actly when the admissible set is a singleton at every time step (Corollary 1); when the admissible set is larger, the lower and upper Bellman recursions of Theorem 1 return the exact range of the outcome over all admissible models. 
+
+Main contribution. The central result is the envelope theorem (Theorem 1), together with the coherence properties of Proposition 1. Under separately specified rows, the imprecise calculation is not a heuristic sensitivity analysis over hand-picked matrices; it is the exact lower and upper expectation of a coherent imprecise model in the sense of [4, 6], and it coincides with the lower- and upper-transition-operator view of imprecise Markov chains [7, 9]. Because the envelope is a coherent lower prevision, interval-valued cohort outcomes stand on the same footing as the point-valued outcomes of the classical model, and the bounds can be read as genuine expectations rather than as the spread of an ad hoc collection of scenarios. 
+
+When imprecision changes a decision. The performance-difference identity of Proposition 2 provides an exact diagnostic that complements these bounds. A single selected matrix can mislead only when imprecision both reaches states that the cohort actually occupies and redistributes probability mass among states whose remaining outcomes differ. Imprecision confined to un-reachable states, or that moves mass between states with the same contin-uation value, leaves the decision unchanged. The diagnostic thus identifies in advance where transition uncertainty can and cannot overturn a recom-mendation, and explains why its consequences are concentrated in a few influential transitions rather than spread uniformly across the matrix. 
+
+Practical contribution. The method is a modest extension of the classical co-hort model rather than a departure from it. An analyst can begin from the same transition counts used to build a classical cohort model, construct IDM row sets, run the lower and upper recursions at essentially the cost of a few point evaluations, and report whether the empirical recommendation is ro-bust to the dependence and sampling uncertainty the data leave unresolved. The PFO closure example shows that this is not a formality: the empirical transition matrix and the precise Dirichlet posterior mean both favor closure, yet the evidence-compatible interval straddles the decision boundary, and it 20 continues to do so across the conventional range of willingness-to-pay thresh-olds and across both conventional IDM strengths. The sparsity experiment of Section 8.5 shows that the interval behaves like a calibrated decision rule: it abstains when the evidence is too thin to support either arm, is almost never confidently wrong, and contracts at rate O(α/N ), so that it recovers the point decision as evidence accumulates. 
+
+Limitations. There are two limitations which restrict the scope of the study results, though without the risk of undermining the rigor and utility of the approach in its intended setting. The first is the row-separable structure of Assumption 1, which is what makes the envelope recursion tractable: it lets the worst outgoing row for one state be chosen independently of the rows for the other states. Row separability is appropriate when outgoing rows are as-sessed separately by current state, which is the common case in applied cohort models, where each state’s transitions are estimated from its own data. When the rows are instead linked—by a shared parameter, a calibration constraint, or a treatment-effect model—the approach does not break down: the lower and upper expectations remain well defined over the linked set, and, because any linked set is contained in the rectangular product set, the row-by-row envelope is still a valid outer bound for the linked problem (cf. Remark 1) and can serve as a conservative screen before any costlier joint optimization. Only the row-wise decomposition, not the lower-expectation interpretation, is lost. The second limitation is that the IDM is only one way to convert evidence into an admissible set. Here too the core results are unaffected: the envelope theorem, the coherence of the lower and upper operators, and the performance-difference diagnostic hold for any non-empty compact row sets, so likelihood-based confidence regions, expert-elicited bounds, an impre-cise treatment of Bayesian credible sets, or calibration-defined sets all plug into the same recursion. The IDM is simply the construction that matches multinomial transition counts; only its closed-form bounds and the O(α/N )
+
+contraction rate are specific to that setting. 
+
+Future directions. Several extensions follow naturally. Linked transition-matrix sets, in which rows co-vary through shared parameters or calibration constraints, would widen applicability at the cost of row-wise tractability and call for dedicated optimization algorithms, particularly for large state spaces where enumerating rows is impractical. A second direction is to com-bine imprecise transition matrices with parameter uncertainty analysis. The 21 two answer different questions and are complementary rather than compet-ing: imprecise transition matrices answer a robustness question—whether a recommendation survives every evidence-compatible dependence structure— whereas parameter uncertainty analysis answers a distributional question about the spread of outcomes under an assumed joint distribution of in-puts. Reporting both a robustness interval and a distributional summary would give decision makers a fuller account of the uncertainty surrounding a transition-probability-driven decision. 
+
+CRediT authorship contribution statement 
+
+Rowan Iskandar: Conceptualization, Methodology, Formal analysis, Soft-ware, Writing–original draft, Writing–review and editing. 
+
+Declaration of competing interest 
+
+The author declares that he has no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper. 
+
+Funding 
+
+No specific funding was received for this methodological work. 
+
+Data and code availability 
+
+The case-study calculations are reproducible from the R scripts and Quarto guide supplied as supplementary files. 
+
+Acknowledgements 
+
+The author thanks colleagues and reviewers who provided feedback on earlier versions of this manuscript. 22 Declaration of generative AI and AI-assisted technologies in the writing process 
+
+During the preparation of this work the author used Claude (a large language model developed by Anthropic) in order to improve the language, readability, and formatting of portions of the manuscript. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the publication. 
+
+Appendix A. Proofs 
+
+Appendix A.1. Forward–backward equivalence 
+
+Unroll (3). Since VT = gT ,
+
+V0 = g0 + P0g1 + P0P1g2 + · · · + P0P1 · · · PT −1gT .
+
+Multiplying by m0 gives 
+
+m0V0 = m0g0 + m0P0g1 + · · · + m0P0P1 · · · PT −1gT .
+
+Because mt = m0P0 · · · Pt−1, with the empty product interpreted as the identity for t = 0 , the right-hand side is PTt=0 mtgt = A(P0: T −1).
+
+Appendix A.2. Proof of Proposition 1 
+
+Fix t and i. For any pi,t ∈ K i,t ,
+
+> s
+
+X
+
+> j=1
+
+pij,t f (j) ≥ min  
+
+> 1≤j≤s
+
+f (j),
+
+which gives the lower bound after taking the infimum. For superadditivity, 
+
+inf 
+
+> p∈K i,t
+
+p(f + h) ≥ inf 
+
+> p∈K i,t
+
+pf + inf 
+
+> p∈K i,t
+
+ph, 
+
+where pf denotes Psj=1 pj f (j). Non-negative homogeneity follows because, for μ ≥ 0,
+
+inf 
+
+> p∈K i,t
+
+p(μf ) = μ inf 
+
+> p∈K i,t
+
+pf. 
+
+Constant additivity follows from p1 = 1 for every probability row p. Mono-tonicity follows because f ≤ h implies pf ≤ ph for every admissible row. Finally, 
+
+−T t(−f )( i) = − inf 
+
+> p∈K i,t
+> s
+
+X
+
+> j=1
+
+pij,t {− f (j)} = sup 
+
+> p∈K i,t
+> s
+
+X
+
+> j=1
+
+pij,t f (j) = T tf (i).
+
+23 Appendix A.3. Proof of Theorem 1 
+
+We prove the lower recursion; the upper recursion is identical with infima replaced by suprema. For an admissible sequence P0: T −1 ∈ A , let V Pt denote the classical backward vector (3), so that m0V P 
+
+> 0
+
+= A(P0: T −1) by the forward– backward equivalence. We establish two facts: (i) V t ≤ V Pt componentwise for every admissible P and every t; and (ii) there exists an admissible P ⋆
+
+with V P ⋆ 
+
+> t
+
+= V t. Both use only Assumption 1. 
+
+Lower bound. Backward induction on t. At t = T , V T = gT = V PT .Assume V t+1 ≤ V Pt+1 . Each row pi,t of Pt has non-negative entries, so for every state Si,
+
+V Pt (i) = gt(i) + 
+
+> s
+
+X
+
+> j=1
+
+pij,t V Pt+1 (j) ≥ gt(i) + 
+
+> s
+
+X
+
+> j=1
+
+pij,t V t+1 (j)
+
+≥ gt(i) + inf 
+
+> pi,t ∈K i,t
+> s
+
+X
+
+> j=1
+
+pij,t V t+1 (j) = V t(i),
+
+where the first inequality uses the induction hypothesis with pij,t ≥ 0. Hence 
+
+V t ≤ V Pt for all t. Since m0 has non-negative entries, A(P0: T −1) = m0V P 
+
+> 0
+
+≥
+
+m0V 0 for every admissible P , and therefore m0V 0 ≤ inf P0: T −1∈A A(P0: T −1).
+
+Attainment. By Assumption 1 the map pi,t 7 → Psj=1 pij,t V t+1 (j) is linear, hence continuous, on the compact set Ki,t , so a minimizer p⋆i,t ∈ K i,t exists. Because the rows are separately specified (5), stacking p⋆
+
+> 1,t
+
+, . . . , p ⋆s,t yields a matrix P ⋆t ∈ P t; repeating this for every time step gives P ⋆  
+
+> 0: T−1
+
+∈ A . A second backward induction shows V P ⋆ 
+
+> t
+
+= V t: it holds at t = T , and if V P ⋆ 
+
+> t+1
+
+= V t+1 
+
+then 
+
+V P ⋆ 
+
+> t
+
+(i) = gt(i) + 
+
+> s
+
+X
+
+> j=1
+
+p⋆ij,t V t+1 (j) = gt(i) + ( T tV t+1 )( i) = V t(i).
+
+Therefore A(P ⋆ 
+
+> 0: T−1
+
+) = m0V P ⋆ 
+
+> 0
+
+= m0V 0, the infimum is attained, and com-bined with the lower bound, m0V 0 = inf P0: T −1∈A A(P0: T −1). The minimizer 
+
+P ⋆ is constructed without reference to m0, so the same sequence attains the lower value for every initial distribution. 
+
+Appendix A.4. Proof of Corollary 1 
+
+If Pt = {Pt}, each Ki,t contains the single row Pt,i ·. Therefore both the infimum and supremum in (6) equal Psj=1 pij,t f (j), which is (Ptf )( i).Substituting into (7) gives (3). 24 Appendix A.5. Proof of Proposition 2 
+
+Let V bPt be the backward vector under bP . For any admissible sequence Q,
+
+A(Q) − A( bP ) = m0(V Q 
+
+> 0
+
+− V bP 
+
+> 0
+
+).
+
+Using the backward recursions, 
+
+V Qt − V bPt = Qt(V Qt+1 − V bPt+1 ) + ( Qt − bPt)V bPt+1 .
+
+Multiplying by mQt and using mQt+1 = mQt Qt yields 
+
+mQt (V Qt − V bPt ) = mQt+1 (V Qt+1 − V bPt+1 ) + mQt (Qt − bPt)V bPt+1 .
+
+Summing over t = 0 , . . . , T − 1 telescopes. The terminal difference is zero because V QT = V bPT = gT . This gives (11). 
+
+Appendix A.6. Proof of Proposition 3 
+
+Under Assumption 1 the joint admissible set Aab is compact and the map (P a, P b) 7 → D(P a, P b; λ) is continuous, so by the extreme value the-orem the infimum D is attained at some admissible pair. If D > 0, then 
+
+D(P a, P b; λ) ≥ D > 0 for every admissible pair, so intervention a has strictly greater net monetary benefit throughout Aab and the recommendation is ro-bust. If D ≤ 0, a minimizing pair satisfies D ≤ 0, so the strict guarantee fails. If moreover D < 0, that minimizing pair has D(P a, P b; λ) < 0 and hence favors intervention b.
+
+References 
+
+[1] J. R. Beck, S. G. Pauker, The Markov process in medical prognosis, Medical Decision Making 3 (4) (1983) 419–458. [2] F. A. Sonnenberg, J. R. Beck, Markov models in medical decision mak-ing: A practical guide, Medical Decision Making 13 (4) (1993) 322–338. [3] R. Iskandar, A theoretical foundation for state-transition cohort models in health decision analysis, PLOS ONE 13 (12) (2018) e0205543. [4] P. Walley, Statistical Reasoning with Imprecise Probabilities, Chapman and Hall, London, 1991. 25 [5] T. Augustin, F. P. A. Coolen, G. de Cooman, M. C. M. Troffaes (Eds.), Introduction to Imprecise Probabilities, John Wiley & Sons, Chichester, UK, 2014. [6] M. C. M. Troffaes, G. de Cooman, Lower Previsions, Wiley, Chichester, 2014. [7] G. de Cooman, F. Hermans, E. Quaeghebeur, Imprecise Markov chains and their limit behavior, Probability in the Engineering and Informa-tional Sciences 23 (4) (2009) 597–635. [8] F. Hermans, D. Škulj, Stochastic processes, in: T. Augustin, F. P. A. Coolen, G. de Cooman, M. C. M. Troffaes (Eds.), Introduction to Im-precise Probabilities, John Wiley & Sons, 2014, pp. 258–278. [9] T. Krak, J. De Bock, A. Siebes, Imprecise continuous-time Markov chains, International Journal of Approximate Reasoning 88 (2017) 452– 528. [10] D. Škulj, Efficient computation of the bounds of continuous time impre-cise Markov chains, Applied Mathematics and Computation 250 (2015) 165–180. [11] G. de Cooman, J. De Bock, S. Lopatatzidis, Imprecise stochastic pro-cesses in discrete time: Global models, imprecise Markov chains, and ergodic theorems, International Journal of Approximate Reasoning 76 (2016) 18–46. [12] N. T’Joens, J. De Bock, Average behaviour in discrete-time imprecise Markov chains: A study of weak ergodicity, International Journal of Approximate Reasoning 132 (2021) 181–205. [13] A. Nilim, L. El Ghaoui, Robust control of Markov decision processes with uncertain transition matrices, Operations Research 53 (5) (2005) 780–798. [14] G. N. Iyengar, Robust dynamic programming, Mathematics of Opera-tions Research 30 (2) (2005) 257–280. [15] W. Wiesemann, D. Kuhn, B. Rustem, Robust Markov decision pro-cesses, Mathematics of Operations Research 38 (1) (2013) 153–183. 26 [16] M. H. Leppert, S. N. Poisson, J. D. Carroll, D. E. Thaler, C. H. Kim, K. D. Orjuela, B. S. Wiggins, M. Berman, C. A. Velez, Cost-effectiveness of patent foramen ovale closure versus medical therapy for secondary stroke prevention, Stroke 49 (2018) 1443–1450. [17] J.-L. Mas, G. Derumeaux, B. Guillon, E. Massardier, H. Hos-seini, L. Mechtouff, C. Arquizan, Y. Béjot, F. Vuillier, O. Detante, C. Guidoux, S. Canaple, C. Vaduva, N. Dequatre-Ponchelle, I. Sibon, P. Garnier, A. Ferrier, S. Timsit, E. Robinet-Borgomano, D. Sablot, J.-C. Lacour, M. Zuber, P. Favrole, J.-F. Pinel, M. Apoil, P. Reiner, G. Leftheriotis, P. Guérin, C. Piot, R. Rossi, J.-L. Dubois-Randé, J.-C. Eicher, N. Meneveau, J.-R. Lusson, B. Bertrand, J.-M. Schleich, F. Godart, J.-B. Thambo, L. Leborgne, P. Michel, L. Pierard, G. Turc, M. Barthelet, A. Charles-Nelson, C. Weimar, T. Moulin, J.-M. Juliard, G. Chatellier, Patent foramen ovale closure or anticoagulation vs. an-tiplatelets after stroke, New England Journal of Medicine 377 (2017) 1011–1021. [18] P. H. Lee, J.-K. Song, J. S. Kim, J. H. Heo, S.-W. Lee, D.-H. Kim, J.-H. Song, D.-W. Kang, S.-W. Kwon, D.-H. Kang, C. W. Lee, M.-K. Hong, J.-J. Kim, S.-J. Park, Cryptogenic stroke and high-risk patent foramen ovale: The DEFENSE-PFO trial, Journal of the American College of Cardiology 71 (2018) 2335–2342. 27
