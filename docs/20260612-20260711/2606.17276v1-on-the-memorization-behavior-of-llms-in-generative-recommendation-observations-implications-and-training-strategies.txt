@@ -1,0 +1,777 @@
+Title: On the Memorization Behavior of LLMs in Generative Recommendation: Observations, Implications, and Training Strategies
+
+URL Source: https://arxiv.org/pdf/2606.17276v1
+
+Published Time: Wed, 17 Jun 2026 00:16:50 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+# On the Memorization Behavior of LLMs in Generative Recommendation: Observations, Implications, and Training Strategies 
+
+Sunwoo Kim 1* Sunkyung Lee 2* Clark Mingxuan Ju 3 Donald Loveland 3
+
+Bhuvesh Kumar 3 Kijung Shin 1 Neil Shah 3 Liam Collins 31KAIST 2Sungkyunkwan University 3Snap Inc. 
+
+{kswoo97, kijungs}@kaist.ac.kr , sk1027@skku.edu {mju, dloveland, bkumar4, nshah, lcollins2}@snapchat.com 
+
+Abstract 
+
+Generative recommendation (GR) has emerged as a promising direction for recommender sys-tems. Recently, large language models (LLMs) have been increasingly adopted for GR, as their rich pretrained knowledge is expected to help them generalize beyond common user behavior patterns that traditional memorization-oriented baselines can capture. However, existing LLM-based GR works largely ignore LLMs’ well-known tendency to memorize (Satvaty et al., 2024; Li et al., 2025), which, if present in LLMs fine-tuned for GR, would restrict their utilization of pretrained knowledge. In this work, we investigate this concern by examining 
+
+one-hop memorization , where a model recom-mends items that are direct successors of items in the training data. We show that LLMs do this more than non-LLM-based GR models– in fact, the vast majority of their gains over GR baselines are actually on users whose tar-get items can be predicted through one-hop memorization . We intuit that improving perfor-mance on the remaining users requires LLMs to learn richer item–item relations beyond one-hop transitions. To achieve this, we propose 
+
+IIRG , a novel training strategy that teaches LLMs to capture: (1) collaborative relations 
+
+derived from item co-occurrences across mul-tiple hops in user sequences, and (2) seman-tic relations among items with similar themes, both of which can serve as useful recommenda-tion signals. We show that IIRG significantly improves over LLMs trained solely with stan-dard next-item prediction, with especially large gains for users whose test items are not covered by train-time one-hop transitions. 
+
+1 Introduction 
+
+Generative recommendation (GR) has recently drawn growing interest within the recommenda-tion community (Wang et al., 2025; Ju et al., 2025; Xie et al., 2025). Given a user’s item interaction  
+
+> *Work done while at Snap Inc. Sequences in the training set
+> ,,
+> LLM’s recommendation output
+
+## …
+
+Figure 1: An example of one-hop memorization. The LLM memorizes that soccer shirts and socks are pur-chased after soccer balls and cleats, respectively (red arrows), then recommends the latter items to users who purchased the former. 
+
+history, GR methods use a generative model to gen-erate the identifier of the target item, rather than scoring a predefined set of candidate items (Senel et al., 2024; Liu et al., 2025b; Hou et al., 2025). A growing line of work on GR adopts large lan-guage models (LLMs) as recommender systems, motivated by their rich pretrained world knowl-edge (Zhou et al., 2025; Xie et al., 2026). These approaches have achieved strong performance on recommendation tasks in both academic (Lee et al., 2025; Liu et al., 2025a) and industrial (He et al., 2026; D’Amico et al., 2026) settings. For GR, LLMs are often fine-tuned using next-item prediction because pretrained LLMs are not aware of the specific item set from which they are allowed to recommend, nor do they have suffi-cient knowledge of user–item interaction patterns. Specifically, given the earlier part of a user’s item interaction sequence, LLMs are fine-tuned to gen-erate the identifier (e.g., semantic- or term-ID) of the next item in the sequence (Hong et al., 2025). While LLMs hold promise for GR through their pretrained knowledge, prior work in NLP suggests a potential obstacle to fulfilling this promise. LLMs are well-known to memorize , i.e. retain certain portions of the training set and later reproduce them at inference time (Satvaty et al., 2024; Li et al., 2025). Heavy reliance on such behavior would limit the ability of LLM-based GR models to capitalize on pretrained world knowledge, as their predictions would instead be driven by repeti-tions of patterns observed in the recommendation 1  
+
+> arXiv:2606.17276v1 [cs.IR] 15 Jun 2026 One -hop -memorization
+> ratio in Top -5
+> recommendations
+> (b) One -hop -
+> memorization -
+> benefiting users
+> (c) Non -one -hop -
+> memorization -
+> benefiting users
+> (a) Reliance on one -
+> hop memorization
+> TIGER (Non -LLM) Naive (LLM) Ours (LLM)
+> Recall @ 5
+> Recall @ 5
+
+Figure 2: One-hop memorization in Sports. LLMs using SIDs trained solely with next-item prediction (Naive) rely more on one-hop memorization than TIGER. This reliance leads to gains concentrated among users covered by such memorization, with limited bene-fits for the remaining users. IIRG, our training method, reduces this reliance and delivers stronger performance gains for these remaining users. Details are in § 3. 
+
+training data, just like traditional, non-language in-formed recommenders. However, this phenomenon remains largely unexplored in LLM-based GR. To address this issue, we analyze memorization behavior in LLM-based GR. We focus on a widely used LLM-based GR pipeline in which each item is represented by its text features alongside a struc-tured item ID (e.g., semantic ID (SID) or term ID (TID)), which may be trained to align with the LLM’s vocabulary (He et al., 2026). The LLM is then fine-tuned to generate the ID of the next item given the user’s previous interaction sequence (Lee et al., 2025; Zhang et al., 2026). In this setting, we ask two questions: (1) what distinctive mem-orization behavior do LLMs exhibit compared to non-LLM-based GR models , and (2) how does this behavior relate to recommendation performance? 
+
+For the first question, we show that LLMs ex-hibit strong one-hop memorization . In particular, LLMs memorize one-hop item transitions in the training set—transitions between consecutive items in user sequences—and at inference time base their recommendations on the observed successors of items in the user’s input sequence, as illustrated in Figure 1. This memorization behavior is more pro-nounced in LLMs than in TIGER, a representative non-LLM-based GR model (Rajput et al., 2023), as shown in Figure 2(a). This phenomenon persists af-ter scaling TIGER to a near-LLM size and applying regularization to LLMs, suggesting that model size and overfitting alone are insufficient explanations. For the second question, we show that the perfor-mance gains of LLMs over TIGER largely come from users who benefit from one-hop memoriza-tion . Specifically, we divide users into two groups: (1) users whose target item appears in the training set as a next item of any item from their input se-quence, and (2) users whose target item does not. We find that LLMs achieve substantially larger im-provements over TIGER for the first group, while their performance gains are much smaller for the second group, as shown in Figure 2(b) and (c). Given that one-hop memorization provides lim-ited information for the target item for users in the second group, we hypothesize that improving per-formance for these users requires LLMs to learn richer item–item relations beyond one-hop transi-tions—relations that can connect the user’s input items to the target item. To achieve this goal, we propose IIRG (Item– Item Relation Generation), a simple yet effective training strategy that encour-ages LLMs to capture such relations. In a nutshell, given an item, IIRG trains LLMs to generate items that are either collaboratively or semantically relevant to it. For collaborative rela-tions, IIRG uses items that frequently co-occur with the given item across multiple hops in user interac-tion sequences. For semantic relations, IIRG uses items with semantically relevant textual descrip-tions, helping the model capture items users may naturally consider together (e.g., related LEGO products or compatible accessories). Our data anal-ysis shows that these relations benefit users outside the coverage of one-hop memorization, reaching a group comparable in size to the users benefit-ing from one-hop memorization. Note that IIRG is identifier-agnostic, supporting both SIDs and TIDs. Through experiments, we show that LLMs trained with IIRG consistently improve over an LLM trained solely with next-item prediction, achieving a 21% average gain in Recall@5. The gain is especially pronounced for users whose tar-get items are not covered by one-hop memorization, yielding a 50% gain compared to a 17% gain for users whose target items are covered by such mem-orization in the Sports dataset (see Figure 2). Our key contributions are summarized as follows: • C1. New finding: We analyze LLMs’ one-hop memorization behavior and its relationship with recommendation performance. • C2. New method: We propose IIRG, a training strategy that helps LLMs capture richer item– item relations beyond one-hop memorization. • C3. Strong performance: We experimentally validate that IIRG leads to consistent gains over LLM-based recommenders with various ID types, as well as several other baseline methods. We provide our code and datasets in https:// github.com/snap-research/IIRG .22 Related work 
+
+LLM Memorization. LLMs are known to repro-duce exact phrases from their pre-training (Kassem et al., 2023) and/or fine-tuning data (Mireshghal-lah et al., 2022), though the exact causes remain unclear. Hypothesized explanations involve factors such as model size or duplicated training data (Sat-vaty et al., 2024). In many LLM applications, this reproduction can leak private or copyrighted ma-terial (Henderson et al., 2023). Several methods have been studied to address this, e.g. data ded-eduplication (Lee et al., 2022b) and specialized decoding (Ippolito et al., 2023). However, memo-rization in LLM-based GR remains underexplored. 
+
+Generative recommendation with LLMs. Gen-erative recommendation (GR) methods have been extensively studied (Rajput et al., 2023; Li et al., 2024; Xie et al., 2025; Lin et al., 2025). Among these, a promising direction uses pre-trained LLMs to exploit their rich world knowledge (Penha et al., 2025). Many approaches use structured item identifiers to mitigate hallucination and fa-cilitate efficient decoding, most notably semantic IDs (SIDs) (Kong et al., 2025; He et al., 2026) and term IDs (TIDs) (Tan et al., 2024; Lee et al., 2025). After associating each item with such an ID, the LLM is tuned for next-item prediction via autoregressive training on users’ past interaction sequences (Zhang et al., 2026; He et al., 2026). 
+
+Auxiliary training tasks for LLM-based GR. To improve the GR performance of LLMs, several auxiliary training tasks have been leveraged, often alongside next-item prediction. 1 These tasks can be categorized into three: (1) distillation tasks, which help lightweight LLM-based GR models acquire the reasoning abilities of stronger LLMs (Hong et al., 2025); (2) alignment tasks, which help LLMs better understand the identifiers of items (Zhang et al., 2026); (3) auxiliary recommendation tasks, such as rating prediction (Geng et al., 2022) or item unmasking from user sequences (Cao et al., 2024). To our knowledge, none of these tasks explicitly train LLMs to learn item–item relations beyond one-hop transitions in user sequences. 
+
+3 Analysis of Memorization in GR 
+
+In this section, we first formalize the generative recommendation (GR) setting. Then, we analyze 
+
+> 1Here, auxiliary tasks refer to tasks used for LLM train-ing, rather than those used for ID generation, such as the contrastive learning objective in PLUM (He et al., 2026).
+
+the one-hop memorization behavior of LLMs in comparison with non-LLM-based GR models. 
+
+3.1 Problem Formulation 
+
+Let U and I denote the user and item sets, respec-tively. Each user u ∈ U is associated with an item interaction sequence su = ( i(u)1 , i (u)2 , · · · , i (u)
+
+> |su|
+
+), 2
+
+and each item ik ∈ I is represented by its textual metadata t(ik), such as its title and description, and its identifier id (ik), such as a semantic ID (SID) (He et al., 2026) or term ID (TID) (Zhang et al., 2026). Given a user interaction sequence su,the goal of GR is to generate the identifier of the item that user u is most likely to interact with next. 
+
+3.2 Analysis setup Overview. Recall that one-hop memorization 
+
+refers to a model’s tendency to memorize one-hop item transitions in training data and later recom-mend the memorized successors of items appear-ing in the interaction sequence of a test user. To quantify one-hop memorization, we measure the fraction of each model’s top-5 recommendations that correspond to memorized successors of items in the test user’s input sequence. Then, we examine how the performance gains of LLM-based GR mod-els over non-LLM-based GR models are related to one-hop memorization, motivating improvements in LLM-based GR models. 
+
+Models and datasets. We consider two GR mod-els: (1) our target model, a Qwen-3.5-4B (Yang et al., 2025) LLM trained with a next-item pre-diction objective under SIDs and TIDs (see Ap-pendix C.3 for further details on each ID type); and (2) TIGER (Rajput et al., 2023), a representative non-LLM-based GR baseline. We use three Ama-zon Reviews datasets (He and McAuley, 2016), Sports, Toys, and Beauty. 
+
+Training. Following Zhang et al. (2026), the LLM is trained for next-item prediction using next-token prediction for a language-formatted item interac-tion sequence. For the sequence representation, we represent each item ik in user u’s interaction sequence su by its identifier id (ik) (either an SID or TID) and title t(ik). Appendix B.1 provides an example prompt. Based on this input structure, we perform supervised fine-tuning of the LLM. For-mally, let T (su) denote the tokenized representation of sequence su. Then, the LLM training loss for      
+
+> 2Although |A| typically denotes the cardinality of a set A,we use | · | to denote the length of a sequence unless otherwise stated, as our notation primarily concerns sequences.
+
+3user u is: 
+
+Lu = −|T (su )|X 
+
+> t=T+1
+
+log pθ
+
+
+
+T (su) 
+
+> t
+
+| T (su) 
+
+> <t
+
+, C
+
+
+
+|T (su)| − T , (1) where pθ denotes the token-generation probability of the LLM parameterized by θ, T (su) 
+
+> t
+
+is the t-th token in sequence T (su), T is the index of the final token for the anchor item i(u)1 within su, and C
+
+denotes the tokens representing the instruction of next-item prediction. We train the baseline, TIGER, following its original paper (Rajput et al., 2023). 
+
+Metrics. To quantify a model’s reliance on one-hop memorization, we define the adjacent neigh-bor set N (ik) as the multiset of all items that im-mediately follow ik in any training user sequence. Next, we define a one-hop-based candidate set for each user. This set is constructed by: (1) aggre-gating the adjacent neighbors of all items in the user’s sequence (i.e. Mu = ⊎ik ∈su N (ik) where 
+
+⊎ denotes the additive union of multisets) and (2) selecting the min(50 , | S  
+
+> ik∈su
+
+N (ik)|) items with largest multiplicities in Mu and tie-breaking based on popularity. 3 Lastly, for each model, we compute the average fraction of its top-5 recommendations that belong to the one-hop-based candidate set. 
+
+User groups. We divide users into two groups: the one-hop-memorization-benefiting group and the 
+
+non-one-hop-memorization-benefiting group. The former consists of users whose one-hop candidate set contains their target item, while the latter con-sists of the rest. We then measure the recommen-dation performance of each model on both groups to identify where the performance gains of LLMs primarily come from. 
+
+3.3 Results Reliance on one-hop memorization. As shown in Figure 3(a), LLM-based GR models consistently exhibit a higher one-hop memorization ratio in their top-5 recommendations than TIGER, the non-LLM-based GR baseline. This trend holds for both TIDs and SIDs. This result suggests that LLMs rely more heavily on one-hop memorization than the non-LLM-based GR model. Moreover, this tendency remains even when we (1) apply regular-izations to LLMs or (2) scale TIGER to an LLM-comparable size, as detailed in Appendices D.2       
+
+> 3We use the top-Kmost frequent adjacent neighbors to avoid excessively large candidate sets, which provide limited information for measuring one-hop memorization. TIGER (Non -LLM) LLM + SID
+> Recall @ 5
+> LLM + TID
+> (b) Recommendation performance for one -hop -
+> memorization -benefiting users (MB) and non -one -hop -
+> memorization -benefiting users (NMB)
+> One -hop
+> memorization
+> ratio in Top -5
+> recommendations
+> Recall @ 5 Recall @ 5
+> (a) Extent of reliance on one -hop memorization
+> +17% +3%
+> +14% +5%
+> +9% -8%
+> +23% +29%
+> +32%
+> +24%
+> +24%
+> +15%
+
+Figure 3: One-hop memorization and performance. 
+
+LLMs trained solely with next-item prediction exhibit stronger one-hop memorization than TIGER, a non-LLM-based model (see (a)). The relative improve-ment of LLMs over TIGER is larger for one-hop-memorization-benefiting users than for non-one-hop-memorization-benefiting users in 5/6 settings (see (b)). 
+
+and D.3, respectively. This implies that neither model size nor overfitting alone explains the result. 
+
+User-wise performance. As shown in Figure 3(b), LLMs achieve larger relative improvements over TIGER for one-hop-memorization-benefiting users than for non-memorization-benefiting users in 5 out of 6 settings. This implies that LLMs’ reliance on one-hop memorization primarily benefits users whose target items are covered by memorized one-hop transitions, but provides limited benefits for the remaining users. 
+
+Key implications. Our analysis suggests that re-lying on one-hop memorization offers limited ben-efits for users whose target items are not covered by such memorized transitions. We hypothesize that improving performance for these users requires LLMs to learn richer and predictive item–item re-lations beyond one-hop transitions. These relations can provide additional connections between the user’s input items and the target item. Note that this motivates our training strategy (§ 4). 4[Instruction] Predict the next item the user is                   
+
+> most likely to interact with.
+> [Input] User history:
+> [Instruction] Predict the items that are
+> frequently co -purchased with the input item.
+> [Input ] Input item:
+> [Instruction] Predict the items that are
+> semantically similar to the input item.
+> [Input ] Input item:
+> LLM -based
+> GR model
+> ,,
+> ,,
+> Instructions and inputs for LLM fine -tuning Outputs for LLM fine -tuning
+> Next -item
+> prediction
+> Collaborative
+> neighbor
+> generation
+> Semantic
+> neighbor
+> generation
+> [Output]
+> [Output]
+> [Output]
+> Fine -tuning
+
+Figure 4: Overview of IIRG. To train LLM-based GR models, IIRG uses three tasks and jointly optimizes them: (1) next-item prediction (red box), (2) collaborative neighbor generation for each item (green box), and (3) semantic neighbor generation for each item (blue box). 
+
+4 Proposed method: IIRG 
+
+To encourage LLMs to learn item–item relations be-yond one-hop item transitions, we introduce IIRG 
+
+(Item– Item Relation Generation), a simple yet ef-fective training strategy that trains an LLM to cap-ture two types of item relationships: (1) collabora-tive and (2) semantic . Figure 4 provides a visual overview of IIRG. We first motivate and summarize IIRG in § 4.1, then detail its design in § 4.2. 
+
+4.1 Overview and intuition for IIRG Overview. For each item, we construct two sets of “neighbors” to use as item-to-item supervision signals in our auxiliary training tasks. Specifically, for an item ik, we select (1) collaborative neigh-bors from items that frequently co-occur with ik in a multi-hop window within user sequences, and (2) 
+
+semantic neighbors as items with similar textual descriptions. Then, while training the LLM to pre-dict next items in user sequences, we also train the LLM to generate the corresponding neighbor sets for each item ik ∈ I , enabling it to explicitly learn the relationships between ik and its neighbors. 
+
+Key intuition. Our key objectives in selecting item-to-item supervision signals are whether such relations provide strong predictive information for the target items while remaining distinct from one-hop transitions, as motivated by the implications from our analysis (§ 3.3). We elaborate on how our item-to-item supervision aligns with this goal. First, for collaborative neighbors, frequently co-purchased items provide strong evidence that in-teracting with one item increases the likelihood of interacting with the other (Sarwar et al., 2001). However, items far apart in a user sequence may reflect different intents and introduce noise. To re-duce it, we define collaborative neighbors as items co-occurring within a multi-hop time window. Second, for semantic neighbors, semantic rele-vance captures item–item associations useful for recommendation, such as complementarity and/or theme-consistent relations. For instance, if a LEGO enthusiast shows interest in “ LEGO City Race Car ”, “ LEGO City Camper Van ” is a high-fidelity semantically-grounded recommendation candidate due to the items’ shared theme. 
+
+Evidence from data analysis. To verify whether our collaborative neighbors and semantic neigh-bors achieve our key objectives, we provide a data analysis in Appendix D.1. In short, we show that (1) these two types of neighbors provide strong predictive signals for users’ target items, compa-rable to or even stronger than one-hop transitions, and (2) their overlap with one-hop transitions is limited, suggesting that they provide additional, non-redundant signals beyond one-hop transitions. 
+
+4.2 Design details of IIRG Obtaining collaborative neighbors. For collabo-rative neighbors, we first define an item–item pair weight as the frequency with which they co-appear within a specified time window in user sequences. Specifically, the item-item pair weight wkq between items ik and iq is defined as follows: 
+
+wkq = X
+
+> u∈U
+
+I[ik ∼(u) 
+
+> W
+
+iq], ik ∼(u) 
+
+> W
+
+iq ⇐⇒ ∃t, j ∈ [|su|] : i(u) 
+
+> t
+
+= ik, i (u) 
+
+> j
+
+= iq, 0 < |t − j| ≤ W, 
+
+where I[·] is the indicator function and W denotes the time-window length. Lastly, the collaborative neighbor sequence of item ik, denoted by nk, is defined as the sequence of top −N1 items sorted in descending order of their pairwise weights wkq 
+
+among all iq ∈ I \ { ik}. We also consider exclud-ing one-hop transitions when obtaining collabora-tive neighbors, but this variant underperforms our 5approach; additional discussion is in Appendix D.4. 
+
+Obtaining semantic neighbors. For semantic neighbors, we first encode each item’s textual de-scription into an embedding. Specifically, for each item ik ∈ I , we use a pre-trained language em-bedding model f to obtain its embedding zk =
+
+f (t(ik)) , where t(ik) is a textual description of 
+
+ik. Lastly, the semantic neighbor sequence of item 
+
+ik, denoted by mk, is defined as the sequence of top −N2 items sorted in descending order of their cosine similarities (i.e., (zTk zq)/(∥zk∥∥ zq∥)) for each item ik ∈ I among all iq ∈ I \ { ik}. Alterna-tively, instead of performing embedding-based full search over all items, we can efficiently retrieve semantic neighbors using semantic-ID-based hash-ing, while still achieving competitive performance; additional details are in Appendix D.6. 
+
+Training objective. After obtaining collaborative neighbors nk and semantic neighbors mk for each item ik ∈ I , we train an LLM to capture these relations by learning to generate the correspond-ing neighbors for a given ik. To this end, as in next-item prediction (§ 3.2), each item ik ∈ I is represented by its ID id (ik) (either an SID or TID) and title t(ik). We then construct input prompts for the collaborative-neighbor and semantic-neighbor generation tasks; examples of these prompts are provided in Appendices B.2 and B.3, respectively. Lastly, we perform supervised fine-tuning of the LLM. Formally, let T (nk ) and T (mk ) denote the tokenized representations of the sequences nk and 
+
+mk, respectively. Similarly, let T (ik ) denote the tokenized representation of input item ik. Then, the LLM training loss for item ik’s (1) collabo-rative neighbor generation L(C) 
+
+> k
+
+and (2) semantic neighbor generation L(S) 
+
+> k
+
+is defined as follows: 
+
+L(C) 
+
+> k
+
+=
+
+|T (nk )|X
+
+> t=1
+
+log pθ
+
+
+
+T (nk ) 
+
+> t
+
+| T (nk ) 
+
+> <t
+
+, P
+
+
+
+−|T (nk )| , (2) 
+
+L(S) 
+
+> k
+
+=
+
+|T (mk )|X
+
+> t=1
+
+log pθ
+
+
+
+T (mk ) 
+
+> t
+
+| T (mk ) 
+
+> <t
+
+, S
+
+
+
+−|T (mk )| , (3) where pθ denotes the token-generation probability of the LLM parameterized by θ, Tt is the t−th token of the sequence T with T0 = ∅, and P and S
+
+denote the token representations of the instructions for collaborative neighbor generation and semantic neighbor generation, respectively. 
+
+All together: IIRG. Overall, IIRG jointly trains an LLM on three tasks: (1) next-item prediction, opti-mized with Lu (Eq. (1) ); (2) collaborative-neighbor generation; and (3) semantic-neighbor generation. 4
+
+Each training batch contains a mixture of samples from the three tasks. Formally, let U(b) ⊆ U denote the users in batch b for next-item prediction, and let 
+
+I(C)(b) ⊆ I , and I(S)(b) ⊆ I denote the items in batch 
+
+b for which collaborative neighbors and semantic neighbors are generated, respectively. Then, for batch b, IIRG updates the parameters of the LLM via gradient descent by minimizing: 
+
+L = X
+
+> u∈U (b)
+
+Lu
+
+B + X 
+
+> ik∈I (C)(b)
+
+λ1L(C)
+
+> k
+
+B + X
+
+> it∈I (S)(b)
+
+λ2L(S)
+
+> t
+
+B ,
+
+where B denotes the batch size, and λ1 and λ2 de-note the hyperparameters that control the effects of the collaborative- and semantic-neighbor genera-tion losses, respectively. 
+
+5 Experiments 
+
+In this section, we evaluate the effectiveness of IIRG in the recommendation tasks. 
+
+5.1 Experimental setting Datasets. For experiments, we use three bench-mark sequential recommendation domains from the Amazon Review dataset (He and McAuley, 2016): Sports, Toys, and Beauty. We report additional results on the Yelp dataset in Appendix D.10. 
+
+Evaluation. Following common practice in se-quential recommendation (Kang and McAuley, 2018; Geng et al., 2022), we use the leave-one-out protocol. Specifically, for each user sequence, we use the last item for testing, the second-to-last item for validation, and the remaining interactions for training. We consider the full-item ranking set-ting , where all items are considered as possible recommendation candidates. For metrics, we use Recall@ K and NDCG@ K, where K ∈ { 5, 10 }.
+
+Baseline methods. We compare against 17 base-lines from four categories. Specifically, we use (1) five traditional models (LightGCN (He et al., 2020), SimGCL (Yu et al., 2022), SASRec (Kang and McAuley, 2018), FDSA (Zhang et al., 2019), S 3-Rec (Zhou et al., 2020)), (2) two non-LLM-based GR models (TIGER (Rajput et al., 2023), LET-TER (Wang et al., 2024)), (3) four GR methods that use joint training of auxiliary tasks and next-item 
+
+> 4One alternative is to use the neighbor generation tasks for continued pre-training, but this approach underperforms IIRG. We provide further discussions in Appendix D.5.
+
+6Table 1: Main recommendation performance. R@K and N@K denote Recall@K and NDCG@K, respectively. 
+
+Highlighted cells indicate the best-performing results. Across all cases, IIRG achieves the best performance.                                                                                                                                                                                                                                       
+
+> Methods Sports Toys Beauty
+> R@5 N@5 R@10 N@10 R@5 N@5 R@10 N@10 R@5 N@5 R@10 N@10 LightGCN 0.0247 0.0162 0.0382 0.0205 0.0371 0.0241 0.0556 0.0300 0.0359 0.0236 0.0590 0.0311 SimGCL 0.0257 0.0168 0.0394 0.0212 0.0387 0.0253 0.0581 0.0315 0.0377 0.0239 0.0595 0.0309 SASRec 0.0217 0.0137 0.0356 0.0182 0.0482 0.0314 0.0725 0.0392 0.0373 0.0225 0.0624 0.0306 FDSA 0.0237 0.0156 0.0358 0.0196 0.0564 0.0408 0.0764 0.0472 0.0435 0.0289 0.0650 0.0358 S3-Rec 0.0230 0.0151 0.0362 0.0194 0.0551 0.0375 0.0777 0.0448 0.0465 0.0307 0.0699 0.0383 TIGER 0.0267 0.0170 0.0409 0.0216 0.0484 0.0335 0.0727 0.0413 0.0492 0.0327 0.0728 0.0402 LETTER 0.0260 0.0169 0.0413 0.0217 0.0502 0.0331 0.0735 0.0408 0.0498 0.0334 0.0732 0.0409 P5 0.0304 0.0201 0.0470 0.0249 0.0545 0.0380 0.0778 0.0449 0.0512 0.0350 0.0717 0.0415 ReAT 0.0295 0.0199 0.0425 0.0239 0.0587 0.0409 0.0833 0.0485 0.0559 0.0386 0.0775 0.0456 LC-Rec 0.0317 0.0206 0.0485 0.0258 0.0615 0.0422 0.0879 0.0506 0.0620 0.0454 0.0843 0.0523 EAGER-LLM 0.0373 0.0251 0.0569 0.0315 0.0546 0.0359 0.0788 0.0437 0.0548 0.0369 0.0830 0.0459 PLUM 0.0297 0.0199 0.0436 0.0245 0.0549 0.0389 0.0737 0.0449 0.0522 0.0360 0.0745 0.0433 OneRec-Think 0.0288 0.0199 0.0412 0.0239 0.0579 0.0412 0.0797 0.0482 0.0563 0.0398 0.0791 0.0471 GRAM 0.0375 0.0256 0.0554 0.0314 0.0718 0.0516 0.0987 0.0603 0.0641 0.0451 0.0890 0.0531 GRLM 0.0375 0.0260 0.0539 0.0313 0.0684 0.0477 0.0942 0.0561 0.0607 0.0430 0.0846 0.0506 Naive-TID 0.0337 0.0226 0.0482 0.0273 0.0634 0.0438 0.0892 0.0521 0.0606 0.0429 0.0828 0.0501 AgenticTagger 0.0299 0.0194 0.0474 0.0251 0.0540 0.0380 0.0781 0.0457 0.0492 0.0332 0.0728 0.0408 IIRG (Ours) 0.0406 0.0283 0.0585 0.0341 0.0780 0.0541 0.1097 0.0642 0.0726 0.0513 0.1011 0.0606 Recall@10
+> NDCG@10  Naive -SID
+> LC -Rec -SID
+> IIRG -SID (Ours)
+
+Figure 5: Generalization to SIDs. IIRG remains effective under SIDs (IIRG-SID), improving over the LLM trained only with next-item prediction (Naive-SID) and outperforming the strongest SID-based baseline (LC-Rec-SID). 
+
+prediction (P5 (Geng et al., 2022), ReAT (Cao et al., 2024), LC-Rec (Zheng et al., 2024a), EAGER-LLM (Hong et al., 2025)), and (4) six LLM-based GR models using SIDs (PLUM (He et al., 2026), OneRec-Think (Liu et al., 2025b)) or TIDs (Naive (LLM trained solely with next-item prediction), GRAM (Lee et al., 2025), GRLM (Zhang et al., 2026), AgenticTagger (Xie et al., 2026)). Further baseline details are in Appendix C.5. 
+
+Proposed method: IIRG. We fully fine-tune the backbone LLM as described in § 4.2. We use TIDs as the default item IDs, except when evaluating the effectiveness of IIRG under SIDs in § 5.3. Note that each user’s target item is explicitly excluded from the user sequence when obtaining collaborative neighbors to prevent data leakage. Item ID details and IIRG details are provided in Appendices C.3 and C.4, respectively. 
+
+5.2 Recommendation performance Setup. For non-LLM baselines, we use the back-bone models from their original papers. For LLM-based baselines, we use Qwen-3.5-4B (Yang et al., 2025), the same backbone as IIRG, and fully fine-tune it. We use the item identifiers proposed in each paper, except for LLM-based GR models with auxiliary training, where we use the same iden-tifiers as IIRG for a fair comparison of training strategies. When our reproduced results are lower than the originally reported results, we use the re-sults reported in the corresponding paper, as their methods were also evaluated under the same set-ting. In addition, we further analyze cold-start item recommendation in Appendix D.9. 
+
+Result. As shown in Table 1, IIRG consistently performs best across all datasets and metrics. Two points stand out. First, IIRG consistently improves over the LLM trained solely with next-item pre-diction (Naive), achieving a 21% average improve-ment in Recall@5 across datasets. Second, IIRG outperforms all baseline training methods in all the datasets, demonstrating that it is a more effective training method than existing training baselines. 
+
+5.3 Generalization across item IDs Setup. We showed the effectiveness of IIRG under TIDs in § 5.2. To examine whether this improve-ment generalizes to SIDs, we repeat the experi-ments from § 5.2 using SIDs as item IDs. For a fair comparison, Naive, LC-Rec, and IIRG all use the SIDs from He et al. (2026); we use LC-Rec as the strongest baseline among those to which SIDs are 7Table 2: Ablation study. Collab. and Semantic indicate the use of collaborative neighbor generation and semantic neighbor generation, respectively. IIRG, which uses both generation tasks, achieves the strongest performance.                                                                                
+
+> Collab. Semantic Sports Toys Beauty
+> R@5 N@5 R@10 N@10 R@5 N@5 R@10 N@10 R@5 N@5 R@10 N@10
+> ✗✗0.0337 0.0226 0.0482 0.0273 0.0634 0.0438 0.0892 0.0521 0.0606 0.0429 0.0828 0.0501
+> ✓✗0.0401 0.0274 0.0568 0.0328 0.0703 0.0490 0.0975 0.0577 0.0671 0.0475 0.0929 0.0558
+> ✗✓0.0391 0.0263 0.0559 0.0323 0.0745 0.0507 0.1038 0.0604 0.0663 0.0464 0.0941 0.0554
+> ✓✓0.0406 0.0283 0.0585 0.0341 0.0780 0.0541 0.1097 0.0642 0.0726 0.0513 0.1011 0.0606 +17% +50% +19% +24%
+> +15% +38% +10% +36%
+> +24% +46% +11% +45%
+> Recall @ 5 Recall @ 5 Recall @ 5  One -hop -
+> memorization
+> ratio in Top -5
+> recommendations
+> (b) Recommendation performance for one -hop -
+> memorization -benefiting users (MB) and non -one -hop -
+> memorization -benefiting users (NMB)
+> (a) Extent of reliance on one -hop memorization
+> Naive -SID IIRG -SID Naive -TID IIRG -TID
+
+Figure 6: Achievement of design goal. IIRG reduces one-hop memorization in Naive, an LLM trained solely with next-item prediction (a), and yields larger per-centage gains for non-one-hop-memorization-benefiting users than for one-hop-memorization-benefiting users (b). These trends hold across datasets and ID types. 
+
+applicable. 5 Additional results with different SIDs are provided in Appendix D.11. 
+
+Result. As shown in Figure 5, IIRG consistently improves over Naive and outperforms LC-Rec, the strongest applicable SID baseline, across the datasets. This result indicates that the effectiveness of IIRG still holds under semantic IDs. 
+
+5.4 Design goal achievement Setup. We examine whether IIRG reduces the re-liance on one-hop memorization exhibited by an LLM trained solely with next-item prediction, and 
+
+> 5
+
+Naive with SIDs corresponds to PLUM (He et al., 2026). 
+
+whether it achieves stronger performance gains for users who do not benefit from one-hop memoriza-tion. To this end, we repeat the analysis in § 3 for IIRG and compare its results against Naive. 
+
+Result. As shown in Figure 6(a), IIRG reduces Naive’s reliance on one-hop memorization. Also, as shown in Figure 6(b), IIRG yields an average gain over Naive of 40% for users who do not benefit from one-hop memorization, versus 16% for users who do, across datasets and IDs. This suggests that IIRG provides strong gains for non-memorization-benefiting users, aligning with our key objective. 
+
+5.5 Ablation study Setup. We analyze whether all key components of IIRG are necessary for achieving strong perfor-mance. We remove collaborative neighbor genera-tion, semantic neighbor generation, or both. TIDs are used as item IDs. In Appendix D.8, we further study (1) a variant trained on random neighbors and (2) heuristics that directly use collaborative or semantic neighbors as recommendations, both of which underperform IIRG. 
+
+Result. As shown in Table 2, IIRG consistently improves its variants across the datasets, demon-strating that both neighbor generation tasks are necessary for achieving strong performance. 
+
+6 Conclusion 
+
+In this work, we investigate memorization behavior in LLM-based GR. We first show that LLMs rely more heavily on one-hop memorization than non-LLM-based GR models, and that their performance gains over these models are largely concentrated among users who benefit from such memorization. Motivated by this, we propose IIRG, a simple yet effective training strategy that helps LLMs capture richer item–item relations beyond one-hop transi-tions. Through experiments, we show that IIRG consistently improves over LLMs trained solely with next-item prediction, especially for users who do not benefit from one-hop memorization. 8Limitations 
+
+Unknown underlying factor. While we uncover one-hop memorization in LLMs and analyze its impact on recommendation performance, we do not identify the underlying factors that explain why 
+
+this one-hop memorization emerges. More broadly, prior work in the general NLP literature has pro-posed several possible explanations for LLM mem-orization (Satvaty et al., 2024), although the domi-nant factor remains unclear. Notably, one key hy-pothesis from NLP, model size, does not appear to explain our observations in GR, as discussed in Appendix D.3. Identifying the primary factors behind one-hop memorization in LLM-based GR is therefore an important direction for future work. 
+
+Limited LLM types. In this work, we use the Qwen-3.5 family (Yang et al., 2025) across diverse model sizes. However, several other LLM families exist, such as Llama (Grattafiori et al., 2024) and Mistral (Jiang et al., 2024). Exploring whether sim-ilar one-hop memorization behavior appears across other LLM families would be an interesting direc-tion for assessing the generality of our findings. 
+
+Ethical Considerations 
+
+This work relies solely on publicly available datasets, publicly released models, and open-source code. We do not collect new user data, use proprietary interaction logs, or conduct any human-subject data collection or annotation. Therefore, we believe that our experiments do not introduce additional privacy risks beyond those already asso-ciated with the public resources used in this study. 
+
+References 
+
+Yuwei Cao, Nikhil Mehta, Xinyang Yi, Raghunan-dan Hulikal Keshavan, Lukasz Heldt, Lichan Hong, Ed Chi, and Maheswaran Sathiamoorthy. 2024. Aligning large language models with recommenda-tion knowledge. In NAACL .Gheorghe Comanici, Eric Bieber, Mike Schaekermann, Ice Pasupat, Noveen Sachdeva, Inderjit Dhillon, Mar-cel Blistein, Ori Ram, Dan Zhang, Evan Rosen, and 1 others. 2025. Gemini 2.5: Pushing the frontier with advanced reasoning, multimodality, long context, and next generation agentic capabilities. arXiv preprint arXiv:2507.06261 .Edoardo D’Amico, Marco De Nadai, Praveen Chandar, Divita Vohra, Shawn Lin, Max Lefarov, Paul Gigioli, Gustavo Penha, Ilya Kopysitsky, Ivo Joel Senese, and 1 others. 2026. Deploying semantic id-based generative retrieval for large-scale podcast discovery at spotify. arXiv preprint arXiv:2603.17540 .Shijie Geng, Shuchang Liu, Zuohui Fu, Yingqiang Ge, and Yongfeng Zhang. 2022. Recommendation as language processing (rlp): A unified pretrain, person-alized prompt & predict paradigm (p5). In RecSys .Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ahmad Al-Dahle, Aiesha Letman, Akhil Mathur, Alan Schelten, Alex Vaughan, and 1 others. 2024. The llama 3 herd of models. arXiv preprint arXiv:2407.21783 .Ruining He, Lukasz Heldt, Lichan Hong, Raghunandan Keshavan, Shifan Mao, Nikhil Mehta, Zhengyang Su, Alicia Tsai, Yueqi Wang, Shao-Chuan Wang, and 1 others. 2026. Plum: Adapting pre-trained language models for industrial-scale generative recommenda-tions. In WWW .Ruining He and Julian McAuley. 2016. Ups and downs: Modeling the visual evolution of fashion trends with one-class collaborative filtering. In WWW .Xiangnan He, Kuan Deng, Xiang Wang, Yan Li, Yong-dong Zhang, and Meng Wang. 2020. Lightgcn: Sim-plifying and powering graph convolution network for recommendation. In SIGIR .Peter Henderson, Xuechen Li, Dan Jurafsky, Tatsunori Hashimoto, Mark A Lemley, and Percy Liang. 2023. Foundation models and fair use. Journal of Machine Learning Research , 24(400):1–79. Minjie Hong, Yan Xia, Zehan Wang, Jieming Zhu, Ye Wang, Sihang Cai, Xiaoda Yang, Quanyu Dai, Zhenhua Dong, Zhimeng Zhang, and 1 others. 2025. Eager-llm: Enhancing large language models as rec-ommenders through exogenous behavior-semantic integration. In WWW .Yupeng Hou, Jianmo Ni, Zhankui He, Noveen Sachdeva, Wang-Cheng Kang, Ed H Chi, Julian McAuley, and Derek Zhiyuan Cheng. 2025. Actionpiece: Con-textually tokenizing action sequences for generative recommendation. In ICML .Edward J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Liang Wang, Weizhu Chen, and 1 others. 2022. Lora: Low-rank adaptation of large language models. In ICLR .Daphne Ippolito, Florian Tramer, Milad Nasr, Chiyuan Zhang, Matthew Jagielski, Katherine Lee, Christo-pher Choquette Choo, and Nicholas Carlini. 2023. Preventing generation of verbatim memorization in language models gives a false sense of privacy. In 
+
+INLG .Albert Q Jiang, Alexandre Sablayrolles, Antoine Roux, Arthur Mensch, Blanche Savary, Chris Bam-ford, Devendra Singh Chaplot, Diego de las Casas, Emma Bou Hanna, Florian Bressand, and 1 oth-ers. 2024. Mixtral of experts. arXiv preprint arXiv:2401.04088 .
+
+9Clark Mingxuan Ju, Liam Collins, Leonardo Neves, Bhuvesh Kumar, Louis Yufeng Wang, Tong Zhao, and Neil Shah. 2025. Generative recommendation with semantic ids: A practitioner’s handbook. In 
+
+CIKM .Wang-Cheng Kang and Julian McAuley. 2018. Self-attentive sequential recommendation. In ICDM .Aly Kassem, Omar Mahmoud, and Sherif Saad. 2023. Preserving privacy through dememorization: An un-learning technique for mitigating memorization risks in language models. In EMNLP .Xiaoyu Kong, Leheng Sheng, Junfei Tan, Yuxin Chen, Jiancan Wu, An Zhang, Xiang Wang, and Xiang-nan He. 2025. Minionerec: An open-source frame-work for scaling generative recommendation. arXiv preprint arXiv:2510.24431 .Doyup Lee, Chiheon Kim, Saehoon Kim, Minsu Cho, and Wook-Shin Han. 2022a. Autoregressive image generation using residual quantization. In CVPR .Katherine Lee, Daphne Ippolito, Andrew Nystrom, Chiyuan Zhang, Douglas Eck, Chris Callison-Burch, and Nicholas Carlini. 2022b. Deduplicating training data makes language models better. In ACL .Sunkyung Lee, Minjin Choi, Eunseong Choi, Hye-young Kim, and Jongwuk Lee. 2025. Gram: Gen-erative recommendation via semantic-aware multi-granular late fusion. In ACL .Hao Li, Di Huang, Ziyu Wang, and Amir M Rah-mani. 2025. Skewed memorization in large language models: Quantification and decomposition. arXiv preprint arXiv:2502.01187 .Lei Li, Yongfeng Zhang, Dugang Liu, and Li Chen. 2024. Large language models for generative recom-mendation: A survey and visionary discussions. In 
+
+LREC-COLING .Xinyu Lin, Chaoqun Yang, Wenjie Wang, Yongqi Li, Cunxiao Du, Fuli Feng, See-Kiong Ng, and Tat-Seng Chua. 2025. Efficient inference for large language model-based generative recommendation. In ICLR .Jingzhe Liu, Liam Collins, Jiliang Tang, Tong Zhao, Neil Shah, and Clark Mingxuan Ju. 2025a. Un-derstanding generative recommendation with seman-tic ids from a model-scaling view. arXiv preprint arXiv:2509.25522 .Zhanyu Liu, Shiyao Wang, Xingmei Wang, Rongzhou Zhang, Jiaxin Deng, Honghui Bao, Jinghao Zhang, Wuchao Li, Pengfei Zheng, Xiangyu Wu, and 1 others. 2025b. Onerec-think: In-text reasoning for generative recommendation. arXiv preprint arXiv:2510.11639 .Ilya Loshchilov and Frank Hutter. 2019. Decoupled weight decay regularization. In ICLR .Yun Luo, Zhen Yang, Fandong Meng, Yafu Li, Jie Zhou, and Yue Zhang. 2025. An empirical study of catas-trophic forgetting in large language models during continual fine-tuning. IEEE Transactions on Audio, Speech and Language Processing , 33:3776–3786. Fatemehsadat Mireshghallah, Archit Uniyal, Tianhao Wang, David Evans, and Taylor Berg-Kirkpatrick. 2022. An empirical analysis of memorization in fine-tuned autoregressive language models. In EMNLP .Gustavo Penha, Edoardo D’Amico, Marco De Nadai, Enrico Palumbo, Alexandre Tamborrino, Ali Var-dasbi, Max Lefarov, Shawn Lin, Timothy Heath, Francesco Fabbri, and 1 others. 2025. Semantic ids for joint generative search and recommendation. In 
+
+RecSys .Shashank Rajput, Nikhil Mehta, Anima Singh, Raghu-nandan Hulikal Keshavan, Trung Vu, Lukasz Heldt, Lichan Hong, Yi Tay, Vinh Tran, Jonah Samost, and 1 others. 2023. Recommender systems with generative retrieval. In NeurIPS .Jeff Rasley, Samyam Rajbhandari, Olatunji Ruwase, and Yuxiong He. 2020. Deepspeed: System opti-mizations enable training deep learning models with over 100 billion parameters. In KDD .Badrul Sarwar, George Karypis, Joseph Konstan, and John Riedl. 2001. Item-based collaborative filtering recommendation algorithms. In WWW .Ali Satvaty, Suzan Verberne, and Fatih Turkmen. 2024. Undesirable memorization in large language models: A survey. arXiv preprint arXiv:2410.02650 .Lütfi Kerem Senel, Besnik Fetahu, Davis Yoshida, Zhiyu Chen, Giuseppe Castellucci, Nikhita Vedula, Jason Ingyu Choi, and Shervin Malmasi. 2024. Gen-erative explore-exploit: Training-free optimization of generative recommender systems using llm optimiz-ers. In ACL .Ilya Sutskever, Oriol Vinyals, and Quoc V Le. 2014. Sequence to sequence learning with neural networks. In NeurIPS .Juntao Tan, Shuyuan Xu, Wenyue Hua, Yingqiang Ge, Zelong Li, and Yongfeng Zhang. 2024. Idgenrec: Llm-recsys alignment with textual id learning. In 
+
+SIGIR .Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. 2017. Attention is all you need. In NeurIPS .Hao Wang, Wei Guo, Luankang Zhang, Jin Yao Chin, Yufei Ye, Huifeng Guo, Yong Liu, Defu Lian, Ruim-ing Tang, and Enhong Chen. 2025. Generative large recommendation models: emerging trends in llms for recommendation. In WWW .
+
+10 Wenjie Wang, Honghui Bao, Xinyu Lin, Jizhi Zhang, Yongqi Li, Fuli Feng, See-Kiong Ng, and Tat-Seng Chua. 2024. Learnable item tokenization for genera-tive recommendation. In CIKM .Jiawen Xie, Haiyang Wu, Deyi Ji, Yuekui Yang, and Shaoping Ma. 2025. Lohrec: Leveraging order and hierarchy in generative sequential recommendation. In EMNLP .Zhouhang Xie, Bo Peng, Zhankui He, Ziqi Chen, Al-ice Han, Isabella Ye, Benjamin Coleman, Noveen Sachdeva, Fernando Pereira, Julian McAuley, and 1 others. 2026. Agentictagger: Structured item repre-sentation for recommendation with llm agents. arXiv preprint arXiv:2602.05945 .An Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chang Gao, Chengen Huang, Chenxu Lv, and 1 others. 2025. Qwen3 technical report. arXiv preprint arXiv:2505.09388 .Junliang Yu, Hongzhi Yin, Xin Xia, Tong Chen, Lizhen Cui, and Quoc Viet Hung Nguyen. 2022. Are graph augmentations necessary? simple graph contrastive learning for recommendation. In SIGIR .Tingting Zhang, Pengpeng Zhao, Yanchi Liu, Victor S Sheng, Jiajie Xu, Deqing Wang, Guanfeng Liu, Xiao-fang Zhou, and 1 others. 2019. Feature-level deeper self-attention network for sequential recommenda-tion. In IJCAI .Yanzhao Zhang, Mingxin Li, Dingkun Long, Xin Zhang, Huan Lin, Baosong Yang, Pengjun Xie, An Yang, Dayiheng Liu, Junyang Lin, and 1 others. 2025. Qwen3 embedding: Advancing text embedding and reranking through foundation models. arXiv preprint arXiv:2506.05176 .Zhiyang Zhang, Junda She, Kuo Cai, Bo Chen, Shiyao Wang, Xinchen Luo, Qiang Luo, Ruiming Tang, Han Li, Kun Gai, and 1 others. 2026. Unleashing the native recommendation potential: Llm-based genera-tive recommendation via structured term identifiers. 
+
+arXiv preprint arXiv:2601.06798 .Bowen Zheng, Yupeng Hou, Hongyu Lu, Yu Chen, Wayne Xin Zhao, Ming Chen, and Ji-Rong Wen. 2024a. Adapting large language models by integrat-ing collaborative semantics for recommendation. In 
+
+ICDE .Yaowei Zheng, Richong Zhang, Junhao Zhang, Yanhan Ye, and Zheyan Luo. 2024b. Llamafactory: Unified efficient fine-tuning of 100+ language models. In 
+
+ACL .Guorui Zhou, Honghui Bao, Jiaming Huang, Ji-axin Deng, Jinghao Zhang, Junda She, Kuo Cai, Lejian Ren, Lu Ren, Qiang Luo, and 1 others. 2025. Openonerec technical report. arXiv preprint arXiv:2512.24762 .Kun Zhou, Hui Wang, Wayne Xin Zhao, Yutao Zhu, Sirui Wang, Fuzheng Zhang, Zhongyuan Wang, and Ji-Rong Wen. 2020. S3-rec: Self-supervised learning for sequential recommendation with mutual informa-tion maximization. In CIKM .
+
+A Details of item identifiers 
+
+Item identifiers are structured discrete representa-tions of items that enable LLMs to memorize item-specific information and generate item recommen-dations. Largely, item identifiers are categorized into: (1) semantic identifiers (semantic IDs) and (2) term-based identifiers (term IDs). 
+
+A.1 Semantic identifiers 
+
+Semantic identifiers (semantic IDs) are discrete code sequences that represent individual items. For example, an item ik can be represented by a se-mantic ID sequence (6 , 102 , 47) . Such seman-tic IDs are often generated from item metadata using discrete representation learning techniques, such as RQ-VAE (Lee et al., 2022a) and Resid-ual K-Means (Zhou et al., 2025). Despite each semantic ID having an encoded meaning that cap-tures item metadata information, LLMs do not have prior knowledge of these identifiers. There-fore, instead of directly representing each item with integer sequences, methods typically do vo-cabulary expansion with special tokens for each unique integer at each position to represent the cor-responding code, following prior studies (Zheng et al., 2024a; He et al., 2026). For example, the semantic ID (6 , 102 , 47) can be represented as a sequence of three position-specific special tokens, 
+
+[< a 6 >< b 102 >< c 47 >], where < a 6 > cor-responds to the index-6 code at the first position, 
+
+< b 102 > corresponds to the index-102 code at the second position, and < c 47 > corresponds to the index-47 code at the last position. Often, these special tokens are aligned with the LLM’s token space through a dedicated training procedure, such as generating the codes from a given item title (He et al., 2026). 
+
+A.2 Term-based identifiers 
+
+One key challenge in using term-based identifiers for LLM-based generative retrieval is aligning the special tokens corresponding to the codes with the LLM’s token space, so that the LLM can effec-tively understand and use these codes (Zhang et al., 2026). To avoid this cost, a promising research direction is to use terms (i.e., keywords that repre-sent the characteristics of each item) to represent 11 Instruction: Given a user’s historical item interaction sequence, predict the keywords of the next item the user is most likely to interact with. Each item in the sequence is represented by exactly 4 keywords enclosed in square brackets []. The items are listed in chronological order.     
+
+> Input: Item keywords: [cycling, tire, wire-bead, gum-wall] Title: Cheng Shin C637 Road Bike Tire (Wire Bead, 27&quot; x 1-1/4&quot;, Black Wall).
+> Output: Item keywords: [cycling, tube, 700mm, 35-40] Title: Sunlite Bicycle Tube, 700 x 35-40 (27 x 1-3/8) SCHRADER Valve. \n Item keywords: [cycling, bicycle-parts, saddles, fixed-gear] Title: Retrospec Bicycles Urban/Fixed Gear Saddle.
+
+Figure 7: Training sample of next-item prediction with term IDs. Given the instruction and input, the LLM is trained to generate the output autoregressively using teacher forcing.                     
+
+> Instruction: Given a user’s historical item interaction sequence, predict the next item the user is most likely to interact with. Each item in the sequence is represented by a unique identifier composed of 3 special tokens enclosed in square brackets []. The items are listed in chronological order.
+> Input: Item keywords: [< a 195 >< b 311 >< c 230 >]Title: Cheng Shin C637 Road Bike Tire (Wire Bead, 27&quot; x 1-1/4&quot;, Black Wall).
+> Output: Item keywords: [< a 84 >< b 500 >< c 133 >]Title: Sunlite Bicycle Tube, 700 x 35-40 (27 x 1-3/8) SCHRADER Valve. \n Item keywords: [< a 546 >< b 11 >< c 132 >]Title: Retrospec Bicycles Urban/Fixed Gear Saddle.
+
+Figure 8: Training sample of next-item prediction with semantic IDs. Given the instruction and input, the LLM is trained to generate the output autoregressively using teacher forcing. 
+
+each item (Tan et al., 2024). For example, an item with title " Retrospec Bicycles Urban/Fixed Gear Saddle " can be represented as [" Cycling ", "Bicycle-part ", " Saddle ", " Fixed-gear "]. In this way, existing language tokens can be naturally used to represent items, allowing LLMs to interpret them without additional alignment steps. 
+
+B Prompt examples 
+
+In this section, we present several examples for the prompts used in IIRG. In the implementation, each sample is formatted using the Alpaca format adopted by LLaMA-Factory (Zheng et al., 2024b). 
+
+B.1 Next-item prediction 
+
+The example data sample using term-based item identifiers and semantic identifiers are in Figure 7 and Figure 8, respectively. Given the instruction and anchor item (i.e., the first item the user has interacted with), the LLM is trained to generate the remaining parts of the user’s interaction history. This format is inspired by Zhang et al. (2026). 
+
+B.2 Collaborative neighbor generation 
+
+The example data sample using term-based item identifiers and semantic identifiers are in Figure 9 and Figure 10, respectively. Given the instruction and target item, the LLM is trained to generate the collaborative neighbors of the target item. 
+
+Table 3: Dataset statistics. Interactions denote the user-item interactions. 
+
+Dataset # Users # Items # Interactions Sports 35,598 18,357 296,337 Toys 19,412 11,924 167,597 Beauty 22,363 12,101 198,502 Yelp 30,431 20,033 316,354 
+
+B.3 Semantic neighbor generation 
+
+The example data samples using term-based item identifiers and semantic identifiers are in Figure 11 and Figure 12, respectively. Given the instruction and target item, the LLM is trained to generate the semantic neighbors of the target item. 
+
+C Experimental details 
+
+In this section, we present further experimental details of our work. 
+
+C.1 Dataset statistics 
+
+Table 3 presents the statistics of the datasets used in this work, including number of users, items, and user-item interactions. 
+
+C.2 Machines 
+
+Our work is conducted on Google Cloud Plat-form. Each training job is run on a single GCP 12 Instruction: Given a target item in the format [keywords, title], recommend five items that are most likely to be co-purchased with it. \n Return the items sorted by likelihood, from most likely to least likely, and format each item as [keywords, title]. 
+
+Input: Item keywords: [game, card-game, solitaire, mega-screen] Title: Mega Screen Solitaire. 
+
+Output: Item keywords: [educational, stacking-activity, blocks, ten] Title: Fisher-Price Brilliant Basics Baby’s First Blocks. \n Item keywords: [playsets, sports-equipment, basketball-sets, hoop-system] Title: Little Tikes EasyScore Basketball Set. \n Item keywords: [electronic, interactive, sound-based, farmer-theme] Title: Fisher-Price See ’n Say The Farmer Says. \n Item keywords: [game, board-games, card-games, busy-town] Title: Richard Scarry Busy Town. \n 
+
+Item keywords: [electronic, interactive, activity-center, musical-table] Title: LeapFrog Animal Adventure Learning Table (Frustration Free Packaging). 
+
+Figure 9: Training sample of collaborative neighbor generation with term IDs. Given the instruction and input, the LLM is trained to generate the output autoregressively using teacher forcing. 
+
+Instruction: Given a target item in the format [keywords, title], recommend five items that are most likely to be co-purchased with it. \n Return the items sorted by likelihood, from most likely to least likely, and format each item as [keywords, title]. 
+
+Input: Item keywords: [ < a 716 >< b 147 >< c 167 >] Title: Mega Screen Solitaire. 
+
+Output: Item keywords: [ < a 431 >< b 440 >< c 64 >] Title: Fisher-Price Brilliant Basics Baby’s First Blocks. \n Item keywords: [ < a 852 >< b 490 >< c 1 >] Title: Little Tikes EasyScore Basketball Set. \n Item keywords: [ < a 220 >< b439 >< c 14 >] Title: Fisher-Price See ’n Say The Farmer Says. \n Item keywords: [ < a 160 >< b 98 >< c 214 >]Title: Richard Scarry Busy Town. \n Item keywords: [ < a 635 >< b 282 >< c 146 >] Title: LeapFrog Animal Adventure Learning Table (Frustration Free Packaging). 
+
+Figure 10: Training sample of collaborative neighbor generation with semantic IDs. Given the instruction and input, the LLM is trained to generate the output autoregressively using teacher forcing. 
+
+a2-highgpu-8g VM node equipped with 96 vC-PUs, 680 GB of memory, and 8 NVIDIA A100 GPUs, each with 40 GB of GPU memory. However, for training and evaluation of Qwen-3.5-9B back-bone LLM, we use a single GCP a2-ultragpu-8g 
+
+VM node equipped with 96 vCPUs, 1,360 GB of memory, and 8 NVIDIA A100 GPUs, each with 80 GB of GPU memory. The code implementa-tion is largely inspired by Zhang et al. (2026), and the detailed LLM fine-tuning protocol is based on LLaMA-Factory (Zheng et al., 2024b). 
+
+C.3 Item identifiers of IIRG 
+
+As discussed in Section 5, IIRG can be coupled with both term IDs and semantic IDs. We now elaborate on how we obtain the respective identi-fiers used as item identifiers. 
+
+Term IDs (TIDs). We construct four keywords for each item, where each keyword captures a differ-ent level of the item’s hierarchical characteristics. Specifically, the first keyword represents the most general attribute, shared by many items in the item space, while the last keyword represents the most specific attribute, shared by only a few items. To obtain these keywords, we first retrieve the 500 nearest neighbors of each item by sorting other items according to the cosine similarity between their textual-description representations and that of the target item. Then, we build the following four item groups: • Group 1. Three items randomly sampled from ranks 51 to 500. • Group 2. Three items randomly sampled from ranks 11 to 50. • Group 3. Three items randomly sampled from ranks 5 to 10. • Group 4. A single most similar item. Then, we prompt the LLM to generate the char-acteristics shared between the target item and the items in each group. The characteristic identified for Group 1 is used as the first keyword, while the characteristic identified for Group 4 is used as the last keyword. After generating the four keywords for each item, we refine them by merging semantically equiva-lent keywords expressed in different forms, such as singular/plural variants and synonyms. This 13 Instruction: Given a target item in the format [keywords, title], list five items that are most semantically similar to it. \n           
+
+> Return the items sorted by similarity, from most similar to least similar, and format each item as [keywords, title].
+> Input: Item keywords: [skin-care, cleansers, cream-cleansers, soap-free-formulation] Title: Burt’s Bees Sensitive Facial Cleanser, 6 Fluid Ounces.
+> Output: Item keywords: [skin-care, sensitive-skin, face-creams, night-creams] Title: Burt’s Bees Sensitive Daily Moisturizing Cream, 1.8 Ounces. \n Item keywords: [skin-care, facial-care, cleansers, orange-essence] Title: Burt’s Bees Radiance Facial Cleanser, 6 Fluid Ounce. \n Item keywords: [cleanser, face, cream, soap-bark] Title: Burt’s Bees Soap Bark &amp; Chamomile Deep Cleansing Cream 6 oz (Pack of 2). \n Item keywords: [cleanser, face, soap-free, ultra-calming] Title: Aveeno Ultra-Calming Moisturizing Cream Cleanser, 5-Ounce Tubes (Pack of 3). \n Item keywords: [skin-care, facial-care, moisturizing, night-cream] Title: Burt’s Bees Sensitive Night Cream, 1.8 Ounces.
+
+Figure 11: Training sample of semantic neighbor generation with term IDs. Given the instruction and input, the LLM is trained to generate the output autoregressively using teacher forcing.                                          
+
+> Instruction: Given a target item in the format [keywords, title], list five items that are most semantically similar to it. \n
+> Return the items sorted by similarity, from most similar to least similar, and format each item as [keywords, title].
+> Input: Item keywords: [< a 289 >< b 375 >< c 121 >]Title: Burt’s Bees Sensitive Facial Cleanser, 6 Fluid Ounces.
+> Output: Item keywords: [< a 269 >< b 406 >< c 35 >]Title: Burt’s Bees Sensitive Daily Moisturizing Cream, 1.8 Ounces. \n Item keywords: [< a 779 >< b 379 >< c 33 >]Title: Burt’s Bees Radiance Facial Cleanser, 6 Fluid Ounce. \n
+> Item keywords: [< a 779 >< b 406 >< c 23 >]Title: Burt’s Bees Soap Bark &amp; Chamomile Deep Cleansing Cream 6 oz (Pack of 2). \n Item keywords: [< a 609 >< b 1>< c 2>]Title: Aveeno Ultra-Calming Moisturizing Cream Cleanser, 5-Ounce Tubes (Pack of 3). \n Item keywords: [< a 269 >< b 302 >< c 93 >]Title: Burt’s Bees Sensitive Night Cream, 1.8 Ounces.
+
+Figure 12: Training sample of semantic neighbor generation with semantic IDs. Given the instruction and input, the LLM is trained to generate the output autoregressively using teacher forcing. 
+
+standardization improves consistency across items, making it easier for the LLM-based generative rec-ommender to memorize and generate item repre-sentations. To this end, for each keyword level, we aggregate the generated keywords and use an LLM to construct a mapping function that maps semantically equivalent terms to a unified keyword. For scalability, we process keywords in batches rather than feeding all terms to the LLM at once, where each batch contains a subset of the total key-words. We repeat this re-mapping process until convergence, defined as fewer than 10 keywords being changed between iterations. 
+
+Semantic IDs (SIDs). For semantic item identi-fiers, we adopt the identifiers proposed by He et al. (2026). Specifically, we apply RQ-VAE-based vector quantization (Lee et al., 2022a) together with co-purchase-based contrastive learning across items. We fix the three-level codebook sizes to 
+
+(1024 , 512 , 256) , and set the training epochs, learn-ing rate, weight decay, and contrastive-learning loss weight to 150 , 10 −3, 10 −6, and 10 −1, respectively. After obtaining the semantic identifier for each item, we perform continued pre-training to align the newly added special tokens corresponding to semantic identifier codes after vocabulary expan-sion. To this end, we freeze the LLM-based gener-ative recommender and its existing language-token embeddings, updating only the special tokens cor-responding to the semantic identifier codes. Each training sample is item-level: the input is the item title, and the output is the semantic identifier se-quence of the corresponding item. This step is per-formed for 5 epochs with a learning rate of 10 −3.
+
+C.4 Details for IIRG Backbone models and implementation. For the pretrained language embedding model, we use the Qwen-3-8B embedding model (Zhang et al., 2025). To build term identifiers, we use the instruction-tuned Qwen-3.5-9B model (Yang et al., 2025) for draft keyword generation and keyword refinement. To build semantic identifiers, we use two-layer MLPs as encoders and decoders, with a hidden dimension of 256 . All models are trained with the AdamW optimizer (Loshchilov and Hutter, 2019), and LLM fine-tuning is implemented based on deepspeed (Rasley et al., 2020). For efficiency, model training is performed using bfloat16 pre-cision, except for the 9B models, where we use 14 Table 4: Hyperparameter settings for SID and TID in each dataset.                                    
+
+> Sports Toys Beauty SID TID SID TID SID TID
+> γ10 −410 −410 −45×10 −510 −45×10 −5
+> ω10 −200000
+> N1575555
+> λ21.00.11.01.01.01.0
+
+float32 precision because bfloat16 led to numerical instability and NaN values. 
+
+Hyperparameters. We train IIRG for 3 epochs with a fixed batch size of 128. Gradient accumula-tion is used because processing all 128 data points in a single update is not feasible on 40GB GPUs. The co-purchased neighbor generation loss weight 
+
+λ1 is fixed to 1, and the number of semantic neigh-bors N2 is fixed to 5. We fix the window size in co-purchase neighbor generation W to 5. We tune the following hyperparameters: the learning rate γ in {5 × 10 −5, 10 −4}, the weight decay ω in 
+
+{0, 10 −2}, the semantic neighbor generation loss weights λ2 in {10 −1, 1}, and the numbers of col-laborative neighbors N1 in {5, 7}.
+
+Inference of IIRG. For final inference, we use the typical beam-search used in language mod-els (Sutskever et al., 2014). Specifically, for each user, the LLM autoregressively generates 20 beams with a fixed number of tokens, and each beam is mapped to an item based on its identifier and the generated output. For the final matching, we fol-low the matching strategy proposed by Zhang et al. (2026). Note that more than 99.9% of beams are accurately matched to the existing item, which we elaborate in Appendix D.7. When an output beam corresponds to collided items (i.e., items sharing the same identifier), we select the most popular item as the final recommendation for that beam. 
+
+C.5 Baseline details 
+
+We elaborate on the details regarding the baseline methods used in this work. 
+
+Traditional recommender systems. All mod-els are trained with the AdamW (Loshchilov and Hutter, 2019) optimizer. The backbone architec-tures of these methods follow those used in the original works. We set the hidden dimension size and weight decay of all baseline methods to 128 and 10 −6, respectively. We train each model for 200 epochs, and select the model check-point with the best validation Recall@10 results. The learning rates of these models are tuned in 
+
+{10 −3, 5 × 10 −4, 10 −4}.
+
+Non-LLM-based GR models. All models are trained with the AdamW (Loshchilov and Hutter, 2019) optimizer. For non-LLM-based GR models, we use the Transformer encoder-decoder architec-ture (Vaswani et al., 2017) as the backbone genera-tive retrieval model. We set the hidden dimension size and weight decay of all baseline methods to 256 and 10 −6, respectively. We train each model for 100 epochs, and select the model checkpoint with the best validation Recall@10 results. We set the generation output beam-size as 20 , and tune the learning rate in {10 −3, 5 × 10 −4, 10 −4}.
+
+LLM-based GR models. All models are trained with the AdamW (Loshchilov and Hutter, 2019) optimizer. For LLM-based GR models that use specialized identifiers and provide official imple-mentations (i.e., GRAM (Lee et al., 2025) and GRLM (Zhang et al., 2026)), we use their imple-mentations for term identifier generation. For meth-ods without official implementations (i.e., Agen-ticTagger (Xie et al., 2026) and PLUM (He et al., 2026)), we implement the identifier generation step following the details provided in their manuscripts. For methods that require a teacher LLM (i.e., P5 (Geng et al., 2022), LC-Rec (Zheng et al., 2024a), and EAGER-LLM (Hong et al., 2025)), where the LLM-based GR model learns from the teacher’s reasoning process, we use Gemini-2.5-Flash (Comanici et al., 2025) as the teacher LLM via API access. The overall training pipeline and hyperparameter configuration are kept the same as those of IIRG, except that we tune the learning rate for each method in {10 −4, 5 × 10 −5}. All LLM-based GR methods use the same inference strategy as in IIRG. 
+
+D Additional experimental results 
+
+In this section, we provide additional experimental results omitted from the main manuscript due to the space constraint. 
+
+D.1 Informativeness of proposed neighbors 
+
+Recall that in Section 4, we introduce two types of neighbors that we use as our training objectives: collaborative neighbors and semantic neighbors. In this section, we analyze the informativeness of such neighbors, whether such neighbors can provide ef-fective signal for recommending items to users who do not benefit from the one-hop memorization. To 15 (a) Ratio of users whose test item is    
+
+> included in each candidate set
+> (b) Jaccard similarity between candidate sets (c) Additional benefit caused by
+> our neighbors
+> Memorization -based (OM) Collaborative -neighbor -based (CN) Semantic -neighbor -based (SN)
+> CN and/or SN after excluding memorization -beneficial users
+
+Figure 13: Informativeness of our proposed neighbors. The ratio of users benefiting from our collaborative and semantic neighbors is comparable to that of users benefiting from one-hop memorization (see (a)). Moreover, the three neighbor types have a Jaccard similarity below 0.5, suggesting that they are not merely redundant (see (b)). In addition, among non-memorization-benefiting users, our neighbors benefit a group of users comparable in size to the memorization-benefiting group (see (c)). 
+
+this end, we conduct three analyses: (RQ1) to what extent the neighbors of items in a user’s interaction sequence contain the target item, (RQ2) to what extent these neighbors benefit users who are not sufficiently benefited by one-hop memorization, and (RQ3) whether these neighbors provide signals distinct from one-hop memorization. 
+
+Setup. We consider three heuristic candidate sets: • Memorization-based: Each user’s candidates are the one-hop memorized items derived from the user’s input sequence, following Section 3.2. • Collaborative-neighbor-based: Each user’s candidates are the top-15 most frequent collabo-rative neighbors of each item in the user’s input sequence. • Semantic-neighbor-based: Each user’s candi-dates are the top-15 items with the most similar textual-description embeddings to each item in the user’s input sequence. Then, min(50 , | S  
+
+> ik∈su
+
+N (ik)|) candidates are se-lected for each user u as in Section 3.2. Lastly, to answer these research questions, we measure: (A1) the number of users whose target item is included in each candidate set, (A2) the number of users who benefit from the two neighbor types but not from one-hop memorization, and (A3) the average Jaccard similarity between different candidate sets for each user. 
+
+Result. Results are provided in Figure 13. As shown in (a), our collaborative and semantic neigh-bors cover a fraction of users comparable to one-hop memorization. In addition, as shown in (b), Naive (w/o Regul.)  L2 - Weight decay  
+
+> Early stopping IIRG (Ours)
+> Size reduction
+
+Figure 14: Effect of existing regularization tech-niques. In the Beauty dataset, existing regularization techniques cannot effectively reduce the LLM’s one-hop memorization behavior and/or hurt LLM’s recommen-dation performance. 
+
+their pairwise Jaccard similarity with one-hop neighbors remains below 0.5, indicating that these neighbor types provide non-redundant information. Lastly, as shown in (c), among non-memorization-benefiting users, our neighbors cover a group com-parable in size to the memorization-benefiting group, suggesting that our supervision signals pro-vide predictive information comparable to or even stronger than one-hop memorization. 
+
+D.2 Effect of regularization techniques 
+
+In this section, we explore whether common regu-larization techniques can alleviate the LLM’s ten-dency to rely on the transition patterns (Section 3). 
+
+Setup. We use four regularization techniques in our analysis: (1) LoRA (Hu et al., 2022); (2) model-size reduction, using a 0.8B-parameter LLM while all other LLMs in our analysis use 4B-parameter models; (3) L2 weight decay in the optimizer; and (4) early stopping at epoch 2 instead of the original 16 Figure 15: Effect of model size on memorization. In the Sports dataset, the size of a GR model does not show a clear correlation with its reliance on one-hop memo-rization, for either the non-LLM-based model, TIGER, or LLM-based models. This suggests that model size alone does not determine memorization behavior. 
+
+3 epochs. We use term IDs as item identifiers. We compare the methods by fine-tuning the LLM for the next-item prediction task with each regulariza-tion technique. We use the Beauty dataset. 
+
+Result 1: Failure of LoRA. We find that LoRA fails to generate valid recommendation outputs in our setting. Specifically, 94% of the outputs gen-erated by the LoRA-fine-tuned LLM are invalid. These invalid outputs either consist of natural-language reasoning that does not explicitly mention an item (e.g., “Given the user interaction history, the user is likely to purchase camping products”), or contain item identifiers that do not exist in the item space. This trend holds across different LoRA ranks: r = 16 , corresponding to 1% of the total pa-rameters, r = 64 , corresponding to 7% of the total parameters, and r = 256 , corresponding to 13% of the total parameters. This suggests that training a sufficient number of LLM parameters is necessary for enabling the LLM to both follow the desired output format and memorize valid item identifiers. 
+
+Result 2: Other methods. As shown in Figure 14, all three regularization techniques fail to reduce one-hop memorization without hurting recommen-dation performance. In contrast, IIRG reduces memorization behavior while improving down-stream task performance, achieving the largest gains in both aspects. This suggests that IIRG ad-dresses the memorization behavior more effectively than common regularization techniques. 
+
+D.3 Effect of model size 
+
+In this section, we explore whether the one-hop memorization behavior of LLMs has significant correlation with the size of the GR model. 
+
+Setup. We evaluate four LLMs of different sizes:              
+
+> Table 5: Exclusion of one-hop transitions for col-laborative neighbors . The current design choice of collaborative neighbors for IIRG outperforms the alter-native that excludes one-hop transition items (OT).
+> Toys Beauty R@10 N@10 R@10 N@10 w/o OT 0.1022 0.0605 0.0961 0.0569 w/ OT (IIRG) 0.1097 0.0642 0.1011 0.0606
+
+0.8B, 2B, 4B, and 9B parameters. All models are from the same family: Qwen-3.5 (Yang et al., 2025). We also scale TIGER, a non-LLM-based GR model, to a near-LLM size of 1.4B param-eters, which is roughly 470 × larger than the 3M-parameter TIGER model used throughout our work. We use the term IDs as item identifiers and measure the reliance of each method on one-hop memoriza-tion as in § 3. 
+
+Result. As shown in Figure 15, model size does not show a clear trend with the one-hop memorization ratio. This suggests that model size alone does not clearly explain reliance on one-hop memorization. 
+
+D.4 Discussions on excluding one-hop transitions from collaborative neighbors 
+
+Note that when constructing collaborative neigh-bors (§ 4.2), we treat all items appearing within a window of size W around each item as its collab-orative neighbor candidates. This often includes the one-hop successor as well, which may preserve the model’s reliance on one-hop memorization. We further analyze whether removing such successors leads to performance improvements. 
+
+Setup. An alternative design is to exclude the one-hop successor of the corresponding item and use only the remaining 2W − 1 items as co-purchase neighbors, which more explicitly reduces reliance on one-hop memorization. We then apply the same selection strategy as in § 4.2 to select N1 items, and use the resulting neighbors as supervision signals for the collaborative neighbor generation task. We use TIDs as item identifiers. 
+
+Result. As shown in Table 5, our current design outperforms the alternative that explicitly removes one-hop transition items. We hypothesize that this removal may bias the LLM too strongly toward multi-hop relations, causing it to underutilize one-hop relations that still provide useful predictive signals for certain user groups. Therefore, the cur-rent design of IIRG may better balance one-hop 17 Naive   
+
+> Ours (SID -based)
+> Ours (Emb -based) Figure 16: Performance of diverse semantic neigh-bor search methods for IIRG. Searching semantic neighbors with semantic IDs (SIDs) still significantly improves the recommendation performance of the LLM trained solely with next-item prediction (Naive), while the performance drop compared with full dense embed-ding search (Emb) remains relatively small.
+
+and multi-hop relations, which are both important for strong performance. 
+
+D.5 Discussions on joint training 
+
+Our preliminary analysis shows that joint learn-ing outperforms continued pre-training, where the LLM is first trained on our two neighbor genera-tion tasks and then further fine-tuned for next-item prediction. We hypothesize that this is because, in the latter approach, the LLM tends to forget the rich item relations learned through our tasks and instead reverts to focusing on local transition pat-terns learned from the next-item prediction task, consistent with observations in LLM continued fine-tuning literature (Luo et al., 2025). 
+
+D.6 Efficient semantic neighbor generation Search strategy. Note that semantic neighbors are obtained from item embeddings encoded from item textual descriptions (Section 4.2). A full search over all item embeddings incurs quadratic cost with respect to the number of items. To reduce this, we introduce an efficient search strategy based on each item’s semantic identifier. Instead of performing dense search over all item embeddings, we select the top-K items according to the number of seman-tic identifier codes they share with the target item. Ties are broken by prioritizing more popular items. 
+
+Setup. We compare the performance of the two retrieval strategies, as well as the performance with-out our training strategy. In all cases, we use se-mantic identifiers as item identifiers. We use the Toys dataset for training and evaluation. 
+
+Result. As shown in Figure 16, even when se-mantic neighbors are retrieved using semantic IDs (SIDs) rather than dense embeddings, the resulting model achieves clear gains over the Naive LLM trained only with next-item prediction. Moreover,   
+
+> Table 6: Output validity . We report the percentage of generated beams that are successfully mapped to the item space. In all the cases, IIRG achieves 99% of output validity.
+
+ID Type Sports Toys Beauty 
+
+SIDs 100% 99% 100% TIDs 99% 99% 99%   
+
+> Table 7: Additional ablation study 1. In the Toys dataset, IIRG outperforms random-neighbor-based vari-ant, demonstrating that training based on predictive neighbors is crucial for the strong performance.
+
+R@5 NDCG@5 
+
+Naive 0.0634 0.0438 Random 0.0539 0.0361 IIRG 0.0780 0.0541 
+
+the gap from full dense embedding search (Emb) remains small, suggesting that SID-based retrieval offers an efficient alternative strategy with limited performance loss. 
+
+D.7 Output validity analysis 
+
+One undesirable behavior in generative recommen-dation is generating non-existent items. We there-fore verify whether IIRG improves valid item gen-eration for both semantic-ID and term-ID settings. 
+
+Setup. Recall that we generate 20 beams for each user. Across all beams for all users, we compute the ratio of generated beams that are successfully decoded and mapped to the item space. 
+
+Result. As shown in Table 6, around 99% of the outputs generated by IIRG can be mapped to actual items, demonstrating that IIRG rarely produces hallucinated item identifiers. 
+
+D.8 Additional ablation studies 
+
+We conduct two ablation studies to analyze the de-sign choices of IIRG. Specifically, we consider: (1) an LLM trained with randomly sampled neighbors instead of the collaborative and semantic neighbors introduced in § 4; and (2) heuristic methods that directly use collaborative or semantic neighbors as recommendation outputs. 
+
+Setup 1. We consider a variant that randomly sam-ples collaborative and semantic neighbors instead of the strategies described in § 4.2, which we call Random. We also compare whether this variant harms the performance of Naive, which is trained 18 Naive     
+
+> IIRG (Ours)
+> Recall @ 10
+> 22% 23% 11% 131% 17% 88%
+
+Figure 17: In-depth analysis regarding warm- and cold-start items. The gain of IIRG over the LLM trained solely with next-item prediction (Naive) is consistently larger for users whose test items have limited user interactions than for users whose test items have rich user interactions. Ratio of memorization  
+
+> (a) Reliance on memorization under R -K-Means SIDs (b) Recommendation performance under R -K-Means SIDs
+> Recall @ 10  TIGER (Non -LLM)
+> Naive
+> IIRG (Ours)
+
+Figure 18: Generalization to other semantic IDs (SIDs). The observation that LLMs rely more heavily on one-hop memorization than TIGER, as well as the effectiveness of IIRG in reducing memorization and improving recommendation performance, also holds under Residual-K-Means (R-K-Means) SIDs. Table 8: Additional ablation study 2. IIRG outper-forms our neighbor-based heuristics, demonstrating that training LLMs to learn such relations is more effective than simply using those relations directly. Recall@10 of each model is reported. 
+
+Sports Toys Beauty 
+
+V1 0.0467 0.0769 0.0671 V2 0.0464 0.0836 0.0742 V3 0.0294 0.0636 0.0496 V4 0.0321 0.0810 0.0615 IIRG 0.0585 0.1097 0.1011 
+
+solely on next-item prediction. We use TIDs as item IDs. 
+
+Result 1. As shown in Table 7, (1) IIRG signifi-cantly outperforms Random, and (2) Random even degrades the performance of Naive. This suggests that, for IIRG to achieve strong performance, its supervision signal should be predictive of users’ test items. 
+
+Setup 2. We consider four heuristics: (V1) For each item in the user’s input sequence, we sample the top five most frequently co-purchased items, aggregate the candidates, and select 10 final rec-ommendations based on their multiplicity, with popularity-based tie-breaking. (V2) Overall struc-ture is the same as V1, but we only aggregate can-didates of the last-2 interacted items of the user. (V3) For each item in the user’s input sequence, we sample the top five items with highest textual representation similarity, aggregate the candidates, and select 10 final recommendations based on their multiplicity. (V4) Overall structure is the same as V3, but we only aggregate candidates of the last-2 interacted items of the user. 
+
+Result 2. As shown in Table 8, IIRG outperforms all variants, demonstrating that training LLMs to capture neighbor relations for recommendation is more effective than simply using our collaborative and semantic relations directly. 
+
+D.9 Cold-start-item recommendation 
+
+We examine how the performance improvement of IIRG over Naive, an LLM trained solely with next-item prediction, varies between cold-start and warm-start target items. 
+
+Setup. We divide users into two groups based on the interaction frequency of their target item: (1) cold-item users , whose target item has at most 
+
+8 interactions, and (2) warm-item users , whose target item has more than 8 interactions. We then compare the performance improvement within each user group. 
+
+Result. As shown in Figure 17, the percentage improvement of IIRG over Naive is larger for cold-item users than for warm-item users, suggesting that IIRG is especially effective at recommend-ing cold-start items. We hypothesize that this is 19 Table 9: Results on the Yelp dataset. IIRG improves the performance of Naive in the Yelp dataset as well. 
+
+R@5 N@5 Naive 0.0490 0.0335 IIRG 0.0496 0.0341 
+
+because IIRG’s neighbor generation tasks, particu-larly semantic neighbor generation, provide addi-tional supervision for cold-start items, leading to larger performance gains. 
+
+D.10 Performance on the Yelp dataset 
+
+We evaluate the effectiveness of IIRG beyond Ama-zon Review datasets. 
+
+Setup. We use Yelp, a restaurant review dataset. 6
+
+We employ the same training and evaluation setting as in § 5.2, and use TIDs as item identifiers. We examine whether IIRG can improve over Naive, an LLM trained solely with next-item prediction, on the Yelp dataset. 
+
+Result. As shown in Table 9, IIRG improves the performance of Naive on the Yelp dataset as well, demonstrating that its effectiveness is not limited to Amazon review datasets. 
+
+D.11 Generalization to other semantic IDs 
+
+As detailed in Section 5 and Appendix C.3, our main analysis and experiments use PLUM (He et al., 2026) SIDs. We further examine whether our findings generalize to other types of SIDs. 
+
+Setup. We use Residual K-Means (R-K-Means) SIDs (Zhou et al., 2025) as item identifiers. We then analyze the memorization reliance and recom-mendation performance of Naive, an LLM trained solely with next-item prediction, and IIRG, both using R-K-Means SIDs. 
+
+Result. As shown in Figure 18, Naive relies more heavily on memorization than TIGER, a non-LLM-based GR model. Moreover, IIRG reduces Naive’s memorization behavior and improves its recom-mendation performance across all datasets. These results suggest that our observations and the effec-tiveness of IIRG are not restricted to a particular SID design. 
+
+E AI Assistant Usage 
+
+We used large language models in two ways: (1) to assist with code implementation for the proposed 
+
+> 6https://www.yelp.com/dataset
+
+method and baseline, and (2) to refine the writing of this paper. 
+
+F License 
+
+Our proposed model and its implementation code are released under the MIT License. In addition, for the baseline methods, we use only open-source code implementations whose licenses permit their use in this work. 20

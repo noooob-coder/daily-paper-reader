@@ -1,0 +1,1045 @@
+Title: Memory Is No Longer a Bottleneck: Memory-Efficient Graph Filtering for Scalable Collaborative Filtering
+
+URL Source: https://arxiv.org/pdf/2606.21540v1
+
+Published Time: Tue, 23 Jun 2026 01:05:10 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+> SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 1
+
+# Memory Is No Longer a Bottleneck: Memory-Efficient Graph Filtering for Scalable Collaborative Filtering 
+
+Jin-Duk Park and Won-Yong Shin, Senior Member , IEEE 
+
+Abstract —Graph convolutional networks (GCNs) have demon-strated significant success in capturing complex user–item re-lationships for collaborative filtering (CF). However, due to their reliance on extensive model training, training-free graph filtering (GF)-based CF methods have emerged as a promising alternative, offering computational efficiency by smoothing graph signals via matrix operations. In particular, polynomial GF-based approaches demonstrate improved accuracy through their ability to design more expressive and flexible filtering functions. Despite these advantages, existing GF methods suffer from a critical memory bottleneck: they necessitate storing the full item similarity graph, incurring prohibitive memory costs for large-scale datasets, which limits their practical applicability. To tackle this challenge, we propose Mem-GF (Memory-efficient GF), a new GF-based CF method that departs from conven-tional designs by principally leveraging the structure of Krylov subspaces as a core mechanism for approximating polynomial graph filters without explicitly storing the item similarity graph. We theoretically analyze the minimum Krylov subspace size that guarantees lossless approximation. Through extensive ex-periments, we demonstrate that Mem-GF achieves up to 5.74 ×
+
+lower memory usage and 4.38 × speedup in runtime, while consistently exceeding the recommendation accuracy of state-of-the-art GF and GCN-based methods. Mem-GF robustly scales to datasets with tens of millions of interactions, establishing itself as a practically viable and theoretically grounded solution for efficient CF. The source code of Mem-GF is available at https://github.com/jindeok/Mem-GF. 
+
+Index Terms —Collaborative filtering, Krylov subspace, mem-ory, polynomial graph filter, recommender system. 
+
+I. I NTRODUCTION 
+
+A. Background and Motivation 
+
+# RECOMMENDER systems have become a cornerstone component of modern online platforms [1]–[4]. By lever-aging the information of historical user–item interactions, col-laborative filtering (CF) has proven one of the most effective recommendation techniques in uncovering latent user interests and item affinities, facilitating personalization and relevance for positive user experiences [5]–[8]. On one hand, graph convolutional networks (GCNs) [8]– [10] have emerged as a state-of-the-art CF solution. Thanks to their intrinsic ability to model the high-order connectivity be-tween users and items, GCN-based approaches have achieved 
+
+J.-D. Park and W.-Y. Shin are with the School of Mathematics and Computing (Computational Science and Engineering), Yonsei University, Seoul 03722, Republic of Korea. E-mail: {jindeok6, wy.shin }@yonsei.ac.kr (Corresponding author: Won-Yong Shin.) EASE GF-CF PGSP Turbo-CF FPSR HiGSP Mem-GF 
+
+> 0
+> 20
+> 40
+> 60
+> 80
+> 100
+> 120
+> Memory Consumption (GB)
+> OOM
+> OOM
+> OOM
+> OOM
+> OOM
+> OOM
+> A6000 VRAM Limit (48GB)
+> RAM Limit (128GB)
+> VRAM OOM
+> RAM OOM
+> VRAM Consumption
+> RAM Consumption
+
+Fig. 1: Memory usage (RAM/VRAM) comparison during preprocessing among six representative GF-based CF methods and our method ( Mem-GF ) on the Amazon-book dataset. Here, ‘OOM’ represents an out-of-memory error. high accuracy in various recommendation scenarios [8], [10]– [13]. However, GCNs inherently suffer from scalability issues due to their recursive message-passing nature, which may limit their applicability to large-scale systems [14], [15]. As a result, the training time required for GCNs is often significantly longer compared to other architectures such as multi-layer perceptrons (MLPs) that are widely used for CF [15], [16]. This increased computational demand can hinder the efficiency of real-time recommendation systems, making it crucial to explore alternative methods that balance accuracy and scalability. On the other hand, from the spectral viewpoint, GCNs can be regarded as approximate and learnable graph filters via parameter optimization [9], [17], [18]. To mitigate the extensive training time associated with GCNs, recent research on CF has increasingly focused on graph filtering (GF)-based CF methods that leverage predefined graph filters instead of learnable ones [17]–[21]. Due to their training-free nature, GF has been successfully applied beyond standard training-based CF to diverse recommendation scenarios, including sequential [21], group [13], cross-domain [22], multi-modal [23], and multi-criteria [24] recommendations, demonstrating its broad applicability and effectiveness. By using the item similarity graph, these GF-based CF methods transform each user’s interaction vector ( i.e. , graph signals) via various forms of graph filters, such as linear/ideal low-pass filters (LPFs) or polynomial approximations, to improve computational effi-ciency of the GF process [17]–[21], [25]. Despite these merits, many GF-based CF methods [17]– [21] still face a critical memory bottleneck when high-accuracy filters are deployed at scale. Fig. 1 showcases the RAM and VRAM ( i.e. , GPU memory) usage of six representative GF-based approaches (such as EASE [26], GF-CF [17], PGSP [18], Turbo-CF [19], FPSR [27], and HiGSP [20]) on the                      
+
+> arXiv:2606.21540v1 [cs.LG] 19 Jun 2026 SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 2…
+> Interaction vector
+> for each user
+> Graph filter
+> Conventional GF -based CF
+> Mem -GF (ours)
+> •Large and universal (user -agnostic) graph filters
+> …
+> …
+> •Small and user -specific graph filters
+> (((
+> (((
+> (((
+> (((
+> ,,,
+> ,,,
+
+Fig. 2: Comparison of space consumption between conven-tional GF-based CF methods and the proposed Mem-GF .Here, |I| represents the number of items in a dataset. Amazon-book dataset [28]. In a single-node environment equipped with 48 GB of VRAM and 128 GB of RAM, most of these methods suffer from out-of-memory (OOM) errors, underscoring their limited feasibility for large-scale recom-mendation scenarios. The core design issue is not merely implementation, but the reliance on a universal (i.e. , user-agnostic) graph filter whose dimension is |I| × |I| , where |I| 
+
+is the item cardinality, i.e. , the number of items. Even when sparse matrix operations, top-k eigenvalue components, or polynomial graph filters reduce computation, the filtering stage still tends to depend on the full-size item similarity matrix. As illustrated in Fig. 2, applying such filters uniformly to all user signals severely limits scalability and can make real-time inference infeasible under memory-constrained environments. 
+
+B. Main Contribution 
+
+To address this challenge, we introduce Mem-GF , amemory-efficient GF method for CF that goes beyond straight-forward Krylov subspace usage. Instead of treating Krylov methods [29], [30] as a computational shortcut, Mem-GF 
+
+uses them as the filtering principle itself. For each user, a Krylov subspace captures progressively transformed directions of the user’s interaction vector under repeated applications of the item similarity matrix. This enables polynomial graph filtering without explicitly storing the full item similarity matrix. Importantly, Mem-GF facilitates the design of ver-satile graph filters through high-order polynomial approxima-tions, exemplified by the fifth-order polynomial that closely approximates Gaussian filters widely used in image and graph domains [31], [32]. Notably, Mem-GF offers significant advantages in both preprocessing and inference efficiency. In particular, its memory-efficient and low-latency inference 
+
+capability addresses a critical requirement for deploying GF-based recommenders in real-world environments, where tight hardware constraints and real-time responsiveness are essential [33], [34]. Our contributions are summarized as follows:  
+
+> •
+
+Problem identification : We clarify the universal ( i.e. ,user-agnostic) graph filter design that causes the mem-ory bottleneck in many GF-based CF methods and em-pirically demonstrate its impracticality on large-scale datasets.  
+
+> •
+
+Principled Krylov-based solution : We propose a novel GF approach that integrates Krylov subspaces at its core, TABLE I: Summary of notations.                                                                           
+
+> Notation Description
+> U,ISet of users, U, and set of items, I
+> RUser–item interaction matrix
+> ruu-th row of the interaction matrix R(graph signal for user u)
+> ˜RDegree-normalized interaction matrix: ˜R=Dγ
+> URD 1−γ
+> I
+> ¯RAdjusted interaction matrix: ¯R= ˜R◦s
+> DU,DIDegree matrices: DU= diag( R1 ),DI= diag( 1⊤R)˜PItem similarity matrix: ˜P=¯R⊤¯Rfor Mem-GF and ˜P=˜R⊤˜Rfor the other methods
+> L,U,ΛGraph Laplacian L, its eigenvectors U, and eigenvalues Λ
+> H(·), h (·)Graph filter H(·)and its frequency response h(·)
+> suPredicted scores for user u:su=∥ru∥2Quf(Tu)e1
+> KK(·)K-dimensional Krylov subspace
+> Qu,TuUser-specific Krylov basis Quand projected tridiagonal matrix
+> Tu=Q⊤
+> u˜PQ uin the Krylov subspace
+> KSize of Krylov basis
+> γHyperparameter for normalizing R
+> sHyperparameter for adjusting ˜Rvia the Hadamard power
+> e1First canonical basis vector in RK
+
+achieving per-user filter approximation without storing the full item similarity matrix, thereby enhancing filter design flexibility.  
+
+> •
+
+Theoretical support : We rigorously analyze the condi-tion on the number of Krylov subspace bases for which no approximation error occurs. We also theoretically show that Mem-GF achieves linear space/time complexity to the number of items, users, and interactions.  
+
+> •
+
+Comprehensive evaluation : We empirically show that 
+
+Mem-GF delivers 5.74 × memory savings and 4.38 ×
+
+speedup . Despite being primarily designed for improving efficiency, it still achieves state-of-the-art recommenda-tion accuracy across all benchmark datasets. 
+
+C. Organization and Notations 
+
+The remainder of this paper is organized as follows. Sec-tion II surveys related work. Section III introduces the pre-liminaries by reviewing GF and Krylov subspaces. Section IV presents the proposed Mem-GF method, including its method-ological details, theoretical analysis, and complexity analysis. Section V reports extensive experimental results and analyses evaluating efficiency, scalability, and accuracy. Section VI concludes the paper with a discussion of future research directions. Table I summarizes the notation that is used in this paper. This notation will be formally defined in the following sections when we introduce our methodology. II. R ELATED WORK 
+
+In this section, we review CF methods related to Mem-GF ,with emphasis on scalable GF-based CF and Krylov-based graph learning. 
+
+MF-based CF methods. MF remains a foundational tech-nique in CF, representing users and items as latent vectors and using their dot product to approximate interactions. Early approaches relied on low-rank decompositions [35], while NeuMF [5] enhanced expressiveness by introducing an MLP-based similarity function. GRMF [36] integrated graph Lapla-cian regularization, and DMF [37] leveraged deep neural ar-chitectures. HOP-rec [38] bridged MF and GCN by explicitly capturing higher-order relationships in user–item graphs. SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 3
+
+GCN-based CF methods. Viewing user–item interactions as a bipartite graph enables GCN-based models to exploit high-order connectivity. GC-MC [39] merged GCNs with matrix completion for link prediction. PinSage [40] scaled graph convolution with random walks. SpectralCF [41] used spectral graph structure, NGCF [10] modeled higher-order collaborative signals, LightGCN [8] simplified propagation layers, and SGL [42] adopted contrastive learning for robust representation learning. 
+
+Autoencoder-based CF methods. Autoencoder-based ap-proaches reconstruct each user’s interaction vector in a single latent space. CDAE [43] incorporated denoising, Multi-DAE and Multi-VAE [6] improved reconstruction with deep and variational encoders, RecVAE [44] added regularization, and MD-CVAE [45] injected item embeddings into latent user modeling. 
+
+GF-based CF methods. Training-free GF-based CF meth-ods avoid iterative model training by filtering user signals on an item similarity graph. GF-CF [17] uses linear and ideal LPFs; EASE [26] can be interpreted from a graph signal processing viewpoint; PGSP [18] augments the simi-larity graph; HiGSP [20] customizes filters by user clusters; Turbo-CF [19] accelerates inference with predefined poly-nomial LPFs; SGFCF [46] uses top-k singular values; and ChebyCF [47] employs Chebyshev polynomial filtering. These methods improve scalability through sparse matrix operations, top-k eigenvalue components, polynomial graph filters, or user clustering, but they still commonly rely on a large item similarity graph or a full-size graph filter. In contrast, Mem-GF performs GF in a user-specific Krylov subspace and avoids constructing the full item similarity matrix. 
+
+Krylov-based graph learning. LanczosNet [48] also uses Krylov subspaces, but for learnable spectral graph convolution in GNNs. Its goal is representation learning over graph nodes, requiring training and inference over the graph. Mem-GF 
+
+differs in its purpose and inference setting: it is a training-free CF method that builds per-user Krylov subspaces for the item similarity matrix to reduce memory usage during recommendation. Thus, Krylov subspaces are not used for training-based GNNs, but as the core mechanism for memory-efficient graph filtering in CF. III. P RELIMINARIES 
+
+This section presents the preliminaries, providing an overview of the fundamental concepts underlying GF and Krylov subspaces. 
+
+A. Characterization of GF 
+
+We begin by presenting the basic concepts of GF (also known as graph signal processing). First, let us consider a weighted, undirected graph G = ( V, E ), represented by an adjacency matrix A ∈ R|V |×| V |. A graph signal as-signs a scalar or feature vector to each node; in this paper, we primarily consider a scalar signal represented as x =[x1, x 2, . . . , x |V |]T ∈ R|V |, where xi indicates the signal strength of node i. The smoothness of x on G is quantified by the graph quadratic form, a measure based on the graph Laplacian L = D − A,1 where D = diag (A1 ) is the degree matrix and 1 denotes the all-ones vector of any dimension for simplicity. The smoothness measure S(x) is formally given by 
+
+S(x) = X
+
+> i,j
+
+Ai,j (xi − xj )2 = xT Lx . (1) The smaller the value of S(x), the smoother the signal x on the graph [17], [49]. Next, we define the graph Fourier transform (GFT) of a signal x as ˆx = UT x, where U ∈ R|V |×| V |
+
+comprises the eigenvectors of L. Specifically, from the eigen-decomposition L = U Λ U T , let Λ = diag( λ1, . . . , λ |V |)
+
+with ordered eigenvalues λ1 ≤ · · · ≤ λ|V |. Because the GFT is an orthogonal linear transform, the inverse GFT is x = U ˆx.
+
+Finally, we formalize the notions of a graph filter and graph convolution: 
+
+Definition III.1 (Graph filter [17], [21], [49], [50]) . Given a graph Laplacian L, a graph filter H(L) ∈ R|V |×| V | is defined as 
+
+H(L) = U diag  h(λ1), . . . , h (λ|V |) UT , (2) where h : R+ → R is the frequency response function mapping each non-negative eigenvalue {λ1, . . . , λ |V |} of L
+
+to {h(λ1), . . . , h (λ|V |)}.
+
+Definition III.2 (Graph convolution [17], [21], [49]) . For a graph signal x and a graph filter H(L), it follows that 
+
+H(L) x = U diag  h(λ1), . . . , h (λ|V |) UT x, (3) which first applies the GFT to x, transforms the resulting spectrum by h(·), and finally performs the inverse GFT. In signal processing, signals are typically characterized by their smoothness and low-frequency components, whereas noise is usually non-smooth and dominates at high frequencies [17]. In this context, a significant category of filters is LPFs, which enhance the smoothness of graph signals, thereby aiding noise reduction. We formally define the LPF as follows: 
+
+Definition III.3 . (LPF) [17], [51], [52]: For k = 1 , · · · , |V |
+
+and λ1 ≤ · · · ≤ λ|V |, the graph filter H(L) is k-low-pass if and only if ηk ∈ [0 , 1] , where 
+
+ηk := max {| h(λk+1 )|, · · · , |h(λ|V |)|} 
+
+min {| h(λ1)|, · · · , |h(λk)|} . (4) 
+
+B. Krylov Subspaces 
+
+Krylov subspaces compactly capture the repeated action of a large matrix on a vector. Thus, for a user signal, they approximate the spectral properties of the item similarity matrix using the directions generated from that user, instead of requiring a full matrix decomposition. They are mathemat-ically formalized as follows. 
+
+Definition III.4 . (Krylov subspace [29], [30]) Given a matrix 
+
+M ∈ Rd×d and a vector r ∈ Rd, the K-th order Krylov subspace generated by (M, r) is defined as 
+
+KK (M, r) = span {r, Mr , M2r, . . . , MK−1r}, (5)         
+
+> 1Alternatively, one may use the normalized Laplacian L=I−˜A, where
+> ˜A=D−1/2AD −1/2.SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 4
+
+where M is the matrix of interest, d is the dimensionality of the ambient space, and r is the initial vector from which the subspace is generated. Here, K indicates the order of the subspace and span {} denotes the set of all linear combinations of the given vectors. IV. M ETHODOLOGY 
+
+This section begins by outlining the practical challenges associated with GF-based CF methods. We then provide a comprehensive description of the proposed Mem-GF method, along with its theoretical analyses. 
+
+A. Challenges in GF-Based CF Methods 
+
+Conventional training-free GF-based CF methods [17]–[21] in canonical recommendation tasks begin with constructing an item similarity graph, where each item is represented as a node and the similarities between items are modeled as edges. Its adjacency matrix is generally expressed as 
+
+˜P = ˜R⊤ ˜R; ˜R = Dγ 
+
+> U
+
+RD 1−γ 
+
+> I
+
+, (6) where |U| is the number of users in a dataset; R ∈ R|U|×|I| is the interaction matrix; ˜R is the normalized interaction matrix; 
+
+DU = diag (R1 ) and DI = diag (1⊤R); γ ∈ [0 , 1] controls the normalization along users/items; and ˜P is the adjacency matrix representing the item similarity graph. Meanwhile, the standard notion of GF involves performing full eigen-value decompositions of the Laplacian or adjacency matrices representing the item similarity graph [50], which incurs a prohibitive computational complexity of O(|I| 3). To prevent such computational issues, scalable GF-based CF methods exploit several techniques, including sparse matrix operations [17], top-k eigenvalue components [17], [21], polynomial graph filters [19], and user clustering [20]. Nevertheless, they still depend on the full-size item similarity matrix during filtering. For example, GF-based CF methods [17], [18], [20], [21] typically leverage linear LPFs and/or ideal LPFs extracting only the top-k eigenvalue components instead of fully decomposing the item similarity matrix: 
+
+su =   ˜P + μD−1/2 
+
+> U
+
+¯U ¯UT D−1/2
+
+> I
+
+ru, (7) where su ∈ R|I| is the predicted preferences for user u;
+
+ru denotes the u-th row of R, treated as a column graph signal for user u; ¯U ∈ R|I|× k is the top-k singular vectors of ˜R0; ˜P is the linear LPF; D−1/2 
+
+> U
+
+¯U ¯UT D−1/2 
+
+> I
+
+is the ideal LPF of ˜P; and μ is a hyperparameter balancing between the two filters. However, due to their limited expressiveness in designing various filters having different frequency response functions, recent studies proposed to use polynomial graph filters to produce diverse frequency response functions using polynomial functions [17], [19], [25]. As representative work [19], the prediction score for user u via polynomial GF is formulated as 
+
+su =
+
+> N
+
+X
+
+> n=1
+
+an ˜Pnru, (8) where {an}Nn=1 are the polynomial coefficients; N is the max-imum order of the matrix polynomial; and PNn=1 an ˜Pn repre-sents the polynomial graph filter on the item similarity graph. It was proven that the polynomial graph filter PNn=1 an ˜Pn
+
+has a frequency response function of PNn=1 an(1 − λ)n [17], [19], [25]. While conventional GF-based CF methods have adopted 
+
+user-specific batch strategies (see (7) and (8)), they still suffer from expensive costs for constructing or applying a universal 
+
+(i.e. , user-agnostic) graph filter across all users based on the large item similarity matrix ˜P (see Fig. 2). For instance, a sim-ple linear LPF ( i.e. , ˜P) having a frequency response function of h(λ) = 1 − λ has a dimension of (|I| , |I| ). Moreover, ideal LPFs or higher-order polynomial filters can further increase memory footprint and computation. As a result, devising a memory-efficient polynomial GF technique that can effectively operate under resource-constrained environments becomes a critical research challenge. This raises a natural question: 
+
+“How can we optimize batch processing for each user to enhance memory efficiency in GF-based recommendations?” 
+
+To answer this question, we elaborate on the proposed Mem-GF method in the following subsection. 
+
+B. Proposed Method: Mem-GF 
+
+To directly overcome the challenges outlined in Sec-tion IV-A, we propose Mem-GF , a memory-efficient CF method that leverages polynomial GF without incurring the prohibitive memory costs of conventional GF-based CF ap-proaches. The core idea is to use the Krylov subspace for each user signal, thereby approximating matrix-vector operations without explicitly forming or storing large matrices such as 
+
+˜P. The Krylov subspace KK ( ˜P, ru) in (5), defined as the span of vectors {ru, ˜Pr u, ˜P2ru, . . . , ˜PK−1ru}, captures pro-gressively transformed directions of user u’s interaction vector under the repeated action of ˜P. By restricting computations to 
+
+KK ( ˜P, ru), we approximate the spectral properties of ˜P in the user-specific Krylov subspace. To construct its orthonormal ba-sis, we utilize the Lanczos algorithm [53], which avoids direct eigenvalue/eigenvector computation. The schematic overview of the Mem-GF method is illustrated in Fig. 3. We summarize the pseudocode of Mem-GF in Algorithm 1. 
+
+1) Methodological Details: Mem-GF first refines the nor-malized interaction matrix ˜R by applying the Hadamard power, effectively regularizing the differences among elements in ˜R. Notably, unlike prior approaches [13], [19], [24] that apply the Hadamard power to the item similarity matrix ˜P, our method operates directly on ˜R to avoid the need for explicit storage of ˜P: ¯R = ˜R◦s, (9) where s is a hyperparameter for adjusting ˜R and ¯R is the adjusted interaction matrix. Thus, the item similarity matrix is defined as ˜P = ¯R⊤ ¯R accordingly, but it is never explicitly stored. Next, let us turn to describing the Lanczos algorithm, which is central to Mem-GF . We construct a Krylov sub-space KK ( ˜P, ru) with K bases, where ru represents user u’s interaction vector. 2 This process generates a user-specific or-thonormal Krylov basis Qu ∈ R|I|× K and a low-dimensional        
+
+> 2Note that Mem-GF is flexible in using the u-th row of ¯R, denoted by
+> ¯ru, as graph signals. SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 5…
+> Krylov
+> subspace
+> construction
+> Graph
+> Polynomial
+> graph filter
+> …
+> …+
+> User -specific
+> polynomial graph filter
+> +GF
+> Reduced computation
+> GF
+> Mem -GF
+
+Fig. 3: The schematic overview of Mem-GF .
+
+Algorithm 1 Mem-GF 
+
+Input: interaction matrix R ∈ R|U|×|I| , set of users U, set of items I
+
+Output: {su}u∈U  
+
+> 1:
+
+˜R = Dγ 
+
+> U
+
+RD 1−γ 
+
+> I
+> 2:
+
+¯R = ˜R◦s 
+
+> 3:
+
+for each u ∈ U do  
+
+> 4:
+
+/* Lanczos iteration */  
+
+> 5:
+
+β0 ← 0, qu, 0 ← 0, qu, 1 ← ru/∥ru∥2 
+
+> 6:
+
+for j ← 1 to K do  
+
+> 7:
+
+wu ← ¯R⊤( ¯R q u,j ) − βj−1 qu,j −1 
+
+> 8:
+
+αj ← q⊤ 
+
+> u,j
+
+wu 
+
+> 9:
+
+wu ← wu − αj qu,j  
+
+> 10:
+
+βj ← ∥ wu∥2 
+
+> 11:
+
+if βj̸ = 0 then  
+
+> 12:
+
+qu,j +1 ← wu/β j 
+
+> 13:
+
+end if  
+
+> 14:
+
+end for  
+
+> 15:
+
+Form Qu with qu, 1, . . . , qu,K and Tu with {αj , β j } 
+
+> 16:
+
+f (Tu) ← PNn=0 an (Tu)n 
+
+> 17:
+
+su ← ∥ ru∥2 Qu f (Tu) e1 
+
+> 18:
+
+end for  
+
+> 19:
+
+return {su}u∈U 
+
+tridiagonal matrix Tu ∈ RK×K . The matrix Tu represents the projection of ˜P onto the Krylov subspace: 
+
+Tu = Q⊤ 
+
+> u
+
+˜PQ u. (10) More precisely, finite-step Lanczos may involve a residual term outside the constructed subspace; however, the polyno-mial action on the starting vector ru is exactly represented for degrees N < K under exact arithmetic, as formalized in Theorem IV.1. 
+
+2) Core Idea of Mem-GF : The Lanczos algorithm [53] proceeds as follows:  
+
+> •
+
+Initialization : The algorithm begins with the normalized vector qu, 1 = ru/∥ru∥2, where ru is the interaction vec-tor for user u. Additional parameters, including β0 = 0 
+
+and qu, 0 = 0, required for iterations are also initialized.  
+
+> •
+
+Iteration : At each iteration j, the algorithm computes the projection of ˜P onto the current basis: 
+
+wu = ˜Pq u,j − βj−1qu,j −1,αj = q⊤ 
+
+> u,j
+
+wu.
+
+The residual wu is then orthogonalized and normalized: 
+
+wu ← wu − αj qu,j ,βj = ∥wu∥2,
+
+qu,j +1 = wu/β j (if βj̸ = 0 ). 
+
+> •
+
+Termination : The iterations continue until j = K or 
+
+βj = 0 , while constructing the tridiagonal matrix Tu
+
+using the coefficients {αj }Kj=1 and {βj }K−1 
+
+> j=1
+
+:
+
+Tu =
+
+
+
+α1 β1 0 · · · 0
+
+β1 α2 β2
+
+. . . ...
+
+0 β2 α3
+
+. . . 0
+
+... . . . . . . . . . βK−1
+
+0 · · · 0 βK−1 αK
+
+
+
+, (11) where qu,j ∈ R|I| is the j-th vector in the Lanczos basis for user u; αj represents the local projection coefficient of 
+
+˜P q u,j onto qu,j ; and βj is the norm of the resulting residual, used to orthogonalize qu,j +1 w.r.t. the previous basis vectors. It is worth noting that, instead of directly storing ˜P, Mem-GF calculates the matrix-vector product ˜PQ u using only the adjusted interaction matrix ¯R as ˜PQ u = ¯R⊤( ¯RQ u).Since ¯R ∈ R|U|×|I| is much smaller and sparser than the full item similarity matrix ˜P = ¯R⊤ ¯R, this reduces the memory requirement from storing a full-size item–item matrix to storing only ¯R and the compact Krylov quantities, making 
+
+Mem-GF viable for large-scale datasets (refer to Figs. 2 and 3). To see how Mem-GF computes polynomial graph filters, note that Qu forms a user-specific Krylov subspace, while Tu
+
+is the projected representation of ˜P in that subspace. By the Lanczos initialization, we have Q⊤ 
+
+> u
+
+ru = ∥ru∥2e1. Therefore, for a polynomial graph filter f ( ˜P) = PNn=0 an ˜Pn with N < K, the Krylov representation gives 
+
+f ( ˜P)ru = ∥ru∥2 Qu
+
+> N
+
+X
+
+> n=0
+
+anTnu
+
+!
+
+e1, (12) as formally shown in Theorem IV.1. This relation enables polynomial graph filtering without explicitly forming ˜P.Thus, our Mem-GF method is finally formulated as follows: 
+
+su = ∥ru∥2Quf (Tu)e1, (13) where f (Tu) represents the user-specific polynomial graph filter in the Krylov subspace and is expressed as 
+
+f (Tu) = 
+
+> N
+
+X
+
+> n=0
+
+anTnu . (14) This formulation ensures that both the graph filter and the signal are user-specific , enabling personalized and efficient recommendation by allocating memory in a batch-based man-ner for each user’s operations. By reducing the polynomial graph filter computation into smaller, user-specific batches ,our method is capable of further optimizing memory usage, ensuring scalability even with limited hardware resources. We next highlight additional advantages offered by the proposed SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 6
+
+Mem-GF method. 
+
+Remark. First, the user-specific matrices Qu and Tu can be pre-computed and cached, enabling near-instantaneous infer-ence through lightweight matrix multiplications. This design facilitates deployment in real-world systems with stringent latency requirements. Second, once the Krylov basis (Qu, Tu)
+
+is constructed through K Lanczos iterations, an arbitrary polynomial graph filter of order K′ < K can be calculated by utilizing only the first K′ Krylov basis vectors, without further access to the interaction matrix ¯R. Consequently, validation-based filter selection becomes much cheaper than recomputing each filter independently. Such capability is especially valuable in personalized recommendation scenarios, as optimal polyno-mial filters can vary substantially across individual users [18], [24]. Next, we are interested in analyzing how many Krylov subspace bases are sufficient to guarantee no approximation error . To address this, we provide a theoretical analysis by establishing the following theorem. 
+
+Theorem IV.1 (Zero-Error Guarantees in Krylov Subspaces) .
+
+Let ˜P ∈ R|I|×|I| be a symmetric matrix ( e.g. , an item similarity matrix), and let ru ∈ R|I| be the signal for user 
+
+u. Run K iterations of the Lanczos algorithm on the pair 
+
+( ˜P, ru), yielding an orthonormal Krylov basis Qu ∈ R|I|× K
+
+and a tridiagonal projected matrix Tu = Q⊤ 
+
+> u
+
+˜PQ u ∈ RK×K .Consider a polynomial graph filter f ( ˜P) = PNn=0 an ˜Pn of degree N. If N < K , then the Lanczos algorithm in Mem-GF 
+
+incurs no approximation error under exact arithmetic. 
+
+Proof. The Lanczos procedure constructs Qu =[qu, 1, . . . , qu,K ] with qu, 1 = ru/∥ru∥2 and the projected matrix Tu = Q⊤ 
+
+> u
+
+˜PQ u. By the Krylov construction, for every 
+
+0 ≤ n ≤ N < K , the vector ˜Pnru belongs to KK ( ˜P, ru)
+
+and can be represented in the basis Qu as 
+
+˜Pnru = ∥ru∥2QuTnu e1.
+
+Therefore, 
+
+f ( ˜P)ru =
+
+> N
+
+X
+
+> n=0
+
+an ˜Pnru
+
+= ∥ru∥2Qu
+
+> N
+
+X
+
+> n=0
+
+anTnu
+
+!
+
+e1 = ∥ru∥2Quf (Tu)e1.
+
+Thus, for all N < K , the equality holds with no approximation error. This completes the proof of Theorem IV.1. Theorem IV.1 implies that, whenever the polynomial de-gree N is less than the Krylov subspace size K, Mem-GF 
+
+exactly reproduces f ( ˜P)ru in the original space under exact arithmetic. Thus, setting K = N + 1 is sufficient to avoid approximation error in the algebraic Krylov representation. In practice, finite-precision computation or choosing N ≥ K
+
+may affect this exactness; therefore, we tune K and N on the validation set. Separately, severe sparsity or noise in user signals may degrade empirical recommendation quality rather than invalidate the algebraic guarantee itself. We provide experimental verification of this theoretical claim in Section V-F. 0.00 0.25 0.50 0.75 1.00                 
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> h( )
+> Max Error: 0.1080
+> Mean Error: 0.0354
+> N= 1
+> 0.00 0.25 0.50 0.75 1.00
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0 Max Error: 0.1102
+> Mean Error: 0.0308
+> N= 2
+> 0.00 0.25 0.50 0.75 1.00
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Max Error: 0.0023
+> Mean Error: 0.0006
+> N= 5
+> Original function h( ) = e32
+> Polynomial approximation
+
+Fig. 4: Comparison of the function h(λ) = e−γλ 2
+
+and its polynomial approximations for different polynomial orders (N = 1 , 2, 5). The maximum and mean errors are annotated within each subplot to indicate approximation accuracy. 
+
+3) High-Order Polynomial Graph Filter Designs: Con-ventional polynomial GF-based CF methods [13], [19], [24] restrict polynomial filters up to third-order terms to bypass the problem of memory constraints. However, explicitly construct-ing and storing ˜P or computing higher-order powers ( e.g. , ˜P3)still requires memory scaling as O(|I| 2), which is infeasible for large sets of items. In contrast, Mem-GF overcomes the memory bottleneck issue using the user-specific tridiagonal matrix Tu in (10). Since K ≪ |I| for Tu ∈ RK×K ,it becomes computationally trivial to raise Tu to higher powers, thereby allowing the order of polynomial filters to be significantly higher. This flexibility allows Mem-GF to approximate a broad spectrum of target frequency responses. Specifically, we con-sider employing graph filters having more complex frequency responses. This leads us to propose a new polynomial graph filter that approximates the Gaussian filter [31], [32] that is widely used in image and graph domains, whose frequency response is expressed as h(λ) = e−τ λ 2
+
+, where τ is the damping factor in the Gaussian filter. 3 Due to the fact that the polynomial graph filter PNn=1 an ˜Pn has a frequency response function of PNn=1 an(1 − λ)n [17], [19], [25], we are ready to numerically solve a non-linear least squares (LS) problem to find the polynomial coefficients {an}Nn=1 in (14) within the maximum polynomial order N , as in [19]. As illustrated in Fig. 4, performing higher-order polynomial approximations (e.g. , N = 5 ) significantly reduces the error compared to lower-order polynomials ( e.g. , N = 1 , 2). This demonstrates the clear advantage of high-order polynomials in closely approximating the original function h(λ) = e−τ λ 2
+
+. Therefore, by setting N = 5 and τ = 3 ,4 we are capable of discovering a new predefined polynomial graph filter having a frequency response function as h(λ) = e−3λ2
+
+as follows: 
+
+f (Tu) = 8 Tu + 3 .1T2 
+
+> u
+
+− 11 .2T3 
+
+> u
+
++ 6 .2T4 
+
+> u
+
+− 1.1T5
+
+> u
+
+. (15) Finally, in our study, we utilize three predefined LPFs used in [13], [19] as well as our newly devised fifth-order polynomial filter, which are listed as follows:  
+
+> •
+
+Mem-GF-1 (f (Tu) = Tu): The linear LPF with the first polynomial order, whose frequency response is h(λ) = 1 − λ.
+
+> 3
+
+In addition to the Gaussian filter, any sophisticated filters can be designed by appropriately adjusting the polynomial coefficients. 
+
+> 4
+
+One can arbitrarily set the hyperparameter τ . Here, increasing τ results in the further utilization of the low-pass frequency components, and vice versa. SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 7 
+
+> •
+
+Mem-GF-2 (f (Tu) = 2 Tu − T2
+
+> u
+
+): The second-order LPF, whose frequency response is h(λ) = 1 − λ2 
+
+> •
+
+Mem-GF-3 (f (Tu) = Tu +0.01( −T3 
+
+> u
+
++ 10 T2 
+
+> u
+
+− 29 Tu)): The third-order LPF which approximates ideal LPF ( i.e. , h(λ) = 1λ≤p with cutoff frequency p) [19].  
+
+> •
+
+Mem-GF-5 (f (Tu) = 8 Tu +3 .1T2 
+
+> u
+
+−11 .2T3 
+
+> u
+
++6 .2T4 
+
+> u
+
+−
+
+1.1T5
+
+> u
+
+): The fifth-order LPF, whose frequency response approximates the Gaussian filter h(λ) = e−3λ2
+
+.The optimal filter and hyperparameters of Mem-GF can be found via hyperparameter tuning on the validation set. Although the aforementioned four graph filters are utilized in our experiments, higher-order graph filters can be utilized and any arbitrary functions can be designed via the same procedures. 
+
+4) Complexity Analysis: We first theoretically analyze the space ( i.e. , memory) complexity of Mem-GF during pre-processing stage. A central advantage of Mem-GF is its ability to avoid explicitly forming the item similarity matrix 
+
+˜P = ¯R⊤ ¯R ∈ R|I|×|I| . Storing ˜P would na¨ ıvely demand memory of O(|I| 2), which can be reduced to nnz( ˜P) in sparse format. However, ˜P in (6) is often far denser than ˜R, as each element contains two-hop item-neighbor information. Instead, 
+
+Mem-GF stores only ¯R, Qu, and Tu (see (9) and (10)). First, the adjusted interaction matrix in a sparse format has the dimension of ¯R ∈ R|U|×|I| . Thus, its space requirement is O nnz( R). Since ¯R is obtained by a Hadamard power of ˜R, it shares the same sparsity pattern as R, implying that 
+
+nnz( ¯R) = nnz( R). Next, we need to store temporary user-specific Lanczos vectors Qu ∈ R|I|× K and the tridiagonal matrix Tu ∈ RK×K , which have the dimension linear in 
+
+|I| K and K2, respectively. Importantly, from the fact that they are constructed per user (or per batch) , the algorithm can overwrite or free this memory once each user’s final predictions are computed. Hence, the overall memory footprint is finally given by 
+
+O nnz( R) + |I| K + K2), (16) rather than O(|I| 2) or O(nnz( ˜P)) . This design substantially alleviates the memory bottleneck, making it feasible to handle large-scale datasets on standard hardware resources. Next, we delve into theoretically analyzing the time ( i.e. ,computational) complexity of Mem-GF during preprocessing. The computational cost of Mem-GF can be broken down into two core stages: (i) constructing the Krylov subspace for each user via the Lanczos algorithm and (ii) performing polynomial GF in the reduced space. 1) Krylov subspace construction (Lanczos algorithm). For user u, let ru ∈ R|I| be the interaction vector. We conduct 
+
+K iterations of the Lanczos algorithm to build the matrix 
+
+Qu ∈ R|I|× K and the tridiagonal matrix Tu ∈ RK×K .Each iteration requires a matrix-vector multiplication with 
+
+˜P = ¯R⊤ ¯R. Rather than forming ˜P explicitly, we compute 
+
+˜P q u,j = ¯R⊤  ¯R q u,j 
+
+. Each multiplication with ¯R or 
+
+¯R⊤ can be executed in O nnz( ¯R) time by exploiting spar-sity. Consequently, one Lanczos iteration costs O nnz( ¯R).Over K steps, the cost per user is O(K nnz( ¯R)) , which TABLE II: The statistics of three datasets.                 
+
+> Dataset # of users # of items # of interactions Density Yelp 31,668 38,048 1,561,406 0.130% Amazon-book 52,643 91,599 2,984,108 0.062% ML-20M 138,493 26,744 20,000,263 0.540%
+
+results in O(|U| K nnz( ¯R)) for |U| total users. 2) Polynomial GF and score reconstruction. Given Qu and 
+
+Tu, we next compute a polynomial graph filter f (Tu) = PNn=0 an Tnu in the reduced space. Specifically, the predic-tion score su is ∥ru∥2 Qu f (Tu) e1 ∈ R|I| . Because Tu
+
+is of size K × K, powering Tu up to order N typically takes O(K2) up to O(K3) depending on implementation [54]. In practice, since K is small ( e.g. , K = N + 1 
+
+due to Theorem IV.1), this step is minor. Finally, mul-tiplying Quf (Tu)e1 back into the original dimension costs O(|I| K) per user. Aggregated across all users, the reconstruction needs O |U| |I| K.Therefore, the total time complexity of Mem-GF is given by 
+
+O
+
+
+
+|U| K  nnz( R) + |I| 
+
+. (17) V. E XPERIMENTAL EVALUATIONS 
+
+In this section, we systematically conduct extensive exper-iments to address the key research questions (RQs) outlined below:  
+
+> •
+
+RQ1: How memory-efficient is Mem-GF during prepro-cessing compared to benchmark GF-based recommenda-tion methods?  
+
+> •
+
+RQ2: How efficient is Mem-GF during inference in terms of runtime and memory consumption compared to benchmark GF-based recommendation methods?  
+
+> •
+
+RQ3: How does the memory on Mem-GF scale w.r.t. the number of users, items, and interactions?  
+
+> •
+
+RQ4: How much does Mem-GF improve recommenda-tion accuracy over benchmark recommendation methods?  
+
+> •
+
+RQ5: How does the number of Krylov subspace bases affect the performance of Mem-GF ? 
+
+> •
+
+RQ6: How do types of polynomial filters affect the performance of Mem-GF ? 
+
+> •
+
+RQ7: How sensitive is Mem-GF to variations in key hyperparameters? 
+
+A. Experimental Settings 
+
+Datasets. We carry out experiments on the three benchmark datasets widely adopted for evaluating the performance of rec-ommender systems for CF, which include Yelp, Amazon-book, and MovieLens-20M (ML-20M) [5], [8], [10], [35], [39]–[41], [55]. Notably, ML-20M is a large-scale, real-world dataset, consisting of 20 million user interactions. The statistics of the three datasets are summarized in Table II. 
+
+Competitors. We compare Mem-GF against twenty-one benchmark CF methods, which can be grouped into two categories. The first group comprises canonical benchmark CF methods built on commonly used architectures, includ-ing MF-based methods (MF-BPR [56] and NeuMF [5]), autoencoder-based methods (Multi-DAE, Multi-VAE [6], RecVAE [44], and SVD-AE [57]), GCN-based methods SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 8
+
+TABLE III: Comparison of memory (in GB) and time (in seconds) consumption during preprocessing among seven training-free GF-based recommendation methods across three datasets. RAM and VRAM values represent the peak memory usage recorded during execution. Entries marked as OOM denote out-of-memory errors, and entries marked as “–” denote unavailable GPU measurements caused by GPU buffer OOM or CPU-only fallback. The best and second-best performers are marked in bold 
+
+and underlined, respectively. The performance of Turbo-CF and Mem-GF is evaluated according to the maximum order of the polynomial graph filters used.                                                                                                                                                                           
+
+> Dataset Method EASE GF-CF PGSP HiGSP FPSR Turbo-CF Mem-GF
+> 1231235
+> Yelp VRAM (A) 31.2 10.9 ––9.3 9.2 25.7 25.7 1.9 2.4 2.7 3.3
+> RAM (B) 0.8 2.1 74.1 OOM 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7
+> Total memory (A)+(B) 32.0 13.0 74.1 OOM 10.0 9.9 26.4 26.4 2.6 3.1 3.4 4.0
+> Time 15.68 7.0 1398.0 –58.7 4.2 140.2 420.7 1.5 2.9 4.3 6.5
+> GPU OOM ✓✓
+> Amazon-book VRAM (A) –34.5 ––32.4 45 ––4.4 5.2 5.9 7.3
+> RAM (B) OOM 0.7 OOM OOM 2.0 0.7 OOM OOM 0.7 0.7 0.7 0.7
+> Total memory (A)+(B) OOM 35.2 OOM OOM 34.4 45.7 OOM OOM 5.1 5.9 6.6 8.0
+> Time –35.7 ––157.1 35.5 ––6.6 11.4 16.4 26.4
+> GPU OOM ✓✓✓✓✓✓
+> ML-20M VRAM (A) –19.7 ––11.5 –––4.6 4.8 4.8 5.6
+> RAM (B) 12.6 1.3 OOM OOM 4.5 6.6 9.6 12.8 1.2 1.2 1.2 1.2
+> Total memory (A)+(B) 12.6 21.0 OOM OOM 15.9 6.6 9.6 12.8 5.8 6.0 6.0 6.8
+> Time 223.0 59.8 ––121.1 187.6 2735.5 7432.8 102.2 156.6 209.1 314.1
+> GPU OOM ✓✓✓✓✓✓
+
+(NGCF [10], LightGCN [8], DGCF [55], SGL [42], Sim-pleX [58], and SGDE [59]), generative model-based methods (CFGAN [60], DiffRec, L-DiffRec [61], and FlowCF [62]), and link propagation-based method (LinkProp and LinkProp-Multi [63]). The second group consists of recent GF-based CF methods, including GF-CF [17], PGSP [18], FPSR [27], Turbo-CF [19], and HiGSP [20]. Certain recent GF-based approaches, including PolyCF [25] and LanczosNet [48], were excluded from our empirical comparison, as the source code of PolyCF is not publicly available and LanczosNet was not specifically designed for CF tasks with recommendation datasets involving tens of thousands of nodes. 
+
+Evaluation protocols. For the Yelp and Amazon-book datasets, we follow the same data splits and performance as those in prior studies [8], [10], [18], [19], directly using each paper’s reported best performance for consistency. For ML-20M, we preprocess the dataset by splitting interactions into a ratio of 80:20 for training and testing, and then further reserve 10% of the training set as a validation set under a 10-core setting ( i.e. , filter out users with fewer than ten interactions). To assess the performance of the top-K recommendations, we use widely adopted benchmark metrics from the literature [5], [8], [10], [35], [39]–[41], [55], including recall and 
+
+normalized discounted cumulative gain (NDCG) , with K set to 20 by default. For each metric, we report the average results over 10 independent runs, except for deterministic methods [17]–[20], [26], [57] (including Mem-GF ). Unless otherwise specified, all runtime reports for GF-based methods refer to their preprocessing time. 
+
+Implementation details. We adopt the optimal hyperparame-ters for competitors through extensive hyperparameter tuning on the validation set. For all experiments, we use default hyperparameters γ, s, and polynomial order N for Mem-GF ,unless otherwise stated: (γ, s, N ) = (0.55, 0.9, 5) for Yelp; (0.5, 0.9, 2) for Amazon-book; and (0.5, 1.1, 2) for ML-20M. We set K = N +1 for all datasets. All training-based methods are optimized using the Adam optimizer [64] with a batch size of 1024. Our experiments are conducted on a single server equipped with Intel (R) 12-Core (TM) i7-9700K CPUs @ 3.60 GHz, NVIDIA GeForce RTX A6000 GPUs with 48GB VRAM , and 128GB of RAM .All GF-based CF algorithms [17]–[20], [26] are imple-mented using PyTorch tensors [65] to ensure a consistent experimental environment. Whenever a method exceeds the size of GPU VRAM, we revert to CPU-only computation leveraging system RAM to complete the process without disrupting the pipeline. For FPSR [27], we use τ = 0 .3 as a default hyperparameter to generate 6 partitions. For Turbo-CF, we identically use the three predefined filters presented in [13], [19]. Since the filtering matrix is constructed as ¯R⊤ ¯R, using 
+
+¯ru also aligns the user signal with the same normalization and adjustment applied to the item similarity matrix. This alignment is particularly helpful for the ML-20M dataset, where interactions are highly concentrated on popular items, because it mitigates popularity-dominated signal amplification. To evaluate the scalability of our Mem-GF in Section V-D, we generated sets of synthetic interaction matrices with varying dimensions and sparsity levels. In particular, we employ the random matrix generation function provided by the scipy.random module in the SciPy package [66] to create these matrices. By default, the number of users, items, and nonzero entries ( i.e. , the number of interactions) was set to 5,000, 5,000, and 225,000, respectively. In order to assess scalability across a wide range of problem sizes, the experiments are carried out according to the following setup:  
+
+> •
+
+Varying the number of users/items: The number of users and items is systematically increased to each of the follow-ing values: 1,000, 5,000, 10,000, 15,000, 20,000, 30,000, 40,000, 50,000, 80,000, and 100,000.  
+
+> •
+
+Varying the number of interactions: The number of SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 9
+
+TABLE IV: Runtime (in seconds) of Mem-GF and represen-tative competitors that require model training. Here, runtime represents training time for NGCF, LightGCN, and DiffRec, while it refers to processing time for Mem-GF .
+
+NGCF LightGCN DiffRec Mem-GF 
+
+Yelp 1.5 × 10 4 1.1 × 10 4 1.4 × 10 4 1.5
+
+Amazon-book 7.1 × 10 4 4.6 × 10 4 3.7 × 10 4 6.6
+
+ML-20M 4.6 × 10 5 3.1 × 10 5 1.1 × 10 4 102 .2
+
+Model training ✓ ✓ ✓ ✗
+
+nonzero entries (i.e. , nnz( R)) is scaled to 225,000, 1,125,000, 2,250,000, 4,500,000, 6,750,000, 9,000,000, and 11,250,000. For each configuration, we record the corresponding memory usage and runtime of our Mem-GF . These systematic varia-tions allow us to quantify how the performance of our method scales w.r.t. the number of users, items, and interactions. 
+
+B. Preprocessing Efficiency Analysis (RQ1) 
+
+Table III summarizes the comparison of Mem-GF with ex-isting GF-based recommendation methods in terms of memory usage and runtime on the three benchmark datasets during preprocessing ( i.e. , offline computation). Table IV shows the runtime comparison among Mem-GF and three representative CF methods that require model training (NGCF, LightGCN, and DiffRec). Our key observations are as follows: (i) Leveraging the low-dimensional Krylov subspace, Mem-GF significantly reduces both memory consumption and computation time compared to other GF-based CF com-petitors. (ii) On Amazon-book, where the set of items is relatively large, most GF-based CF competitors encounter OOM errors on the single GPU device. In contrast, Mem-GF efficiently operates within around 5GB of VRAM under the first-order polynomial filter, demonstrating up to a 574% memory advantage and a 438% runtime speedup compared to the second-best performers. Even with higher-order polynomial filters, Mem-GF maintains a VRAM usage of around 8GB. (iii) On ML-20M, the extremely large number of interactions (20M) triggers buffer OOM issues for many competing methods when performing sparse matrix multiplications on the GPU, forcing them to rely solely on CPU computa-tions and resulting in prolonged runtime. On the contrary, 
+
+Mem-GF seamlessly handles high-order filters without such memory bottlenecks. (iv) Table IV demonstrates the benefits of Mem-GF over representative CF methods that require model train-ing in terms of runtime. Because Mem-GF is entirely training-free, it circumvents the costly iterative parameter optimization loops. Notably, on the datasets having a large amount of interactions, such as ML-20M, Mem-GF significantly outperforms two-tower models based on pairwise optimization ( e.g. , NGCF and LightGCN), highlighting its practical value in scenarios where both accuracy and speed are critical. 
+
+C. Inference Efficiency Analysis (RQ2) 
+
+Table V reports the single-batch inference cost ( i.e. , the convolution with graph signals) on the Yelp dataset, as other TABLE V: Inference time and peak GPU memory usage for representative GF-based methods and Mem-GF with different polynomial orders on the Yelp dataset. 
+
+Method Order Time (s) VRAM (GB) 
+
+GF-CF - 0.1197 28.79 Turbo-CF 1 0.1348 6.60 
+
+Mem-GF-1 1 0.0044 0.57 
+
+Mem-GF-2 2 0.0077 0.57 
+
+Mem-GF-3 3 0.0123 0.57 
+
+Mem-GF-5 5 0.0145 0.57 0 20000 40000 60000 80000 100000                                    
+
+> ||
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> 3.0
+> Memory (GB)
+> Memory vs. | |
+> VRAM (GB)
+> RAM (GB)
+> Total (GB)
+> (| |)
+> 020000 40000 60000 80000 100000
+> ||
+> 0
+> 5
+> 10
+> 15
+> Time (sec)
+> Time vs. | |
+> Runtime (sec)
+> (| |)
+> 020000 40000 60000 80000 100000
+> | |
+> 2
+> 4
+> 6
+> Memory (GB)
+> Memory vs. | |
+> VRAM (GB)
+> RAM (GB)
+> Total (GB)
+> (| |)
+> 020000 40000 60000 80000 100000
+> | |
+> 0.8
+> 1.0
+> 1.2
+> 1.4
+> 1.6
+> Time (sec)
+> Time vs. | |
+> Runtime (sec)
+> (| |)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> nnz( R)1e7
+> 1
+> 2
+> 3
+> 4
+> Memory (GB)
+> Memory vs. nnz( R)
+> VRAM (GB)
+> RAM (GB)
+> Total (GB)
+> (nnz ())
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> nnz( R)1e7
+> 2.5
+> 5.0
+> 7.5
+> 10.0
+> 12.5
+> Time (sec)
+> Time vs. nnz( R)
+> Runtime (sec)
+> (nnz ())
+
+Fig. 5: Memory usage (left) and runtime (right) of Mem-GF as the number of users ( |U| ), items ( |I| ), and non-zero interactions ( nnz( R)) increases. Here, the linear asymptotic line is depicted as a red-dashed line for reference. datasets exhibit similar trends. The comparison assumes that the graph filter ( H(L) in (3)) has already been precomputed and focuses only on runtime and peak GPU memory usage during inference. (i) By confining the graph convolution entirely within a low-dimensional Krylov subspace, Mem-GF completes inference in 0.0044 seconds, yielding up to a 26.2 ×
+
+speedup over GF-CF and Turbo-CF, both of which require convolution with a full |I| × |I| graph filter. Even with the fifth-order filter, Mem-GF maintains low latency, supporting real-time recommendation systems. (ii) Since Mem-GF avoids explicit construction and storage of the full-size |I| × |I| matrix, it achieves over a 10.5 ×
+
+reduction in peak VRAM usage compared to Turbo-CF. The memory footprint remains nearly unaffected by the polynomial order because the compact Krylov basis dominates the filtering cost, whereas GF-CF requires dense filter storage for ideal LPF computations. 
+
+D. Scalability Analysis (RQ3) 
+
+To empirically validate our theoretical complexity analy-sis in Section IV-B4, we conduct experiments on synthetic SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 10 20000 30000 40000 50000 60000 70000 80000 90000 100000        
+
+> | |
+> 10
+> 20
+> 30
+> 40
+> Total Memory (GB)
+> Memory vs. | |
+> GF-CF
+> Turbo-CF
+> Mem-GF
+> 20000 30000 40000 50000 60000 70000 80000 90000 100000
+> | |
+> 1
+> 2
+> 3
+> 4
+> 5
+> Time (sec)
+> Time vs. | |
+> GF-CF
+> Turbo-CF
+> Mem-GF
+
+Fig. 6: Total memory (left) and runtime (right) comparison among representative GF-based CF methods w.r.t. |I| .datasets (i.e. , interaction matrices) with varying scales of users, items, and interaction densities. Specifically, in Fig. 5, we present how Mem-GF ’s memory usage and runtime for preprocessing scale as |U| , |I| , and nnz( R) grow. By default, the number of users, items, and interactions was set to 5,000, 5,000, and 225,000, respectively. Furthermore, in Fig. 6, we compare Mem-GF with two representative GF-based CF competitors (GF-CF and Turbo-CF) when |I| increases. For a fair comparison with GF-CF, both Turbo-CF and Mem-GF 
+
+employ the first-order polynomial graph filter. We highlight the following observations: (i) As shown in the left side of Fig. 5, Mem-GF exhibits memory usage growing nearly linearly with |U| , |I| , and 
+
+nnz( R). Notably, the memory footprint is significantly reduced compared to the case of forming the item sim-ilarity matrix of size |I| × |I| , allowing Mem-GF to make full use of GPU acceleration even on large datasets. We note that the size of RAM does not tend to scale with the increasing data dimension as long as VRAM is sufficiently available. (ii) As shown in the right side of Fig. 5, the runtime of 
+
+Mem-GF also scales linearly as each data dimension grows. This validates the scalability of Mem-GF . More-over, since Mem-GF efficiently operates within the GPU VRAM, its runtime only takes less than 11 seconds even when nnz( R) increases up to 10 7 via the exploitation of the GPU resource. (iii) In Fig. 6, we observe that Mem-GF is substantially more scalable in both memory and runtime, compared to GF-CF and Turbo-CF. In particular, GF-CF incurs excessive memory overhead due to its dense ideal LPF matrix having dimensionality of (|I| , |I| ), thus yielding superlinear complexity in practice. These results also indicate how sparsity affects Mem-GF :increasing nnz( R) raises runtime through sparse matrix-vector products, but the growth remains close to linear because the full item similarity matrix is never formed. 
+
+E. Recommendation Accuracy (RQ4) 
+
+Table VI summarizes the recommendation accuracy of 
+
+Mem-GF and various competitors across three distinct datasets. The main findings are as follows: (i) Despite its exceptional computational efficiency, Mem-GF achieves the highest accuracy for all datasets (except the recall on Yelp), underscoring its robustness across diverse data characteristics. TABLE VI: Performance comparison among Mem-GF and competitors. The best and second-best performers are high-lighted in bold and underlined, respectively. The improvements of Mem-GF over the best competitors are all statistically significant with p-values ≤ 0.01 .                                                                                                                                                        
+
+> Yelp Amazon-book ML-20M Method Recall NDCG Recall NDCG Recall NDCG MF-BPR 0.0433 0.0354 0.0250 0.0190 0.0219 0.1108 NeuMF 0.0451 0.0363 0.0258 0.0200 0.0288 0.1437 NGCF 0.0579 0.0477 0.0344 0.0263 0.0307 0.1409 LightGCN 0.0649 0.0530 0.0411 0.0315 0.0402 0.1702 DGCF 0.0654 0.0534 0.0422 0.0324 OOM OOM SGL 0.0675 0.0555 0.0478 0.0379 0.0388 0.1677 SGDE 0.0693 0.0563 0.0483 0.0391 0.0398 0.1683 Multi-DAE 0.0562 0.0434 0.0410 0.0322 0.0385 0.1666 Multi-VAE 0.0584 0.0450 0.0407 0.0315 0.0402 0.1702 RecVAE 0.0579 0.0432 0.0400 0.0302 0.0414 0.1732 SVD-AE 0.0681 0.0572 0.0602 0.0479 0.0536 0.2379 SimpleX 0.0701 0.0575 0.0583 0.0400 0.0304 0.1451 LinkProp 0.0676 0.0559 0.0684 0.0559 OOM OOM LinkProp-Multi 0.0690 0.0571 0.0721 0.0588 OOM OOM DiffRec 0.0656 0.0552 0.0514 0.0418 0.0549 0.2258 L-DiffRec 0.0614 0.0518 0.0502 0.0409 0.0470 0.1837 FlowCF 0.0686 0.0587 0.0497 0.0431 0.0531 0.2340 EASE 0.0657 0.0552 0.0710 0.0567 0.0522 0.2264 GF-CF 0.0697 0.0571 0.0710 0.0584 0.0487 0.2076 PGSP 0.0710 0.0583 0.0712 0.0587 OOM OOM FPSR 0.0703 0.0584 0.0715 0.0588 0.0493 0.2104 Turbo-CF 0.0693 0.0574 0.0730 0.0611 0.0534 0.2299 HiGSP OOM OOM OOM OOM OOM OOM
+> Mem-GF (Ours) 0.0705 0.0586 0.0753 0.0620 0.0566 0.2402
+
+(ii) In particular, the gains of Mem-GF over training-dependent models are indeed substantial across all datasets. (iii) Mem-GF consistently exhibits gains over Turbo-CF, an-other polynomial GF approach. On the Amazon-book dataset, Turbo-CF was restricted only to the first-order linear filter to avoid OOM issues (see Table III), whereas 
+
+Mem-GF can freely use higher-order filters without in-curring any resource scarcity issues on a single device. This design can improve accuracy empirically, not be-cause memory reduction itself guarantees better predic-tions, but because expressive polynomial filters can be selected within the user-specific Krylov subspace without being constrained by the storage cost of full-size graph filters. 
+
+F. Empirical Validation of Theorem IV.1 (RQ5) 
+
+Table VII summarizes our experiments across all datasets, where we varied the number of Krylov basis vectors ( K) for polynomial filters of different maximum polynomial orders (N ). Here, Mem-GF-k denotes an ablation model that omits the Krylov basis construction in Mem-GF . It is observed that, for an N -th order polynomial filter, performance remains con-sistent with that of Mem-GF-k when K ≥ N +1 . This finding confirms that setting K = N + 1 produces no approximation error under the theorem condition. In contrast, the gray entries with K ≤ N illustrate regimes where the guarantee does not apply and performance can become unstable. 
+
+G. Analysis of Polynomial Graph Filters (RQ6) 
+
+Table VIII shows that the optimal polynomial filter varies depending on datasets; for instance, the fifth-order filter (Mem-GF-5 ) achieves the highest recall on Yelp, whereas the SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 11 
+
+TABLE VII: Recall performance across different values of K
+
+and polynomial filters. Here, Mem-GF-k denotes an ablation model that omits the Krylov basis construction in Mem-GF .Cases where K ≤ N are marked in gray.                                                                                                 
+
+> Yelp
+> KMem-GF-1 Mem-GF-2 Mem-GF-3 Mem-GF-5
+> 10.0035 0.0035 0.0035 0.0035 20.0684 0.0684 0.0684 0.0684 30.0684 0.0692 0.0683 0.0695 40.0684 0.0692 0.0683 0.0695 50.0684 0.0692 0.0683 0.0701 60.0684 0.0692 0.0683 0.0703
+> Mem-GF-k 0.0684 0.0692 0.0683 0.0703
+> Amazon-book
+> KMem-GF-1 Mem-GF-2 Mem-GF-3 Mem-GF-5
+> 10.0011 0.0011 0.0011 0.0011 20.0710 0.0628 0.0710 0.0699 30.0710 0.0754 0.0707 0.0710 40.0710 0.0754 0.0707 0.0745 50.0710 0.0754 0.0707 0.0739 60.0710 0.0754 0.0707 0.0739
+> Mem-GF-k 0.0710 0.0754 0.0707 0.0739
+> ML-20M
+> KMem-GF-1 Mem-GF-2 Mem-GF-3 Mem-GF-5
+> 10.0248 0.0248 0.0248 0.0248 20.0554 0.0554 0.0554 0.0554 30.0554 0.0566 0.0552 0.0566 40.0554 0.0566 0.0516 0.0565 50.0554 0.0566 0.0516 0.0564 60.0554 0.0566 0.0516 0.0564
+> Mem-GF-k 0.0554 0.0566 0.0516 0.0564
+
+TABLE VIII: Runtime for preprocessing and recall according to four different types of polynomial graph filters in Mem-GF .                               
+
+> Yelp Amazon-book ML-20M
+> Runtime Recall Runtime Recall Runtime Recall
+> Mem-GF-1 1.5s 0.0687 6.6s 0.0730 102.2s 0.0554
+> Mem-GF-2 2.9s 0.0692 11.4s 0.0753 156.6s 0.0566
+> Mem-GF-3 4.3s 0.0683 16.4s 0.0693 209.1s 0.0516
+> Mem-GF-5 6.5s 0.0705 26.4s 0.0739 314.1s 0.0564
+
+second-order filter ( Mem-GF-2 ) performs best on Amazon-book and ML-20M. As expected, higher-order filters incur longer runtime. Nonetheless, since the overall computation time remains manageable and the search space is restricted to four predefined filters, it is feasible to perform a validation set-based search. Increasing the polynomial order N can improve filter expressiveness, but a sufficiently large Krylov subspace size K is required; in particular, the exactness guarantee holds under exact arithmetic when N < K , whereas regimes with 
+
+K ≤ N may become unstable. 
+
+H. Sensitivity Analysis (RQ7) 
+
+Fig. 7 visualizes the impact of two key hyperparameters in Mem-GF : the normalization parameter γ in (6) and the adjustment parameter s in (9). First, while Yelp attains its highest accuracy at γ = 0 .55 , both Amazon-book and ML-20M achieve optimal performance at γ = 0 .5. Notably, using the conventional choice of γ = 0 .5 still yields sufficiently robust accuracy across all datasets. Second, the optimal values of s are 0.9 on both Yelp and Amazon-book, and 1.0 on ML-20M, indicating that setting closely to s = 1 generally 0.35 0.40 0.45 0.50 0.55 0.60                                   
+
+> 0.060
+> 0.065
+> 0.070
+> 0.075
+> Recall@20
+> Effect of (Yelp)
+> 0.85 0.90 0.95 1.00 1.05 1.10
+> s
+> 0.02
+> 0.04
+> 0.06
+> 0.08
+> Effect of s(Yelp)
+> 0.35 0.40 0.45 0.50 0.55 0.60
+> 0.06
+> 0.07
+> 0.08
+> 0.09
+> Recall@20
+> Effect of (Amazon)
+> 0.85 0.90 0.95 1.00 1.05 1.10
+> s
+> 0.070
+> 0.075
+> 0.080
+> Effect of s(Amazon)
+> 0.3 0.4 0.5 0.6 0.7 0.8
+> 0.00
+> 0.02
+> 0.04
+> 0.06
+> Recall@20
+> Effect of (ML-20M)
+> 0.8 0.9 1.0 1.1 1.2 1.3
+> s
+> 0.03
+> 0.04
+> 0.05
+> 0.06
+> 0.07
+> Effect of s(ML-20M)
+
+Fig. 7: The effect of two hyperparameters γ and s, on the accuracy of Mem-GF .yields robust performance. In addition, we observe a notable performance drop on Yelp and ML-20M when s < 0.9 and 
+
+s < 1.0, respectively, whereas, outside these ranges, perfor-mance remains relatively stable. This aligns with the findings in [19], highlighting the importance of selecting proper ranges of s to ensure optimal recommendation accuracy. 
+
+I. Practical Deployment and Limitations 
+
+Mem-GF can be integrated into real-world recommender systems as a training-free GF-based CF module for candidate generation or scoring, and its output scores can be passed to subsequent ranking or re-ranking modules. Its user-specific Krylov subspace construction and score computation are nat-urally partitionable across workers or GPUs, since they can be performed independently for different users once the ad-justed interaction matrix is available. Fully distributed system-level optimization, including distributed data management and cache-refresh strategies, is left as future work. The main limi-tations are as follows. First, Mem-GF is most directly suited to item similarity graphs built from user–item interactions; social networks, knowledge graphs, or other heterogeneous graph structures may require additional graph filter designs. Second, extremely sparse or noisy user signals, including cold-start-like cases with very few observed interactions, may degrade recommendation quality because the resulting user-specific Krylov subspace may contain insufficient or noisy preference information. In addition, very high polynomial orders may increase numerical sensitivity or computational overhead when 
+
+K is not sufficiently large. These issues can be mitigated through validation-based tuning of K, N , γ, and s.VI. C ONCLUSIONS AND OUTLOOK 
+
+In this paper, we introduced Mem-GF , a training-free and memory-efficient GF method for CF. By operating within SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 12 
+
+user-specific Krylov subspaces, Mem-GF eliminates the need to construct or store the full item similarity matrix, achiev-ing substantial reductions in memory usage and preprocess-ing/inference time. In addition to scalability, Mem-GF sup-ports expressive polynomial filters with low overhead. We fur-ther provided the condition under which Krylov filtering incurs no approximation error. Extensive experiments across three benchmark datasets demonstrated that Mem-GF achieves up to 574% memory reduction, 438% preprocessing speedup, 2620% inference speedup, and state-of-the-art recommenda-tion accuracy. Future work includes extending Mem-GF to heterogeneous graph structures and distributed recommenda-tion systems. ACKNOWLEDGEMENT 
+
+This work was supported by the National Research Foun-dation of Korea (NRF), a South Korea grant funded by the Korea government (MSIT) (RS-2021-NR059723), and by SMEs Technology Innovation Development Program through the Technology Innovation and Promotion Agency (TIPA), funded by the Ministry of SMEs and Startups (RS-2024-00511332). REFERENCES [1] G. Linden, B. Smith, and J. York, “Amazon.com recommendations: Item-to-item collaborative filtering,” IEEE Internet Comput. , vol. 7, no. 1, pp. 76–80, Feb. 2003. [2] P. Covington, J. Adams, and E. Sargin, “Deep neural networks for YouTube recommendations,” in Proc. of the 10th ACM Conf. on Rec-ommender Systems (RecSys 2016) , Boston, MA, USA, Sep. 2016, pp. 191–198. [3] C. A. Gomez-Uribe and N. Hunt, “The Netflix recommender system: Algorithms, business value, and innovation,” ACM Trans. Manage. Inf. Syst. , vol. 6, no. 4, pp. 1–19, Dec. 2015. [4] Y. Gong, Z. Jiang, Y. Feng, B. Hu, K. Zhao, Q. Liu, and W. Ou, “EdgeRec: Recommender system on edge in mobile Taobao,” in Proc. of the 29th ACM Int. Conf. on Information & Knowledge Management (CIKM 2020) , Virtual Event, Oct. 2020, pp. 2477–2484. [5] X. He, L. Liao, H. Zhang, L. Nie, X. Hu, and T.-S. Chua, “Neural collaborative filtering,” in Proc. of the 26th Int. Conf. on World Wide Web (WWW 2017) , Perth, Australia, Apr. 2017, pp. 173–182. [6] D. Liang, R. G. Krishnan, M. D. Hoffman, and T. Jebara, “Variational autoencoders for collaborative filtering,” in Proc. of the 2018 Int. World Wide Web Conf. (WWW 2018) , Lyon, France, Apr. 2018, pp. 689–698. [7] M. Fu, H. Qu, Z. Yi, L. Lu, and Y. Liu, “A novel deep learning-based collaborative filtering model for recommendation system,” IEEE Trans. Cybern. , vol. 49, pp. 1084–1096, Mar. 2019. [8] X. He, K. Deng, X. Wang, Y. Li, Y. Zhang, and M. Wang, “LightGCN: Simplifying and powering graph convolution network for recommen-dation,” in Proc. of the 43rd Int. ACM SIGIR Conf. on Research and Development in Information Retrieval (SIGIR 2020) , Virtual Event, Jul. 2020, pp. 639–648. [9] T. N. Kipf and M. Welling, “Semi-supervised classification with graph convolutional networks,” in Proc. of the 5th Int. Conf. on Learning Representations (ICLR 2017) , Toulon, France, Apr. 2017, pp. 1–14. [10] X. Wang, X. He, M. Wang, F. Feng, and T.-S. Chua, “Neural graph collaborative filtering,” in Proc. of the 42nd Int. ACM SIGIR Conf. on Research and Development in Information Retrieval (SIGIR 2019) , Paris, France, Jul. 2019, pp. 165–174. [11] J.-D. Park, S. Li, X. Cao, and W.-Y. Shin, “Criteria tell you more than ratings: Criteria preference-aware light graph convolution for effective multi-criteria recommendation,” in Proc. of the 29th ACM SIGKDD Conf. on Knowledge Discovery and Data Mining (KDD 2023) , Long Beach, CA, USA, Aug. 2023, pp. 1356–1365. [12] S. Wu, Y. Tang, Y. Zhu, L. Wang, X. Xie, and T. Tan, “Session-based recommendation with graph neural networks,” in Proc. of the 33rd AAAI Conf. on Artificial Intelligence (AAAI 2019) , Honolulu, HI, USA, Jan. 2019, pp. 346–353. [13] C. Kim, Y. Choi, J.-D. Park, and W.-Y. Shin, “Leveraging member-group relations via multi-view graph filtering for effective group recommenda-tion,” in Proc. of the 34th Int. Conf. on World Wide Web (WWW 2025) ,Sydney, NSW, Australia, Apr. 2025, pp. 1077–1081. [14] F. Borisyuk, S. He, Y. Ouyang, M. Ramezani, P. Du, X. Hou, C. Jiang, N. Pasumarthy, P. Bannur, B. Tiwana et al. , “LiGNN: Graph neural networks at linkedin,” in Proc. of the 30th ACM SIGKDD Conf. on Knowledge Discovery and Data Mining (KDD 2024) , Barcelona, Spain, Aug. 2024, pp. 4793–4803. [15] L. Xia, C. Huang, J. Shi, and Y. Xu, “Graph-less collaborative filtering,” in Proc. of the 32nd Int. Conf. on World Wide Web (WWW 2023) , Austin, TX, USA, Apr. 2023, pp. 17–27. [16] S. Zhang, Y. Liu, Y. Sun, and N. Shah, “Graph-less neural networks: Teaching old mlps new tricks via distillation,” in Proc. of the 10th Int. Conf. on Learning Representations (ICLR 2022) , Virtual Event, Apr. 2022. [17] Y. Shen, Y. Wu, Y. Zhang, C. Shan, J. Zhang, B. K. Letaief, and D. Li, “How powerful is graph convolution for recommendation?” in Proc. of the 30th ACM Int. Conf. on Information and Knowledge Management (CIKM 2021) , Gold Coast, Queensland, Australia, Nov. 2021, pp. 1619– 1629. [18] J. Liu, D. Li, H. Gu, T. Lu, P. Zhang, L. Shang, and N. Gu, “Personalized graph signal processing for collaborative filtering,” in Proc. of the 32nd Int. Conf. on World Wide Web (WWW 2023) , Austin, TX, USA, Apr. 2023, pp. 1264–1272. [19] J.-D. Park, Y.-M. Shin, and W.-Y. Shin, “Turbo-CF: Matrix decomposition-free graph filtering for fast recommendation,” in Proc. of the 47th Int. ACM SIGIR Conf. on Research and Development in Information Retrieval (SIGIR 2024) , Washington, DC, USA, Jul. 2024, pp. 2672–2676. [20] J. Xia, D. Li, H. Gu, T. Lu, P. Zhang, L. Shang, and N. Gu, “Hierarchical graph signal processing for collaborative filtering,” in Proc. of the 33rd Int. Conf. on World Wide Web (WWW 2024) , Singapore, May 2024, pp. 3229–3240. [21] J. Xia, D. Li, H. Gu, J. Liu, T. Lu, and N. Gu, “FIRE: Fast incremental recommendation with graph signal processing,” in Proc. of the 31st Int. Conf. on World Wide Web (WWW 2022) , Lyon, France, Apr. 2022, pp. 1808–1819. [22] J. Lee, S. Kang, W.-Y. Shin, J. Choi, N. Park, and D. Lee, “Graph signal processing for cross-domain recommendation,” arXiv preprint arXiv:2407.12374 , 2024. [23] Y.-S. Roh, J.-Y. Kim, J.-D. Park, and W.-Y. Shin, “Training-free ad-justable polynomial graph filtering for ultra-fast multimodal recommen-dation,” Engineering Applications of Artificial Intelligence , vol. 173, pp. 1–14, Jun. 2026. [24] J.-D. Park, J. Yoo, and W.-Y. Shin, “Criteria-aware graph filtering: Extremely fast yet accurate multi-criteria recommendation,” in Proc. of the 34th Int. Conf. on World Wide Web (WWW 2025) , Sydney, NSW, Australia, Apr. 2025, pp. 4482–4493. [25] Y. Qin, W. Ju, Y. Gu, Z. Qiao, Z. Xiao, and M. Zhang, “PolyCF: Towards optimal spectral graph filters for collaborative filtering,” ACM Trans. Inf. Syst. , vol. 43, no. 4, pp. 1–28, Jun. 2025. [26] H. Steck, “Embarrassingly shallow autoencoders for sparse data,” in 
+
+Proc. of the 28th Int. Conf. on World Wide Web (WWW 2019) , San Francisco, CA, USA, May 2019, pp. 3251–3257. [27] T. Wei, J. Ma, and T. W. S. Chow, “Fine-tuning partition-aware item similarities for efficient and scalable recommendation,” in Proc. of the 32nd Int. Conf. on World Wide Web (WWW 2023) , Austin, TX, USA, Apr. 2023, pp. 823–832. [28] R. He and J. McAuley, “Ups and downs: Modeling the visual evolution of fashion trends with one-class collaborative filtering,” in Proc. of the 25th Int. Conf. on World Wide Web (WWW 2016) , Montr´ eal, QC, Canada, Apr. 2016, pp. 507–517. [29] Y. Saad, Numerical Methods for Large Eigenvalue Problems: Revised Edition . SIAM, 2011, vol. 66. [30] L. N. Trefethen and D. B. III, Numerical Linear Algebra . SIAM, 1997. [31] K. Ito and K. Xiong, “Gaussian filters for nonlinear filtering problems,” 
+
+IEEE Trans. Autom. Control , vol. 45, no. 5, pp. 910–927, May 2000. [32] M. Li, X. Guo, Y. Wang, Y. Wang, and Z. Lin, “G 2CN: Graph gaussian convolution networks with concentrated graph filters,” in Proc. of the 39th Int. Conf. on Machine Learning (ICML 2022) , Baltimore, MD, USA, Jul. 2022, pp. 12 782–12 796. [33] W. Jiang, Z. He, S. Zhang, T. B. Preußer, K. Zeng, L. Feng, J. Zhang, T. Liu, Y. Li, J. Zhou et al. , “MicroRec: Efficient recommendation inference by hardware and data structure solutions,” in Proc. of the 4th Conf. on Machine Learning and Systems (MLSys 2021) , Virtual Event, Apr. 2021, pp. 845–859. SUBMITTED TO IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING 13 
+
+[34] D. Lian, H. Wang, Z. Liu, J. Lian, E. Chen, and X. Xie, “LightRec: A memory and search-efficient recommender system,” in Proc. of the 29th Int. Conf. on World Wide Web (WWW 2020) , Taipei, Taiwan, Apr. 2020, pp. 695–705. [35] R. He and J. McAuley, “VBPR: Visual bayesian personalized ranking from implicit feedback,” in Proc. of the 30th AAAI Conf. on Artificial Intelligence (AAAI 2016) , Phoenix, AZ, USA, Feb. 2016, pp. 144–150. [36] N. Rao, H.-F. Yu, P. K. Ravikumar, and I. S. Dhillon, “Collaborative filtering with graph information: Consistency and scalable methods,” in Proc. 28th Adv. Neural Inf. Process. Syst. (NIPS 2015) , Montreal, Canada, Dec. 2015, pp. 2107–2115. [37] H.-J. Xue, X. Dai, J. Zhang, S. Huang, and J. Chen, “Deep matrix factorization models for recommender systems,” in Proc. 26th Int. Joint Conf. Artif. Intell. (IJCAI 2017) , Melbourne, Australia, 2017, pp. 3203– 3209. [38] J.-H. Yang, C.-M. Chen, C.-J. Wang, and M.-F. Tsai, “Hop-rec: High-order proximity for implicit recommendation,” in Proc. 12th ACM Conf. Recommender Syst. (RecSys) , Vancouver, BC, Canada, 2018, pp. 140– 144. [39] R. van den Berg, T. N. Kipf, and M. Welling, “Graph convolutional matrix completion,” in Proc. KDD’18 Deep Learning Day , London, United Kingdom, Aug. 2018. [40] R. Ying, R. He, K. Chen, P. Eksombatchai, W. L. Hamilton, and J. Leskovec, “Graph convolutional neural networks for web-scale rec-ommender systems,” in Proc. of the 24th ACM SIGKDD Conf. on Knowledge Discovery and Data Mining (KDD 2018) , London, United Kingdom, Aug. 2018, pp. 974–983. [41] L. Zheng, C.-T. Lu, F. Jiang, J. Zhang, and P. S. Yu, “Spectral collaborative filtering,” in Proc. of the 12th ACM Conf. on Recommender Systems (RecSys 2018) , Vancouver, BC, Canada, Sep. 2018, pp. 311– 319. [42] J. Wu, X. Wang, F. Feng, X. He, L. Chen, J. Lian, and X. Xie, “Self-supervised graph learning for recommendation,” in Proc. of the 44th Int. ACM SIGIR Conf. on Research and Development in Information Retrieval (SIGIR 2021) , Virtual Event, Jul. 2021, pp. 726–735. [43] Y. Wu, C. DuBois, A. X. Zheng, and M. Ester, “Collaborative denoising auto-encoders for top-N recommender systems,” in Proc. 9th ACM Int. Conf. Web Search Data Mining (WSDM 2016) , 2016, pp. 153–162. [44] I. Shenbin, A. Alekseev, E. Tutubalina, V. Malykh, and S. I. Nikolenko, “RecVAE: A new variational autoencoder for top-N recommendations with implicit feedback,” in Proc. of the 13th ACM Int. Conf. on Web Search and Data Mining (WSDM 2020) , Houston, TX, USA, Feb. 2020, pp. 528–536. [45] Y. Zhu and Z. Chen, “Mutually-regularized dual collaborative variational auto-encoder for recommendation systems,” in WWW 2022 , Lyon, France, 2022, pp. 2379–2387. [46] S. Peng, X. Liu, K. Sugiyama, and T. Mine, “How powerful is graph filtering for recommendation,” in Proc. 30th ACM SIGKDD Conf. Knowl. Discov. Data Min. (KDD 2024) , Barcelona, Spain, 2024, pp. 2388–2399. [47] C. Kim, J. Sung, Y. Han, and J. Lee, “Graph spectral filtering with chebyshev interpolation for recommendation,” in Proc. 48th Int. ACM SIGIR Conf. Res. Dev. Inf. Retr. (SIGIR 2025) , 2025, pp. 1964–1974. [48] R. Liao, Z. Zhao, R. Urtasun, and R. S. Zemel, “Lanczosnet: Multi-scale deep graph convolutional networks,” Int. Conf. Learn. Represent. (ICLR) , May 2019. [49] D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega, and P. Van-dergheynst, “The emerging field of signal processing on graphs: Ex-tending high-dimensional data analysis to networks and other irregular domains,” IEEE Signal Process. Mag. , vol. 30, no. 3, pp. 83–98, May 2013. [50] A. Ortega, P. Frossard, J. Kovaˇ cevi´ c, J. M. F. Moura, and P. Van-dergheynst, “Graph signal processing: Overview, challenges, and ap-plications,” Proc. IEEE , vol. 106, no. 5, pp. 808–828, May 2018. [51] R. Ramakrishna, H.-T. Wai, and A. Scaglione, “A user guide to low-pass graph signal processing and its applications: Tools and applications,” 
+
+IEEE Signal Process. Mag. , vol. 37, no. 6, pp. 74–85, Nov. 2020. [52] H.-T. Wai, S. Segarra, A. E. Ozdaglar, A. Scaglione, and A. Jadbabaie, “Blind community detection from low-rank excitations of a graph filter,” 
+
+IEEE Trans. Signal Process. , vol. 68, pp. 436–451, Jan. 2020. [53] C. Lanczos, “An iteration method for the solution of the eigenvalue problem of linear differential and integral operators,” J. Res. Natl. Bur. Stand. , vol. 45, no. 4, pp. 255–282, Oct. 1950. [54] Y. Saad, Iterative Methods for Sparse Linear Systems . SIAM, 2003. [55] X. Wang, H. Jin, A. Zhang, X. He, T. Xu, and T.-S. Chua, “Disentangled graph collaborative filtering,” in Proc. of the 43rd Int. ACM SIGIR Conf. on Research and Development in Information Retrieval (SIGIR 2020) ,Virtual Event, Jul. 2020, pp. 1001–1010. [56] S. Rendle, C. Freudenthaler, Z. Gantner, and L. Schmidt-Thieme, “BPR: Bayesian personalized ranking from implicit feedback,” in Proc. of the 25th Conf. on Uncertainty in Artificial Intelligence (UAI 2009) ,Montreal, QC, Canada, Jun. 2009, pp. 452–461. [57] S. Hong, J. Choi, Y.-C. Lee, S. Kumar, and N. Park, “SVD-AE: Simple autoencoders for collaborative filtering,” in Proc. of the 33rd Int. Joint Conf. on Artificial Intelligence (IJCAI 2024) , Jeju, Republic of Korea, Aug. 2024. [58] K. Mao, J. Zhu, J. Wang, Q. Dai, Z. Dong, X. Xiao, and X. He, “SimpleX: A simple and strong baseline for collaborative filtering,” in Proc. of the 30th ACM Int. Conf. on Information and Knowledge Management (CIKM 2021) , Virtual Event, Nov. 2021, pp. 1243–1252. [59] S. Peng, K. Sugiyama, and T. Mine, “Less is more: Removing re-dundancy of graph convolutional networks for recommendation,” ACM Trans. Inf. Syst. , vol. 42, no. 3, pp. 1–26, Jan. 2024. [60] D.-K. Chae, J.-S. Kang, S.-W. Kim, and J.-T. Lee, “CFGAN: Ageneric collaborative filtering framework based on generative adversarial networks,” in Proc. 27th ACM Int. Conf. Inf. Knowl. Manag. (CIKM 2018) , Torino, Italy, Oct. 2018, pp. 137–146. [61] W. Wang, Y. Xu, F. Feng, X. Lin, X. He, and T.-S. Chua, “Diffusion recommender model,” in Proc. 46th Int. ACM SIGIR Conf. Res. Dev. Inf. Retr. (SIGIR 2023) , Taipei, Taiwan, Jul. 2023, pp. 832–841. [62] C. Liu, Y. Zhang, J. Wang, R. Ying, and J. Caverlee, “Flow matching for collaborative filtering,” in Proc. 31st ACM SIGKDD Conf. Knowl. Discov. Data Min. (KDD 2025) , Toronto, Canada, 2025, pp. 1765–1775. [63] H.-M. Fu, P. Poirson, K. S. Lee, and C. Wang, “Revisiting neighborhood-based link prediction for collaborative filtering,” in Proc. ACM Web Conf. (WWW 2022) , Lyon, France, 2022, pp. 1009–1018. [64] D. P. Kingma and J. Ba, “Adam: A method for stochastic optimization,” in Proc. 3rd Int. Conf. Learn. Represent. (ICLR 2015) , San Diego, CA, 2015, pp. 1–15. [65] A. Paszke, S. Gross, F. Massa, A. Lerer, J. Bradbury, G. Chanan, T. Killeen, Z. Lin, N. Gimelshein, L. Antiga et al. , “PyTorch: An imperative style, high-performance deep learning library,” in Proc. 33rd Conf. Neural Inf. Process. Syst. (NeurIPS 2019) , Vancouver, BC, Canada, 2019. [66] P. Virtanen, R. Gommers, T. E. Oliphant, M. Haberland, T. Reddy, D. Cournapeau, E. Burovski, P. Peterson, W. Weckesser, J. Bright et al. ,“SciPy 1.0: Fundamental algorithms for scientific computing in Python,” 
+
+Nature Methods , vol. 17, no. 3, pp. 261–272, Feb. 2020.

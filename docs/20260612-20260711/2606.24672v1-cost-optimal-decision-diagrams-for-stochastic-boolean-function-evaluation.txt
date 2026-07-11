@@ -1,0 +1,637 @@
+Title: Cost-Optimal Decision Diagrams for Stochastic Boolean Function Evaluation
+
+URL Source: https://arxiv.org/pdf/2606.24672v1
+
+Published Time: Wed, 24 Jun 2026 01:09:07 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+# Cost-Optimal Decision Diagrams for Stochastic Boolean Function Evaluation 
+
+# Xia Zong 1 , Tuomo Lehtonen 1 , Jussi Rintanen 11Department of Computer Science, Aalto University 
+
+# {xia.zong@aalto.fi, tuomo.lehtonen@aalto.fi, jussi.rintanen@aalto.fi }
+
+# Abstract 
+
+In many decision-making scenarios, acquiring in-formation incurs different costs. We consider the problem of constructing a deterministic evalua-tion strategy that minimizes the expected cost of evaluating a propositional formula under variable costs and a probability distribution over truth as-signments. We present a branch-and-bound algo-rithm with variable-selection heuristics, pruning, and caching. To the best of our knowledge, it is the first practical exact algorithm for this level of generality. Experiments on random instances demonstrate scalability and quantify the efficiency– quality trade-off of a greedy beam-search variant. We additionally evaluate a structured heart-disease diagnosis instance. Finally, we prove that the prob-lem is #P-hard and contained in PSPACE .
+
+# 1 Introduction 
+
+Evaluating a Boolean formula becomes non-trivial when ob-serving its variables incurs different costs, especially when the variables are statistically dependent. This scenario is typ-ical in applications such as diagnosis, testing and classifica-tion [ ¨ Unl¨ uyurt, 2004; ¨ Unl¨ uyurt, 2025; Moret, 1982]. This problem is known as the Stochastic Boolean Function Eval-uation (SBFE) problem, and in the sequential testing litera-ture [ ¨ Unl¨ uyurt, 2004] sequential testing of Boolean functions .Exhaustive brute-force methods have been proposed for some classes of formulas [Halpern, 1974; Breitbart and Reiter, 1975]. More recent works focus on worst-case complexity and approximation algorithms [Deshpande et al. , 2014], sometimes in special cases such as symmetric functions [Gkenosis et al. , 2022], or using costs but no probabilities or assuming uniform probabilities for all vari-ables [Charikar et al. , 2000; Blanc et al. , 2021]. Polynomial-time cases with restricted Boolean functions such as k-out-of-n [Salloum and Breuer, 1984; Chang et al. , 1990] or dis-junctions (analogously conjunctions) of atoms [Garey, 1973] have been considered for sequential testing. The SBFE problem is related to various decision-tree prob-lems [Garey and Graham, 1974; Hyafil and Rivest, 1976; Quinlan, 1986]. Each node of a decision tree represents a test (possibly with an associated cost), the result of which de-termines which sub-tree to follow, and leaf nodes contain a value (such as a class or diagnosis) to which the sequence of test results from the root node is mapped. Probabilities may be associated with the classes or the test outcomes in different ways. The tests and their relation to the diagnoses or the test results may be expressible as a mapping or a formula. While there is a continuing interest in analytical works on tractable approximations and special cases, there has been lit-tle focus on scalable optimal methods for the SBFE problem in the most general setting with general Boolean functions and complex probability distributions on the variables. This is the gap our work helps to fill by proposing and evaluating a practical algorithm that incorporates heuristics and effective pruning methods to improve scalability. We address the off-line SBFE problem, with the objective of constructing decision diagrams to evaluate Boolean formu-las such that the expected cost of evaluation is minimal. The diagram represents a general procedure that can be used mul-tiple times with different variable values, as long as the costs and the statistical dependencies between the variable values remain the same. Concretely, we consider a general problem of optimal deci-sion diagram construction, starting from an arbitrary propo-sitional formula ϕ. The value of each variable in ϕ can be observed, incurring a cost, and the conditional probability of a variable being true, given some subset of others, is known. We want to minimize the expected cost of determining the truth-value of ϕ. Additionally, in contrast to much of the earlier work that has imposed restrictions on cost functions or probability distributions, we permit arbitrary positive costs and general probability distributions that can, for example, be represented by Bayesian networks. Our contributions are as follows. First, we propose a practi-cal branch-and-bound algorithm for constructing optimal de-cision diagrams, including various variable ordering heuris-tics and efficient pruning and caching schemes. We present an implementation of our algorithm and evaluate its runtime performance. We empirically show the efficiency improve-ments from pruning, caching and variable ordering heuristics, and show performance variation across different clause-to-variable ratios, specifically a region around which instances are particularly hard. We also investigate the trade-off be-
+
+> arXiv:2606.24672v1 [cs.AI] 23 Jun 2026
+
+tween runtime and quality when using a beam search in-stead of optimal search. Finally, we present novel complex-ity results for constructing optimal decision diagrams for ar-bitrary Boolean formulas, showing the problem to be #P-hard. NP-hardness of various SBFE variants has been stated in the literature [Allen et al. , 2017; Greiner et al. , 2006; Kaplan et al. , 2005], but stricter lower bounds have not been reported for the SBFE problem or the equivalent sequential testing problem [ ¨ Unl¨ uyurt, 2025]. We review the related literature in more detail in Section 2. The problem is formally defined in Section 3, and its com-plexity is analyzed in Section 4. We present our algorithm in Section 5 and empirically evaluate its implementation in Section 6. 
+
+# 2 Related Work 
+
+A number of works in the literature consider the evaluation of a Boolean condition or a classifier, in some cases with a decision diagram or tree as a result. 
+
+Binary Decision Diagrams Evaluation of Boolean func-tions can be described with different types of Binary Decision Diagrams, including Free BDDs (FBDD), which allow differ-ent variable orderings on different paths through the diagram. Methods for finding FBDDs of minimal size have been de-veloped [G¨ unther and Drechsler, 2002]. This is a restricted setting compared to ours: FBDD variables have no costs or probabilities for different value assignments, and the objec-tive is to minimize size rather than the cost of using variables. 
+
+Object identification problems The objective is to iden-tify the class a given object belongs to, by performing a sequence of tests, each of which corresponds to a subset of objects, with the outcome being whether the object be-longs to that subset [Garey and Graham, 1974; Hyafil and Rivest, 1976]. All possible test sequences are represented as a decision tree. Probabilities, if used at all, are assigned to classes only, not to tests. Hyafil and Rivest [1976] show that checking the existence of a decision tree of a given size is NP -complete. Later works are analytical and fo-cus on approximation algorithms with logarithmic approx-imation ratios [Chakaravarthy et al. , 2009; Li et al. , 2020; Zhuo and Nagarajan, 2025]. This problem is simpler than the one in our work due to the restricted probabilities and propositional language. The case with only two classes is a special case of our problem. The problem studied in our work can be generalized to multi-class classification, for example via vectors of Boolean formulas. 
+
+Binary classification with Boolean formulas Using deci-sion trees to determine the value of a Boolean formula, simi-larly to the present work, has been considered in the literature. Reinwald and Soland [1966] construct decision trees with the least expected cost for decision tables, which are essentially Boolean functions in disjunctive normal form, with a proba-bility associated to each disjunct. Breitbart and Reiter [1975] present an algorithm for finding a decision tree with the min-imum average number of observations to determine the value of a monotonic Boolean function, with unit costs for every observation, and uniform probability for every valuation. The treatment of probabilities here is far less general than in our work, and the algorithm for finding optimal decision trees is brute-force without heuristics or pruning methods. Many works on circuit complexity consider the depth of circuit di-agrams for evaluating Boolean functions [Wegener, 1984], without separately considering costs or associating probabil-ities with different value combinations. Approximation algo-rithms for the SBFE problem have been investigated [Desh-pande et al. , 2014; Gkenosis et al. , 2022]. 
+
+Decision trees in Machine Learning Decision trees have been used for representing large datasets more compactly, to make the data more explainable, and to turn it into an effec-tive classification procedure [Quinlan, 1979; Quinlan, 1986; Bertsimas and Dunn, 2017; Mienye and Jere, 2024]. Costs are sometimes considered, for example in algorithms that attempt to minimize the cost of misclassifying instances, sometimes together with the cost of reading the variable val-ues [Ling et al. , 2004; Lomax and Vadera, 2013]. The ma-chine learning problem is fundamentally different: learning (an approximation of) some decision function, in contrast to the SBFE problem which aims to devise a general strategy of most cheaply evaluating the decision according to a given decision function. This optimality in evaluation is not consid-ered nor solved by learning a classification function. 
+
+# 3 Problem Statement 
+
+We briefly recall the basics of propositional logic. Let X =
+
+{x1, . . . , x n} be a set of propositional variables. Formulas are formed from variables in X and connectives ∨, ∧ and ¬.A valuation v : X → { 0, 1} is a total function X to values 0 (false ) and 1 ( true ), and it determines the truth of formulas ϕ,indicated by v |= ϕ, as follows. For atomic formulas x ∈ X,
+
+v |= x if and only if v(x) = 1 . For compound formulas, 
+
+v |= ϕ1 ∧ ϕ2 iff v |= ϕ1 and v |= ϕ2, v |= ϕ1 ∨ ϕ2 iff v |= ϕ1
+
+or v |= ϕ2, and v |= ¬ϕ iff v |= ϕ does not hold. A formula 
+
+ϕ is satisfiable if v |= ϕ for at least one valuation v. It is valid 
+
+if v |= ϕ for all valuations v.Consider a formula ϕ with Boolean variables in X =
+
+{x1, . . . , x n}, and the problem of determining whether ϕ is true or false. Each variable x ∈ X can be observed at some positive rational cost c(x), c : X → Q. Further, the prob-ability model provides P (v(x) = b | B) for each variable 
+
+x ∈ X, value b ∈ { 0, 1}, and partial valuation B over vari-ables in X\{ x} reached during evaluation. These condition-als are induced by a joint distribution over X.
+
+Definition 1 (Problem instance) . Our problem instance is 
+
+I = ( ϕ, X, P, C ), with a Boolean formula ϕ over a set of variables X; a condi-tional probability distribution P on X; and a cost function 
+
+c : X → Q of observing variables. 
+
+The aim is to construct a minimal cost decision diagram that unambiguously determines the value of ϕ. Intuitively, given a Boolean formula ϕ over variables X, we say that Gϕ
+
+is a decision diagram for ϕ if it is a decision diagram with non-leaf nodes labeled with variables in X and arcs with a value for the corresponding variable, and the following condi-tions hold. Each possible valuation is represented by exactly one path in the diagram. Formally, we require the following. 
+
+Definition 2 (Decision diagram for a formula) . Given an in-stance I = ( ϕ, X, P, C ), a decision diagram for ϕ is a di-rected acyclic graph G = ⟨N, A ⟩ with N a finite set of nodes and A ⊆ N × N a set of arcs, where 1. O : N → X ∪ {⊤ , ⊥} assigns to each node a variable, the symbol ⊤ (for true ), or ⊥ (for false ), with 
+
+• O(n) ∈ {⊤ , ⊥} only if n has no outgoing arcs, 
+
+• O(n) ∈ X only if n has two outgoing arcs, and 2. V : A → { 0, 1} indicates whether the arc is followed when the value of the observed variable is false or true ,3. for every node n such that O(n) ∈ X, there is exactly one outgoing arc a labeled V (a) = 0 and exactly one outgoing arc a′ labeled V (a′) = 1 ,4. there is a root node r ∈ N such that no arc ends in r,5. every node in N \{ r} has at least one incoming arc. Consider a path starting from the root of G, s =(a1, . . . , a m) where each ai ∈ A. Let (n1, . . . , n m) be the sequence of nodes, not including ⊤ or ⊥, appearing in the arcs of s. We define πs , the valuation function corresponding to s, as πs (O(ni)) = V (ai) for all 1 ≤ i ≤ m.
+
+G is a decision diagram for ϕ (denoted Gϕ) if moreover 1) for all paths s of Gϕ, if s ends in ⊤, then ϕ is valid under the valuation πs , and if s ends in ⊥, then ϕ is unsatisfiable under 
+
+s; and 2) for each total valuation π over X, there is a path s
+
+in Gϕ such that πs can be extended to π.
+
+In words, a decision diagram for a formula ϕ classifies any valuation as ⊤ (⊥) iff ϕ is true (false) under (all extensions to) that valuation. A decision tree is a special case of a decision diagram, where each node has at most one incoming arc. We move on to defining the (evaluation) cost and thereby the optimality of decision diagrams for formulas. Let P(Gϕ)
+
+denote the collection of paths with non-zero length starting from the root in a decision diagram Gϕ. For brevity, for path 
+
+s, let πj 
+
+> s
+
+denote πs restricted to the first j valuations in the path, i.e. if the nodes corresponding to s are (ns
+
+> 1
+
+, . . . , n sm),let N ′ = {nsi ∈ N | 1 ≤ i ≤ j} and πj 
+
+> s
+
+= πs |N ′ . Further, let 
+
+πs (j) denote the jth valuation in s, i.e. O(ni) = πs (O(ni)) .
+
+Definition 3 (Optimal decision diagram for ϕ). Given an in-stance I = ( ϕ, X, P, C ) and a decision diagram for ϕ, Gϕ,the expected (evaluation) cost of Gϕ is 
+
+c(r) + X
+
+> s∈P (Gϕ)
+
+c(ns
+
+> |s|
+
+) ·
+
+> |s|
+
+Y
+
+> j=1
+
+P (πs (j) | πj−1 
+
+> s
+
+)
+
+ .
+
+The product of conditional probabilities is the probability, un-der the joint distribution, of reaching the corresponding path. A decision diagram for ϕ is optimal if it has the minimal cost of all decision diagrams for ϕ.
+
+In words, for each path with length greater than 0, the cost of observing the final variable in the path is multiplied by the probability of this particular valuation, and the cost of the whole tree is the cost of observing the root variable plus the sum of all paths. The cost is the expected cost of determining the truth value of ϕ by a sequence of variable observations.  
+
+> A
+> DB
+> C
+
+⊤ ⊥ ⊤
+
+⊤ ⊥ 
+
+> A
+> DC
+> B
+
+⊤ ⊥ ⊤
+
+⊤ ⊥         
+
+> Figure 1: Two decision trees for (A∨B∨C)∧(¬A∨D). Solid arcs evaluate the variable to 1 and dashed to 0.
+
+Example 1. Consider the instance I = ( ϕ, X, P, C ) with 
+
+ϕ = ( A ∨ B ∨ C) ∧ (¬A ∨ D), c(A) = c(B) = c(D) = 1 
+
+and c(C) = 10 , and uniform probabilities, i.e. each variable is true with a probability of 0.5. Figure 1 shows two deci-sion diagrams for I as trees; it is easy to see that they both correctly classify all valuations to ϕ.The graph on the left has a cost of 1 + 1 · 0.5 + 1 · 0.5 + 10 · 0.52 = 4 .5. The sum terms correspond to the costs of the variables A, D, B, and C respectively, multiplied by the probability of the evaluation reaching their respective node. The graph on the right has a cost of 1 + 1 · 0.5 + 10 · 0.5 + 1 · 0.52 = 6 .75 ,reflecting the fact that the costly C is evaluated before B
+
+in the right-hand branch. 
+
+# 4 Complexity 
+
+Interestingly, the complexity of the SBFE problem and re-lated problems has not been analyzed beyond showing NP-hardness. With dependencies between the variables and the need to minimize the expected cost of formula evaluation, the com-plexity increases substantially beyond NP. We address this gap in the literature. We show that constructing a decision diagram with mini-mal expected cost is #P-hard, i.e. as hard as many proba-bilistic inference problems and model-counting problems for propositional logic [Valiant, 1979; Roth, 1996]. This shows, for example, that a reduction to Mixed Integer-Linear Pro-gramming, an NP-complete problem, is not feasible (under common assumptions such as NP ⊂#P). 
+
+Theorem 1. The problem of calculating the expected cost of the least expected cost decision diagram is #P-hard. Proof. We reduce #SAT to calculating the cost of the optimal decision diagram. Let ϕ be any propositional formula, and let X be the set of atomic propositions in ϕ, with n = |X|.We construct a formula ϕ′ and a distribution D so that ϕ has 
+
+N models if and only if the expected cost c of the optimal decision diagram for ϕ′ with data D satisfies N ≤ c < N +1 .Let ϕ′ = ϕ ∧ z, where z̸ ∈ X. Let c(z) = 2 n and 
+
+c(x) = 1/2n for all x ∈ X. Let D be the uniform distribu-tion, i.e., every valuation of X has probability 2−n. Clearly, these distributions can be represented polynomially wrt |X|
+
+in many formalisms, including Bayesian networks. In every root-to-leaf path of the decision diagram for ϕ ∧ z
+
+and D, some member of X is observed, and only after ϕ has been determined to be true , the value of z is observed. Paths that correspond to valuations that make ϕ false do not observe 
+
+z, and do not correspond to satisfying valuations of ϕ.Consider a node in the decision diagram corresponding to a partial valuation that assigns truth values to variables 
+
+x1, . . . , x k, and which observes z. This node corresponds to 2n−k satisfying valuations of ϕ. The observation of z con-tributes expected value 2−k · 2n = 2 n−k to the expected cost of the optimal decision diagram. Thus the sum of the con-tributions of the observations of z in all nodes of the opti-mal decision diagram equals the number of satisfying valu-ations N of ϕ. Additionally, the graph contains at most 2n
+
+observations for variables in X, with a total maximum cost of n · 1/2n = 0 .5 on any execution of the decision diagram. Hence, the expected cost c of the optimal decision diagram satisfies N ≤ c ≤ N + 0 .5.Note that model counting is #P-hard even with monotone formulas [Roth, 1996], and as our proof preserves monotony, constructing optimal decision diagrams for monotone for-mulas is also #P-hard. While a #P-membership does not seem likely, we can show that computing the expected cost of the decision diagram is in FPSPACE , and determin-ing whether the expected cost is within given bounds is in 
+
+PSPACE . PSPACE is very close to #P, as PH ⊆ P#P ⊆
+
+PSPACE [Toda, 1991], so only a small gap remains in the complexity results. 
+
+Theorem 2. The problem of calculating the expected cost of the optimal decision diagram is in FPSPACE , and the prob-lem of deciding if there is a decision diagram with an ex-pected cost bounded by some constant is in PSPACE .Proof. Consider our Algorithm 1 in Section 5. The proce-dure call O PT COST (ϕ, ∅, 0, ∞, 1.0) returns the expected cost of the decision diagram with the lowest expected cost. At each recursive call to O PT COST , the number of occurrences of variables in X in the formula ϕ is decreased by at least one. Hence, the recursion depth of O PT COST is linear in |X|.For the representations of the statistical data we consider, the computation of expected cost on lines 8 and 10 takes polynomial space, as the probabilistic inference problem for Bayesian networks is solvable in PSPACE . Hence, the mem-ory consumption at any point of the search graph is poly-nomial, ignoring caching (which is not needed for the cor-rectness or completeness of the algorithm.) This shows the 
+
+FPSPACE membership for the function problem as well as the PSPACE membership for the decision problem. 
+
+# 5 Algorithm for Optimal Decision Diagrams 
+
+We present Algorithm 1 for finding a decision diagram of minimum expected cost for an instance I = ( ϕ, X, P, C ). We employ a bounding method (lines 7, 9, and 11) and caching of exact subproblem solutions (lines 2 and 15). Both re-sult in substantial pruning of the search tree. The advanced lower-bound cache is given in Appendix B. The pseudocode computes only the optimal cost; simple book-keeping can be added to construct the optimal decision diagram. The algorithm proceeds by iteratively choosing a variable 
+
+x to observe, and then constructing sub-graphs for the simpler problems when the value of x has been respectively fixed to 
+
+0 and 1 (or false and true ). The recursion ends when the formula is logically equivalent to either the constant ⊤ or ⊥,producing a leaf node in the decision diagram. This can be checked by solving the propositional satisfiability problem. A branch in the search graph can be pruned based on the cost of an optimal decision diagram for a subformula (so that this decision diagram was found earlier in the search in an alternative branch for the same subformula). We main-tain a lower bound bound (initially ∞) and the cost of the thus-far constructed parts of the current decision diagram, in 
+
+parentcost . We prune those subgraphs of the current search node for which the sum of parentcost and the subdiagram cost exceeds bound . The value of bound is the lowest ex-pected cost partial decision diagram that can be compared to the current one under construction. Crucially, bound is only passed to further recursive calls and not returned, ensuring that we are essentially comparing the cost of a complete deci-sion diagram for the subformula at the point in which bound 
+
+is updated to the cost of an alternative decision diagram, still under construction, for the same subformula. Pruning is done only when the latter is higher than bound .The subprocedure assign (l, ϕ ), where l is a literal ( x or ¬x
+
+for some x ∈ X), replaces occurrences of x by the constant ⊤
+
+(if l = x) or the constant ⊥ (if l = ¬x) and unit propagation-like simplifications are employed. 1 We next provide an illus-trative example. 
+
+Example 2. Consider the formula F = ( A ∨ B ∨ C) ∧ (¬A ∨
+
+D), with a uniform distribution over valuations, and with cost 10 for observing C and cost 1 for other variables. Part of the search tree for finding a decision diagram for F is shown in Figure 2, including finding the first two decision diagrams. The search tree has variable nodes (with a diamond shape) with two subtrees corresponding to setting the variable true and false (with the false subtree indicated by the dashed line), and formula nodes that indicate the formula simplified with the variable values on the path from the root to the node. From the search tree, each decision diagram can be ob-tained by starting from the root node, and for each formula node, eliminating the formula node and all of its subtrees ex-cept one, at the same time connecting the remaining subtree with the parent of the formula node. For example, the first de-cision diagram that would be found on a left-to-right traver-sal is the tree shown on the left in Figure 1, with expected cost 4.5. In our tree-search algorithm, at the formula node B ∨ C
+
+after traversing the subtree corresponding to B and before proceeding to the subtree corresponding to C, we have the cost 4.5 as the bound to which we would be comparing any decision tree obtained by searching the subtree for C. Now, when going down to the subtree for C, the cost so far would be 1 + 1 · 0.5 + 10 · 0.5 = 6 .5, which exceeds the bound, indi-       
+
+> 1Our implementation represents the formula in conjunctive nor-mal form (CNF), and assign is implemented by adding lto the clause set as a unit clause, exhaustively applying the unit resolution and unit subsumption rules, to eliminate any clause that is a strict superset of another clause, and finally removing the unit clause l. This simpli-fies the clause set so that occurrences of lare correctly removed and any resulting unit clauses are used to simplify the formula further.
+
+Algorithm 1 Optimal Expected-Cost Decision Diagram Search  
+
+> 1:
+
+function OPT COST (ϕ, B, parentcost, bound, p ) ▷ ϕ : CNF, B: valuation, p: path probability  
+
+> 2:
+
+if B ∈ Cache then return p · Cache [B] ▷ Retrieve cached subsolution  
+
+> 3:
+
+if ϕ is either valid or unsatisfiable then return 0 ▷ Terminal node of the decision diagram  
+
+> 4:
+
+childcost ← ∞  
+
+> 5:
+
+for each variable x occurring in ϕ, ordered by heuristic do  
+
+> 6:
+
+Cx ← p · c(x) ▷ Immediate observation cost  
+
+> 7:
+
+if parentcost + Cx ≥ bound then continue ▷ Prune if observing x is too costly  
+
+> 8:
+
+Cx ← Cx+ OPT COST (assign (x=⊤, ϕ ), B ∪ { x=⊤} , parentcost + Cx, bound, p · P (x | B)) 
+
+> 9:
+
+if parentcost + Cx ≥ bound then continue ▷ Prune if observing x and the first truth value is too costly  
+
+> 10:
+
+Cx ← Cx+ OPT COST (assign (x=⊥, ϕ ), B ∪ { x=⊥} , parentcost + Cx, bound, p · P (¬x | B)) 
+
+> 11:
+
+if parentcost + Cx ≥ bound then continue ▷ Prune if observing x and both truth values is too costly  
+
+> 12:
+
+childcost ← min( childcost, C x) 
+
+> 13:
+
+bound ← min( bound, parentcost + childcost ) 
+
+> 14:
+
+if childcost < ∞ then  
+
+> 15:
+
+Cache [B] ← childcost/p ▷ Store (normalized) subsolution  
+
+> 16:
+
+return childcost 
+
+(A ∨ B ∨ C) ∧ (¬A ∨ D)   
+
+> ABCD
+
+D B ∨ C  
+
+> DBC
+
+⊤ ⊥ ⊤ C ⊤ B 
+
+> CB
+
+⊤ ⊥ ⊤ ⊥         
+
+> Figure 2: Part of the search tree for (A∨B∨C)∧(¬A∨D)
+
+cating that any decision tree found by completing the search for the subtree C would have a cost of at least 6.5. Hence the search-tree can be pruned at that point, without having to go any deeper. Thus, 4.5 is the cost of the best decision tree found by observing the variable A first. The search proceeds from the root node by sequentially considering B, C and D
+
+as the first observation. 
+
+Note that line 11 might seem superfluous, as it does not actually prune the search tree. This is not the case. Its pur-pose is to prevent updating childcost and caching the value 
+
+Cx for the current sub-graph when the lowest-cost evaluation of assign( x = ⊥,ϕ) was never found due to pruning inside the preceding recursive call to O PT COST (counterexample can be found in the Appendix). Algorithm 1 caches the normalized optimal cost of each solved subproblem (line 15), so that the cost can be rescaled by the path probability when the same valuation state is reached again (line 2). Appendix B gives the complete ver-sion with lower-bound caching for pruned searches. The selection order of variables also impacts effectiveness. We would like to find the most promising, low-cost decision diagrams first, so that other branches can be pruned quickly. Similarly, we would like to first traverse the more promising branch, for true or false , instead of trying them in fixed order. We detail a number of ordering heuristics below. Pruning could be further strengthened. Our algorithm only considers the parentcost , the cost of the current variable c(x),and the cost of the first sub-tree with x assigned true or false 
+
+(lines 7, 9 and 11). Lower bounds on the cost of the untra-versed subtrees (corresponding to the formulas assign (x, ϕ )
+
+and assign (¬x, ϕ )) could be used to strengthen the pruning. Doing this efficiently is not trivial, however. One could, e.g., append to bound a cost corresponding to the cheapest vari-able occurring in one of the truth value branches. However, this could overestimate the lower bound, since assign (x, ϕ )
+
+could already be unsatisfiable or valid; a full satisfiability check on assign (x, ϕ ) might be required for a correct bound. We leave the investigation of stronger bounds to future work. 
+
+5.1 Heuristics for Search Order 
+
+We propose heuristics for choosing the order of evaluating variables (see line 5 of Algorithm 1). It is preferable to first find lower cost subsolutions so that pruning is done earlier, reducing the amount of searching. To select the next variable for branching, the algorithm considers variables that appear in the current formula and scores them using a heuristic function S CORE . The evaluation is based on the cost of observing a given variable as well as properties of the subformulas resulting from assigning that variable either true or false. We assume input formulas to be in CNF. Recall that c(x)
+
+gives the cost of observing variable x ∈ X, while P (x) rep-resents the prior probability that x evaluates to true. For each candidate variable x, the score is computed as: SCORE (x) = VS CORE (x)+ P (x | B) · BRANCH SCORE (ϕx, h )+ P (¬x | B) · BRANCH SCORE (ϕ¬x, h )Name VS CORE BRANCH SCORE 
+
+base 0 0
+
+h cost c(x) 0
+
+h varCount c(x) N
+
+h totalCost c(x) m · P 
+
+> v∈ϕ
+
+c(v)
+
+> Table 1: Heuristic scoring strategies used in S CORE (ϕ).
+
+Here, ϕx and ϕ¬x denote the CNF formulas after simplifying 
+
+ϕ under valuations v(x) = ⊤ and v(x) = ⊥ respectively, and B is the current partial valuation. The variable with the lowest score is selected. The score uses both the direct cost of observing a given variable (via VS CORE ) and the estimated cost of the subsequent subproblems (via B RANCH SCORE ). We use c(x) for VS CORE , and propose three heuristics to compute B RANCH SCORE (ϕ, h ). The definitions of each heuristic are given in Table 1. Intuitively, h cost selects the lowest cost variable re-gardless of the rest of the formula, h varCount elimi-nates as many variables as possible from the formula, and 
+
+h totalCost balances the immediate, certain cost of ob-serving x with a (rough) estimate of the cost of observing the rest of the variables. For h totalCost , VS CORE is multiplied by a user-provided constant m; 0.5 in our experiments. This is to bal-ance between VS CORE and B RANCH SCORE . The multiplier should be between 0 and 1, with a lower value weighting the certain observation cost VS CORE over future, uncertain costs. We also consider base , a baseline heuristic with arbitrary variable ordering. We use S CORE to also select the truth branch to evaluate first. Specifically, if P (x | B) · BRANCH SCORE (ϕx, h ) <P (¬x | B) · BRANCH SCORE (ϕ¬x, h ), then the lines 8–9 are evaluated before lines 10–11. 
+
+5.2 Correctness of the Algorithm 
+
+We show that Algorithm 1 identifies the optimal cost. 
+
+Theorem 3 (Correctness) . The least-cost decision diagram for ϕ has expected cost that equals the value returned by 
+
+OPT COST (ϕ, ∅, 0, ∞, 1.0) (Algorithm 1). Proof. Consider the algorithm without pruning and caching, i.e. remove lines 7, 9 and 11 as well as line 2. Then the algo-rithm simply exhaustively searches over all decision diagrams where each leaf corresponds to an valuation under which ϕ is either valid or unsatisfiable. In each stage, the cost of ob-serving the variables occurring in the current valuation (dis-counted by its probability) is stored in variable parentcost .The cost of the minimum cost decision diagram for the work-ing formula ϕ is collected in the variable childcost . In the base case, i.e. when ϕ is valid or unsatisfiable, a cost of 0 is incurred. In other nodes, the total cost comprises the prob-ability of visiting this node given the current search path, p,times the cost of observing the considered variable x (line 6), plus the costs of the subtrees where x is true and false, re-spectively (lines 8 and 10). In the main loop, the cost of the optimal decision diagram for ϕ for each unobserved variable is compared, and the lowest is selected as childcost (line 12); the optimal cost of determining the truth value of the working formula ϕ is returned at the end. Pruning preserves correctness. To see this, consider that 
+
+bound is only updated after both true/false branches are eval-uated in a depth-first manner (line 13) and it is only passed down in further recursive calls, not returned. Consider a call to O PT COST in which bound is updated and let the working formula at this point be ϕb, and the parentcost 
+
+and childcost at this point be parentcost b and childcost b,respectively. We claim that the return value for this call is the same whether pruning happens or not; this implies the overall claim, since bound is updated at least after the first variable at the root is evaluated. To see this, note that 
+
+childcost b = bound − parentcost b is the cost of the lowest cost decision diagram found for ϕb so far (divided by p, which is the same for all variables on this search node). Assume that sometime after selecting another variable x in the same loop, we prune on line 7, i.e. parentcost + Cx ≥ bound . Thus the cost for any decision diagram for ϕb that would be found in the pruned branch is at least parentcost +Cx −parentcost b.Since line 7 prunes only when parentcost + Cx ≥ bound ,this cost is at least bound − parentcost b = childcost b.Thus, any decision diagram that would be found af-ter the pruning happened would not contribute to lower-ing childcost b (at the recursive call to O PT COST where 
+
+bound was found) and therefore also not to lowering the final 
+
+childcost at the root. Similar reasoning holds for pruning at lines 9 and 11. Finally, exact caching does not affect correctness. Exact cache entries store only optimal subsolutions (line 15), so retrieving an exact entry (line 2) returns the normalized op-timal cost multiplied by the probability of the current path. Therefore, caching can only avoid repeated work and can-not change the optimal cost returned by the root call. The advanced lower-bound caching version in Appendix B uses lower-bound entries only to prune, never as exact costs. 
+
+# 6 Empirical Evaluation 
+
+We evaluate our approach in four ways. First, we show run-time and memory performance on hard instances. Next, we investigate how the structure of the underlying propositional formula affects runtime. We then examine the effect of relax-ing optimality on runtime and solution quality with a beam-search version of our algorithm. Finally, we evaluate a struc-tured real-world instance. Our implementation of Algorithm 1 (Python 3.9, 
+
+python-sat v1.8 [Ignatiev et al. , 2024], CaDi-CaL 1.9.5 [Biere et al. , 2020]) was used for all experiments. Experiments were conducted on 2.5 GHz Intel Xeon E5-2680 v3 CPUs with a 120-minute time limit and a 16 GB memory limit per instance. We are not aware of a suitable benchmark set for SBFE and thus generated a set of random 3-SAT formulas [Mitchell et al. , 1992] along with costs and probabilities. Random 3-SAT is parameterized by the number of variables N and clauses 
+
+M .We drew variable observation costs uniformly at random 6 7 8 9 10 11 12 13 14 15           
+
+> Number of Variables
+> 10 1
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> Average Time (s)  (a) Runtime Performance
+> 678910 11 12 13 14 15
+> Number of Variables
+> 10 2
+> 10 3
+> 10 4
+> Memory Usage (MB)  (b) Peak Memory Usage
+> base_noPruning
+> base
+> h_cost
+> h_varCount
+> base_cache_noPruning
+> base_cache
+> h_cost_cache
+> h_totalCost_cache
+> h_varCount_cache
+
+Figure 3: Average runtime (left) and peak memory usage (right) of the evaluated configurations as the number of variables increases. Curves end at the first timeout. 0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 
+
+> Clauses-to-variables ratio
+> 0.5
+> 1.0
+> Average Time (s)  10 vars
+> 14 vars
+> 0
+> 20
+> 40
+> Average Time (s)
+
+Figure 4: Impact of the clause-to-variable ratio on runtime for N =10 (left y-axis) and N = 14 (right y-axis). 
+
+from the integers 1 to 10 . For simplicity, we drew indepen-dent probabilities for truth values uniformly at random. Figure 3 presents results with respect to runtime (left) and peak memory usage (right) on datasets with 6–15 variables and a fixed clause-to-variable ratio of 1.5 which generates hard instances, averaged over 100 instances per size. We evaluate the proposed heuristics and four baseline variants: suffixes cache and noPruning denote enabled caching and disabled pruning, respectively, while base is pruning without caching. Lines are truncated at the first occurrence of a timeout. As expected, both runtime and memory us-age grow exponentially with problem size. Both pruning and caching yield exponential improvements over the base-lines. Only cached variants successfully scale to 15 variables. The best performing methods are h varCount cache and 
+
+h totalCost cache , with an average runtime of 152 and 182 seconds, respectively, on instances with 15 variables, compared to 275, 325 and 518 seconds for the three other caching-enabled variants. In contrast to the significant memory use shown for the cached variants, without caching, memory usage is minimal, and thus in memory-constrained settings, forgoing caching might be sensible. We proceed to the impact of the clause-to-variable ratio ( r)on problem difficulty. We show in Figure 4 the performance of the algorithm on instances with varying ratios for two dif-ferent problem sizes ( N = 10 and N = 14 ). For both in-stance sizes, the average solving time peaks around a ratio of 
+
+1.2 to 1.5, well before the SAT phase transition point ( ≈4.27). This is likely because in highly constrained instances there are lots of logical consequences and thus smaller trees, while less constrained instances are easily satisfiable, so setting a few variables suffices. Thus, r = 1 .5 is a near-worst-case (see above) and r = 3 0                                       
+
+> 25
+> 50
+> 75
+> 100
+> Count
+> 6810 12 14 16 18 20 22 24
+> Number of Variables
+> 10 1
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> Average Time (s)
+> 6810 12 14 16 18 20 22 24
+> Number of Variables
+> 20
+> 30
+> 40
+> Expected Cost 0
+> 20
+> 40
+> 60
+> 80
+> Count
+> 15 17 19 21 23 25 27 29
+> Number of Variables
+> 10 1
+> 10 0
+> 10 1
+> 10 2
+> Average Time (s)
+> 15 17 19 21 23 25 27 29
+> Number of Variables
+> 8
+> 10
+> 12
+> 14
+> Expected Cost
+> Optimal k=1 k=2 k=3 OOM Timeout
+
+Figure 5: Runtime (left) and expected cost (right) for exact versus beam search ( k ∈ { 1, 2, 3}) on hard ( r = 1 .5, top) and relaxed (r = 3 .0, bottom) instances. OOMs and timeouts are shown for the exact algorithm only. 
+
+an easier scenario (below). Finally, we compare greedy beam search (branching into only the best k variables at each search node) to our exact algorithm (Figure 5). For this comparison, the exact baseline is the best variant from Figure 3, i.e. h varCount cache .In the harder instances with r = 1 .5 (top), the exact algorithm exceeded resource limits when n > 16 , whereas beam search solved all instances. At n = 16 , beam search is more than an order of magnitude faster. In terms of cost, beam with k = 3 remains within ≈ 30% 
+
+of the optimal. On instances with r = 3 (bottom), the exact algorithm scales further to n = 19 , with runtime and cost behaviour similar to that of beam search. Interestingly, with higher clause-to-variable ratio, the op-timal algorithm mostly runs out of memory rather than time, while the opposite is true with a lower ratio. 
+
+Illustrative medical-diagnosis case study To illustrate how a learned classifier can be converted into a structured SBFE instance, we transform a medical-diagnosis classifica-tion tree into a stochastic Boolean function evaluation prob-lem. We trained a decision tree [Pedregosa et al. , 2011] on the 
+
+Cleveland Heart Disease dataset [Janosi et al. , 1989] to cap-ture the diagnostic rules. We turned the rules into a Boolean formula as implications from the conditions of each path to the class at the leaf. Continuous features were discretized via threshold encoding, where consistency was enforced by gen-erating implication constraints (e.g., ¬(f ≤ t1) ∨ (f ≤ t2)
+
+for thresholds t1 < t 2) to prevent impossible values. Each threshold predicate inherits the cost of its underlying medical test from Turney [1994]. We set each predicate probability to its empirical marginal frequency and evaluate both poli-cies under the resulting independent product model, which is the probability model used by our algorithm. This process yielded a Boolean formula with 16 variables and 22 clauses. Under this common model, evaluating the original decision tree costs $236.4, while our algorithm identified the global optimum of $137.4 in 819 seconds, a 41.9% reduction in ex-pected predicate-acquisition cost. 7 Conclusion 
+
+We have considered a setting in which a Boolean formula rep-resents a condition for a decision, where observing variables incurs different costs and valuations follow a joint probabil-ity distribution. We have presented a branch-and-bound al-gorithm for finding a decision diagram of minimum expected cost in this setting. We have introduced pruning, caching, and variable-selection heuristics, and empirically demonstrated their effectiveness. We have shown that a greedy beam-search variant offers a controllable efficiency–quality trade-off. Finally, we have analyzed the computational complexity of decision-diagram construction, showing that it is #P-hard and contained in PSPACE .
+
+# References 
+
+[Allen et al. , 2017] Sarah R. Allen, Lisa Hellerstein, Devo-rah Kletenik, and Tonguc ¸ ¨ Unl¨ uyurt. Evaluation of mono-tone DNF formulas. Algorithmica , 77(3):661–685, 2017. [Bertsimas and Dunn, 2017] Dimitris Bertsimas and Jack Dunn. Optimal classification trees. Machine Learning ,106(7):1039–1082, 2017. [Biere et al. , 2020] Armin Biere, Katalin Fazekas, Mathias Fleury, and Maximilian Heisinger. CADICAL, KISSAT, PARACOOBA, PLINGELING and TREENGELING en-tering the SAT competition 2020. In SAT Competition ,page 50. 2020. [Blanc et al. , 2021] Guy Blanc, Jane Lange, and Li-Yang Tan. Query strategies for priced information, revisited. In 
+
+Proceedings of the 2021 ACM-SIAM Symposium on Dis-crete Algorithms (SODA) , pages 1638–1650. SIAM, 2021. [Breitbart and Reiter, 1975] Yu Breitbart and Allen Reiter. A branch-and-bound algorithm to obtain an optimal evalua-tion tree for monotonic Boolean functions. Acta Informat-ica , 4(4):311–319, 1975. [Chakaravarthy et al. , 2009] Venkatesan T. Chakaravarthy, Vinayaka Pandit, Sambuddha Roy, and Yogish Sabharwal. Approximating decision trees with multiway branches. In 
+
+Automata, Languages and Programming , volume 5555 of Lecture Notes in Computer Science , pages 210–221. Springer-Verlag, 2009. [Chang et al. , 1990] M-F Chang, Weiping Shi, and W. Kent Fuchs. Optimal diagnosis procedures for k-out-of-n struc-tures. IEEE Transactions on Computers , 39(4):559–564, 1990. [Charikar et al. , 2000] Moses Charikar, Ronald Fagin, Venkatesan Guruswami, Jon Kleinberg, Prabhakar Raghavan, and Amit Sahai. Query strategies for priced information. In Proceedings of the Thirty-Second An-nual ACM Symposium on Theory of Computing , pages 582–591, 2000. [Deshpande et al. , 2014] Amol Deshpande, Lisa Hellerstein, and Devorah Kletenik. Approximation algorithms for stochastic Boolean function evaluation and stochastic sub-modular set cover. In Proceedings of the Twenty-Fifth Annual ACM-SIAM Symposium on Discrete Algorithms ,pages 1453–1466, 2014. [Garey and Graham, 1974] M. R. Garey and R. L. Graham. Performance bounds on the splitting algorithm for binary testing. Acta Informatica , 3(4):347–355, 1974. [Garey, 1973] Michael R. Garey. Optimal task sequenc-ing with precedence constraints. Discrete Mathematics ,4(1):37–56, 1973. [Gkenosis et al. , 2022] Dimitrios Gkenosis, Nathaniel Grammel, Lisa Hellerstein, and Devorah Kletenik. The stochastic Boolean function evaluation problem for sym-metric Boolean functions. Discrete Applied Mathematics ,309:269–277, 2022. [Greiner et al. , 2006] Russell Greiner, Ryan Hayward, Mag-dalena Jankowska, and Michael Molloy. Finding optimal satisficing strategies for and-or trees. Artificial Intelli-gence , 170(1):19–58, 2006. [G¨ unther and Drechsler, 2002] Wolfgang G¨ unther and Rolf Drechsler. Minimization of free BDDs. Integration , 32(1-2):41–59, 2002. [Halpern, 1974] Jonathan Halpern. Evaluating Boolean function with random variables. International Journal of Systems Science , 5(6):545–553, 1974. [Hyafil and Rivest, 1976] Laurent Hyafil and Ronald L. Rivest. Constructing optimal binary decision trees is NP-complete. Information Processing Letters , 5(1):15–17, 1976. [Ignatiev et al. , 2024] Alexey Ignatiev, Zi Li Tan, and Chris-tos Karamanos. Towards universally accessible SAT tech-nology. In 27th International Conference on Theory and Applications of Satisfiability Testing (SAT 2024) , pages 16–1. Schloss Dagstuhl–Leibniz-Zentrum f¨ ur Informatik, 2024. [Janosi et al. , 1989] A Janosi, William Steinbrunn, Matthias Pfisterer, and Robert Detrano. Heart disease data set, UCI machine learning repository. UCI Machine Learning Repository, 1989. DOI: https://doi.org/10.24432/C52P4X. [Kaplan et al. , 2005] Haim Kaplan, Eyal Kushilevitz, and Yishay Mansour. Learning with attribute costs. In Pro-ceedings of the Thirty-Seventh Annual ACM Symposium on Theory of Computing , pages 356–365, 2005. [Li et al. , 2020] Ray Li, Percy Liang, and Stephen Muss-mann. A tight analysis of greedy yields subexponential time approximation for uniform decision tree. In Proceed-ings of the Fourteenth Annual ACM-SIAM Symposium on Discrete Algorithms , pages 102–121, 2020. [Ling et al. , 2004] Charles X Ling, Qiang Yang, Jianning Wang, and Shichao Zhang. Decision trees with minimal costs. In Proceedings of the twenty-first international con-ference on Machine learning , page 69, 2004. [Lomax and Vadera, 2013] Susan Lomax and Sunil Vadera. A survey of cost-sensitive decision tree induction algo-rithms. ACM Computing Surveys (CSUR) , 45(2):1–35, 2013. [Mienye and Jere, 2024] Ibomoiye Domor Mienye and Nobert Jere. A survey of decision trees: Concepts, algo-rithms, and applications. IEEE access , 12:86716–86727, 2024. [Mitchell et al. , 1992] David Mitchell, Bart Selman, and Hector Levesque. Hard and easy distributions of SAT problems. In William Swartout, editor, Proceedings of the 10th National Conference on Artificial Intelligence , pages 459–465. The MIT Press, 1992. [Moret, 1982] Bernard M. E. Moret. Decision trees and dia-grams. ACM Computing Surveys , 14(4):593–623, 1982. [Pedregosa et al. , 2011] Fabian Pedregosa, Ga¨ el Varoquaux, Alexandre Gramfort, Vincent Michel, Bertrand Thirion, Olivier Grisel, Mathieu Blondel, Peter Prettenhofer, Ron Weiss, Vincent Dubourg, Jake Vanderplas, Alexandre Pas-sos, and David Cournapeau. Scikit-learn: Machine learn-ing in Python. Journal of Machine Learning Research ,12:2825–2830, 2011. [Quinlan, 1979] J. Ross Quinlan. Discovering rules by in-duction from large collections of examples. In Expert Sys-tems in the Micro Electronics Age . Edinburgh University Press, 1979. [Quinlan, 1986] J. Ross Quinlan. Induction of decision trees. 
+
+Machine Learning , 1(1):81–106, 1986. [Reinwald and Soland, 1966] Lewis T. Reinwald and Richard M. Soland. Conversion of limited-entry decision tables to optimal computer programs I: Minimum average processing time. Journal of the ACM , 13(3):339–358, 1966. [Roth, 1996] Dan Roth. On the hardness of approximate rea-soning. Artificial intelligence , 82(1-2):273–302, 1996. [Salloum and Breuer, 1984] Salam Salloum and Melvin A. Breuer. An optimum testing algorithm for some symmet-ric coherent systems. Journal of Mathematical Analysis and Applications , 101(1):170–194, 1984. [Toda, 1991] Seinosuke Toda. PP is as hard as the polynomial-time hierarchy. SIAM Journal of Computing ,20(5):865–877, 1991. [Turney, 1994] Peter D. Turney. Cost-sensitive classifica-tion: Empirical evaluation of a hybrid genetic decision tree induction algorithm. Journal of Artificial Intelligence Re-search , 2:369–409, 1994. [ ¨ Unl¨ uyurt, 2004] Tonguc ¸ ¨Unl¨ uyurt. Sequential testing of complex systems: a review. Discrete Applied Mathemat-ics , 142(1):189–205, 2004. [ ¨ Unl¨ uyurt, 2025] Tonguc ¸ ¨ Unl¨ uyurt. Sequential testing prob-lem: A follow-up review. Discrete Applied Mathematics ,377:356–369, 2025. [Valiant, 1979] Leslie G. Valiant. The complexity of enu-meration and reliability problems. SIAM Journal on Com-puting , 8(3):410–421, 1979. [Wegener, 1984] Ingo Wegener. Optimal decision trees and one-time-only branching programs for symmetric Boolean functions. Information and Control , 62(2-3):129–143, 1984. [Zhuo and Nagarajan, 2025] Zhengjia Zhuo and Viswanath Nagarajan. A simple approximation algorithm for optimal decision tree. arXiv preprint arXiv:2505.15641 , 2025. A Pruning in the Algorithm Pseudo-Code 
+
+In the pseudo-code of our algorithm given in the main paper, we have three code lines like this one. 
+
+if parentcost + Cx ≥ bound then continue (1) The first two code lines obviously prune parts of the search tree, but the third one obviously does not. The purpose of the third code line is instead to prevent caching of values that do not represent the expected cost of the best decision diagram for a given formula. The next example illustrates what would happen without this code line. 
+
+Example 3. Consider a decision diagram construction prob-lem in which at some stage the current formula is 
+
+(Z → Y ) ∧ (¬Z → (X ∨ Y )) 
+
+and a part of the search tree looks as in Figure 6. We show how the algorithm without the pruning condition (1) can cache a cost for the formula X ∨ Y that is not the lowest possible cost for a decision diagram for X ∨ Y .The core issue is that caching makes it possible to avoid some prunings that would otherwise take place, and in some cases for some formulas, a non-optimal diagram does not get pruned, but the optimal diagram for that same formula will get pruned, and the non-optimal value gets stored in the cache. Let all the variables be statistically independent and 
+
+P (X) = P (Y ) = 0 .5.For the problematic behavior to be possible in this exam-ple, the decision diagram for X ∨ Y with root Y must have a lower cost than the diagram for X ∨ Y with root X. This will be the case when 
+
+c(Y ) + 0 .5c(X) < c (X) + 0 .5c(Y ).
+
+For the pruning to not happen for the diagram with root X
+
+and for it to happen for the diagram with root Y , it must be that 
+
+c(X) < bound and c(Y ) + 0 .5c(X) > bound .
+
+These hold, for example, when the costs and the effective bound at the relevant spot in the search tree are as follows. 
+
+c(X) = 1.2
+
+c(Y ) = 1
+
+bound = 1.4
+
+What happens in this example is the following. 1. At the first (leftmost) Y node, the cost of the diagram for formula Y is cached. 2. At the second formula Y node (marked in boldface ), the cost of the subtree is fetched from the cache. The bound of the X ∨ Y node is violated, but the cached value is used as if there had been no bound violation. For X ∨ Y
+
+the diagram with root X is now the best one so far. 3. The search for the best diagram for X ∨ Y proceeds to the sibling with Y as the root. The illustration shows the full diagram below that node, but the second sub-tree with Y = 0 will not be developed beyond the node with formula X due to a violation of the bound. 
+
+(Z → Y ) ∧ (¬Z → (X ∨ Y )) 
+
+Z X Y
+
+Y
+
+Y
+
+X ∨ Y
+
+⊤ ⊥
+
+X Y
+
+⊤ Y ⊤ X
+
+X
+
+⊤ ⊥
+
+> Figure 6: Example of problematic pruning
+
+4. The issue now is that this sub-tree, with Y in the root, has a lower cost than the sub-tree with X in the root. But this sub-tree was pruned. Hence the sub-optimal value for X ∨ Y , which was found first, gets cached. 5. Later in the search, if/when a node with X ∨ Y is en-countered again, this sub-optimal cost for X ∨ Y will be retrieved from the cache, which can lead to the algo-rithm delivering a decision diagram that is not optimal. 
+
+To prevent sub-optimal values from being cached, we dis-card any cost computation that may have depended on prun-ing an optimal sub-solution. We have chosen to use the third code line (1). Another possibility would be to check the bound when retrieving a value from the cache. 
+
+# B Full Algorithm with Advanced Caching 
+
+Algorithm 2 presents the complete advanced-caching imple-mentation of our approach. While the simplified version in the main text only caches optimal subsolutions, this version incorporates an advanced mechanism to handle cases where the search is pruned (i.e., when childcost = ∞). Note that the optimality still holds in this version. 
+
+Lower Bound Caching When the search for a specific as-signment B is cut off because the cost exceeds the global bound bound , we cannot store an exact cost. However, we have derived valid information: the cost of this subtree is at least the difference between the bound and the parent cost. In line 18, we store this lower bound (normalized by probability 
+
+p) along with a flag LB. 
+
+Reusing Lower Bounds When this state B is revisited later with a potentially looser bound, we retrieve the cached lower bound (line 3). Even though it is not an exact value, it al-lows us to perform an immediate consistency check. If the cached lower bound, when scaled by p and added to the cur-rent parentcost , still exceeds the new bound (line 5), we can immediately prune the search (returning ∞). This effectively prevents redundant explorations of expensive subtrees even when their exact costs are unknown. Algorithm 2 Optimal Expected-Cost Decision Diagram Search with Advanced Caching  
+
+> 1:
+
+function OPT COST (ϕ, B, parentcost, bound, p ) ▷ ϕ : CNF, B: valuation, p: path probability  
+
+> 2:
+
+if B ∈ Cache then  
+
+> 3:
+
+(ˆ v, flag ) ← Cache [B] ▷ Retrieve cached subsolution  
+
+> 4:
+
+if flag = EXACT then return ˆv · p 
+
+> 5:
+
+if (flag = LB ) and (parentcost + ˆ v · p ≥ bound ) then return ∞ 
+
+> 6:
+
+if ϕ is either valid or unsatisfiable then return 0 ▷ Terminal node of the decision diagram  
+
+> 7:
+
+childcost ← ∞  
+
+> 8:
+
+for each variable x occurring in ϕ, ordered by heuristic do  
+
+> 9:
+
+Cx ← p · c(x) ▷ Immediate observation cost  
+
+> 10:
+
+if parentcost + Cx ≥ bound then continue ▷ Prune if observing x is too costly  
+
+> 11:
+
+Cx ← Cx+ OPT COST (assign (x=⊤, ϕ ), B ∪ { x=⊤} , parentcost + Cx, bound, p · P (x | B)) 
+
+> 12:
+
+if parentcost + Cx ≥ bound then continue ▷ Prune if observing x and the first truth value is too costly  
+
+> 13:
+
+Cx ← Cx+ OPT COST (assign (x=⊥, ϕ ), B ∪ { x=⊥} , parentcost + Cx, bound, p · P (¬x | B)) 
+
+> 14:
+
+if parentcost + Cx ≥ bound then continue ▷ Prune if observing x and both truth values is too costly  
+
+> 15:
+
+childcost ← min( childcost, C x) 
+
+> 16:
+
+bound ← min( bound, parentcost + childcost ) 
+
+> 17:
+
+if childcost = ∞ then  
+
+> 18:
+
+Cache [B] ← (( bound − parentcost )/p, LB ) return ∞ ▷ Store non-optimal subsolution as lower bound  
+
+> 19:
+
+else  
+
+> 20:
+
+Cache [B] ← (childcost/p, EXACT ) return childcost ▷ Store (normalized) subsolution 
+
+# Further Details on Empirical Evaluation C Dataset Generation Details 
+
+All reported random-instance results average over 100 in-dependently generated 3-SAT formulas. For scalability, N
+
+ranges from 6 to 15 at a fixed clause-to-variable ratio of 1.5. For the ratio study, N ∈ { 10 , 14 } and M/N ranges from 0.5 to 4.5 in increments of 0.1. Beam search uses the same instances as the scalability study and k ∈ { 1, 2, 3}. Observa-tion costs are drawn uniformly from the integers 1 to 10, and truth probabilities are independently sampled from [0 , 1] and rounded to two decimal digits. 
+
+# D Illustrative Medical-Diagnosis Case Study 
+
+D.1 Data and Proxy Model 
+
+We use the Cleveland Heart Disease data from the UCI Heart Disease collection [Janosi et al. , 1989]. The target num is binarized as num > 0, and miss-ing feature values are imputed with the feature median. We train DecisionTreeClassifier(max depth=4, random state=42) on the resulting data to obtain a de-terministic CART proxy. The proxy has 15 split predicates. We add one zero-cost target variable representing the binary output, yielding 16 Boolean variables in total. 
+
+D.2 CNF Construction 
+
+Each CART root-to-leaf path is converted into one clause en-coding that the conjunction of its path conditions implies the label predicted at its leaf. The depth-4 proxy produces 16 such leaf-path clauses. To enforce consistency among pred-icates derived from the same physical feature, we add six threshold-consistency clauses of the form ¬(f ≤ t1) ∨ (f ≤
+
+t2) for t1 < t 2. The resulting formula has 22 clauses. 
+
+D.3 Probability and Cost Modeling 
+
+For each split predicate f ≤ t, its probability is its empiri-cal frequency in the cleaned data, clipped to [0 .001 , 0.999] .The solver uses the product prior formed from these marginal probabilities. Each predicate inherits the Turney cost of its underlying physical feature [1994], while the target variable has zero observation cost. The model charges additively for threshold predicates, including multiple thresholds of the same feature. This is an explicit modeling choice of the Boolean encoding, rather than a direct simulation of a clin-ical workflow. 
+
+D.4 Like-for-Like Baseline and Scope 
+
+We evaluate the original CART proxy recursively under the same product prior and the same additive predicate-cost model as the optimized decision diagram. Thus, the com-parison of $236.4 for the CART proxy with $137.4 for the optimized diagram is a cost-optimization result for the en-coded SBFE model. It is not a clinical validation or a claim about real diagnostic workflow costs.

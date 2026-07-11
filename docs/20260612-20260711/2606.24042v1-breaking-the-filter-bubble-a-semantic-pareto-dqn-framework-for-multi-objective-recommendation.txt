@@ -1,0 +1,206 @@
+Title: Breaking the Filter Bubble: A Semantic Pareto-DQN Framework for Multi-Objective Recommendation
+
+URL Source: https://arxiv.org/pdf/2606.24042v1
+
+Published Time: Wed, 24 Jun 2026 00:21:54 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+# Breaking the Filter Bubble: A Semantic Pareto-DQN Framework for Multi-Objective Recommendation 
+
+Cl´ audio L´ ucio Do Val Lopes 
+
+A3Data - MG, Brazil claudio.lucio@a3data.com.br 
+
+Lucca Machado da Silva 
+
+A3Data - MG, Brazil lucca.machado@a3data.com.br 
+
+Andr´ e de Oliveira Brand˜ ao 
+
+A3Data - MG, Brazil andre.brandao@a3data.com.br 
+
+Abstract —Recommender systems often induce filter bubbles and semantic homogenization by monolithically optimizing for immediate user engagement. Standard single-objective models, including traditional Deep Q-Networks, are ill-equipped to nav-igate the trade-offs between platform retention and critical societal values like information diversity and provider fairness. To address these limitations, we introduce a multi-objective reinforcement learning framework that formalizes recommen-dation as a semantic multi-objective Markov decision process. By integrating high-fidelity semantic embeddings with a Pareto-DQN agent, our architecture treats engagement, diversity, and fairness as distinct, non-aggregable reward signals, avoiding the pitfalls of static reward scalarization. Empirical evaluations on the MovieLens small dataset shows that our hypervolume based action selection disrupts the feedback loops responsible for semantic collapse. By sustaining high state-trajectory variance, the Pareto-DQN effectively maps the Pareto frontier, achieving gains in auxiliary societal objectives with only marginal impacts on engagement. This work provides a path toward intrinsically aligned, responsible recommender systems. 
+
+Index Terms —AI Alignment, Many-Objective Optimization, Recommender Systems, Responsible AI, Reinforcement Learn-ing, Filter Bubbles. 
+
+I. I NTRODUCTION 
+
+Recommender systems serve as the primary gatekeepers of digital information, aiming to generate personalized sugges-tions tailored to individual preferences [1]. However, these systems have been empirically shown to progressively nar-row the content users are exposed to, creating filter bubbles that severely reduce diversity over time [2]. Standard single-objective models, including traditional Deep Q-Networks (DQN) [3], typically optimize strictly for immediate user engagement. This induces semantic homogenization, making single-objective architectures ineffective at balancing engage-ment with broader, structurally antagonistic societal values such as information diversity and provider fairness [4]. To address the structural limitations of single-objective optimization, we present a Multi-Objective Reinforcement Learning (MORL) framework that combines a semantic em-bedding approach with Pareto Deep Q-Learning (Pareto-DQN) to successfully navigate these inherent trade-offs [5]. Our pipeline constructs a semantic state representation leveraging the all-MiniLM-L6-v2 Sentence Transformer [6]. Co-locating users and items within the same high-fidelity latent space ensures that standard inner products natively capture semantic relevance [7], while also enabling zero-shot gener-alization to unseen items, thereby mitigating the collaborative filtering cold-start problem. Through empirical evaluations on the MovieLens dataset [8], we quantify filter bubble mitigation via user embedding variance and analyze the price of responsibility . Our results show that the Pareto-DQN effectively disrupts the positive feedback loops that drive semantic collapse. By comprehen-sively mapping the Pareto frontier, the agent unlocks relative gains in diversity and fairness for only fractional, manageable drops in engagement, providing a highly scalable path toward intrinsically aligned, responsible recommender systems. The remainder of this paper is organized as follows: Section II reviews the traditional single-objective and multi-objective in recommender systems reinforcement learning. Section III formalizes the recommendation task as a semantic multi-objective Markov decision process, and details the architec-tural of our proposed agent. Section IV presents the empirical evaluation, providing a analysis of convergence, the disruption of filter bubbles via semantic variance, and the empirical price of responsibility. Finally, Section V concludes the study and outlines directions for future research. II. R ELATED WORKS 
+
+Reinforcement Learning (RL) has emerged as the state-of-the-art paradigm by formulating recommendations as a Markov Decision Process. This enables systems to optimize long-term engagement through continuous policy updates driven by real-time feedback [9]. Deep Reinforcement Learn-ing (DRL) utilizing Deep Q-Networks (DQN) has become the value-based standard due to robust update strategies and good performance in discrete action spaces [3]. Recent empirical evidence suggests that RL-based methods surpass supervised learning approaches because of their interactive nature and autonomous adaptation to dynamic user preferences [10]. Despite these advances, traditional single-objective opti-mization represents a fundamental limitation. Real-world sce-narios inherently involve multiple conflicting objectives re-quiring simultaneous optimization [11]. Standard DRL typi-cally struggles to balance accuracy with non-accuracy metrics, 
+
+> arXiv:2606.24042v1 [cs.AI] 23 Jun 2026
+
+making it ineffective for navigating complex real-world trade-offs [11]. Multi-Objective Reinforcement Learning (MORL) addresses this gap through the use of vectorial rather than scalar rewards, enabling to handle conflicting objectives [5]. This approach is grounded in Pareto optimization, a theoretical framework in which improving one objective typically cannot be achieved without altering another [5]. Recent industrial deployments demonstrate that Pareto-based DRL methods can simultaneously improve multiple business objectives while comprehensively modeling the complex relationships among them [4]. Consequently, Pareto-DQN variants can optimize di-versity, novelty, fairness, and engagement alongside traditional accuracy metrics [12]. Pareto-DRL represents the core of our proposal. Current applications of MORL span a diverse range of domains, including trip recommendation [13], short video platforms [14], electric vehicle charging [15], educational systems [16], retention modeling [17], and fairness-utility trade-offs [4]. Our proposed framework integrates the advanced genera-tive capabilities of Large Language Models (LLM), using a semantic space, into the recommendation pipeline. By em-ploying a Pareto Deep Q-Network (Pareto-DQN) approach, the system effectively addresses the structural limitations of traditional collaborative filtering and the narrow focus of single-objective optimization. This methodology leverages the leading paradigm for responsible recommender systems by utilizing LLM embeddings as a high-fidelity mechanism to navigate complex value trade-offs, thereby bypassing the ethi-cal risks and high costs associated with direct user experimen-tation. III. M ETHODOLOGY 
+
+We present a MORL framework with a semantic approach applied to item recommendation that jointly optimizes user engagement, information diversity, and provider fairness. Rec-ommender systems have been shown to progressively narrow the content users are exposed to, creating filter bubbles that reduce diversity over time [2]. Our approach combines a semantic approach with Pareto deep Q-learning to navigate the inherent trade-offs between these conflicting objectives, mitigating this narrowing effect while maintaining recommen-dation quality. 
+
+A. Semantic Embedding Pipeline 
+
+To construct a robust state representation for our environ-ment, we concatenate features as the title, genres, and user-generated tags into a single textual document di for each item 
+
+i. This representation strategy has been empirically validated for content-based recommendation [7]. We map this document to a continuous vector space using the all-MiniLM-L6-v2 
+
+Sentence Transformer [6]: 
+
+vi = Encoder (di)
+
+∥Encoder (di)∥2
+
+This model maps the text to a 384-dimensional vector optimized for similarity retrieval. We use L2 normalization as a critical geometric constraint; This inherently balances embedding quality with computational efficiency (the model contains 22M parameters and processes batches in < 50 ms on a standard CPU). By leveraging a pretrained semantic em-bedding space, we enable zero-shot generalization to unseen items, directly mitigating the cold-start problem common to purely collaborative filtering approaches. 
+
+B. Problem Formulation 
+
+We formalize the sequential recommendation task as a Multi-Objective Markov Decision Process (MOMDP), defined by the tuple ⟨S , A, P, R, γ ⟩. Here, S represents the state space of user preference profiles, A defines the action space of candidate items, P : S × A → S dictates the deterministic transition dynamics of user preference drift, and γ ∈ [0 , 1) 
+
+is the discount factor. Crucially, the environment yields a vectorial reward function R : S × A × S → R3, emitting a multi-dimensional signal capturing engagement, diversity, and fairness. Retaining this vectorial structure enables principled 
+
+a posteriori multi-objective optimization, circumventing the need for static, a priori scalarization. 
+
+1) State Space: The state st ∈ R384 encodes a user’s preference profile as the centroid of their historically liked item embeddings: 
+
+st = 1
+
+|Hu|
+
+X
+
+> i∈Hu
+
+vi
+
+where Hu denotes the set of items rated ≥ 4.0 by user u, and 
+
+vi ∈ R384 is the L2-normalized semantic embedding of item 
+
+i.Unlike prior deep RL models, as in DRR-ave [18] that rely on auxiliary parameterized interaction modules, we di-rectly deploy this centroid as a content-based user profile 
+
+[7]. Co-locating users and items within the same high-fidelity Sentence-BERT latent space [6] ensures that standard inner products natively yield semantic relevance. 
+
+2) Action Space: Evaluating Q-values across the full cata-log of over, I ≥ 9, 000 items is computationally prohibitive. We employ a stratified candidate pooling to construct a bounded, dynamic action space Ct ⊂ A of size K = 100 .At each time step t, Ct is constructed by unifying two distinct sets: K(1 − ρ) items retrieved via cosine-distance nearest neighbor (KNN) search around the state centroid st,and Kρ items injected from the exposure-sorted long tail, where ρ = 0 .3. The combined candidate pool is subsequently shuffled to eliminate positional bias. The injection parameter ρ is theoretically critical for our MOO formulation. A purely KNN-based retrieval strategy would restrict the agent’s action space entirely to high-affinity, already-popular items. Reserving a proportion ρ of the action space for long-tail items, provides actionable pathways to optimize provider fairness. 
+
+3) Transition Dynamics: To mathematically model the tem-poral evolution of user interests and the well-documented filter bubble effect [2], we implement a preference drift 
+
+mechanism. Upon recommending item at with embedding vat ,the user state transitions via a normalized exponential moving average: 
+
+st+1 = (1 − α)st + αvat
+
+∥(1 − α)st + αvat ∥2
+
+Here, the hyperparameter α ∈ [0 , 1] governs the user’s 
+
+semantic susceptibility . It dictates the step size of the state transition, controlling how a single interaction pulls the user’s holistic preference centroid toward the recommended item’s vector. This formulation embeds the filter bubble phenomenon directly into the MOMDP dynamics. If the policy greedily exploits high-affinity items to maximize immediate engage-ment, the recursive application of the α-weighted update causes st to rapidly collapse into a narrow semantic subspace. Consequently, the KNN-retrieved candidate pool Ct+1 homog-enizes, strictly degrading the agent’s capacity to accrue future diversity rewards. 
+
+4) Vectorial Reward Function: The environment emits a multi-objective reward vector rt = [ reng , r div , r f air ]⊤ ∈ R3,where each component represents a distinct objective: 
+
+Engagement: We map the semantic affinity between the state and action embeddings through a sigmoid function: 
+
+reng = σ(st · vat ) = 11 + e−(st·vat ) ,
+
+it bounds the reward to (0 , 1) and ensures smooth gradients for Q-value updates, assuming that semantic proximity drives user engagement. 
+
+Diversity: measures semantic distance to prevent filter bubbles: 
+
+rdiv = 1 − Sc(st · vat ),Sc is the cosine similarity from the user’s preference centroid This directly incentivizes semantically distant recommenda-tions, counteracting homogenization. 
+
+Fairness: To incentivize exploration of the long tail: 
+
+rf air = 1log(1 + C(at)) ,
+
+a monotonically decaying exposure reward, where C(at) ≥ 1
+
+tracks the cumulative platform exposure of item at. The de-nominator yields a steep exploratory gradient for novel items, providing a strong initial fairness signal without destabilizing the network’s convergence. 
+
+C. Standard DQN Agent (Baseline) 
+
+We implement a single objective Deep Q-Network (Standard DQN). The reward value is just reng . During training, the agent ingests the concatenated state and candidate item embed-ding, [st∥vai ] ∈ R768 , and is optimized via standard temporal difference learning solely on the reng signal. Correspondingly, action selection evaluates candidates using a strictly greedy maximization of predicted engagement: 
+
+a∗ 
+
+> t
+
+= arg max 
+
+> ai∈C t
+
+Q(st, a i)
+
+Because it employs a fixed, engagement-centric policy, the Standard DQN consistently drives the user state toward a narrow region of the embedding space. This structurally induces semantic homogenization , the “filter bubble” effect, thereby providing a stark comparative baseline for evaluating the Pareto-DQN’s capacity to explore the full trade-off surface and maintain recommendation diversity. 
+
+D. Pareto-DQN Agent 
+
+Our Pareto-DQN (PDQN) agent natively handles the multi-objective formulation through an item-centric architecture. Unlike traditional DQNs with fixed action outputs, our net-work ingests the concatenated user state and candidate item embedding, [st∥va] ∈ R768 , enabling evaluation of arbitrary items via batched forward passes. The architecture bifurcates into two specialized Multi-Layer Perceptrons (MLPs): 
+
+Reward Approximator ( ¯R): A 3-layer MLP (512-256-128 hidden units, ReLU activations) that predicts the immediate expected reward vector ¯r ∈ R3. This network carries the primary learned signal and is optimized via Mean Squared Error (MSE) against the observed empirical reward vectors. 
+
+Continuous Pareto Surface Estimation (N D t): N D t
+
+functions as a continuous manifold estimator, treating the Pareto front as a conditional scalar function. Consider d,the dimensional reward vector ( rt = [ reng , r div , r f air ]⊤). To mathematically decouple the immediate reward from the long-term expected return, we define o ∈ R3 as the coordinates of the expected return space. The network takes the state st,the action embedding va, and d − 1 additional values o1:2 
+
+corresponding to all but the last objective as input [19]. Specifically, the network ingests [st ∥ o1:2 ∥ va] ∈ R770 ,where o1:2 = [ oeng , o div ]⊤ ∈ [0 , 1] 2 are uniformly sampled objective coordinates representing target returns for engage-ment and diversity. The output is the predicted maximum achievable return for the remaining d-th objective, fairness (ˆof air ). Combining this prediction with the input coordinates yields a single point on the estimated Pareto surface. By drawing n uniform samples {o(1) 1:2 , . . . , o(n)1:2 }, we dis-cretely reconstruct the continuous Pareto surface. The network parameters are optimized via Mean Squared Error (MSE). 
+
+1) Action Selection via Hypervolume: For each candidate action ai ∈ C t, the set of expected returns is constructed by applying a vector-sum operation ( ⊕) that adds the estimated immediate reward to each element of the non-dominated future returns: 
+
+Qset (st, a i) = ¯ r(st, v ai ) ⊕ γN D t(st, v ai )
+
+where γ is the discount factor. To evaluate the quality of a given Qset and apply an 
+
+ϵ-greedy mechanism, we utilize a Hypervolume indicator. The hypervolume computes the total d-dimensional volume bounded by the points in Qset relative to a strict lower-bound reference point rref , [20], [21]. The greedy policy selects the action that maximizes this volume: 
+
+a∗ 
+
+> t
+
+= arg max 
+
+> ai∈C t
+
+HV (Qset (st, a i), rref )Hypervolume is strictly Pareto-compliant; maximizing it mathematically guarantees convergence toward the true Pareto front without necessitating a priori preference weighting. IV. E XPERIMENTS 
+
+To empirically validate our framework, we design an eval-uation protocol centered on three core dimensions: (i) multi-objective trade-offs between engagement, diversity, and fair-ness; (ii) filter bubble mitigation, quantified via user embed-ding variance; and (iii) the Price of Responsibility , defined as the engagement cost incurred by enforcing responsible optimization constraints. We utilize the MovieLens-Small dataset [8], comprising 100,836 ratings across 9,742 movies and 610 users, where filter bubble effects were empirically documented [2]. To eval-uate zero-shot generalization to unseen preference geometries, we partition the 609 qualifying users (those with ratings ≥ 4.0)into 548 training users and 61 held-out test users using a strict 90/10 split. Test users are entirely excluded from the training environment. We evaluate two specific agent architectures:  
+
+> •
+
+Standard DQN (Baseline): A single-objective agent op-timizing strictly for engagement ( reng ). It is implemented as a 2-layer item-centric MLP (512-256 hidden units, ReLU activations) trained via standard MSE loss on scalar Q-values.  
+
+> •
+
+Pareto-DQN (Proposed): Our multi-objective agent that optimizes the full vectorial reward rt =[reng , r div , r f air ]⊤ via hypervolume-based action selec-tion over continuous Pareto surface approximations. Both agents perform 15,000 environment interactions (100 episodes of 150 steps). Training utilizes an item-centric replay buffer (capacity 5,000) and the Adam optimizer (lr = 10 −4), drawing uniform mini-batches of size 32. Target networks are updated via hard copies every 100 steps to stabilize temporal difference learning. We employ an ϵ-greedy exploration strat-egy ( ϵ0 = 1 .0, minimum 0.01 ), decaying ϵ exponentially by 0.999 at the conclusion of each episode. Evaluation is conducted deterministically ( ϵ = 0 ) on the 61 held-out test users, running one full episode per user. To ensure statistical robustness and reproducibility, the entire pipeline is executed across five independent trials, with all reported metrics representing mean values ± standard deviations. The framework is implemented using PyTorch 2.0 and Gymnasium 0.29, relying on pymoo for exact hypervolume computations [22]. 
+
+A. Training Dynamics 
+
+Figure 1 illustrates the trials’ averaged episodic returns for engagement, diversity, and fairness across the 100-episode training horizon. These learning curves capture the agents’ behaviors under decaying ϵ-greedy exploration, explicitly re-vealing the differences in policy convergence between single-objective scalarization and multi-objective Pareto optimization. During training, the Standard DQN exhibits a characteristic pattern of progressive fairness degradation: the smoothed   
+
+> Fig. 1. Training convergence by objective (smoothed with a moving average window of 10). The Standard DQN (red dashed) aggressively maximizes engagement, leading to progressive fairness degradation and lower overall diversity. In contrast, the Pareto-DQN (blue solid) successfully navigates the trade-off surface, sustaining significantly higher fairness and diversity while incurring a marginal, controlled penalty in engagement. Note: The y-axis utilizes a narrow range to visually isolate fine-grained policy divergence.
+
+fairness return strictly decays from an initial plateau of roughly 
+
+118 to 80 at convergence. This degradation is a direct conse-quence of exposure concentration. Because the engagement-only agent repeatedly exploits a narrow manifold of high-affinity items, its cumulative exposure count C(at) grows. This actively minimizes the fairness reward for those highly-exploited items while starving the long tail of any exploratory gradient signal. By contrast, the Pareto-DQN jointly optimizes all three objectives via Hypervolume maximization, fundamentally mit-igating this concentration effect. It initiates and maintains a substantially higher absolute fairness baseline throughout training, converging near 120 .Furthermore, the Pareto-DQN demonstrates a capacity to preserve semantic variance, the diversity dimension, middle pane of Figure 1. By strategically recommending semantically distant items, the agent continuously perturbs the user’s pref-erence centroid, effectively counteracting the homogenization characteristic of algorithmic filter bubbles. 
+
+B. Multi-Objective Trade-off Analysis 
+
+Figure 2 presents a three-dimensional scatter plot of the evaluation returns (reng , r div , r f air ) under the fully greedy policy ( ϵ = 0 ). To evaluate multi-objective performance, we aggregate the per-user cumulative returns across five indepen-dent trials. We apply a non-dominance sorting to the pooled evaluation trajectories to extract the final Pareto set. Each data point in Figure 2 thus represents a verified, strictly non-dominated evaluation episode. The Standard DQN cluster (red crosses) occupies a con-strained, degenerate region of the objective space. Consistent with its single-objective design, it successfully drives engage-ment into the 100 -110 range but suffers from semantic col-lapse, yielding exceptionally low fairness ( < 40 ) and minimal diversity. Conversely, the Pareto-DQN cluster (blue circles) robustly populates a much broader Pareto manifold. It achieves higher fairness and more widely distributed diversity metrics, demonstrating the agent’s capacity to balance structurally an-tagonistic objectives without catastrophic engagement degra-dation. Crucially, the engagement axis exhibits considerable over-lap between the two agents. For a clearer, simplified two-dimensional projection of this multi-objective trade-off sur-face, see Figure 4. This sustained engagement is structurally governed by our stratified candidate-pooling mechanics: be-cause 70% of the candidate pool ( ρ = 0 .3) consists of KNN-retrieved items with high semantic affinity to the user’s state centroid st, the Pareto-DQN promotes fairness and diversity.      
+
+> Fig. 2. Three-dimensional evaluation returns (reng , r div , r f air )for Standard DQN (red crosses) and Pareto-DQN (blue circles). Points represent the strictly non-dominated solutions extracted from 61 held-out test users aggregated across five independent trials. The Pareto-DQN maps a significantly broader region of the Pareto manifold, achieving dominant fairness and diversity metrics while sustaining comparable engagement.
+
+C. Filter Bubble Mitigation via Semantic Variance 
+
+To empirically quantify the filter bubble phenomenon, we analyze the variance in user embeddings. For every user evaluation (episode), it tracks their state over time T . Then we defined the trace of the state trajectory’s covariance ma-trix, tr (Cov ([ s0, s1, . . . , sT ])) . A low trace indicates semantic homogenization (the operational signature of a filter bubble [2]), whereas a high trace reflects a diverse sequence of recommendations that actively traverse a broader region of the embedding space. Our trajectory variance metric captures the long-term semantic mobility of the user profile across consecutive interaction cycles Figure 3 reveals a structural divergence in the distribution of state trajectory variance between the non-dominated sets of the two agents. The Standard DQN exhibits a compressed variance distribution, with a median approaching 0.03 . By greedily maximizing engagement ( reng ), the single-objective baseline continuously exploits items with high semantic affinity to the current state st.In contrast, the Pareto-DQN agent successfully preserves state mobility, yielding a broad distribution with significantly higher variance, with a median near 0.18 and observations extending up to ∼ 0.45 . By explicitly optimizing the full vecto-rial reward rt, the hypervolume-based action selection actively negotiates the structural antagonism between engagement and diversity. This optimization effectively forces the periodic injection of semantically distant items into the user’s exposure stream across its Pareto-optimal solutions. Consequently, the user’s preference centroid is continually perturbed, empirically validating that our multi-objective Pareto formulation success-fully disrupts the positive feedback loops that drive semantic collapse.    
+
+> Fig. 3. Distribution of user embedding variance (trace of covariance matrix) across the extracted non-dominated sets. The Standard DQN (red) exhibits a highly compressed, illustrating severe semantic homogenization. Conversely, the Pareto-DQN (blue) sustains a broad, high-variance distribution (spanning up to ∼0.45 ), empirically demonstrating the disruption of the filter bubble.
+
+D. Price of Responsibility 
+
+The price of responsibility quantifies the theoretical en-gagement cost incurred when a system explicitly optimizes for auxiliary societal objectives like diversity and fairness [4]. Figure 4 projects the per-user evaluation returns onto the two aspects: engagement and diversity, exposing the strict geometry of this trade-off surface.  
+
+> Fig. 4. Per-user evaluation returns projected onto the engagement and diver-sity plane. The linear decay confirms the antagonism between the objectives. The Standard DQN (red) collapses to the extreme engagement maximizing region, while the Pareto-DQN (blue) maps the full Pareto front, unlocking high diversity with a proportional and manageable engagement trade-off.
+
+The scatter plot reveals a strict linear boundary, empirically verifying the structural antagonism between reng and rdiv . The Standard DQN (red) predictably collapses into the extreme lower-right region, maximizing engagement (up to 110) while severely suppressing diversity (predominantly below 30). Be-cause the single-objective agent receives no gradient signal to explore semantically distant items, it remains structurally blind to the broader objective space. In contrast, the Pareto-DQN (blue) comprehensively maps the Pareto frontier. It successfully navigates into high-diversity regions (reaching up to 55) by making controlled, proportional sacrifices in engagement (scaling down smoothly to 98). This distribution demonstrates a highly manageable price of responsibility: the agent can achieve massive relative gains in diversity and fairness for only fractional absolute drops in engagement. V. C ONCLUSION AND FUTURE WORKS 
+
+This study establishes that formulating sequential recom-mendations as a multi-objective Markov decision process effectively mitigates the filter bubble phenomenon inherent to single-objective scalarization. By integrating high-fidelity semantic embeddings with a Pareto-DQN, our framework natively navigates the structural trade-offs among user engage-ment, information diversity, and provider fairness. Empirical evaluations in our offline simulation framework suggest that the Pareto-DQN effectively populates a broad region of the Pareto frontier, thereby disrupting the positive feedback loops that lead to semantic collapse under the simulated conditions. Unlike the single-objective baseline, our agent maintains high state-trajectory variance, unlocking massive relative gains in auxiliary societal objectives at only fractional, manageable drops in engagement. Beyond architectural evolution, we acknowledge the limita-tions of the current experimental setup. While the MovieLens-Small dataset serves as a robust benchmark for filter bubbles, future evaluations should encompass diverse domains such as e-commerce and news recommendation to further validate the framework’s generalizability. Furthermore, future work will address the inherent assumptions of offline RL simula-tions by incorporating stochastic preference drift models and comparing the Pareto-DQN against additional diversity-aware baselines. VI. A CKNOWLEDGMENTS 
+
+The authorship team would like to acknowledge the vision, support and guidance of the IEEE Industrial Electronics So-ciety in conducting the Generative AI Hackathon under the leadership of Daswin De Silva and Lakshitha Gunasekara. REFERENCES [1] D. Roy and M. Dutta, “A systematic review and research perspective on recommender systems,” Journal of Big Data , vol. 9, no. 1, p. 59, May 2022. [Online]. Available: https://doi.org/10.1186/s40537-022-00592-5 [2] T. T. Nguyen, P.-M. Hui, F. M. Harper, L. Terveen, and J. A. Konstan, “Exploring the filter bubble: the effect of using recommender systems on content diversity,” ser. WWW ’14. New York, NY, USA: Association for Computing Machinery, 2014, p. 677–686. [Online]. Available: https://doi.org/10.1145/2566486.2568012 [3] F. Li, H. Qu, L. Zhang, M. Fu, W. Chen, and Z. Yi, “Q-ader: An effective q-learning for recommendation with diminishing action space,” IEEE Transactions on Neural Networks and Learning Systems , vol. 36, no. 5, pp. 8510–8524, 2025. [4] Y. Ge, X. Zhao, L. Yu, S. Paul, D. Hu, C.-C. Hsieh, and Y. Zhang, “Toward pareto efficient fairness-utility trade-off in recommendation through reinforcement learning,” in Proceedings of the Fifteenth ACM International Conference on Web Search and Data Mining , ser. WSDM ’22. ACM, Feb. 2022, p. 316–324. [Online]. Available: http://dx.doi.org/10.1145/3488560.3498487 [5] C. F. Hayes, R. R˘ adulescu, E. Bargiacchi, J. K¨ allstr¨ om, M. Macfarlane, M. Reymond, T. Verstraeten, L. M. Zintgraf, R. Dazeley, F. Heintz, E. Howley, A. A. Irissappane, P. Mannion, A. Now´ e, G. Ramos, M. Restelli, P. Vamplew, and D. M. Roijers, “A practical guide to multi-objective reinforcement learning and planning,” Autonomous Agents and Multi-Agent Systems , vol. 36, no. 1, Apr. 2022. [Online]. Available: http://dx.doi.org/10.1007/s10458-022-09552-y [6] N. Reimers and I. Gurevych, “Sentence-BERT: Sentence embeddings using Siamese BERT-networks,” in Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP) , K. Inui, J. Jiang, V. Ng, and X. Wan, Eds. Hong Kong, China: Association for Computational Linguistics, Nov. 2019, pp. 3982–3992. [Online]. Available: https://aclanthology.org/D19-1410/ [7] S. Zhang, L. Yao, A. Sun, and Y. Tay, “Deep learning based recommender system: A survey and new perspectives,” ACM Comput. Surv. , vol. 52, no. 1, Feb. 2019. [Online]. Available: https://doi.org/10.1145/3285029 [8] F. M. Harper and J. A. Konstan, “The movielens datasets: History and context,” ACM Trans. Interact. Intell. Syst. , vol. 5, no. 4, Dec. 2015. [Online]. Available: https://doi.org/10.1145/2827872 [9] M. M. Afsar, T. Crump, and B. Far, “Reinforcement learning based recommender systems: A survey,” ACM Comput. Surv. , vol. 55, no. 7, Dec. 2022. [Online]. Available: https://doi.org/10.1145/3543846 [10] X. Wang, S. Wang, X. Liang, D. Zhao, J. Huang, X. Xu, B. Dai, and Q. Miao, “Deep reinforcement learning: A survey,” IEEE Transactions on Neural Networks and Learning Systems , vol. 35, no. 4, pp. 5064– 5078, 2024. [11] Z. Fatima Ezzahra, A. Sana, Q. Sara, and R. Said, “Multi-objective reinforcement learning for recommender systems: a comprehensive survey of methods, challenges, and future directions,” International Journal of Multimedia Information Retrieval , vol. 14, no. 4, p. 33, Oct 2025. [Online]. Available: https://doi.org/10.1007/s13735-025-00383-7 [12] D. Stamenkovic, A. Karatzoglou, I. Arapakis, X. Xin, and K. Katevas, “Choosing the best of both worlds: Diverse and novel recommendations through multi-objective reinforcement learning,” 2021. [Online]. Available: https://arxiv.org/abs/2110.15097 [13] L. Chen, G. Zhu, W. Liang, and Y. Wang, “Multi-objective reinforcement learning approach for trip recommendation,” Expert Systems with Applications , vol. 226, p. 120145, 2023. [Online]. Available: https: //www.sciencedirect.com/science/article/pii/S0957417423006474 [14] Q. Cai, Z. Xue, C. Zhang, W. Xue, S. Liu, R. Zhan, X. Wang, T. Zuo, W. Xie, D. Zheng, P. Jiang, and K. Gai, “Two-stage constrained actor-critic for short video recommendation,” 2024. [Online]. Available: https://arxiv.org/abs/2302.01680 [15] W. Zhang, H. Liu, F. Wang, T. Xu, H. Xin, D. Dou, and H. Xiong, “Intelligent electric vehicle charging recommendation based on multi-agent reinforcement learning,” in Proceedings of the Web Conference 2021 , ser. WWW ’21. ACM, Apr. 2021, p. 1856–1867. [Online]. Available: http://dx.doi.org/10.1145/3442381.3449934 [16] Y. Ren, K. Liang, Y. Shang, and X. Zhang, “Fully adaptive recommendation paradigm: top-enhanced recommender distillation for intelligent education systems,” Complex & Intelligent Systems ,vol. 9, no. 2, pp. 2159–2176, Apr 2023. [Online]. Available: https://doi.org/10.1007/s40747-022-00905-4 [17] Z. Liu, S. Liu, Z. Zhang, Q. Cai, X. Zhao, K. Zhao, L. Hu, P. Jiang, and K. Gai, “Sequential recommendation for optimizing both immediate feedback and long-term retention,” in Proceedings of the 47th International ACM SIGIR Conference on Research and Development in Information Retrieval , ser. SIGIR 2024. ACM, Jul. 2024, p. 1872–1882. [Online]. Available: http://dx.doi.org/10.1145/3626772.3657829 [18] F. Liu, R. Tang, X. Li, W. Zhang, Y. Ye, H. Chen, H. Guo, and Y. Zhang, “Deep reinforcement learning based recommendation with explicit user-item interactions modeling,” 2019. [Online]. Available: https://arxiv.org/abs/1810.12027 [19] K. Van Moffaert and A. Now´ e, “Multi-objective reinforcement learning using sets of pareto dominating policies,” J. Mach. Learn. Res. , vol. 15, no. 1, p. 3483–3512, Jan. 2014. [20] K. V. Moffaert, M. M. Drugan, and A. Now´ e, “Hypervolume-based multi-objective reinforcement learning,” in Evolutionary Multi-Criterion Optimization (EMO 2013) , ser. Lecture Notes in Computer Science, vol. 7811. Berlin, Heidelberg: Springer, 2013, pp. 352–366. [21] P. Li and A. Tuzhilin, “Deep pareto reinforcement learning for multi-objective recommender systems,” MIS Quarterly , p. 1–39, Nov. 2025. [Online]. Available: http://dx.doi.org/10.25300/MISQ/2025/19488 [22] J. Blank and K. Deb, “Pymoo: Multi-objective optimization in python,” 
+
+IEEE Access , vol. 8, pp. 89 497–89 509, 2020.

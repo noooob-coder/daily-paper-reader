@@ -1,0 +1,628 @@
+Title: The Dunford-Choquet integral
+
+URL Source: https://arxiv.org/pdf/2606.15170v1
+
+Published Time: Tue, 16 Jun 2026 00:31:26 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# The Dunford-Choquet integral ∗
+
+## Y. Askoura June 16, 2026 
+
+LEMMA, Universit´ e Paris II, 4 rue Blaise Desgoffe, 75006 Paris. youcef.askoura@u-paris2.fr 
+
+Abstract 
+
+We define and investigate some preliminary properties of an integral of vector valued functions and its canonically associated indefinite capacity. More precisely, we adapt the Dunford integral to the Choquet integration setting for Banach-valued functions. 
+
+Keywords : Choquet integral, vector valued functions, Dunford integral, integration with respect to capacities. MSC : Primary 28B05, Secondary 46G10, 47H05. 
+
+# 1 Introduction 
+
+We try, in this note, to provide meaning for the integral of a Banach valued function relatively to a capacity. We follow Choquet (1955); Dellacherie (1970), and many others, integrating real valued functions relatively to capacities and establish a Dunford type integral for vector valued functions. The intuition is somewhat disturbed by the fact that an integral with respect to a capacity is not generally additive as long as the underlying capacity is not. Thus, the integral of a vector valued function with respect to a capacity cannot be defined canonically as an element of a bidual, like the Dunford integral in case of measures. Hence, given a measurable space (Ω , A), we set simply, under some additional conditions making the entities meaningful, the Dunford-Choquet integral of a function f
+
+defined from (Ω , A), endowed with a capacity ν, into a Banach space X on every E ∈ A 
+
+as a function : If (E) : X∗ → IR 
+
+x∗ 7 → If (E)x∗ = R 
+
+> Ω
+
+x∗f χ E dν, 
+
+where, X∗ is the dual of X and χE is the characteristic function of E. We establish some properties showing that If behave well and as an indefinite integral, it defines a capacity from A to the set of positively homogeneous functions on X∗ inheriting some properties from the considered capacity ν.
+
+> ∗Last updated: November 6, 2019
+
+1
+
+> arXiv:2606.15170v1 [math.FA] 13 Jun 2026
+
+# 2 Integration of vector valued functions 
+
+Let Ω be an arbitrary set and S a collection of subsets of Ω stable under union and intersection. A capacity on (Ω , S ) is a set function ν : S → IR + satisfying ν(∅) = 0. It is said to be 
+
+• monotonic : iff for all A, B ∈ S , with A ⊂ B, ν(A) ≤ ν(B). 
+
+• Sub-additive : iff for all A, B ∈ S , A ∩ B = ∅, ν(A ∪ B) ≤ ν(A) + ν(B). 
+
+• Sub-modular : iff for all A, B ∈ S , ν(A ∪ B) + ν(A ∩ B) ≤ ν(A) + ν(B). 
+
+• Super-additive : iff for all A, B ∈ S , A ∩ B = ∅, ν(A ∪ B) ≥ ν(A) + ν(B). 
+
+• Super-modular : iff for all A, B ∈ S , ν(A ∪ B) + ν(A ∩ B) ≥ ν(A) + ν(B). 
+
+• Continuous from below : iff for every sequence ( An)n∈IN of subsets of S such that 
+
+An ⊂ An+1 for every n ∈ IN (increasing) and ∪n∈IN An = A ∈ S , lim 
+
+> n→+∞
+
+ν(An) = ν(A). 
+
+• Continuous from above : iff for every sequence ( An)n∈IN of subsets of S such that 
+
+An ⊃ An+1 for every n ∈ IN (decreasing) and ∩n∈IN An = A ∈ S , lim 
+
+> n→+∞
+
+ν(An) = ν(A). 
+
+• Continuous : iff it is both continuous from above and from below. For a sequence ( An)n∈IN of subsets of S such that An ⊂ An+1 for every n ∈ IN and 
+
+∪n∈IN An = A, we write in the sequel, An ↑ A, and for a sequence ( An)n∈IN of subsets of S
+
+such that An ⊃ An+1 for every n ∈ IN and ∩n∈IN An = A, we write An ↓ A.From now on consider a measurable space (Ω , A), where A is a σ−algebra, and let ν be a finite monotonic capacity defined on A, that is ν : A → IR +, ν (∅) = 0 and ν(A) ≤ ν(B)whenever A, B ∈ A and A ⊂ B. By the Choquet integral of a measurable function h : Ω →
+
+IR, we mean the usual asymmetric Choquet integral of h :
+
+Z
+
+> Ω
+
+hdν =
+
+Z +∞
+
+> 0
+
+ν({ω ∈ Ω : h(ω) > t })dλ (t) + 
+
+Z 0
+
+> −∞
+
+[ν({ω ∈ Ω : h(ω) > t }) − ν(Ω)] dλ (t).
+
+where λ is the Lebesgue measure on IR. Note that since the functions within the integral symbole are sign constant, the improper Riemann and Lebesgue integrals coincide. The function h will be said, below, Choquet integrable or simply ν-integrable, if all the integrals above are finite. Let X be a Banach space. Denote by X∗ the dual of X and by X∗∗ its bidual. Let E ∈ A 
+
+and f : Ω → X. Then, f is said to be weakly measurable iff x∗f is measurable, for every 
+
+x∗ ∈ X∗. The function f is said to be weakly integrable on E, iff it is weakly measurable and R 
+
+> Ω
+
+x∗f χ E dν exists for every x∗ ∈ X∗. It is said weakly integrable iff it is weakly integrable on every E ∈ A . We state, in a canonical way, the following : 2Definition 1. Let E ∈ A and f : Ω → X be a weakly integrable function. The Dunford-Choquet integral of f on E is the function If (E) : X∗ → IR defined at every x∗ ∈ X∗
+
+by 
+
+If (E)x∗ =
+
+Z
+
+> Ω
+
+x∗f χ E dν 
+
+A weakly integrable function f : Ω → X is said to be Dunford-Choquet integrable iff If (E)
+
+exists for every E ∈ A .
+
+Let us make some immediate remarks. 1) If ν is a measure the function If (E) is identical to the classical Dunford integral of 
+
+f on E. In this case, it is known that If (E) ∈ X∗∗ .2) As defined above, it is not meaningful to define analogously the generalized Pettis integral for capacities. Indeed, if ν is not additive, the integral with respect to ν fails, generally, to be linear. Hence, If (E) has not to belong to X∗∗ or to X as it is the case for measures. 3) Consider a particular case of a super-modular monotonic capacity ν. In this case (Schmeidler, 1986; Denneberg, 1994), there is a set of measures K such that the integral on E ∈ A with respect to ν of a real valued function f : Ω → IR can be obtained by Z
+
+> Ω
+
+f χ E dν = inf 
+
+> p∈K
+
+Z
+
+> Ω
+
+f χ E dp = inf 
+
+> p∈K
+
+Z
+
+> E
+
+f dp. 
+
+Here, we set X = X∗ = X∗∗ = IR. Clearly, for every p ∈ K, R 
+
+> E
+
+f dp defines an element 
+
+x∗∗  
+
+> E
+
+∈ X∗∗ by x∗∗  
+
+> E
+
+(x∗) = R 
+
+> E
+
+x∗f dp . Hence, If (E)( α) = min {R 
+
+> E
+
+αf dp : p ∈ K}. For instance, if K = {p, q }, R 
+
+> E
+
+f dp = 1 , R 
+
+> E
+
+f dq = 2, If (E) is a function from IR into IR defined by If (E)( α) = α for α > 0 and If (E)( α) = 2 α if α ≤ 0. 4) It results straightforwardly, from the definition, that If (E) is positively homogenous like the Choquet integral. 
+
+Theorem 1. Let E ∈ A . Assume that ν is sub-additive and continuous from above. Let 
+
+f : Ω → X be weakly measurable and satisfies : 
+
+Z
+
+> Ω
+
+∥f ∥χE dν < +∞ (1) 
+
+Then, If (E) is continuous for the weak* topology. Proof. Note first that if ν is sub-additive and continuous from above, then it is also con-tinuous from below and then continuous. Indeed, let a sequence ( Bn)n∈IN in A and B ∈ A 
+
+such that Bn ↑ B, then ν(Bn) ≤ ν(B) = ν([ B \ Bn] ∪ Bn) ≤ ν(B \ Bn) + ν(Bn). Since 
+
+B \ Bn ↓ ∅ , the result follows immediately. 3From Eberlein-ˇSmulian Theorem, we can use sequences to describe continuity. Let ( x∗
+
+> n
+
+)n∈IN ,be a sequence in X∗ converging weakly* to x∗. Hence, x∗
+
+> n
+
+f converges to x∗f pointwise. Set for every n ∈ IN ,un = sup 
+
+> k≥n
+
+x∗
+
+> k
+
+f and ln = inf  
+
+> k≥n
+
+x∗
+
+> k
+
+f
+
+Then, ( un)n∈IN and ( ln)n∈IN are measurable, ( un)n∈IN is decreasing and converges pointwise to x∗f and ( ln)n∈IN is increasing and converges pointwise to x∗f . From condition (1) both (un)n∈IN and ( ln)n∈IN are ν-integrable on E, because for every ω ∈ E and every n ∈ IN, 
+
+|un(ω)| ≤ sup 
+
+> k∈IN
+
+|x∗
+
+> k
+
+f (ω)| ≤ sup 
+
+> k∈IN
+
+∥x∗
+
+> k
+
+∥X∗ ∥f (ω)∥X and since x∗ 
+
+> n
+
+is weakly* convergent, it is bounded, then there is M > 0 such that |un(ω)| ≤ M ∥f (ω)∥X , for every ω ∈ Ω. Hence, by the monotonicity of ν and its sub-additivity, | R 
+
+> Ω
+
+unχE dν | ≤ M R 
+
+> Ω
+
+∥f ∥X χE dν (Denneberg (1994), corollary 6.6, p. 82). Note that this argument applies as well for ln, n ∈ IN. Let 
+
+ε > 0 and set for every t ∈ IR, At = ∩n∈IN {ω ∈ Ω : un(ω)χE (ω) > t }. Remark that, 
+
+{ω ∈ Ω : x∗f (ω)χE (ω) > t } ⊂ At ⊂ { ω ∈ Ω : x∗f (ω)χE (ω) + ε > t }. In another hand, 
+
+{ω ∈ Ω : ln(ω)χE (ω) > t } ↑ { ω ∈ Ω : x∗f (ω)χE (ω) > t }. This provides t 7 → ν({ω ∈ Ω : 
+
+un(ω)χE (ω) > t }) converges pointwise to t 7 → ν(At) and t 7 → ν({ω ∈ Ω : ln(ω)χE (ω) > t })converges pointwise to ν{ω ∈ Ω : x∗f (ω)χE (ω) > t }. Also, t → ν(At) is measurable as it is decreasing on IR and for every t ∈ IR, ν({ω ∈ Ω : x∗f (ω)χE (ω) > t }) ≤ ν(At) ≤ ν({ω ∈
+
+Ω : x∗f (ω)χE (ω) + ε > t }). Considering the monotonicity of ν again : lim sup R 
+
+> Ω
+
+x∗
+
+> n
+
+f χ E dν ≤ lim R 
+
+> Ω
+
+unχE dν 
+
+≤ lim 
+
+R +∞ 
+
+> 0
+
+ν{ω ∈ Ω : un(ω)χE (ω) > t }dλ (t)+ R 0 
+
+> −∞
+
+[ν({ω ∈ Ω : un(ω)χE (ω) > t }) − ν(Ω)] dλ (t)
+
+
+
+≤ R +∞ 
+
+> 0
+
+ν({ω ∈ Ω : x∗f (ω)χE (ω) + ε > t })dλ (t)+ R 0 
+
+> −∞
+
+[ν({ω ∈ Ω : x∗f (ω)χE (ω) + ε > t }) − ν(Ω)] dλ (t)
+
+≤ R 
+
+> Ω
+
+x∗f χ E + εdν. 
+
+≤ R 
+
+> Ω
+
+x∗f χ E dν + εν (Ω) .
+
+(2) Where, the last inequality uses the commonotonic additivity of the integral with respect to a capacity. Since ε is arbitrary, we conclude that lim sup 
+
+Z
+
+> Ω
+
+x∗
+
+> n
+
+f χ E dν ≤
+
+Z
+
+> Ω
+
+x∗f χ E dν (3) In another hand, lim inf R 
+
+> Ω
+
+x∗
+
+> n
+
+f χ E dν ≥ lim R 
+
+> Ω
+
+lnχE dν 
+
+≥ lim 
+
+R +∞ 
+
+> 0
+
+ν{ω ∈ Ω : ln(ω)χE (ω) > t }dλ (t)+ R 0 
+
+> −∞
+
+[ν({ω ∈ Ω : ln(ω)χE (ω) > t }) − ν(Ω)] dλ (t)
+
+
+
+≥ R +∞ 
+
+> 0
+
+ν({ω ∈ Ω : x∗f (ω)χE (ω) > t })dν 
+
++ R 0 
+
+> −∞
+
+[ν({ω ∈ Ω : x∗f (ω)χE (ω) > t }) − ν(Ω)] dλ (t)
+
+≥ R 
+
+> Ω
+
+x∗f χ E dν. 
+
+(4) 4The weak* continuity of If (E) results from (3) and (4). 
+
+Remark 1. The proof of the previous theorem can be performed using the dominated convergence theorem for capacities (Denneberg (1994), Proposition 8.5, Proposition 8.8, and Theorem 8.9, p. 98-101). We provided above an alternative explicit proof. 
+
+## 2.1 The indefinite Dunford-Choquet capacity 
+
+Consider a Dunford-Choquet integrable function f : Ω → X and denote by If (·) the indefinite Dunford-Choquet integral of f , that is for every E, If (E) : X∗ → IR, defined at every x∗ ∈ X∗ by 
+
+If (E)x∗ =
+
+Z
+
+> Ω
+
+x∗f χ E dν. 
+
+Let us denote by H0 the set of all positively homogeneous real valued functions defined on X∗. Endowed with the usual operations on spaces of real valued functions, addition of functions and scalar multiplication, H0 is a real vector space. In the sequel If is seen as a capacity from A to H0, even if in the absence of an ordering on H0, some the properties of a capacity listed above are not meaningful. A set E ∈ A is said to be ν-null if ν(Z ∩ E) = 0, for every Z ∈ A . The If -null sets are defined similarly. The capacity ν is said to be null-additive iff for every E, Z ∈ A , such that Z is ν-null, ν(E ∪ Z) = ν(E). The If null-additivity is defined similarly. 
+
+Proposition 1. The following holds : 1) If E ∈ A is ν-null, then E is If -null. 2) If E ∈ A is If -null and 0 /∈ co( f (E)) , then E is ν-null. 3) If ν is null-additive, then If is null-additive. Proof. 1) Let E ∈ A be a ν-null set. Then, for every Z ∈ A , since ν(Z ∩ E) = 0, R 
+
+> Ω
+
+x∗f χ Z∩E dν = 0, for every x∗ ∈ X∗. That is, for every Z ∈ A , If (Z ∩ E) = 0. Hence, E
+
+is If -null. 2) Let E ∈ A be an If -null set such that 0 /∈ co( f (E)). Then, for every Z ∈ A , for every x∗ ∈ X∗, R 
+
+> Ω
+
+x∗f χ Z∩E dν = 0. Let Z ∈ A be fixed. Assume, per absurdum , that 
+
+ν(Z ∩ E) > 0 and let us separate strictly according to Hahn-Banach separation theorem co( f (Z ∩ E)) and {0}. I.e., take x∗ ∈ X∗ and α > 0 such that, x∗(y) > α > x ∗(0) = 0 for every y ∈ co( f (Z ∩ E)). Then, x∗f (ω) > α > x ∗(0) = 0 for every ω ∈ Z ∩ E. Then, 
+
+R 
+
+> Ω
+
+x∗f χ Z∩E dν = R 
+
+> IR +
+
+ν({ω ∈ Ω : x∗f (ω)χZ∩E (ω) > t })dλ (t)
+
+> R 
+
+> [0 , α ]
+
+ν(Z ∩ E)dλ = αν (Z ∩ E) > 0.
+
+This contradicts the fact that E is If -null and achieves the proof of 2). 3) Let E, Z ∈ A such that Z is ν-null. Let x∗ ∈ X∗. Since ν is null-additive 5If (E ∪ Z)x∗ = R 
+
+> Ω
+
+x∗f χ E∪Z dν 
+
+= R 
+
+> IR +
+
+ν({ω ∈ Ω : x∗f (ω)χE∪Z (ω) > t })dλ (t)+ R 
+
+> IR −
+
+[ν({ω ∈ Ω : x∗f (ω)χE∪Z (ω) > t } − ν(Ω))] dλ (t)= R 
+
+> IR +
+
+ν({ω ∈ Ω : x∗f (ω)χE (ω) > t })dλ (t)+ R 
+
+> IR −
+
+[ν({ω ∈ Ω : x∗f (ω)χE (ω) > t } − ν(Ω))] dλ (t)= R 
+
+> Ω
+
+x∗f χ E dν 
+
+= If (E)x∗.
+
+It is obvious that in point 2), the condition 0 /∈ co( f (E)) cannot be relaxed. To see this, remark that the indefinite Dunford-Choquet integral of the null function f ≡ 0, relatively to an arbitrary finite and monotonic capacity, defines a null capacity I0 ≡ 0. Then, every 
+
+E ∈ A , is I0-null, whatever is the value ν(E). 
+
+Definition 2. We say that If is weakly sub-additive (resp. super-additive) iff for every 
+
+x∗ ∈ X∗ and A, B ∈ A , such that A ∩ B = ∅, If (A ∪ B)x∗ ≤ If (A)x∗ + If (B)x∗ (resp. 
+
+If (A ∪ B)x∗ ≥ If (A)x∗ + If (B)x∗). 
+
+Proposition 2. 
+
+1) If ν is sub-modular, then, If is weakly sub-additive. 2) If ν is super-modular, then, If is weakly super-additive. Proof. Let A, B ∈ A , such that A ∩ B = ∅.1) If (A ∪ B)x∗ =
+
+Z
+
+> Ω
+
+x∗f χ A∪B dν =
+
+Z
+
+> Ω
+
+x∗f χ A + x∗f χ B dν , and from the sub-additivity theorem (Denneberg (1994), theorem 6.3, p. 75), Z
+
+> Ω
+
+x∗f χ A + x∗f χ B dν ≤
+
+Z
+
+> Ω
+
+x∗f χ Adν +
+
+Z
+
+> Ω
+
+x∗f χ B dν = If (A)( x∗) + If (B)x∗.2) The proof is analogous to 1) using the super-additivity theorem (Denneberg (1994), corollary 6.4, p. 78). Denote by H the subspace of H0 consisting of all positively homogeneous functions defined on X∗ that are bounded on BX∗ . Since BX∗ is compact for the weak* topology, H includes the weak* continuous positively homogenous functions defined on X∗. It is easy to see that the following function defines a norm on H :
+
+∥I∥H = sup 
+
+> x∗∈BX∗
+
+|I(x∗)|.
+
+Consider a function f : Ω → X that is Dunford-Choquet integrable satisfying condition (1) of Theorem 1 on every E ∈ A . Following Theorem 1, if ν is sub-additive and continuous from above, then for every E ∈ A , If (E) ∈ H . The following theorem shows that If (·)defines a capacity continuous for ∥ · ∥ H
+
+6Theorem 2. Assume that ν is sub-additive and continuous from above and let f : Ω → X
+
+be a Dunford-Choquet integrable function satisfying condition (1) of Theorem 1 on every 
+
+E ∈ A . Then, the capacity If is continuous for the norm ∥ · ∥ H.Proof. In the sequel, given a function h : Ω → IR, we use the following notations h+ =max {h, 0} and h− = − min {h, 0}. Let ( An)n∈IN be a sequence in A and A ∈ A , such that 
+
+An ↓ A. Then, for every x∗ ∈ X∗, ( x∗f )+χAn decreases pointwise to ( x∗f )+χA. Since all these functions are bounded by ν-integrable functions, for every x∗ ∈ X∗, R
+
+> Ω
+
+(x∗f )+χAn dν 
+
+and R
+
+> Ω
+
+(x∗f )+χAdν exist and, using the continuity from above of ν and its sub-additivity, we deduce that R
+
+> Ω
+
+(x∗f )+χAn dν decreases and converges to R
+
+> Ω
+
+(x∗f )+χAdν (Denneberg (1994), Proposition 8.5, Proposition 8.8, and Theorem 8.9, p. 98-101). In another hand, it is easy to see that all the functions constituting this sequence as well as the limite 
+
+x∗ 7 → R
+
+> Ω
+
+(x∗f )+χAdν are continuous for the weak* topology. Indeed, if ( x∗
+
+> n
+
+)n∈IN is a sequence in X∗ converging weak* to x∗, then ( x∗
+
+> n
+
+f )+ converges pointwise to ( x∗f )+. Since all these functions are bounded by ν-integrable functions, for every B ∈ A , R
+
+> Ω
+
+(x∗
+
+> n
+
+f )+χB dν converges to R
+
+> Ω
+
+(x∗f )+χB dν and this provides the needed weak* continuity. Now, since BX∗ is weak* compact, Dini’s theorem guarantees that the convergence of the sequence of functions x∗ 7 → R
+
+> Ω
+
+(x∗f )+χAn dν, n ∈ IN , to x∗ 7 → R
+
+> Ω
+
+(x∗f )+χAdν is uni-form on BX∗ . Similar arguments proves as well that the sequence of functions x∗ 7 →R 
+
+> Ω
+
+−(x∗f )−χAn dν converges uniformly to x∗ 7 → R 
+
+> Ω
+
+−(x∗f )−χAdν on BX∗ . As a result, using the additive comonotonicity property of the Choquet integral, R 
+
+> Ω
+
+x∗f χ An dν = R
+
+> Ω
+
+(x∗f )+χAn dν +R 
+
+> Ω
+
+−(x∗f )−χAn dν converges uniformly to R
+
+> Ω
+
+(x∗f )+χAdν +R 
+
+> Ω
+
+−(x∗f )−χAdν = R 
+
+> Ω
+
+x∗f χ Adν on BX∗ . It follow that sup 
+
+> x∗∈BX∗
+
+|If (An)x∗ − If (A)x∗| → 0.
+
+I.e., 
+
+∥If (An) − If (A)∥H → 0.
+
+That is, If is continuous from above. The continuity from below of If is analogous, then not reproduced. It result that If is continuous. 
+
+# Comment 
+
+1) It is worth noting that for the Choquet integral, given E ∈ A and a Choquet inte-grable function h : Ω → IR, R 
+
+> Ω
+
+hχ E dν is not necessarily equal to R 
+
+> E
+
+hdν . Then, if we replace in the definition of If (E) above R 
+
+> Ω
+
+x∗f χ E dν by R 
+
+> E
+
+x∗f dν , the proofs of Proposition 2 and of Theorem 2 will not work. However, one can remedy this situ-ation for Theorem 2, by the use of the symmetric version of the Choquet integral, the commonotonic additivity argument in the proof, will follow from the definition of the symmetric integral. 72) The results in (Denneberg, 1994) we used above, like the dominated convergence theorems, are stated for monotonic capacities defined on the set P(Ω) of all subsets of Ω. It is clear that theses results are still valid in our setting, since every monotonic capacity on A ⊂ P (Ω) extends, by the Zorn’s lemma to a monotonic capacity on 
+
+P(Ω) and obviously the corresponding integrals of A-measurable functions coincides. To see how to obtain such extensions, consider a monotonic capacity ν on A and set C = {(μ, Σ) : A ⊂ Σ, μ monotonic on Σ and μ|A ≡ ν}. Consider the following ordering on C :(μ1, Σ1) ≤ (μ2, Σ2) ⇔ Σ1 ⊂ Σ2 and μ2|Σ1 ≡ μ1.
+
+This makes C a directed set. Consider a chain ( μα, Σα) in C and set Σ = ∪αΣα and define μ on Σ by μ|Σα = μα. Obviously ( μ, Σ) ∈ C . Hence, every chain in C has an upper bound in C . Zorn’s Lemma guarantees that C has a maximal element, denote it again ( μ, Σ). Necessarily, Σ = P(A), otherwise, let A ∈ P (Ω) \ Σ and set ¯μ(A) = inf {μ(E) : A ⊂ E and E ∈ Σ} and ¯ μ ≡ μ on Σ. Since, Ω ∈ A ⊂ Σ, ¯ μ(A) is well defined. It is easy to see that (¯ μ, Σ ∪ { A}) ∈ C and then (¯ μ, Σ ∪ { A}) is strictly greater than ( μ, Σ) contradicting the maximality of the last element and proves the existence of the needed extension. 
+
+# References 
+
+Choquet, G., Theory of capacities, Ann. Inst. Fourier 5 (1955), 131-295. Delgado O., and S´ anchez P´ erez, E.A., Choquet type L1 spaces of a vector capacity, Fuzzy Sets and Systems 327(2017), 98-122. Dellacherie, C., Quelques commentaires sur les prolongements de capacit´ es, S´ eminaire de probabilit´ es (Strasbourg), tome 5 (1971), p. 77-81. Denneberg D., Non-additive measure and integral , Kluwer Academic Publishers, Dordrecht, 1994. Diestel, J., Uhl, J.J., 1977. Vector measures. Mathematical Surveys, Number 15. American Mathematical Society. Schmeidler, D., Integral representation without additivity, Proceedings of the American Mathematical Society 97(1986), 255-261. 8

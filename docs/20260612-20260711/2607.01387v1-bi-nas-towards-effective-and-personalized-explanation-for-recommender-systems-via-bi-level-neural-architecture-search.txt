@@ -1,0 +1,432 @@
+Title: Bi-NAS: Towards Effective and Personalized Explanation for Recommender Systems via Bi-Level Neural Architecture Search
+
+URL Source: https://arxiv.org/pdf/2607.01387v1
+
+Published Time: Fri, 03 Jul 2026 00:13:20 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# Bi-NAS: Towards Effective and Personalized Explanation for Recommender Systems via Bi-Level Neural Architecture Search 
+
+Longfeng Wu 
+
+Virginia Tech 
+
+Blacksburg, VA, USA longfengwu@vt.edu Yao Zhou 
+
+Google 
+
+Mountain View, CA, USA yaozhoucosmos@google.com Tong Zeng 
+
+Virginia Tech 
+
+Blacksburg, VA, USA tongzeng@vt.edu Zhimin Peng 
+
+Amazon 
+
+Sunnyvale, CA, USA zmpeng@amazon.com Bhanu Pratap Singh Rawat 
+
+Amazon 
+
+Sunnyvale, CA, USA rawabhan@amazon.com Lecheng Zheng 
+
+Virginia Tech 
+
+Blacksburg, VA, USA lecheng@vt.edu Giovanni Seni 
+
+Amazon 
+
+Sunnyvale, CA, USA gseni@amazon.com Dawei Zhou 
+
+Virginia Tech 
+
+Blacksburg, VA, USA zhoud@vt.edu 
+
+Abstract —Recommender systems are vital in helping users navigate vast amounts of information, offering personalized sug-gestions and effective explanations for these recommendations. While previous efforts have attempted to provide such expla-nations, evaluating their effectiveness across various scenarios remains a challenge. Enhancing these explanations is essential for improving user engagement, trust, and decision-making. To facil-itate effective explanations within the recommender system, we propose a Bi-level Neural Architecture Search (Bi-NAS) frame-work to optimize explanations. This approach simultaneously refines cross-attention mechanisms and feature interaction func-tions by exploring both intra-layer and inter-layer design spaces. Furthermore, we integrate Large Language Models (LLMs) to enhance explanation generation, leveraging zero-shot prompting to produce more effective and personalized justifications. By aligning user feature preferences with item quality scores, our approach ensures that explanations reflect both user intent and item attributes, improving transparency and reasoning depth. Extensive evaluations on four real-world datasets demonstrate that Bi-NAS not only boosts recommendation accuracy but also significantly improves the effectiveness of explanations for recommender systems, providing users with clear and reliable insights into the suggestions they receive. Meanwhile, we publish our data and code at https://github.com/wulongfeng/Bi-NAS.git. 
+
+Index Terms —Explainable Recommendation, Neural Architec-ture Search 
+
+I. I NTRODUCTION 
+
+In the digital age, with the explosion of information and data, recommender systems have emerged as an essential tool for dealing with information overload [1]. These systems are designed to provide users with personalized and relevant content, which can help cater to their preferences and needs, stream their decision-making process, and improve service efficiency [2]. However, users may not be satisfied with the results they receive without clear and meaningful explanations, as shown in Figure 1. Providing effective explanations for the recommendation results can significantly enhance the users’ experience, foster their engagement and trust, and boost their loyalty and stickiness to the service and products. Meanwhile, an effective explanation could also be useful for the users to improve their decision-making accuracy and efficiency [3] or increase users’ satisfaction with the explanations [4]. Effective Explanation              
+
+> We recommend this phone to you because its features, such as [price and value], align with your preferences.
+> We recommend this phone to you because one of your friends has purchased it.
+> Rank: 3
+> Ineffective Explanation
+> • A good-quality phone with standard .
+> •quality is .
+> sound quality Sound excellent
+> • This product is of for the .
+> • The phone performs for its .
+> great value price well price
+> Review#1: The is very with excellent performance.
+> cost reasonable
+> Review#3: I could choose a phone with a .
+> smaller better camera
+
+Price Camera Quality    
+
+> Review#2: one worth the price. High-quality Issue: general and ambiguous
+> Strength: speci fi c and relevant
+> Extracted Features
+
+Fig. 1. Illustration of recommender system with effective explanation. The reviews on the left are written by one user with their key aspects and opinions highlighted in blue. Similarly, each item will also receive multiple reviews from various users, with its key aspects and opinions marked in pink or blue. The word clouds are generated based on the user’s perspectives, with each word’s size in the word cloud reflecting its frequency, as the user mentioned. 
+
+Early explainable methods, such as collaborative filtering (CF), generated simple justifications like “users who liked X also liked Y” [5, 6]. While intuitive, these explanations often lack the granularity and persuasive power to be truly com-pelling. A significant step towards building more interpretable models came from leveraging the rich, explicit information contained in user reviews. Reviews offer direct evidence of user preferences and item characteristics at a fine-grained level. As illustrated in Figure 1, users’ preferences can be discerned through the reviews they compose. By examining the customer’s previous reviews, we can deduce that this particular customer places a higher priority on “price” and “quality”, followed by the camera’s attributes. Similarly, we can infer the quality of items by examining the reviews they have received. For instance, the foremost considerations for the first phone 
+
+> arXiv:2607.01387v1 [cs.IR] 1 Jul 2026
+
+revolve around “price” and “quality”. Consequently, we can recommend items to users by aligning their preferences with the features of the items, thereby offering more insightful and relevant explanations. In contrast, the explanation that one of your friends has purchased is not sufficiently convincing, thus failing to provide effective explanations. Building on this insight, researchers have developed sophisticated models that incorporate textual data. Attention-based methods [7– 9] were introduced to dynamically weigh the importance of different words, sentences, or reviews, allowing the model to focus on the most salient information. Similarly, path-based models [10–12], often leveraging knowledge graphs, aimed to find explicit reasoning paths between users and items. More recently, the advent of Large Language Models (LLMs) has introduced powerful capabilities for natural language under-standing and generation, opening new frontiers for creating fluent, human-like explanations. Despite this progress, generating effective and personalized explanations in recommender systems remains a challenging task due to several critical limitations in existing methods. First, ( C1. Heavy reliance on human effort and expertise )Designing interpretable components, such as explainable paths or attention mechanisms, often requires significant manual ef-fort and domain expertise. This process can be labor-intensive and prone to human bias, which may result in sub-optimal or inconsistent explanations. Second, ( C2. Poor generalization across dynamic datasets ) Recommendation tasks often span diverse datasets with varying characteristics. A single, fixed explainability architecture may fail to generalize effectively across these datasets, limiting its adaptability to different recommendation contexts. Third, ( C3. Risk of hallucination in LLM-based methods ) While LLMs have shown impressive capabilities in natural language tasks, directly applying them to explanation generation can introduce hallucinations, factual errors, and generic outputs. Without careful adaptation to user-specific contexts, LLMs often fail to capture nuanced prefer-ences, resulting in unreliable and impersonal explanations that undermine user trust. To address the aforementioned challenges, we propose a Bi-level Neural Architecture Search (Bi-NAS) to jointly search for a recommender system design with optimal, effective, and explainable architecture. In particular, to address C1 and C2 ,we introduce NAS, which aims to automatically find a neural architecture that achieves the best possible performance with limited computing resources while requiring minimal human intervention [13]. NAS strategically explores possible neural architectures within a predefined search space and adapts to different datasets, thus generalizing to diverse datasets by producing tailored architectures for varying data charac-teristics. Additionally, to address C3 , we employ LLMs to enhance explanation generation using aligned features between users and items discovered by NAS, while incorporating user history to enable more personalized and contextually relevant explanations. Our approach learns user preference weights and item quality weights by extracting meaningful features from user reviews. By aligning users’ feature preferences with item quality scores on corresponding attributes, we leverage LLMs to generate effective and personalized explanations. Specifically, our method first learns the embedding of users, items, and their associated reviews. Next, we employ Bi-NAS to automatically search for the optimal cross-attention network architecture and corresponding interaction functions. Finally, we integrate LLMs with the aligned user-item features to generate personalized explanations that reflect individual user preferences and item characteristics. Extensive experiments on real-world datasets demonstrate the effectiveness of our proposed approach. We summarize our contributions as follows:  
+
+> •
+
+Problem Formulation: We formulate the problem of effective explanation generation in recommender systems and identify the key challenges inspired by the real applications.  
+
+> •
+
+Model: We propose an end-to-end Bi-level Neural Ar-chitecture Search (NAS) framework that automatically searches for the optimal explainable architecture for gen-erating effective explanations while enhancing personal-ization through zero-shot prompting strategies.  
+
+> •
+
+Comprehensive Evaluation: We conduct extensive ex-periments on four real-world datasets, evaluating both recommendation performance and explanation quality. The results demonstrate the superior performance of our approach across multiple evaluation metrics. II. P ROBLEM DEFINITION 
+
+In this section, we introduce the preliminaries of our prob-lem setting. Then, we give the formal definition of explainable recommendation with NAS. We use upper case calligraphic font letters to denote sets (e.g., U), bold upper case letters to denote matrices (e.g., A), bold lower case letters to denote vectors (e.g., x), and regular lower case letters to denote scalars (e.g., α). 
+
+Preliminaries and Notations. Assume we have a user set with M users U = {u1, u 2, · · · , u M } , an item set with N
+
+items I = {i1, i 2, · · · , i N }, and a feature set with P features 
+
+F = {f1, f 2, · · · , f P }. We apply the sentiment analysis toolkit [14] to extract (Aspect, Opinion, Sentiment) triplets from the textual reviews. For example, in the domain of clothing, the extracted features (aspects) include price, quality, color, size, etc. The corresponding opinions include high, good, great, fit, etc., and the sentiment could be either +1 or -1. Following the similar pre-processing steps adopted by previous work [15– 19], we compute the user-feature preference vector fu ∈ Rp
+
+and u ∈ U , and the item-feature quality vector fi ∈ Rp
+
+and i ∈ I. f ku indicates to what extent the user u cares about the feature fk. Considering that user tends to comment on the features they care more about and may express their opinions more frequently on those features, it is a frequency-based vector. f ki indicates how well the item i performs on the feature fk. Considering that the quality of items can be reflected in the review sentiments from users, it is formulated Fig. 2. Overview of our proposed architecture. The left part is the architecture for recommender systems, and the right part illustrates the framework of bi-level NAS, which can jointly discover the optimal cross-attention construction and feature interaction functions. 
+
+by considering both review feature frequency and average sentiment. Specifically, 
+
+f ku =
+
+(0, if user u did not mention feature fk
+
+1 + ( T − 1)( 21+exp( −cku) − 1) , otherwise 
+
+f ki =
+
+(0, if item i was not mentioned with feature fk
+
+1 + ( T −11+exp( −cki ·ski ) ), otherwise (1) where T is the maximum review score, cku is the frequency that user u mentioned feature fk, cki is the frequency that item i is mentioned with feature fk, while ski is the average sentiment of item i regarding feature fk. After this transformation, all entries of these feature vectors are mapped into the range of 
+
+[0 , T ].
+
+Cross-Attention. Different from self-attention, which oper-ates on a single embedding vector, cross-attention typically in-volves two distinct vectors of the same dimension. It calculates attention scores for each dimension in one vector based on its relevance to another vector and integrates the two vectors. In this paper, we utilize cross-attention between user/item embeddings and their corresponding feature embeddings to explore their interconnections. 
+
+Neural Architecture Search. Neural Architecture Search refers to the systematic process of automating the design of neural network architectures. It includes three main parts: search space, search strategy, and performance evaluation strategy. Designing a search space is a crucial aspect of NAS as it directly impacts the efficiency and effectiveness of the entire process [13]. The search space determines the realm of architectural possibilities, allowing NAS to explore diverse neural network configurations. On one hand, the space needs to be broad enough to capture a diverse range of architectural possibilities, allowing for innovation and inclusion of human knowledge. On the other hand, the space cannot be too general, as that would lead to computational inefficiency and high exploration costs [20]. The search strategy (optimization methods) details how to explore the search space. It involves the classical trade-off between exploration and exploitation. On the one hand, there is a desire to rapidly discover high-performing architectures. On the other hand, it’s crucial to avoid early convergence with suboptimal architectures [21]. The evaluation process assesses the generalization perfor-mance of each architecture on unseen data, offering insights into its effectiveness and aiding in the identification of optimal architectures [22]. In this paper, we delve into the realm of recommenda-tion systems, focusing on the scenario of providing effective explanations. For each user-item pair (u, v ), we deduce the preferences of user u and features of item v from reviews. An effective explainable recommendation system should rec-ommend items with features that closely align with users’ preferences and provide the corresponding common features for the explanation. Here, we give the formal definition of our recommendation problem: 
+
+Problem 1: Effective Explainable Recommendation Input: (i) A set of users U = {u1, u 2, · · · , u M }, (ii) A set of items I = {i1, i 2, · · · , i N }, (iii) A set of raw features F =
+
+{f1, f 2, · · · , f P }, and (iv) the observed user-item-interaction sets Ω.
+
+Output: The estimated interaction scores of the unobserved items for each user u ∈ U as well as their corresponding feature explanations. III. M ETHODOLOGY 
+
+In this section, we go over the details of our proposed framework, including the recommendation component, the NAS-driven architecture search space, and our optimization strategy. We begin by using NAS to automatically explore a predefined architecture space, optimizing performance under resource constraints with minimal human intervention and tailoring architectures to each dataset. Next, we leverage LLMs to generate personalized, context-aware explanations from the NAS-aligned user–item features, enriched by user history. Finally, we present illustrative examples of our results. 
+
+A. Recommendation Component 
+
+Existing deep recommender system frameworks usually share a similar structure, as shown in Figure 2. They have three modules: embedding layer, interaction layer, and output layer [23, 24]. We provide a high-level overview in this subsection. 
+
+Embedding Layer. The input of the embedding layer includes both user and item IDs as well as various user and item features, and the output is the embeddings for each of these fields. In this paper, we focus on using features extracted from reviews for both users and items. We embed each word within these features into a lower-dimensional representation using pre-trained word embeddings (e.g., GloVe). Given the high dimensionality and sparsity of one-hot encoding for user and item IDs, as well as the difference in their corresponding embedding size, we also introduced an embedding layer to transform the user and item IDs into a low-dimensional continuous vector, the final output of the embedding layer is: 
+
+E = [ eu, e i, f u, f i] (2) where eu and ei are the embeddings for user and item IDs, while fu and fi are the embeddings of their corresponding features. 
+
+Interaction Layer. The interaction layer receives embed-dings from the embedding layer and aims to capture the in-teractions between features explicitly. This layer can be easily extended to capture the higher order of feature interaction. The most commonly used way is to adopt element-wise operations to capture second-order feature interaction. For simplicity, we adopt the element-wise operations without the loss of generality to capture pairwise interactions. 
+
+I = g(fu, f i) (3) where g(·) represents the interaction function between fea-tures, and fu and fi are embeddings of features from user u
+
+and item i. The function g may take various forms, such as inner product, plus/minus, max/min, and so forth. 
+
+Output Layer. The output layer learns the transformation and combination of features, i.e., E and I, and outputs the probability score ˆy for the interaction between specific users and items. Typically, it consists of several fully connected layers with non-linear activation functions. The selection of activation function σ(·) depends on the specific recommen-dation task. In this paper, sigmoid has been chosen as the activation function. 
+
+B. Architecture Search Space 
+
+In this subsection, we define a search space that considers intra-layer design and inter-layer design. We propose first searching for a way of constructing cross-attention and then integrating these vectors. Specifically,  
+
+> •
+
+Intra-layer : A possible way to construct cross-attention.  
+
+> •
+
+Inter-layer : Interaction functions that operate on users/items and their corresponding features. 
+
+Intra-layer Design. Intuitively, in a specific application domain, users tend to concentrate on particular features that matter most to them. Similarly, within this context, each item is expected to have a distinct set of features that are particularly attractive to its potential customers. This selective focus on relevant features by both users and items is afundamental aspect of explainable recommender systems, as it allows for the delivery of highly customized and meaningful recommendations. Inspired by this observation, we highlight the significance of these essential features by designing the attention network as: 
+
+αk = exp( euMawk)
+
+Ppk=1 exp( euMawk) (4) where eu ∈ Rm and wk ∈ Rp are the embedding of user u
+
+and k-th feature of user review, respectively. Ma ∈ Rm×p
+
+denotes the attention matrix between user embedding and feature embedding. The attention weight for each user towards 
+
+k-th feature is represented as αk ∈ (0 , 1) . Likewise, each item can also obtain its own attention weight denoted as βk ∈ (0 , 1) 
+
+with a different attention mapping matrix Mb ∈ Rm×p. Then, the attention-aggregated representations of users/items features can be obtained as follows: 
+
+˜fu = [ α1, · · · , α p] ⊙ fu and ˜fi = [ β1, · · · , β p] ⊙ fi (5) As shown in Equation 4, the attention matrix Ma for user features is learned from user embedding, and the attention matrix Mb for item features is learned from item embed-ding, respectively, att 0 denotes this way of cross-attention construction. However, user preference and item character-istics often share a complex interplay: user preference may exert influence on both user and item features (denoted as 
+
+att 1), while item characteristics can also, in turn, shape user preferences and item features (denoted as att 2). This dynamic interaction can also manifest in a reciprocal manner, where users and items cross-influence each other (denoted as att 3). To encapsulate these multifaceted relationships, we introduce four interconnected constructions of cross-attention ( att 0−3), which is depicted in the lower right corner of Figure 2. 
+
+Inter-layer Design. Having defined the intra-layer for con-structing cross-attention, the next crucial aspect of design in-volves the fusion of these results. As illustrated in Figure 2, the input of the feature interaction layer includes embeddings of users and items, as well as the output obtained from the cross-attention. In this context, the operation set is composed of three commonly employed element-wise interaction functions: 
+
+O = {Plus , Multiply , Concat }. Each of these interaction functions carries its unique characteristics. The ‘Plus’ operator encourages a cooperative interaction, emphasizing the additive combination of its inputs. The ‘Multiply’ operator fosters a more selective and focused interaction, highlighting the mutual influence between its inputs, while the ‘Concat’ operator expands the feature space, allowing a more complex and ex-pressive representation of their interaction. More specifically, 
+
+I = [ g1( ˜fu, ˜fi), g 2(eu, e i)] (6) where the operators g1, g 2 ∈ O.It’s worth noting that the operators need not necessarily be the same, enabling us the flexibility to employ diverse interaction strategies. Moreover, to address the potential dis-crepancy in the embedding dimensions between users/items and the features associated with users/items, we explicitly utilize the ‘Concat’ operator, which seamlessly merges these distinct components, addressing dimension-related issues. Ad-ditionally, the second part g2 may not always be a mandatory element in our design. We consider the option of keeping one of them ( ei or eu) or removing both of them. 
+
+> TABLE I DESIGNED SEARCH SPACE
+
+# of Inputs Inputs Intra-layer Inter-layer 
+
+2 ˜fu, ˜fi att ∈ att 0−3 g1 ∈ O
+
+3 ˜fu, ˜fi, e u att ∈ att 0−3 g1 ∈ O
+
+˜fu, ˜fi, e i att ∈ att 0−3 g1 ∈ O
+
+4 ˜fu, ˜fi, e u, e i att ∈ att 0−3 g1, g 2 ∈ O
+
+As shown in Table I, the scale of the search space is determined by both the intra-layer design and inter-layer design. Precisely, the size of the search space for the intra-layer is |att 0−3| = 4 , and the size of the search space for the inter-layer can be computed as 3 + 2 ∗ 3 + 3 ∗ 3 = 18 .Thus, the possible number of architectures in the search space is 18 ∗ 4 = 72 .The intra-layer and inter-layer design equip our recom-mender system with the versatility needed to adapt and op-timize its performance across diverse recommendation sce-narios. Through a careful selection and combination of these functions, we can finetune the system to provide personalized and effective recommendations that cater to the preferences and interests of every user. 
+
+C. Optimization Strategy 
+
+Generally speaking, the major challenge in NAS lies in its substantial computational cost of training and evaluating numerous neural network architectures. To address this issue, we introduce Bi-level NAS (Bi-NAS), a method that efficiently conducts architecture searches within the predefined search space by jointly optimizing intra-layer and inter-layer config-urations in an end-to-end manner. As depicted in Figure 3, our proposed architecture can be viewed as a directed acyclic graph (DAG) comprising sequential nodes. Each node denotes the latent representation  
+
+> Fig. 3. An overview of the optimization strategy. Each node denotes the latent representation to be learned, and each edge denotes an operation (e.g., plus, multiply, etc., indicated by color). (a) Relax the choices of operation in a continuous space by placing a mixture of all candidate operations on each edge. (b) Utilize the bi-level NAS to learn the weights of each edge. (c) Finalize the architecture from the edges with the largest weights.
+
+to be learned (e.g., the embedding of users), and each directed edge denotes an operation (e.g., plus) that transforms the corresponding node. The value of each intermediate node is calculated based on all of its preceding nodes. Additionally, we introduce a special “Not connected” operation to indicate when there’s no connection between two nodes. It is worth noting that the search space includes both discrete elements(e.g., selection of operation λ) and con-tinuous variables (e.g., hyper-parameters w). Conducting an exhaustive search without considering the diverse search space is inherently inefficient. Inspired by recent advances in the differentiable search of NAS, we propose to relax the choices among operations as a sparse vector in a continuous space (shown in Figure 3(a)). The main idea is to parameterize the architecture using continuous variables, making it differ-entiable with respect to these parameters. Thus, the gradient descent could be utilized to optimize the architecture directly. Specifically, let λ = [ λt] ∈ R|O| where λt denotes the weight of the t-th operation. The selection of a specific operation from a categorical choice can be relaxed to a mixture of all possible operations: 
+
+ˆg =
+
+> |O|
+
+X
+
+> t=1
+
+λt(gt( ˜fu, ˜fi))) , s.t. λ ∈ C (7) where gt ∈ O is the t-th operation of O, and the constraint set C = {λ, || λ|| 0 = 1 and 0 ≤ λt ≤ 1}.At the end of searching, a discrete operation can be obtained by replacing mixed operations with the most likely operation with the largest λ, i.e., g = arg max gi∈O λi (shown in Figure 3(c)). This constraint guarantees that only one operation can be chosen, and the model’s architecture can be reflected by λ. The task of operation search then reduces to learning a set of continuous variables λ. Our goal is to jointly learn the architecture λ and the associated weights w, striving for a unified system that integrates architectural design and parameter selection to improve performance and efficiency. We optimize the following bi-level objective function: G = arg min 
+
+> λ
+
+Lval ( ˆ w(λ), λ )
+
+s.t. ˆw = arg min 
+
+> w
+
+Ltrain (w, λ ) (8) where Ltrain and Lval are the loss on the training set and validation set. Specifically, L = L(y, MLP w(att i, ˆg)) is the binary cross-entropy loss, y is the ground truth label. And 
+
+y = 1 indicates that user u interacted with item i, otherwise 
+
+y = 0 . att i ∈ att 0−3, MLP( ·) is the output of output layer. Paper Code Data ©2025 All rights reserved FOLLOW US ON     
+
+> HALO
+> HALO delivers intense combat and stunning cinematography, with unexpected plot twists driving both its epic battle scenes and the emotional story of Master Chief and Cortana.
+> Assassin’s Creed Grand Theft Auto V Call of Duty Destiny
+> Games recommended for you See all
+> Jessica
+> James
+> Emily Ethan
+> Combat, Plot Twists, Realism, Cinematic Excellence
+> Select a user to receive game recommendations.
+> Bi-NAS: Bi-level Neural Architecture Search for Explainable Recommender Systems with Large Language Models
+> Welcome to Bi-NAS Demostration
+
+Fig. 4. A demonstration of the generated explanations for the recommendation list. 
+
+D. Effective and Personalized Explanation Generation 
+
+To illustrate the explanations generated by our framework, we present some examples through an integrated user inter-face. For this demonstration, we utilize data from the Amazon-Video dataset [25] and employ Llama-3.1-8B-Instruct [26] as our primary LLM. First, we generate a general user profile based on the features they prioritize. Then, we recommended the five most relevant items based on the user’s history. For each recommended item, we leveraged the LLM to generate an explanation for why it was suggested. Figure 4 illustrates the interactive user interface used in our demonstration. The interface consists of two main sections: the top section displays multiple user accounts logged into the device, each with their respective preferences represented. For example, a dad’s pro-file may prioritize video games featuring combat, plot twists, realism, and cinematic excellence, while a mom’s profile may favor games centered on character development, storytelling, drama, and engaging scripts. Once an account is selected, the bottom section presents the personalized recommendations. Users can hover over each recommended item to view its detailed explanation. Unlike traditional methods that generate explanations directly using LLMs, our approach primarily derives explanations from the aligned features shared between the user and the recommended item and user history, as outlined in Figure 5. For example, the explanation why Halo is recommended for the role of dad is because: Halo delivers intense combat and stunning cinematography, with unexpected plot twists driving both its epic battle scenes and the emotional story of Master Chief and Cortana. System:
+The following item is recommended to the user with profiles: {user_profiles} and purchase history: {item_1, item_2, ...}, and the recommended item is: {item}. 
+
+> User:
+> Please provide a short explanation of why the user might be interested in the recommended item, considering the shared features they both prioritize: {features}.
+
+Zero-shot Explanation Prompt 
+
+Fig. 5. Zero-shot explanation prompt template for enhancing effective and personalized explanation generation. 
+
+IV. E XPERIMENTS 
+
+In this section, we assess our method’s performance and ex-planation quality, conduct an ablation study on cross-attention effectiveness, and analyze the obtained architecture. 
+
+A. Experimental Settings 
+
+Dataset. We utilize the Amazon dataset [25], where the raw data is collected as a user-item-review triplet format. We conduct experiments on its top-level product categories 1:Instrument, Video, Beauty, and Clothing. The statistics of these datasets are summarized in Table III. In preprocessing, we keep the user-item interactions that have text reviews. We treat the 4-star and 5-star reviews as positive feedback, and the rest are unlabeled feedback where we per-formed negative sampling within it during training. Following this preprocessing protocol, all user and item interactions are eventually stored in the interaction matrix with binary values 
+
+0 and 1. Additionally, we utilize Sentire 2 to get phrase-level aspect words and sentiment. 
+
+Evaluation protocols. We randomly split the dataset into 70%, 20%, and 10% for training, validation, and testing, respec-tively, considering only users with more than five positive samples. We evaluate the performance of all methods by three standard measurements for ranking tasks: Hit Rate (Hit@10), Normalized Discounted Cumulative Gain (NDCG@10), and Mean Reciprocal Rank (MRR). 
+
+B. Baselines 
+
+We conduct comparison experiments between our method and the following state-of-the-art approaches. We follow the official implementation and use the default setting on hyperpa-rameters for these baselines. NCF [27]: One of the most pop-ular embedding-based neural network recommendation meth-ods. It replaces the inner product from matrix factorization with a neural architecture that can learn an arbitrary function from data. VBPR [28]: A modified version of the original VBPR by using the neural network-based embeddings and the contextual features. CER [18]: A counterfactual explainable recommendation model. This model leverages counterfactual 
+
+> 1
+
+https://jmcauley.ucsd.edu/data/amazon/ 
+
+> 2
+
+https://github.com/lileipisces/Sentires-Guide TABLE II RECOMMENDATION PERFORMANCE EVALUATION ON FOUR DATASETS . T HE NUMBERS IN BOLD REPRESENT THE BEST RESULTS , WHILE THE NUMBERS WITH A WAVE REPRESENT THE SECOND -BEST RESULTS .
+
+Method Video Instrument Beauty Clothing 
+
+Hit@10 NDCG@10 MRR Hit@10 NDCG@10 MRR Hit@10 NDCG@10 MRR Hit@10 NDCG@10 MRR NCF 0.505 :::: 
+
+0.295 0.230 ::::: 
+
+0.300 :::: 
+
+0.172 ::::: 
+
+0.132 0.413 0.251 0.202 0.317 0.178 0.136 VBPR 0.507 0.285 0.224 0.262 0.140 0.108 0.401 0.225 0.191 0.289 0.155 0.123 CER 0.463 0.267 0.207 0.259 0.145 0.111 0.559 0.300 0.221 0.396 0.220 0.167 NAR ::::: 
+
+0.520 0.294 ::::: 
+
+0.231 0.284 0.151 0.117 0.506 0.297 ::::: 
+
+0.256 ::::: 
+
+0.400 :::: 
+
+0.221 ::::: 
+
+0.178 MANAS 0.341 0.202 0.176 0.148 0.072 0.067 0.477 :::: 
+
+0.315 0.278 0.204 0.109 0.098 
+
+Ours 0.543 0.307 0.241 0.342 0.190 0.150 ::::: 
+
+0.545 0.322 0.278 0.406 0.227 0.185                                   
+
+> TABLE III STATISTICS OF THE DATASETS . T HE DENSITY IS COMPUTED AS
+> #INTERACTIONS /(# USERS ×#ITEMS ).
+> Datasets #Users #Items #Interactions #Features Density
+> Instrument 1,276 843 3,581 325 0.33% Video 4,333 1,486 11,759 350 0.18% Beauty 21,472 11,897 105,659 1,985 0.04% Clothing 37,703 22,647 142,553 1,462 0.02%
+
+reasoning from causal inference to deliver explainable recom-mendations, aiming to provide simple and effective explana-tions for the model decision. NAR [29]: The attention-based intrinsic recommendation model, has intrinsically explainable designs with two major components: a representation network for users and items, and a prediction network to predict the relevance scores. Additionally, its model architecture can be searched using our Bi-NAS framework. MANAS [30]: MANAS automatically assembles the three basic logical oper-ation modules into a network architecture tailored to the given user by neural architecture search. 
+
+C. Performance Evaluation 
+
+We first evaluate the overall performance of the recommen-dation task of our proposed method. The results are reported in Table II. In general, we have the following observations: (1) Our proposed method can outperform all other baselines in most of the cases in terms of various evaluation metrics, regardless of the dataset size. (2) Furthermore, other models like CER and NAR also exhibit competitive performance. Specifically, CER shows competitive performance when it comes to large-scale datasets; we believe this is due to the factor that CER is more reliant on reviews, which tend to be richer and more informative in larger datasets. (3) In contrast, MANAS does not perform as well as other baseline methods. We believe this disparity in performance is partly due to this method’s reliance on sequential information without lever-aging review data. (4) Our model consistently outperforms NAR, an attention-based model with a fixed cross-attention and interaction configuration. The fixed architecture does not generalize well across different dataset, which could further demonstrate the effectiveness of our method. 
+
+D. Explanation Evaluation 
+
+In this subsection, we want to evaluate the explainability based on the user’s review of the item, which has been widely used in previous work [18, 31, 32]. Specifically, we utilize the review as the ground truth to explain why the item is recommended to the user. We measure the performance of the explanation by metrics utilized in other work [18, 19]. Here, Rku,i denotes the interactions between user u and item 
+
+i regrading feature fk. If the review between user u and item 
+
+i has positive sentiment on the feature fk, then Rku,i = 1 ;otherwise, Rku,i = 0 .
+
+Precision = 
+
+Ppk=1 Rku,i · Iku,i 
+
+Ppk=1 Iku,i 
+
+, Recall = 
+
+Ppk=1 Rku,i · Iku,i 
+
+Ppk=1 Rku,i 
+
+(9) where Iki,j is an identity function to identify the feature explanation obtained by our model. If the obtained explanation identify item i is recommended to user u because of feature 
+
+fk, then Iku,i = 1 ; otherwise Iku,i = 0 . Precision is defined as the ratio of features that users really like in the obtained feature explanation, Recall is defined as the ratio of features explanation to the number of features that users like, and F1 is represented as the harmonic mean of Precision and Recall. NDCG can be computed similarly. Furthermore, we randomly choose features from the feature space to generate explanations. The results of this random baseline can provide some insight into the difficulty of this task. The results are reported in Table IV. In general, we have the following observations: (1) Our method consistently per-forms the best in terms of all metrics, demonstrating that our method can provide effective explanations. (2) CER does not perform as well as other methods. We believe this is because CER employs item-oriented perturbations for explanations. Consequently, when explaining a user’s ranking decision, the perturbations from all the items they’ve reviewed are averaged, leading to a reduction in granularity for explanation. (3) Although NAR has an explicitly designed architecture for learning the attention weight, it remains outperformed by our method. This implies that human prior knowledge can occasionally constrain the potential of models. TABLE IV EXPLANATION EVALUATION ON FOUR DATASETS . T HE NUMBERS IN BOLD REPRESENT THE BEST RESULTS , WHILE THE NUMBERS WITH A WAVE REPRESENT THE SECOND -BEST RESULTS .
+
+Method Video Instrument Beauty Clothing 
+
+Pre Recall F1 Pre Recall F1 Pre Recall F1 Pre Recall F1
+
+Random 0.007 0.027 0.011 0.010 0.032 0.014 0.019 0.028 0.019 0.015 0.028 0.018 CER 0.100 0.448 0.154 0.098 0.383 0.146 0.199 0.358 0.225 0.161 0.347 0.201 NAR ::::: 
+
+0.119 :::: 
+
+0.452 ::::: 
+
+0.174 ::::: 
+
+0.135 :::: 
+
+0.442 ::::: 
+
+0.192 ::::: 
+
+0.233 :::: 
+
+0.385 ::::: 
+
+0.254 ::::: 
+
+0.195 :::: 
+
+0.381 ::::: 
+
+0.235 
+
+Ours 0.137 0.528 0.201 0.143 0.451 0.201 0.239 0.403 0.262 0.206 0.395 0.247   
+
+> (a) Performance evaluation (b) Explanation evaluation Fig. 6. Performance and explanation evaluation w/o cross-attention.
+
+E. Ablation Study 
+
+In this subsection, we investigate the effectiveness of the cross-attention mechanism employed in our proposed method. Figure 6 presents the results of Amazon-Beauty dataset w/o employing the cross-attention mechanism. It can be seen that the cross-attention mechanism is essential to enhance the performance of both the recommendation evaluation and the explanation evaluation. Similar trends are observed in other datasets. For brevity, we only present the key results.                                    
+
+> TABLE V TIME COST FOR VARIOUS METHODS ACROSS DATASETS
+> Methods Instruments Video Beauty Clothing Explanations
+> NCF 161’ 683’ 1006’ 1017’ ✗
+> VBPR 153’ 495’ 987’ 1042’ ✗
+> CER 309’ 1052’ 1471’ 1966’ ✓
+> NAR 569’ 942’ 1331’ 2336’ ✓
+> MANAS 4373’ 8297’ 132405’ 104453’ ✗
+> Ours 2532’ 4183’ 9539’ 10343’ ✓
+
+F. Computational Cost Analysis 
+
+In this subsection, we analyze the computational cost of our proposed method. The primary expense of our method lies in the bi-level architecture search. Specifically, the intra-layer search space comprises 4 choices, and the inter-layer search space consists of 18 choices, resulting in a total of 4 × 18 = 72 potential architectures. However, rather than performing an exhaustive discrete search, we relax the discrete space into a continuous, differentiable one. This relaxation allows us to employ gradient-based optimization methods, which are markedly more efficient than traditional techniques such as reinforcement learning or evolutionary algorithms. Table V summarizes the running times of each method. While the bi-level search introduces some computational overhead during the search phase, the continuous relaxation substantially reduces this burden. It leads to faster overall running times compared to conventional NAS techniques, such as MANAS. 
+
+> TABLE VI OBTAINED CROSS -ATTENTION AND INTERACTION FUNCTIONS
+
+Datasets Inputs Intra-layer Inter-layer 
+
+Instrument ˜fu, ˜fi, e i att 1 Plus 
+
+Video ˜fu, ˜fi, e i att 2 Concat 
+
+Beauty ˜fu, ˜fi att 2 Concat 
+
+Clothing ˜fu, ˜fi, e i, e u att 2 Concat , Multiply 
+
+G. Cross Attention and Interaction Functions Obtained 
+
+In this subsection, we show the cross-attention and inter-action functions that are obtained by our proposed method in Table VI. We observed that utilizing three inputs yields better performance on the small-scale datasets. Additionally, the construction of the cross-attention mechanism exhibits slight variations across different datasets. Furthermore, there is no definitive winner among all operations, and the optimal operation may depend on the dataset. These observations demonstrate that no single architecture consistently outper-forms the others, and there is no optimal architecture that works for all scenarios, supporting the notion that a universally optimal architecture is not feasible. These observations further underscore the necessity for our proposed method, which dynamically adjusts the architecture to match the specific needs and challenges of various datasets. This adaptability ensures that the recommendation model remains robust and effective across diverse contexts. V. R ELATED WORK 
+
+In this section, we briefly introduce relevant studies, focus-ing on explainable recommender systems and neural architec-ture search for recommendations. 
+
+Explainable Recommender Systems. Recent work has highlighted the importance of building reliable and trustwor-thy systems [33, 34]. Explanations for recommendations are essential to enhance transparency, trust, and user engagement. While traditional models like collaborative filtering [5] and matrix factorization [6] offer generic explanations, they often fail to capture individual user preferences. To address this, more advanced methods have emerged, including sentiment-aware models that analyze user reviews [15, 35], deep learning models like DeepCoNN that encode reviews for explainabil-ity [36, 37], and aspect-based methods that select informative sentences using attention mechanisms. Some approaches em-ploy path-based techniques [11, 12], while others utilize atten-tion mechanisms [7, 8]. Despite these advancements, designing attention architectures and path-based explanations requires extensive human effort. LLMs have recently demonstrated remarkable versatility in various tasks [38, 39]. However, directly relying on LLMs for explanation generation can lead to issues such as hallucination, factual inaccuracies, and incon-sistencies [40]. To address these challenges, we leverage NAS to automate architecture search, optimizing cross-attention structures and interaction functions. We then integrate LLMs to enhance explanation generation by the aligned features shared between users and items. 
+
+Neural Architecture Search. Designing effective neural architectures remains highly dependent on expert knowledge, making it challenging for non-experts and limiting the ex-ploration of novel architectures. To mitigate this, NAS au-tomates model design by optimizing network structures while minimizing human intervention [13]. The success of Zoph’s work [41] validated the feasibility of automated architecture search, leading to research focused on improving efficiency through parameter sharing [42], modular search spaces [43], and differentiable search strategies [44]. With advancements in NAS, researchers have applied these techniques to rec-ommendation systems. AutoField [45] automatically selects essential feature fields, while AutoCross [46] discovers high-order feature interactions in a structured search space. Aut-oFIS [47] identifies important feature interactions through an exhaustive enumeration approach, and AutoLoss [23] adapts loss functions for optimal model performance. More recently, NASRec [48] introduced weight-sharing supernets to gener-ate diverse recommendation architectures, while Meta’s latest studies emphasize the potential of NAS in ranking and rec-ommendation tasks [49, 50]. Despite the growing adoption of NAS in recommendations, little research has focused on im-proving model explainability. Most existing NAS approaches prioritize predictive accuracy, often overlooking the need for transparent and interpretable recommendations. To bridge this gap, we propose Bi-NAS, a novel approach that searches for optimal cross-attention mechanisms and interaction functions, enhancing both recommendation accuracy and explainability. VI. C ONCLUSION 
+
+The significance of explanations in recommender systems cannot be overstated. They serve as a critical link between users and recommended items, enhancing decision-making, building trust, and fostering user loyalty. Effective explana-tions can clarify the rationale behind algorithmic decisions and make the system more transparent and user-friendly. However, traditional explainable models aimed at providing explanations usually fail to achieve the desired level of interpretability that the users seek, and few studies are dedicated to quantifying the effectiveness of interpretable recommendation systems. Addi-tionally, most current methods require substantial time and expert knowledge for the intricate construction of explainable pathways, attention mechanisms, etc. While LLMs demon-strate notable versatility in generating natural language text, directly using them for explanation generation can introduce issues such as hallucination, factual inaccuracies, a lack of true personalization, and inconsistencies. To address these chal-lenges, this paper introduces a Bi-NAS framework. By jointly optimizing cross-attention structures and feature interaction functions, Bi-NAS promotes the generation of effective expla-nations and minimizes the dependency on expert knowledge. Furthermore, LLMs have been employed to enhance expla-nation generation from the aligned features shared between users and items and user history, enabling more personalized justifications. Our extensive experimental results demonstrate the efficacy of our method in enhancing recommender systems. This approach yields superior recommendations for the users while generating more effective explanations. ACKNOWLEDGEMENTS 
+
+We thank the anonymous reviewers for their constructive comments. This work is supported by the National Sci-ence Foundation under Award No. IIS-2339989 and No. 2406439, DARPA under contract No. HR00112490370 and No. HR001124S0013, U.S. Department of Homeland Secu-rity under Grant Award No. 17STCIN00001-08-00, Amazon-Virginia Tech Initiative for Efficient and Robust Machine Learning, Amazon AWS, Google, Cisco, 4-VA, Common-wealth Cyber Initiative, National Surface Transportation Safety Center for Excellence, and Virginia Tech. The views and conclusions are those of the authors and should not be interpreted as representing the official policies of the funding agencies or the government. REFERENCES [1] C. C. Aggarwal et al. , Recommender systems . Springer, 2016, vol. 1. [2] L. Wu, Y. Zhou, and D. Zhou, “Towards high-order complementary recommendation via logical reasoning network,” in 2022 IEEE Interna-tional Conference on Data Mining (ICDM) . IEEE, 2022. [3] K. Balog and F. Radlinski, “Measuring recommendation explanation quality: The conflicting goals of explanations,” in Proceedings of the 43rd international ACM SIGIR conference on research and development in information retrieval , 2020, pp. 329–338. [4] Y. Xian, T. Zhao, J. Li, J. Chan, A. Kan, J. Ma, X. L. Dong, C. Faloutsos, G. Karypis, S. Muthukrishnan et al. , “Ex3: Explainable attribute-aware item-set recommendations,” in Proceedings of the 15th ACM Conference on Recommender Systems , 2021, pp. 484–494. [5] J. B. Schafer, D. Frankowski, J. Herlocker, and S. Sen, “Collaborative filtering recommender systems,” in The adaptive web . Springer, 2007, pp. 291–324. [6] Y. Koren, R. Bell, and C. Volinsky, “Matrix factorization techniques for recommender systems,” Computer , vol. 42, no. 8, pp. 30–37, 2009. [7] X. Dong, J. Ni, W. Cheng, Z. Chen, B. Zong, D. Song, Y. Liu, H. Chen, and G. De Melo, “Asymmetrical hierarchical networks with attentive interactions for interpretable review-based recommendation,” in                
+
+> Proceedings of the AAAI conference on artificial intelligence , vol. 34, no. 05, 2020, pp. 7667–7674. [8] O. Barkan, Y. Fuchs, A. Caciularu, and N. Koenigstein, “Explainable recommendations via attentive multi-persona collaborative filtering,” in
+> Proceedings of the 14th ACM Conference on Recommender Systems ,2020, pp. 468–473. [9] X. Wang, Y. Wang, and Y. Ling, “Attention-guide walk model in heterogeneous information network for multi-style recommendation explanation,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 34, no. 04, 2020, pp. 6275–6282.
+
+[10] H. Chen, Y. Li, X. Sun, G. Xu, and H. Yin, “Temporal meta-path guided explainable recommendation,” in Proceedings of the 14th ACM international conference on web search and data mining , 2021, pp. 1056–1064. [11] S. Geng, Z. Fu, J. Tan, Y. Ge, G. De Melo, and Y. Zhang, “Path language modeling over knowledge graphsfor explainable recommendation,” in 
+
+Proceedings of the ACM Web Conference 2022 , 2022, pp. 946–955. [12] J. Zheng, J. Mai, and Y. Wen, “Explainable session-based recommen-dation with meta-path guided instances and self-attention mechanism,” in Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval , 2022. [13] P. Ren, Y. Xiao, X. Chang, P.-Y. Huang, Z. Li, X. Chen, and X. Wang, “A comprehensive survey of neural architecture search: Challenges and solutions,” ACM Computing Surveys (CSUR) , vol. 54, no. 4, 2021. [14] Y. Zhang, H. Zhang, M. Zhang, Y. Liu, and S. Ma, “Do users rate or review? boost phrase-level sentiment labeling with review-level sentiment classification,” in Proceedings of the 37th international ACM SIGIR conference on Research & development in information retrieval ,2014, pp. 1027–1030. [15] Y. Zhang, G. Lai, M. Zhang, Y. Zhang, Y. Liu, and S. Ma, “Explicit factor models for explainable recommendation based on phrase-level sentiment analysis,” in Proceedings of the 37th international ACM SIGIR conference on Research & development in information retrieval , 2014, pp. 83–92. [16] N. Wang, H. Wang, Y. Jia, and Y. Yin, “Explainable recommendation via multi-task learning in opinionated text data,” in The 41st international ACM SIGIR conference on research & development in information retrieval , 2018, pp. 165–174. [17] T. Chen, H. Yin, G. Ye, Z. Huang, Y. Wang, and M. Wang, “Try this instead: Personalized and interpretable substitute recommendation,” in Proceedings of the 43rd international ACM SIGIR conference on research and development in information retrieval , 2020, pp. 891–900. [18] J. Tan, S. Xu, Y. Ge, Y. Li, X. Chen, and Y. Zhang, “Counterfactual explainable recommendation,” in Proceedings of the 30th ACM Inter-national Conference on Information & Knowledge Management , 2021, pp. 1784–1793. [19] Y. Zhou, H. Wang, J. He, and H. Wang, “From intrinsic to counterfactual: On the explainability of contextualized recommender systems,” arXiv preprint arXiv:2110.14844 , 2021. [20] Q. Yao, X. Chen, J. T. Kwok, Y. Li, and C.-J. Hsieh, “Efficient neural interaction function search for collaborative filtering,” in Proceedings of The web conference 2020 , 2020, pp. 1660–1670. [21] M. Wistuba, A. Rawat, and T. Pedapati, “A survey on neural architecture search,” arXiv preprint arXiv:1905.01392 , 2019. [22] B. Zoph, V. Vasudevan, J. Shlens, and Q. V. Le, “Learning transferable architectures for scalable image recognition,” in Proceedings of the IEEE conference on computer vision and pattern recognition , 2018. [23] X. Zhao, H. Liu, W. Fan, H. Liu, J. Tang, and C. Wang, “Autoloss: Automated loss function search in recommendations,” in Proceedings of the 27th ACM SIGKDD Conference on Knowledge Discovery & Data Mining , 2021, pp. 3959–3967. [24] W. Lin, X. Zhao, Y. Wang, T. Xu, and X. Wu, “Adafs: Adaptive feature selection in deep recommender system,” in Proceedings of the 28th ACM SIGKDD Conference on Knowledge Discovery and Data Mining , 2022, pp. 3309–3317. [25] J. Ni, J. Li, and J. McAuley, “Justifying recommendations using distantly-labeled reviews and fine-grained aspects,” in Proceedings of the 2019 Conference on Empirical Methods in Natural Language Pro-cessing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP) , 2019, pp. 188–197. [26] A. Dubey, A. Jauhri, A. Pandey, A. Kadian, A. Al-Dahle, A. Letman, A. Mathur, A. Schelten, A. Yang, A. Fan et al. , “The llama 3 herd of models,” arXiv preprint arXiv:2407.21783 , 2024. [27] X. He, L. Liao, H. Zhang, L. Nie, X. Hu, and T.-S. Chua, “Neural col-laborative filtering,” in Proceedings of the 26th international conference on world wide web , 2017, pp. 173–182. [28] R. He and J. McAuley, “Vbpr: visual bayesian personalized ranking from implicit feedback,” in Proceedings of the AAAI conference on artificial intelligence , vol. 30, no. 1, 2016. [29] Y. Zhou, H. Wang, J. He, and H. Wang, “Based explainable recom-mendations: A transparency perspective,” ACM Transactions on Recom-mender Systems , 2024. [30] H. Chen, Y. Li, H. Zhu, and Y. Zhang, “Learn basic skills and reuse: Modularized adaptive neural architecture search (manas),” in 
+
+Proceedings of the 31st ACM International Conference on Information & Knowledge Management , 2022, pp. 169–179. [31] B. Abdollahi and O. Nasraoui, “Explainable matrix factorization for col-laborative filtering,” in Proceedings of the 25th International Conference Companion on World Wide Web , 2016, pp. 5–6. [32] Z. Chen, X. Wang, X. Xie, T. Wu, G. Bu, Y. Wang, and E. Chen, “Co-attentive multi-task learning for explainable recommendation.” in IJCAI ,2019, pp. 2137–2143. [33] L. Wu, B. Lei, D. Xu, and D. Zhou, “Towards reliable rare category analysis on graphs via individual calibration,” in Proceedings of the 29th ACM SIGKDD Conference on Knowledge Discovery and Data Mining ,2023, pp. 2629–2638. [34] L. Wu, “Towards trustworthy graph neural networks and their applica-tions in recommender systems,” in 2024 IEEE International Conference on Big Data (BigData) . IEEE, 2024, pp. 8250–8252. [35] X. He, T. Chen, M.-Y. Kan, and X. Chen, “Trirank: Review-aware explainable recommendation by modeling aspects,” in Proceedings of the 24th ACM international on conference on information and knowledge management , 2015, pp. 1661–1670. [36] L. Zheng, V. Noroozi, and P. S. Yu, “Joint deep modeling of users and items using reviews for recommendation,” in Proceedings of the tenth ACM international conference on web search and data mining , 2017, pp. 425–434. [37] R. Catherine and W. Cohen, “Transnets: Learning to transform for recommendation,” in Proceedings of the eleventh ACM conference on recommender systems , 2017, pp. 288–296. [38] T. Zeng, L. Wu, L. Shi, D. Zhou, and F. Guo, “Are vision llms road-ready? a comprehensive benchmark for safety-critical driving video understanding,” in Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 2 , 2025, pp. 5972–5983. [39] T. Wang, A. Kulkarni, T. Cody, P. A. Beling, Y. Yan, and D. Zhou, “Genuine: Graph enhanced multi-level uncertainty estimation for large language models,” arXiv preprint arXiv:2509.07925 , 2025. [40] S. Lubos, T. N. T. Tran, A. Felfernig, S. Polat Erdeniz, and V.-M. Le, “Llm-generated explanations for recommender systems,” in Adjunct Proceedings of the 32nd ACM Conference on User Modeling, Adaptation and Personalization , 2024, pp. 276–285. [41] B. Zoph and Q. V. Le, “Neural architecture search with reinforcement learning,” in 5th International Conference on Learning Representations, ICLR 2017, Toulon, France, April 24-26, 2017, Conference Track Proceedings , 2017. [42] H. Pham, M. Guan, B. Zoph, Q. Le, and J. Dean, “Efficient neural architecture search via parameters sharing,” in International conference on machine learning . PMLR, 2018, pp. 4095–4104. [43] C. Li, J. Peng, L. Yuan, G. Wang, X. Liang, L. Lin, and X. Chang, “Block-wisely supervised neural architecture search with knowledge distillation,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2020, pp. 1989–1998. [44] H. Liu, K. Simonyan, and Y. Yang, “Darts: Differentiable architecture search,” arXiv preprint arXiv:1806.09055 , 2018. [45] Y. Wang, X. Zhao, T. Xu, and X. Wu, “Autofield: Automating feature selection in deep recommender systems,” in Proceedings of the ACM Web Conference 2022 , 2022, pp. 1977–1986. [46] Y. Luo, M. Wang, H. Zhou, Q. Yao, W.-W. Tu, Y. Chen, W. Dai, and Q. Yang, “Autocross: Automatic feature crossing for tabular data in real-world applications,” in Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining ,2019. [47] B. Liu, C. Zhu, G. Li, W. Zhang, J. Lai, R. Tang, X. He, Z. Li, and Y. Yu, “Autofis: Automatic feature interaction selection in factorization models for click-through rate prediction,” in proceedings of the 26th ACM SIGKDD international conference on knowledge discovery & data mining , 2020, pp. 2636–2645. [48] T. Zhang, D. Cheng, Y. He, Z. Chen, X. Dai, L. Xiong, F. Yan, H. Li, Y. Chen, and W. Wen, “Nasrec: weight sharing neural architecture search for recommender systems,” in Proceedings of the ACM Web Conference 2023 , 2023, pp. 1199–1207. [49] W. Wen, K.-H. Liu, I. Fedorov, X. Zhang, H. Yin, W. Chu, K. Hassani, M. Sun, J. Liu, X. Wang et al. , “Rankitect: Ranking architecture search battling world-class engineers at meta scale,” arXiv preprint arXiv:2311.08430 , 2023. [50] H. Yin, K.-H. Liu, M. Sun, Y. Chen, B. Zhang, J. Liu, V. Sehgal, R. R. Panchal, E. Hotaj, X. Liu et al. , “Automl for large capacity modeling of meta ranking systems,” arXiv preprint arXiv:2311.07870 , 2023.

@@ -1,0 +1,804 @@
+Title: LBR: Towards Mitigating Length Bias in Large Language Models for Recommendation
+
+URL Source: https://arxiv.org/pdf/2607.04270v1
+
+Published Time: Tue, 07 Jul 2026 02:39:40 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# LBR: Towards Mitigating Length Bias in Large Language Models for Recommendation 
+
+# Hongchen Li †‡ 
+
+void_jack@zju.edu.cn Zhejiang University Hangzhou, Zhejiang, China 
+
+# Bohao Wang †‡ 
+
+bohao.wang@zju.edu.cn Zhejiang University Hangzhou, Zhejiang, China 
+
+# Jingbang Chen 
+
+chenjb@cuhk.edu.cn The Chinese University of Hong Kong Hong Kong, China 
+
+# Weiqin Yang †‡ 
+
+tinysnow@zju.edu.cn Zhejiang University Hangzhou, Zhejiang, China 
+
+# Hang Pan 
+
+hungpaan@mail.ustc.edu.cn University of Science and Technology of China Hefei, Anhui, China 
+
+# Bingde Hu 
+
+tonyhu@zju.edu.cn Bangsun Technology Hangzhou, China 
+
+# Can Wang †‡ 
+
+wcan@zju.edu.cn Zhejiang University Hangzhou, Zhejiang, China 
+
+# Jiawei Chen ∗†‡ 
+
+sleepyhunt@zju.edu.cn Zhejiang University Hangzhou, Zhejiang, China 
+
+## Abstract 
+
+Large language models (LLMs) have recently emerged as powerful backbones for recommender systems by reformulating recommen-dation as a token-level generation task. Despite their promise, we identify a pervasive yet underexplored issue: Length Bias . Because items are represented by textual descriptions of varying lengths, LLM-based recommenders can be systematically biased in two ways. On the input side, longer item descriptions occupy more tokens in the context and thus receive disproportionately large aggregate at-tention mass during user preference modeling. On the output side, decoding based on summed autoregressive log-likelihood score inherently disfavors long items. Worse still, conventional length normalization can introduce an additional bias and even degrade recommendation performance. To address this problem, we propose LBR (Length Bias Reduction), a lightweight and model-agnostic framework for mitigating length bias in LLM-based recommendation. LBR mitigates input-side bias via Length-Aware Attention Calibration , which incorporates a length-dependent offset into attention logits to neutralize attention skew. For the output side, LBR introduces Effective Information Length Normalization , replacing naive token count with an information-theoretic length surrogate derived from the branching structure of  
+
+> ∗Corresponding author.
+> †State Key Laboratory of Blockchain and Data Security, Zhejiang University.
+> ‡College of Computer Science and Technology, Zhejiang University. Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than the author(s) must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+> Preprint, Hangzhou, China
+> ©2026 Copyright held by the owner/author(s). Publication rights licensed to ACM. ACM ISBN XXX-X-XXXX-XXXX-X/XXXX/XX https://doi.org/XXXXXXX.XXXXXXX
+
+the prefix tree. Extensive experiments on three real-world Ama-zon datasets and two representative LLM-based recommenders demonstrate that LBR substantially alleviates length bias while consistently improving recommendation accuracy and fairness, with negligible additional training and inference overhead (with an average NDCG@5 gain of 16 .82% ). The code is available at https://github.com/Void-JackLee/LBR. 
+
+## CCS Concepts 
+
+• Information systems → Recommender systems .
+
+## Keywords 
+
+Sequential Recommendation; Large Language Models; Bias 
+
+ACM Reference Format: 
+
+Hongchen Li, Bohao Wang, Jingbang Chen, Weiqin Yang, Hang Pan, Bingde Hu, Can Wang, and Jiawei Chen. 2026. LBR: Towards Mitigating Length Bias in Large Language Models for Recommendation. In Proceedings of arXiv Preprint (Preprint). ACM, New York, NY, USA, 12 pages. https://doi.org/ XXXXXXX.XXXXXXX 
+
+## 1 Introduction 
+
+Large Language Models (LLMs) have demonstrated remarkable progress across a wide range of domains [ 41 , 42 , 62 ], prompting a growing body of research to investigate their application in recom-mender systems (RS) [ 58 ]. A prominent paradigm is LLM-based rec-ommendation [ 3, 5 , 23 , 25 , 29 , 48 , 54 , 56 , 57 , 68 , 69 ], which directly employs an LLM as the recommendation backbone. As illustrated in Figure 1, this paradigm typically reformulates recommendation as a token-level language generation task. It first represents items using textual descriptions ( e.g., titles), and then constructs lan-guage prompts from users’ historical interactions to instruct LLMs to predict their future preferences. During inference, the model autoregressively generates an item description token by token, typ-ically using Constrained Beam Search (CBS) [ 18 ], where decoding is  
+
+> arXiv:2607.04270v1 [cs.IR] 5 Jul 2026 Preprint, 2026, Hangzhou, China Hongchen Li et al. Instructions
+
+LLM Recommender 
+
+> E
+> M
+> B
+> E
+> D
+> D
+> E
+> R
+
+…
+
+> M
+> L
+> P
+> Tokenized
+
+Instruction Template                 
+
+> #Response Rainbow Drawing Art Ki t
+> Instruction: Please recommend a Toy
+> to the user .
+> Input: The user has played:
+> Doll
+> Race Car
+> Ballet Dance Dress Up Magic Fairy Wand
+> Output: #Response
+> Rainbow Drawing Art Kit
+
+Generate by CBS             
+
+> Magic Fairy Wand Doll Ballet Dance Dress Up
+> More attention get !
+> Race Car <EOS>
+> Shorter Item
+> Higher Score
+> Longer Item
+> Lower Score
+
+Figure 1: Illustration of LLM-based recommendations and length bias, wherein item length affects attention accumulation values and score computation during Trie-Constrained decoding. Longer items will get more attention, meanwhile shorter items are preferred by decoding. Short  
+
+> But Hard
+> More Choices
+> Less Choices
+> The
+> Iron
+> Man
+> Dog
+> :
+> Avengers
+> One
+> of
+
+:   
+
+> David Garden
+> Return
+> Wars
+> New Era
+> Easy
+> But Long The Init
+> Infinity
+> War
+
+Figure 2: Visualization of Trie-Constrained decoding. During decoding, the token generated at each step is constrained to a set of valid tokens, and the size of this valid-token set varies across steps. 
+
+guided by a prefix tree ( i.e., Trie) to strictly confine token selection to valid catalog items ( cf. Figure 2). Despite these promising advances, we identify a pervasive length bias in LLM-based recommendation: in practice, items often vary substantially in the length of their textual descriptions ( e.g., titles and summaries), leading to systematic bias in recommendation from two aspects: 
+
+• Input-Side Length Bias in Self-Attention Modeling. LLMs are fundamentally built upon token-wise self-attention mech-anisms. However, in recommendation scenarios, items with longer token sequences are naturally over-represented in the input context, and therefore tend to receive disproportionately larger aggregate attention mass during modeling ( cf. Figure 1). Consequently, longer items may exert an outsized influence on the modeling of user preference and further skew recommen-dation generation, irrespective of their actual relevance to the user’s underlying interests. 
+
+• Output-Side Length Bias in Constrained Decoding. Dur-ing the decoding, items are retrieved by scoring their textual realizations using the autoregressive log-likelihood. Since log-probabilities are non-positive, longer sequences accumulate more negative terms and therefore tend to receive lower scores (cf. Figure 5b). A widely adopted remedy is length normaliza-tion , which discounts scores by their token length. However, we find this strategy fails in recommendation scenarios — biasing recommendations toward longer items and degrading overall accuracy. The key reason is that tokens are not equally informa-tive under Trie-constrained decoding: some tokens appear at high-branching Trie nodes and thus carry greater uncertainty, whereas others appear at low-branching nodes and are much easier to predict. Since longer items often contain a higher pro-portion of low-branching, high-probability tokens ( cf. Figure 2), naively dividing by the total token length can artificially inflate the scores of longer items. These findings motivate our core research question: How can we mitigate length bias in LLM-based recommenders? 
+
+To address these challenges, we propose LBR (Length Bias 
+
+Reduction), a lightweight and model-agnostic framework that miti-gates length bias at both stages. For attention, LBR performs Length-Aware Attention Calibration by introducing a length-dependent off-set into the attention logits, dynamically neutralizing the attention skew incurred by heterogeneous item lengths. For decoding, LBR introduces Effective Information Length Normalization . Departing from naive token-count length, this module quantifies token infor-mativeness using the branching factor at each step. Specifically, LBR quantifies token-level informativeness based on Hartley entropy [2 ] derived from its branch width, and aggregates these values as an information-theoretic length surrogate for each item. This metric explicitly accounts for differences in branching factors and can be interpreted as the number of equivalent binary decisions required LBR: Towards Mitigating Length Bias in Large Language Models for Recommendation Preprint, 2026, Hangzhou, China 
+
+to identify an item. By normalizing scores with this information-aware length, LBR enables a fairer comparison among candidates with heterogeneous textual lengths and decoding structures. Notably, LBR is easy to implement and computationally efficient, requiring only the addition of a lightweight offset term to the atten-tion computation and to each decoding step. Moreover, it can be seamlessly integrated into a variety of LLM-based recommender sys-tems, improving both accuracy and fairness. Extensive experiments on three real-world datasets and two representative LLM-based recommendation backbones show that LBR substantially mitigates length bias while consistently enhancing recommendation accu-racy and fairness, with negligible additional training and inference overhead. In summary, our contributions are as follows: 
+
+• We identify and analyze the length bias present in LLM-based recommender systems and show that it can negatively affect both recommendation accuracy and fairness. 
+
+• We propose LBR, an efficient and plug-and-play debiasing method that mitigates length bias in both attention and decoding. 
+
+• We conduct extensive experiments on three real-world datasets, demonstrating that LBR achieves state-of-the-art performance while effectively alleviating length bias. 
+
+## 2 Preliminaries 
+
+This section presents the essential background of LLM-based rec-ommendation systems (Subsection 2.1) and attention mechanisms (Subsection 2.2). 
+
+## 2.1 LLM-based Recommendation 
+
+Following prior work [ 3 , 5, 29 , 30 , 38 , 67 ], we study sequential rec-ommendation (SR), a widely deployed setting in real-world recom-mender systems. Let I denote the item set. Given a user’s historical interaction sequence 𝑆 = {𝑖 1, 𝑖 2, . . . , 𝑖 𝑛 }, where 𝑖 𝑡 ∈ I denotes the 
+
+𝑡 -th interacted item, the goal is to predict the next item 𝑖 𝑛 +1 that the user is most likely to interact with. Motivated by the strong semantic understanding and reasoning capabilities of large language models (LLMs) [ 1, 13 , 16 , 50 ], recent studies have explored LLMs for SR by reformulating recommen-dation as a language generation problem. Such methods typically comprise two components: 
+
+(1) Prompt construction : As illustrated in Figure 1, an LLM-based recommender first represents each item 𝑖 𝑡 using its textual descrip-tion (e.g., title), x𝑡 = (𝑥 𝑡, 1, 𝑥 𝑡, 2, . . . , 𝑥 𝑡, |x𝑡 | ), where 𝑥 𝑡,𝑗 is the 𝑗 -th token and |x𝑡 | is the token sequence length. It then flattens and con-catenates item descriptions, optionally interleaved with auxiliary tokens (e.g., task instructions, separators), to construct a prompt: 
+
+X =  . . . , (𝑥 1,1, 𝑥 1,2, . . . , 𝑥 1,|x1 | ), . . . , (𝑥 𝑡, 1, 𝑥 𝑡, 2, . . . , 𝑥 𝑡, |x𝑡 | ), . . .  .
+
+(2) Item generation: Given the prompt X, the LLM autoregres-sively generates the token sequence of the predicted item 𝑦 =
+
+(𝑦 1, . . . , 𝑦 |𝑦 | ) according to the conditional probability 𝑃 𝜃 (𝑦 𝑘 |𝑦 <𝑘 , X),where 𝑦 𝑘 is the 𝑘 -th token of 𝑦 , 𝑦 <𝑘 denotes the prefix tokens preceding 𝑦 𝑘 , and 𝜃 denotes model parameters. During decoding, constrained beam search is often used to improve efficiency and ensure validity. Specifically, it extends partial sequences by select-ing high-probability next tokens while enforcing that each prefix corresponds to a valid item in the system. This procedure can be interpreted as sequential decision-making over a prefix tree (Trie), where generation corresponds to traversing from the root to a leaf node. 
+
+## 2.2 Attention Mechanism 
+
+Modern LLMs are typically built on the Transformer architecture, whose core operation is the self-attention mechanism [ 51 ]. Given an input sequence X = (𝑥 1, . . . , 𝑥 𝐿 ), each token 𝑥 𝑢 aggregates in-formation from other tokens 𝑥 𝑣 using attention weights A𝑢𝑣 :
+
+O𝑢 =
+
+> 𝐿
+
+∑︁ 
+
+> 𝑣 =1
+
+A𝑢𝑣 V𝑣 (1) 
+
+A𝑢𝑣 = Softmax 𝑣 
+
+ Q𝑢 K⊤
+
+> 𝑣
+
+√𝑑 + M𝑢𝑣 
+
+
+
+. (2) Here, O𝑢 represents the output representation of token 𝑥 𝑢 after in-tegrating information from other tokens. The query, key, and value matrices (Q, K, V) are obtained from the input token embeddings via learned linear projections, and 𝑑 denotes the embedding dimension. During autoregressive generation, the causal mask M prevents the token from attending to future positions. Intuitively, self-attention captures contextual dependencies by assigning context-dependent weights to other tokens, thereby modeling token-level interactions across the sequence. 
+
+## 3 Length Bias in LLM-based RS 
+
+LLM-based recommenders model user preferences at the token level by encoding item texts and exploiting self-attention and au-toregressive decoding. While this paradigm has shown promising results [ 3 , 54 ], it introduces a critical side effect: Length Bias . In real-world platforms, items exhibit substantial variation in textual description length (e.g., titles and summaries), which can system-atically bias both (i) attention-based preference modeling and (ii) decoding-based item scoring. Such biases may degrade recommen-dation accuracy and raise fairness concerns. We detail these two effects below. 
+
+## 3.1 Length Bias in Attention 
+
+LLM-based recommenders represent each historical item 𝑖 𝑡 as a token sequence x𝑡 with length |x𝑡 |, and then model fine-grained token interactions via self-attention to infer user preference. How-ever, the lengths |x𝑡 | can vary widely across items — an ubiquitous and often unavoidable phenomenon, since different items naturally require different amounts of text to describe their semantics. This variation can induce a length advantage in attention: items with longer sequences contribute more tokens to the input and therefore provide more opportunities to receive attention. Consequently, an item may exert a larger influence on the model prediction simply due to having more tokens, rather than being more relevant to the user’s preference. To verify this intuition, we quantify each item’s attention effect by accumulating the attention weights assigned to its tokens when predicting the next item. Figure 3 shows a clear positive correla-tion between item length and cumulative attention, indicating that longer items tend to exert disproportionately larger influence on predictions. We also empirically verified this via a feature ablation Preprint, 2026, Hangzhou, China Hongchen Li et al. 10 20 30    
+
+> 0.006
+> 0.008
+> Toy
+> 10 20
+> 0.004
+> 0.006
+> 0.008
+> Book
+> 20 40 60
+> 0.003
+> 0.004
+> 0.005
+> 0.006
+> Office
+> Item Token Length
+> Attention Weight
+
+Figure 3: Illustration of the relationship between an item’s cu-mulative attention weight in prediction and its token length. 
+
+study [ 36 ] measuring each historical item’s cumulative token effect on the generated recommendation (detailed in Appendix B). This passive amplification can distort preference inference and skew recommendation outcomes. 
+
+Limitations of naive strategies. A straightforward mitigation is to enforce equal-length item representations, for example via padding/truncation or by summarizing item descriptions to a fixed token budget. However, these operations may alter or remove se-mantically critical content and disrupt the original textual structure, leading to degraded recommendation quality. Our experiments in Appendix D confirm that such preprocessing yields no consistent gains and can even hurt performance. Another potential solutions are to tokenize item text into discrete semantic IDs (e.g., via quanti-zation methods such as RQ-VAE [ 43 ]). While this reduces length variation, it weakens the advantages of LLMs: discrete codes are less interpretable, may hinder direct semantic understanding in nat-ural language, and typically require substantial additional training data to learn the mapping between codes and semantics. We have also test such strategies in the standard LLM-based recommenda-tion experimental setting and observe suboptimal performance ( cf. 
+
+Appendix D). 
+
+## 3.2 Length Bias in Decoding 
+
+In LLM-based recommendation, items are generated by scoring their textual realizations using the autoregressive log-likelihood with: 
+
+𝑠 (𝑦 ) = 
+
+> |𝑦 |
+
+∑︁ 
+
+> 𝑘 =1
+
+log 𝑃 𝜃 (𝑦 𝑘 |𝑦 <𝑘 , X) (3) This scoring function inherently favors shorter items. Because log-probabilities are non-positive, longer sequences accumulate more negative terms and therefore tend to receive lower scores (cf. Figure 5a). This length bias can affect not only accuracy but also fairness and broader ecosystem incentives (e.g., by encourag-ing providers to adopt unnaturally short titles). We also examine item interaction frequencies across length groups to verify that popularity does not affect our findings (detailed in Appendix C). 
+
+Limitations of length normalization. A common remedy is introducing length normalization ( a.k.a. length penalty): 
+
+𝑠 (𝑦 ) = 1
+
+|𝑦 |𝛼  
+
+> |𝑦 |
+
+∑︁ 
+
+> 𝑘 =1
+
+log 𝑃 𝜃 (𝑦 𝑘 |𝑦 <𝑘 , X) (4) where 𝛼 is a hyperparameter that controls the strength of the penalty. Intuitively, this transformation converts the cumulative 1-3 4-6 7-9 10-18 19-21 22-1182      
+
+> Number of valid tokens
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> Average Probability
+> Book
+> 1-20 21-24 25-28 29-32 33-39 40-883
+> Number of valid tokens
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> Toy
+
+Figure 4: Average probability distribution across number of valid tokens. Tokens at low-branching nodes often receive high probabilities. 
+
+score into an average-like score. However, we find that this heuris-tic can bias recommendations toward longer items ( cf. Figure 5b) and may even degrade recommendation accuracy even when 𝛼 
+
+approaching 0 (cf. Appendix A). We attribute this failure to a key oversight: length normalization treats all tokens as equally informative . In LLM-based recommen-dation, decoding is often constrained by a prefix tree (Trie) over valid item tokens. Under such constraints, token prediction diffi-culty varies substantially across Trie nodes: some positions have many feasible tokens (high branching factor) and are inherently uncertain, while others have only a few options and are easy to predict with high probability. Empirically, tokens at low-branching nodes often receive higher probabilities, whereas tokens at high-branching nodes receive much lower probabilities ( cf. Figure 4). Longer item often contain a higher fraction of “easy” tokens. There-fore, dividing by |𝑦 |𝛼 without accounting for token informativeness can unintentionally inflate the scores of long items. 
+
+Limitations of D3 [ 4]. A related work D3 also attempts to mitigate the issue that length normalization tends to amplify the scores of items containing many tokens with probabilities close to 1 (“ghost tokens”). D3 empirically observes that, after removing such ghost tokens, the effective lengths of all items become nearly identical. Based on this observation, D3 adopts a simple strategy that completely removes length normalization by setting 𝛼 = 0. However, this overly coarse approach fails to effectively alleviate length bias. As reflected in our experiments and also reported in D3, the best recommendation performance is often achieved when 
+
+𝛼 is close to 0, under which substantial length bias still remains (cf. Figure 5a). Moreover, D3 still does not explicitly distinguish or quantify the informativeness of tokens at multi-branch nodes, despite the fact that such tokens are prevalent and play a crucial role in score computation. 
+
+## 4 Methodology 
+
+In this section, we present LBR (Length Bias Reduction), a novel framework designed to mitigate length bias in both the attention-based preference modeling and the decoding-based item scoring. LBR: Towards Mitigating Length Bias in Large Language Models for Recommendation Preprint, 2026, Hangzhou, China 3-5 5-9 9-12 12-16 16-36                
+
+> Length Group
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> Frequency
+> Book
+> 7-22 22-28 28-32 32-37 37-138
+> Length Group
+> 0.0
+> 0.1
+> 0.2
+> 0.3 Office
+> (a) Without length penalty 3-5 5-9 9-12 12-16 16-36
+> Length Group
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> Frequency
+> Book
+> 7-22 22-28 28-32 32-37 37-138
+> Length Group
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4 Office (b) With standard length penalty
+
+Figure 5: Illustration of length bias in decoding. Items are partitioned into five groups by token length, with each group containing the same cumulative item frequency in the test set. The dashed line denotes the ideal exposure distribution of each group implied by the test data. (a) Without length penalty, the model is strongly biased toward shorter items. (b) Standard length normalization shifts the bias toward longer items. 
+
+## 4.1 Length-Aware Attention Calibration 
+
+Section 3.1 shows that, in LLM-based SR, an item’s cumulative attention weight tends to increase with the length of its textual description, producing an undesirable positive correlation between attention influence and token length. For convenience, we denote such inherent bias as 𝑔 (𝑙 ), a mapping function from item length 𝑙 to the expected cumulative attention mass ( i.e., the length–attention trend). To counteract this bias, we introduce a length-dependent offset term into the attention logits, which downweights tokens from long items and upweights tokens from short items. Formally, we modify the attention weight from Eq.2 into: 
+
+A′ 
+
+> 𝑢𝑣
+
+= Softmax 𝑣 
+
+ Q𝑢 K⊤
+
+> 𝑣
+
+√𝑑 + M𝑢𝑣 + 𝛿 (𝑙 𝑣 )
+
+
+
+. (5) where 𝑙 𝑣 denotes the length of the item to which token 𝑣 belongs. For those auxiliary tokens, we simply set 𝑙 𝑣 as the average lengths of the items on the historical interactions. We further set: 
+
+𝛿 (𝑙 𝑣 ) = − log (𝑔 (𝑙 𝑣 )) (6) Intuitively, because softmax applies an exponential transfor-mation to logits, subtracting log (𝑔 (𝑙 𝑣 )) in the logit space approxi-mately cancels the multiplicative “length advantage” induced by 
+
+𝑔 (𝑙 𝑣 ), thereby reducing the correlation between cumulative atten-tion mass and item length. In Appendix F, we provide an theoretical analysis showing that, under mild assumptions, the expected cumu-lative attention weights becomes approximately length-invariant after calibration ( cf. Lemma 1). Empirically, we observe that this cal-ibration substantially reduces attention length bias ( cf. Section 5.4). In practice, we model 𝑔 (𝑙 ) as a simple linear function, i.e., 𝑔 (𝑙 ) =
+
+𝑎𝑙 + 𝑏 . The reasons are multiple folds: (1) it well approximates the linear trend observed in Figure 3 and (2) it ensures ease of implementation and optimization. Although more complex non-linear models possess higher expressivity, we found they provide negligible empirical gains over the linear counterpart. Now the question lies in how to learn this function. We could estimate it directly from historical training data as depicted in Figure 3, but this inevitably requires an additional training stage. In practice, we jointly optimize the parameters of this function and the recommendation model through end-to-end training, guided by the primary recommendation objective. We find that to achieve better recommendation performance, the model adaptively learns an effective 𝑔 (𝑙 ) to alleviate the bias issue. 
+
+## 4.2 Decoding with Effective Information Length 
+
+Section 3.2 shows that decoding based on cumulative log-likelihood systematically favors short items, whereas conventional length nor-malization conversely skew recommendation toward long items and even degrade recommendation performance. We attribute this failure to a key oversight: tokens differ in informativeness under Trie-Constrained decoding. Some positions admit many valid to-kens (high branching factor), including high uncertainty and high information content, while others are nearly deterministic (low branching factor) and carry little information. Normalizing by the raw token count ignores this heterogeneity and can disproportion-ately benefit items ( e.g., longer ones) that contain a high proportion of low-branch tokens. To tackle this issue, we first define a token information score using Hartley entropy [ 2 ] to quantify the token-level informative-ness: 
+
+𝜇 𝑘 = log 2 |V 𝑘 |. (7) where V𝑘 denotes the set of valid tokens at step 𝑘 under the Trie constraint. This choice is motivated by information theory: the maximum information content of a discrete decision is bounded by the size of its feasible decision set. We then replace physical length with Effective Information Length (EIL) . For a candidate item sequence 𝑦 = (𝑦 1, 𝑦 2, . . . , 𝑦 |𝑦 | ), we define: 
+
+𝑈 𝑦 = 
+
+> |𝑦 |
+
+∑︁ 
+
+> 𝑘 =1
+
+𝜇 𝑘 = 
+
+> |𝑦 |
+
+∑︁ 
+
+> 𝑘 =1
+
+log 2 |V 𝑘 |. (8) which measures the total uncertainty (in bits) that must be resolved along the Trie path to uniquely identify 𝑦 . Using 𝑈 𝑦 as a normal-ization factor yields a score that reflects confidence per unit of information , rather than per token. Finally, we compute an information-normalized score as: 
+
+𝑠 EIF (𝑦 ) = 1
+
+𝑈 𝑦  
+
+> |𝑦 |
+
+∑︁ 
+
+> 𝑘 =1
+
+𝜇 𝑘 · log 𝑃 𝜃 (𝑦 𝑘 | 𝑦 <𝑘 , 𝑋 ) . (9) Preprint, 2026, Hangzhou, China Hongchen Li et al. 
+
+Table 1: The performance comparison on three real-world datasets. The LLM-based RS methods are applied ("+") on the BIGRec and LLaRA backbone. The best result is bolded. "Imp.%" denotes the improvement of LBR over the best baseline. "N" represents NDCG, and "H" represents Hit Ratio. The improvements are statistically significant (p<0.05). Toy Office Book Methods N@5 N@10 H@5 H@10 N@5 N@10 H@5 H@10 N@5 N@10 H@5 H@10 
+
+SASRec 0.0089 0.0109 0.0148 0.0211 0.0127 0.0196 0.0223 0.0447 0.0061 0.0080 0.0100 0.0157 DROS 0.0105 0.0126 0.0148 0.0213 0.0195 0.0240 0.0265 0.0405 0.0072 0.0096 0.0116 0.0192 LLM-CF 0.0077 0.0101 0.0148 0.0223 0.0161 0.0200 0.0306 0.0426 0.0077 0.0100 0.0141 0.0212 DLLM2Rec 0.0080 0.0110 0.0156 0.0248 0.0166 0.0231 0.0322 0.0530 0.0068 0.0094 0.0112 0.0194 BIGRec 0.0123 0.0155 0.0209 0.0305 0.0105 0.0226 0.0213 0.0587 0.0062 0.0090 0.0116 0.0201 +D3 0.0130 0.0162 0.0204 0.0302 0.0142 0.0237 0.0291 0.0592 0.0058 0.0081 0.0110 0.0180 +CFT 0.0138 0.0173 0.0217 0.0325 0.0183 0.0272 0.0306 0.0582 0.0060 0.0092 0.0103 0.0205 +S-DPO 0.0181 0.0227 0.0288 0.0432 0.0209 0.0292 0.0374 0.0629 0.0082 0.0102 0.0125 0.0189 +Reweight 0.0084 0.0121 0.0146 0.0261 0.0053 0.0122 0.0125 0.0338 0.0051 0.0070 0.0100 0.0160 +IGD 0.0191 0.0239 0.0273 0.0421 0.0187 0.0266 0.0312 0.0566 0.0064 0.0084 0.0110 0.0171 
+
++LBR 0.0195 0.0241 0.0315 0.0459 0.0224 0.0321 0.0457 0.0758 0.0098 0.0112 0.0167 0.0213 Improvement 2.09% 0.84% 9.38% 6.25% 7.18% 9.93% 22.19% 20.51% 19.51% 9.80% 18.44% 0.47% 
+
+LLaRA 0.0136 0.0169 0.0213 0.0313 0.0108 0.0236 0.0218 0.0613 0.0073 0.0096 0.0128 0.0201 +D3 0.0137 0.0172 0.0209 0.0315 0.0116 0.0240 0.0234 0.0618 0.0066 0.0094 0.0112 0.0194 +CFT 0.0151 0.0179 0.0232 0.0317 0.0168 0.0254 0.0337 0.0597 0.0077 0.0102 0.0144 0.0210 +S-DPO 0.0167 0.0219 0.0286 0.0446 0.0101 0.0216 0.0213 0.0577 0.0050 0.0068 0.0098 0.0153 +Reweight 0.0094 0.0133 0.0163 0.0286 0.0106 0.0185 0.0234 0.0478 0.0066 0.0083 0.0121 0.0173 +IGD 0.0137 0.0174 0.0202 0.0317 0.0099 0.0212 0.0229 0.0582 0.0068 0.0097 0.0114 0.0203 
+
++LBR 0.0208 0.0253 0.0334 0.0474 0.0213 0.0300 0.0353 0.0623 0.0093 0.0111 0.0157 0.0212 Improvement 24.55% 15.53% 16.78% 6.28% 26.79% 18.11% 4.75% 0.81% 20.78% 8.82% 9.03% 0.95% Table 2: Dataset statistics Dataset #Users #Items #Interactions Density Toy 19124 11758 165247 0.0735% 
+
+Office 4895 2414 53149 0.4498% 
+
+Book 16559 6344 151928 0.1446% which can be interpreted as the average log-likelihood per bit of information content. Compared with the standard cumulative log-likelihood, this formulation (i) normalizes by effective information length 𝑈 𝑦 rather than |𝑦 |, thereby accounting for token-level dif-ferences in information content and prediction difficulty; and (ii) weights each token’s log-probability by its informativeness 𝜇 𝑘 . This design matches our intuition: a highly branched node (large valid tokens set) corresponds to a more informative decision in and should be more important, whereas near-deterministic nodes are less informative and should contribute less. 
+
+Intuition via a binary-decision view. An equivalent intuition is to transform the original Trie into an implicit binary decision tree: choosing among 𝐻 branches requires approximately log 2 𝐻 
+
+binary decisions. Accordingly, a Trie node with branching factor 
+
+𝐻 can be viewed as expanding into an equivalent subtree of depth 
+
+log 2 𝐻 in the binary-decision tree. Under this view, Eq. 7 measures the per-step “binary decision depth”, and 𝑈 𝑦 becomes the effective decision length of item |𝑦 | measured in uniform binary choices ( cf. 
+
+Appendix E). 
+
+## 4.3 Practical Advantages 
+
+Easy to implement and model-agnostic. LBR only modifies (i) attention logits via an additive offset and (ii) decoding scores via information-based weights and normalization, requiring minimal code changes. It can be integrated into a broad range of LLM-based backbones. In our experiments, LBR consistently improves represen-tative backbones (e.g., BIGRec [ 3] and LLaRA [ 29 ]) ( cf. Section 5.2). 
+
+Efficiency. The calculation of additive offset 𝛿 (𝑙 𝑣 ) and informa-tion score 𝜇 𝑘 is highly efficient with only 𝑂 (𝑁 ) complexity, where 
+
+𝑁 denotes the total number of tokens in both the input and the generated output. Empirical results ( cf. Section 5.5) further show that LBR introduces almost no additional cost, demonstrating its practical efficiency. 
+
+## 5 Experiments 
+
+We aim to answer the following research questions: 
+
+• RQ1: How does LBR perform compared to SOTA methods? 
+
+• RQ2: How do different components of LBR affect? 
+
+• RQ3: Does LBR mitigate length bias? 
+
+• RQ4: How does LBR perform compared with baselines in terms of efficiency? LBR: Towards Mitigating Length Bias in Large Language Models for Recommendation Preprint, 2026, Hangzhou, China 
+
+Table 3: Ablation study of LBR on NDCG@5. “w/o LAAC”, “w/o EILN”, and “w/o Both” indicate removing Length-Aware Attention Calibration, Effective Information Length Normal-ization, and both components, respectively. Toy Office Book 
+
+LBR 0.0195 0.0224 0.0098 w/o LAAC 0.0192 0.0218 0.0093 w/o EILN 0.0130 0.0124 0.0073 w/o Both 0.0123 0.0105 0.0062 
+
+## 5.1 Experimental Settings 
+
+5.1.1 Datasets. Three widely used real-world datasets— Amazon Toys and Games , Amazon Office Products , and Amazon Books 1—are employed in our experiments. These datasets have been extensively utilized in prior research on LLM-based RS [ 3, 7, 11 , 24 , 26 , 54 ]. To guarantee a fair comparison with existing methods, we adopt the same data preprocessing protocols as those reported in recent studies [ 3, 11 , 54 ]. Specifically, we first apply the 5-core setting to the original datasets. User interaction sequences containing more than 11 interactions are divided using a sliding window with a fixed length of 11. The resulting subsequences are ordered chronologi-cally and subsequently split into training, validation, and test sets according to an 8:1:1 ratio. Due to the large size of Amazon Books ,we randomly sample 100,000 items prior to 5-core processing. The statistics of the processed datasets are summarized in Table 2. 
+
+5.1.2 Baselines. The methods compared fall into several categories: 
+
+• Traditional RS : Traditional SR methods, including SASRec (ICDM ’18) [22] and DROS (SIGIR ’23) [64]. 
+
+• LLM-enhanced RS : Conventional RS models augmented with LLMs as semantic encoders or knowledge enhancers, including DLLM2Rec (RecSys ’24) [11] and LLM-CF (CIKM ’24) [47]. 
+
+• LLM-based RS : Methods that directly employ LLMs for rec-ommendation, including BIGRec (TORS ’25) [ 3], CFT (CoRR ’24) [ 66 ], LLaRA (SIGIR ’24) [ 29 ], S-DPO (NeurIPS ’24) [ 10 ], and IGD (NeurIPS ’25) [32]. 
+
+• Debiasing methods for LLM-based RS : Methods that mit-igate bias in LLM-based recommendation systems, including Reweight (WWW ’24) [21] and D3 (EMNLP ’24) [4]. 
+
+5.1.3 Implementation Details. For all methods based on LLMs, we employ LLaMA3.2-3B [ 13 ] as the architecture, and the training epoch is set as 5. During inference, Constrained Beam Search (CBS) is uniformly applied to all baseline methods, following prior work [ 4, 54 ], to guarantee that the generated recommendations are re-stricted to the predefined item set. The beam width is set to 10. For the evaluation, recommendation accuracy is assessed using two commonly adopted metrics, namely NDCG@K and Hit Ratio@K ,with K set to 5 and 10. We compute the metrics for the model at each checkpoint and report the final results from the epoch that achieves the highest NDCG@5. The corresponding test-set results are reported as the final evaluation outcomes. To ensure a fair comparison, we adopt the official implementations released by the      
+
+> 1https://jmcauley.ucsd.edu/data/amazon/index_2014.html 10 20 30
+> 0.006
+> 0.008
+> Toy
+> Original
+> Ours
+> 10 20
+> 0.004
+> 0.006
+> 0.008
+> Book
+> 20 40 60
+> 0.003
+> 0.004
+> 0.005
+> 0.006
+> Office
+> Item Token Length
+> Attention Weight
+
+Figure 6: Visualization of attention weights for the baseline model and LBR across varying item lengths. 3-5 5-9 9-12 12-16 16-36                   
+
+> Length Group
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> Frequency
+> σ2
+> α= 0 = 0.0228
+> σ2
+> α= 1 = 0.0144
+> σ2
+> Ours = 0.0086
+> Book
+> 7-22 22-28 28-32 32-37 37-138
+> Length Group
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4 σ2
+> α= 0 = 0.0051
+> σ2
+> α= 1 = 0.0157
+> σ2
+> Ours = 0.0030
+> Office
+> Ideal Unbiased No Norm (α=0) Len Norm (α=1) Ours
+
+Figure 7: Comparison of recommendation distributions across item-length groups under different decoding strate-gies. Items are partitioned into five groups by token length, with each group containing the same cumulative item fre-quency in the test set. The variance of the recommendation proportions across groups is reported. 
+
+original authors and adjust the hyperparameters of all baseline models in accordance with the configurations recommended in their respective papers. 
+
+## 5.2 Performance Comparison (RQ1) 
+
+Table 1 presents a comparative analysis of the proposed LBR method against the baselines. LBR exhibits substantial performance gains across all datasets and consistently achieves the best results among all compared methods, with an average improvement of 16 .82% 
+
+in NDCG@5 compared with the best baseline method. These im-provements can be attributed to two key factors: (i) by mitigating the impact of length bias on attention, LBR enables the model to correctly focus on the relevant items in the user sequence; and (ii) by alleviating the influence of length bias during decoding, LBR produces an output distribution that better aligns with the real data distribution. Moreover, since our proposed LBR is applicable to any Transformer-based LLM, it can be seemingly integrated into other LLM-based recommendation approaches. Experiments on two LLM-based recommenders, BIGRec and LLaRA, show that LBR con-sistently and effectively improves their performance, demonstrat-ing strong generalization capability. In contrast, the other baseline methods yield only limited improvements. 
+
+## 5.3 Ablation Study (RQ2) 
+
+In this section, we conduct an ablation study to investigate the contributions of different modules in LBR, including LAAC and Preprint, 2026, Hangzhou, China Hongchen Li et al. 100 150 200 250 300 350      
+
+> Time (s / epoch)
+> 0.008
+> 0.010
+> 0.012
+> 0.014
+> 0.016
+> 0.018
+> 0.020
+> NDCG@5
+> Toy
+> BIGRec
+> +D 3
+> +CFT
+> +IGD
+> +S-DPO
+> +Reweight
+> +LBR
+> 100 150 200 250 300
+> Time (s / epoch)
+> 0.005
+> 0.006
+> 0.007
+> 0.008
+> 0.009
+> 0.010 Book
+> BIGRec
+> +D 3
+> +CFT
+> +IGD
+> +S-DPO
+> +Reweight
+> +LBR
+
+Figure 8: Performance comparisons in terms of both recom-mendation accuracy and training efficiency. 
+
+EILN. We compare LBR with two variants: “w/o LAAC” , which indicates removing the LAAC module, and “w/o EILN” , which indi-cates removing the EILN module. The results in Table 3 show that all modules in LBR are essential. Specifically, LAAC mitigates the tendency of the model’s attention to be dominated by longer items, enabling the model to correctly focus on important items in the sequence. EILN alleviates the impact of item length on the model’s output distribution, thereby effectively aligning the predicted distri-bution with the ground-truth data distribution. Together, LAAC and EILN reduce length-induced bias at different stages of the model, resulting in consistent performance improvements. 
+
+## 5.4 In-depth Analysis (RQ3) 
+
+In this section, we conduct an empirical analysis to verify whether LBR effectively mitigates length bias. We examine the issue from two perspectives: (1) the influence of length on the attention and (2) its influence on the decoding stage. First, LBR effectively reduces the influence of item length on attention weights, preventing longer items from systematically re-ceiving higher attention. As shown in Fig. 6, attention weights becomes nearly invariant to item length across all three datasets. Second, LBR effectively mitigates length bias during decoding, pre-venting the model from systematically favoring either longer or shorter items. As shown in Fig. 7, LBR substantially reduces the correlation between item length and the recommendation propor-tion. Besides, LBR yields the smallest variance in recommendation proportions across length groups, indicating that the generated rec-ommendation distribution more closely matches that of test data. In contrast, adjusting length normalization does not effectively al-leviate length bias because it does not account for differences in information content across tokens. 
+
+## 5.5 Efficiency Comparison (RQ4) 
+
+In this section, we conduct efficiency comparison experiments. As shown in Fig. 8, LBR maintains high efficiency while achieving the best overall performance. LBR only introduces two additional learnable parameters, 𝑎 and 𝑏 ; therefore, the extra overhead incurred in training is essentially negligible. In contrast, S-DPO significantly reduces training efficiency because it incorporates an additional reference model and negative samples. CFT is also inefficient, as the introduction of extra counterfactual samples doubles the training data volume. Although D3, Reweight and IGD preserve relatively good efficiency, they perform poorly in terms of accuracy. 
+
+## 6 Related Work 6.1 Sequential Recommendation 
+
+Sequential recommendation focuses on modeling users’ evolving preferences based on their historical interaction sequences, with the goal of predicting the next item of interest. With the develop-ment of deep learning, various advanced neural architectures have been integrated to model user behavior sequences, including RNN-based models such as GRU4Rec [ 17 ] and CNN-based approaches like Caser [ 49 ]. However, these architectures often struggle to ef-fectively capture long-range dependencies in sequential data. More advanced models, such as SASRec [ 22 ] and BERT4Rec [ 46 ], lever-age self-attention mechanisms [ 51 ] to better model dependencies among different items in a sequence, enabling the model to au-tomatically focus on the most relevant historical interactions for prediction. In addition, recent studies explore self-supervised and contrastive learning techniques to further enhance sequence repre-sentations [ 9, 60 ], particularly under data sparsity and cold-start scenarios. Moreover, as user preferences may drift over time, DROS [ 64 ] introduces distributionally robust optimization [ 44 , 52 ] to im-prove model robustness under distribution shifts. Readers may refer to the survey for a comprehensive review [39]. 
+
+## 6.2 LLM-based Recommendation 
+
+Large language models (LLMs), endowed with strong reasoning ca-pabilities and extensive world knowledge [ 1, 13 , 16 , 50 ], have been increasingly adopted in recommender systems [ 55 , 58 ]. A main-stream paradigm is LLM-based recommendation, which directly employs LLMs as the recommendation backbone [ 25 ]. Through carefully designed prompts, the model generates recommendations conditioned on users’ historical interactions, typically represented by textual item titles. To further improve recommendation quality, recent studies have extensively explored fine-tuning LLMs on cu-rated recommendation datasets, yielding substantial performance gains [3, 5, 23, 29, 54, 56, 69]. Despite the remarkable success of LLM-based recommendation, LLMs also introduce a range of bias-related challenges. Prior work has shown that LLMs can amplify biases inherent in conventional RS, such as popularity bias [ 14 , 15 , 21 , 28 , 31 , 33 ]: LLMs may exhibit an even stronger tendency to recommend popular items after fine-tuning. Moreover, LLMs can introduce new forms of bias. For exam-ple, position bias [ 6, 8 , 12 , 19 , 20 , 34 , 35 , 65 ] refers to the phenome-non whereby an LLMs are influenced by an item’s position among candidate items in the prompt. Context bias [ 53 ] refers to the LLM’s over-reliance on auxiliary tokens when producing recommenda-tions, hindering its ability to effectively leverage user preference-related information. Amplification bias [ 4] denotes the tendency of the model to generate items composed of higher-probability tokens. In contrast, length bias has largely been overlooked, which stems from the fact that different items may be tokenized into sequences of varying lengths. Because existing debiasing methods typically fail to account for this factor, their effectiveness remains limited. 
+
+## 6.3 Length Bias 
+
+Prior work on length bias has mainly addressed the issue on the decoding side, largely in the context of neural machine translation LBR: Towards Mitigating Length Bias in Large Language Models for Recommendation Preprint, 2026, Hangzhou, China 
+
+[ 45 ]. Existing solutions can be broadly grouped into two lines of research. The first line of work mitigates length bias by modifying the decoding score. Typical approaches include length normaliza-tion and reward-based or penalty-based adjustments during beam search [ 27 , 37 , 59 , 63 ]. More recent studies further propose a causal debiasing framework that treats sequence length as a confounder [61 ]. Another line of work targets the data level. For instance, Wang et al. [ 40 ] argue that length bias can stem from an overrepresenta-tion of short sequences in the training data and propose sampling strategies that produce a more uniform length distribution. However, in recommendation settings, the item space generated by LLMs is constrained by a Trie tree, making different tokens can convey heterogeneous amounts of information. Consequently, existing length-bias mitigation methods—which typically assume that all tokens are equally informative when computing sequence scores—are insufficient to fully eliminate the influence of length in this setting. Moreover, prior work has not considered the impact of length bias on attention. 
+
+## 7 Conclusion 
+
+This work identifies length bias as a fundamental issue in LLM-based recommendation, arising from the substantial variation in item token-sequence lengths and affecting both input-side self-attention and output-side Trie-Constrained decoding. To mitigate the bias, we propose LBR , a lightweight and model-agnostic frame-work that (i) performs Length-Aware Attention Calibration (LAAC) by injecting a length-dependent offset into attention logits to re-duce the spurious correlation between attention weights and item length, and (ii) introduces Effective Information Length Normal-ization (EILN), which leverages Trie branching factors to quantify per-token informativeness and normalizes decoding scores by an effective information length rather than raw token counts. Exten-sive experiments on three real-world Amazon datasets demonstrate that LBR consistently improves both accuracy and fairness, while effectively mitigating length bias. This work highlights the importance of accounting for struc-tural properties of item text under constrained generation. Future work can explore extending this perspective to broader generation constraints and recommendation settings. 
+
+## References 
+
+[1] Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ahmad, Ilge Akkaya, Floren-cia Leoni Aleman, Diogo Almeida, Janko Altenschmidt, Sam Altman, Shyamal Anadkat, et al . 2023. Gpt-4 technical report. arXiv preprint arXiv:2303.08774 
+
+(2023). [2] János Aczél, Bruno Forte, and Che Tat Ng. 1974. Why the Shannon and Hartley entropies are ‘natural’. Advances in applied probability 6, 1 (1974), 131–146. [3] Keqin Bao, Jizhi Zhang, Wenjie Wang, Yang Zhang, Zhengyi Yang, Yanchen Luo, Chong Chen, Fuli Feng, and Qi Tian. 2025. A bi-step grounding paradigm for large language models in recommendation systems. ACM Transactions on Recommender Systems 3, 4 (2025), 1–27. [4] Keqin Bao, Jizhi Zhang, Yang Zhang, Xinyue Huo, Chong Chen, and Fuli Feng. 2024. Decoding matters: Addressing amplification bias and homogeneity issue for llm-based recommendation. arXiv preprint arXiv:2406.14900 (2024). [5] Keqin Bao, Jizhi Zhang, Yang Zhang, Wenjie Wang, Fuli Feng, and Xiangnan He. 2023. Tallrec: An effective and efficient tuning framework to align large language model with recommendation. In Proceedings of the 17th ACM Conference on Recommender Systems . 1007–1014. [6] Ethan Bito, Yongli Ren, and Estrid He. 2025. Evaluating Position Bias in Large Language Model Recommendations. arXiv preprint arXiv:2508.02020 (2025). [7] Yuwei Cao, Nikhil Mehta, Xinyang Yi, Raghunandan Keshavan, Lukasz Heldt, Lichan Hong, Ed H Chi, and Maheswaran Sathiamoorthy. 2024. Aligning Large Language Models with Recommendation Knowledge. arXiv preprint arXiv:2404.00245 (2024). [8] Jiawei Chen, Hande Dong, Xiang Wang, Fuli Feng, Meng Wang, and Xiangnan He. 2023. Bias and debias in recommender system: A survey and future directions. 
+
+ACM Transactions on Information Systems 41, 3 (2023), 1–39. [9] Yongjun Chen, Zhiwei Liu, Jia Li, Julian McAuley, and Caiming Xiong. 2022. Intent contrastive learning for sequential recommendation. In Proceedings of the ACM web conference 2022 . 2172–2182. [10] Yuxin Chen, Junfei Tan, An Zhang, Zhengyi Yang, Leheng Sheng, Enzhi Zhang, Xiang Wang, and Tat-Seng Chua. 2024. On Softmax Direct Preference Optimiza-tion for Recommendation. arXiv preprint arXiv:2406.09215 (2024). [11] Yu Cui, Feng Liu, Pengbo Wang, Bohao Wang, Heng Tang, Yi Wan, Jun Wang, and Jiawei Chen. 2024. Distillation Matters: Empowering Sequential Recommenders to Match the Performance of Large Language Models. In Proceedings of the 18th ACM Conference on Recommender Systems . 507–517. [12] Sunhao Dai, Chen Xu, Shicheng Xu, Liang Pang, Zhenhua Dong, and Jun Xu. 2024. Bias and unfairness in information retrieval systems: New challenges in the llm era. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 6437–6447. [13] Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ahmad Al-Dahle, Aiesha Letman, Akhil Mathur, Alan Schelten, Amy Yang, Angela Fan, et al . 2024. The Llama 3 Herd of Models. arXiv preprint arXiv:2407.21783 (2024). [14] Chongming Gao, Ruijun Chen, Shuai Yuan, Kexin Huang, Yuanqing Yu, and Xiangnan He. 2025. Sprec: Self-play to debias llm-based recommendation. In 
+
+Proceedings of the ACM on Web Conference 2025 . 5075–5084. [15] Chongming Gao, Mengyao Gao, Chenxiao Fan, Shuai Yuan, Wentao Shi, and Xiangnan He. 2025. Process-supervised llm recommenders via flow-guided tuning. In Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval . 1934–1943. [16] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Peiyi Wang, Qihao Zhu, Runxin Xu, Ruoyu Zhang, Shirong Ma, Xiao Bi, et al . 2025. DeepSeek-R1 in-centivizes reasoning in LLMs through reinforcement learning. Nature 645, 8081 (2025), 633–638. [17] Balázs Hidasi, Alexandros Karatzoglou, Linas Baltrunas, and Domonkos Tikk. 2015. Session-based recommendations with recurrent neural networks. arXiv preprint arXiv:1511.06939 (2015). [18] Chris Hokamp and Qun Liu. 2017. Lexically constrained decoding for sequence generation using grid beam search. arXiv preprint arXiv:1704.07138 (2017). [19] Yupeng Hou, Junjie Zhang, Zihan Lin, Hongyu Lu, Ruobing Xie, Julian McAuley, and Wayne Xin Zhao. 2024. Large language models are zero-shot rankers for recommender systems. In European Conference on Information Retrieval . Springer, 364–381. [20] Chumeng Jiang, Jiayin Wang, Weizhi Ma, Charles LA Clarke, Shuai Wang, Chuhan Wu, and Min Zhang. 2025. Beyond Utility: Evaluating LLM as Recommender. In 
+
+Proceedings of the ACM on Web Conference 2025 . 3850–3862. [21] Meng Jiang, Keqin Bao, Jizhi Zhang, Wenjie Wang, Zhengyi Yang, Fuli Feng, and Xiangnan He. 2024. Item-side fairness of large language model-based recommen-dation system. In Proceedings of the ACM Web Conference 2024 . 4717–4726. [22] Wang-Cheng Kang and Julian McAuley. 2018. Self-attentive sequential recom-mendation. In 2018 IEEE international conference on data mining (ICDM) . IEEE, 197–206. [23] Sein Kim, Hongseok Kang, Seungyoon Choi, Donghyun Kim, Minchul Yang, and Chanyoung Park. 2024. Large language models meet collaborative filtering: An efficient all-round llm-based recommender system. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 1395–1406. [24] Dong-Ho Lee, Adam Kraft, Long Jin, Nikhil Mehta, Taibai Xu, Lichan Hong, Ed H Chi, and Xinyang Yi. 2024. STAR: A Simple Training-free Approach for Recommendations using Large Language Models. arXiv preprint arXiv:2410.16458 
+
+(2024). [25] Lei Li, Yongfeng Zhang, Dugang Liu, and Li Chen. 2023. Large language models for generative recommendation: A survey and visionary discussions. arXiv preprint arXiv:2309.01157 (2023). [26] Xinhang Li, Chong Chen, Xiangyu Zhao, Yong Zhang, and Chunxiao Xing. 2023. E4srec: An elegant effective efficient extensible solution of large language models for sequential recommendation. arXiv preprint arXiv:2312.02443 (2023). [27] Bowen Liang, Pidong Wang, and Yuan Cao. 2022. The implicit length bias of label smoothing on beam search decoding. arXiv preprint arXiv:2205.00659 (2022). [28] Jiayi Liao, Xiangnan He, Ruobing Xie, Jiancan Wu, Yancheng Yuan, Xingwu Sun, Zhanhui Kang, and Xiang Wang. 2024. RosePO: Aligning LLM-based Recom-menders with Human Values. arXiv preprint arXiv:2410.12519 (2024). [29] Jiayi Liao, Sihang Li, Zhengyi Yang, Jiancan Wu, Yancheng Yuan, Xiang Wang, and Xiangnan He. 2024. LLaRA: Large Language-Recommendation Assis-tant. In Proceedings of the 47th International ACM SIGIR Conference on Re-search and Development in Information Retrieval (Washington DC, USA) (SIGIR ’24) . Association for Computing Machinery, New York, NY, USA, 1785–1795. doi:10.1145/3626772.3657690 [30] Jianghao Lin, Rong Shan, Chenxu Zhu, Kounianhua Du, Bo Chen, Shigang Quan, Ruiming Tang, Yong Yu, and Weinan Zhang. 2024. Rella: Retrieval-enhanced Preprint, 2026, Hangzhou, China Hongchen Li et al. 
+
+large language models for lifelong sequential behavior comprehension in recom-mendation. In Proceedings of the ACM on Web Conference 2024 . 3497–3508. [31] Siyi Lin, Chongming Gao, Jiawei Chen, Sheng Zhou, Binbin Hu, Yan Feng, Chun Chen, and Can Wang. 2025. How do recommendation models amplify popularity bias? An analysis from the spectral perspective. In Proceedings of the Eighteenth ACM International Conference on Web Search and Data Mining . 659–668. [32] Zijie Lin, Yang Zhang, Xiaoyan Zhao, Fengbin Zhu, Fuli Feng, and Tat-Seng Chua. 2025. IGD: Token Decisiveness Modeling via Information Gain in LLMs for Personalized Recommendation. arXiv preprint arXiv:2506.13229 (2025). [33] Sijin Lu, Zhibo Man, Fangyuan Luo, and Jun Wu. 2025. Dual Debiasing in LLM-based Recommendation. In Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval . 2685–2689. [34] Sichun Luo, Bowei He, Haohan Zhao, Wei Shao, Yanlin Qi, Yinya Huang, Aojun Zhou, Yuxuan Yao, Zongpeng Li, Yuanzhang Xiao, et al . 2025. Recranker: Instruc-tion tuning large language model as ranker for top-k recommendation. ACM Transactions on Information Systems 43, 5 (2025), 1–31. [35] Tianhui Ma, Yuan Cheng, Hengshu Zhu, and Hui Xiong. 2023. Large language models are not stable recommender systems. arXiv preprint arXiv:2312.15746 
+
+(2023). [36] Vivek Miglani, Aobo Yang, Aram H Markosyan, Diego Garcia-Olano, and Narine Kokhlikyan. 2023. Using captum to explain generative language models. arXiv preprint arXiv:2312.05491 (2023). [37] Kenton Murray and David Chiang. 2018. Correcting length bias in neural machine translation. arXiv preprint arXiv:1808.10006 (2018). [38] Hyunsoo Na, Minseok Gang, Youngrok Ko, Jinseok Seol, and Sang-goo Lee. 2024. Enhancing Large Language Model Based Sequential Recommender Systems with Pseudo Labels Reconstruction. In Findings of the Association for Computational Linguistics: EMNLP 2024 . 7213–7222. [39] Li-Wei Pan, Wei-Ke Pan, Mei-Yan Wei, Hong-Zhi Yin, and Zhong Ming. 2026. A survey on sequential recommendation. Frontiers of Computer Science 20, 3 (2026), 2003606. [40] Ivan Provilkov and Andrey Malinin. 2021. Multi-sentence resampling: A simple approach to alleviate dataset length bias and beam-search degradation. arXiv preprint arXiv:2109.06253 (2021). [41] Alec Radford, Jeff Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. 2019. Language Models are Unsupervised Multitask Learners. https: //api.semanticscholar.org/CorpusID:160025533 [42] Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, and Percy Liang. 2016. SQuAD: 100,000+ Questions for Machine Comprehension of Text. In Proceed-ings of the 2016 Conference on Empirical Methods in Natural Language Processing ,Jian Su, Kevin Duh, and Xavier Carreras (Eds.). Association for Computational Linguistics, Austin, Texas, 2383–2392. doi:10.18653/v1/D16-1264 [43] Shashank Rajput, Nikhil Mehta, Anima Singh, Raghunandan Hulikal Keshavan, Trung Vu, Lukasz Heldt, Lichan Hong, Yi Tay, Vinh Tran, Jonah Samost, et al .2023. Recommender systems with generative retrieval. Advances in Neural Information Processing Systems 36 (2023), 10299–10315. [44] Shiori Sagawa, Pang Wei Koh, Tatsunori B Hashimoto, and Percy Liang. 2019. Distributionally robust neural networks for group shifts: On the importance of regularization for worst-case generalization. arXiv preprint arXiv:1911.08731 
+
+(2019). [45] Felix Stahlberg. 2020. Neural machine translation: A review. Journal of Artificial Intelligence Research 69 (2020), 343–418. [46] Fei Sun, Jun Liu, Jian Wu, Changhua Pei, Xiao Lin, Wenwu Ou, and Peng Jiang. 2019. BERT4Rec: Sequential recommendation with bidirectional encoder rep-resentations from transformer. In Proceedings of the 28th ACM international conference on information and knowledge management . 1441–1450. [47] Zhongxiang Sun, Zihua Si, Xiaoxue Zang, Kai Zheng, Yang Song, Xiao Zhang, and Jun Xu. 2024. Large Language Models Enhanced Collaborative Filtering. 
+
+arXiv preprint arXiv:2403.17688 (2024). [48] Juntao Tan, Shuyuan Xu, Wenyue Hua, Yingqiang Ge, Zelong Li, and Yongfeng Zhang. 2024. Idgenrec: Llm-recsys alignment with textual id learning. In Proceed-ings of the 47th international ACM SIGIR conference on research and development in information retrieval . 355–364. [49] Jiaxi Tang and Ke Wang. 2018. Personalized top-n sequential recommenda-tion via convolutional sequence embedding. In Proceedings of the eleventh ACM international conference on web search and data mining . 565–573. [50] Qwen Team et al . 2024. Qwen2 technical report. arXiv preprint arXiv:2407.10671 
+
+2, 3 (2024). [51] Ashish Vaswani. 2017. Attention is all you need. arXiv preprint arXiv:1706.03762 
+
+(2017). [52] Bohao Wang, Jiawei Chen, Changdong Li, Sheng Zhou, Qihao Shi, Yang Gao, Yan Feng, Chun Chen, and Can Wang. 2024. Distributionally Robust Graph-based Recommendation System. In Proceedings of the ACM on Web Conference 2024 .3777–3788. [53] Bohao Wang, Jiawei Chen, Feng Liu, Changwang Zhang, Jun Wang, Canghong Jin, Chun Chen, and Can Wang. 2026. Does LLM Focus on the Right Words? Mitigating Context Bias in LLM-based Recommenders. arXiv:2510.10978 [cs.IR] https://arxiv.org/abs/2510.10978 [54] Bohao Wang, Feng Liu, Jiawei Chen, Xingyu Lou, Changwang Zhang, Jun Wang, Yuegang Sun, Yan Feng, Chun Chen, and Can Wang. 2025. Msl: Not all tokens are what you need for tuning llm as a recommender. In Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval . 1912–1922. [55] Bohao Wang, Feng Liu, Changwang Zhang, Jiawei Chen, Yudi Wu, Sheng Zhou, Xingyu Lou, Jun Wang, Yan Feng, Chun Chen, et al . 2025. Llm4dsr: Leveraging large language model for denoising sequential recommendation. ACM Transac-tions on Information Systems 44, 1 (2025), 1–32. [56] Hangyu Wang, Jianghao Lin, Xiangyang Li, Bo Chen, Chenxu Zhu, Ruiming Tang, Weinan Zhang, and Yong Yu. 2024. Flip: Fine-grained alignment between id-based models and pretrained language models for ctr prediction. In Proceedings of the 18th ACM conference on recommender systems . 94–104. [57] Lei Wang and Ee-Peng Lim. 2023. Zero-shot next-item recommendation using large pretrained language models. arXiv preprint arXiv:2304.03153 (2023). [58] Likang Wu, Zhi Zheng, Zhaopeng Qiu, Hao Wang, Hongchao Gu, Tingjia Shen, Chuan Qin, Chen Zhu, Hengshu Zhu, Qi Liu, et al . 2024. A survey on large language models for recommendation. World Wide Web 27, 5 (2024), 60. [59] Yonghui Wu, Mike Schuster, Zhifeng Chen, Quoc V Le, Mohammad Norouzi, Wolfgang Macherey, Maxim Krikun, Yuan Cao, Qin Gao, Klaus Macherey, et al .2016. Google’s neural machine translation system: Bridging the gap between human and machine translation. arXiv preprint arXiv:1609.08144 (2016). [60] Xu Xie, Fei Sun, Zhaoyang Liu, Shiwen Wu, Jinyang Gao, Jiandong Zhang, Bolin Ding, and Bin Cui. 2022. Contrastive learning for sequential recommendation. In 
+
+2022 IEEE 38th international conference on data engineering (ICDE) . IEEE, 1259– 1273. [61] Shi Xuewen, Huang Heyan, Jian Ping, and Tang Yi-Kun. 2021. Reducing length bias in scoring neural machine translation via a causal inference method. In 
+
+Proceedings of the 20th Chinese National Conference on Computational Linguistics .874–885. [62] An Yang, Beichen Zhang, Binyuan Hui, Bofei Gao, Bowen Yu, Chengpeng Li, Dayiheng Liu, Jianhong Tu, Jingren Zhou, Junyang Lin, Keming Lu, Mingfeng Xue, Runji Lin, Tianyu Liu, Xingzhang Ren, and Zhenru Zhang. 2024. Qwen2.5-Math Technical Report: Toward Mathematical Expert Model via Self-Improvement. arXiv:2409.12122 [cs.CL] https://arxiv.org/abs/2409.12122 [63] Yilin Yang, Liang Huang, and Mingbo Ma. 2018. Breaking the beam search curse: A study of (re-) scoring methods and stopping criteria for neural machine translation. arXiv preprint arXiv:1808.09582 (2018). [64] Zhengyi Yang, Xiangnan He, Jizhi Zhang, Jiancan Wu, Xin Xin, Jiawei Chen, and Xiang Wang. 2023. A generic learning framework for sequential recommenda-tion with distribution shifts. In Proceedings of the 46th International ACM SIGIR Conference on Research and Development in Information Retrieval . 331–340. [65] Junjie Zhang, Yupeng Hou, Ruobing Xie, Wenqi Sun, Julian McAuley, Wayne Xin Zhao, Leyu Lin, and Ji-Rong Wen. 2024. Agentcf: Collaborative learning with autonomous language agents for recommender systems. In Proceedings of the ACM Web Conference 2024 . 3679–3689. [66] Yang Zhang, Juntao You, Yimeng Bai, Jizhi Zhang, Keqin Bao, Wenjie Wang, and Tat-Seng Chua. 2024. Causality-enhanced behavior sequence modeling in LLMs for personalized recommendation. arXiv preprint arXiv:2410.22809 (2024). [67] Bowen Zheng, Yupeng Hou, Hongyu Lu, Yu Chen, Wayne Xin Zhao, Ming Chen, and Ji-Rong Wen. 2024. Adapting large language models by integrating collaborative semantics for recommendation. In 2024 IEEE 40th International Conference on Data Engineering (ICDE) . IEEE, 1435–1448. [68] Zhi Zheng, Wenshuo Chao, Zhaopeng Qiu, Hengshu Zhu, and Hui Xiong. 2024. Harnessing large language models for text-rich sequential recommendation. In 
+
+Proceedings of the ACM Web Conference 2024 . 3207–3216. [69] Yaochen Zhu, Liang Wu, Qi Guo, Liangjie Hong, and Jundong Li. 2024. Collab-orative large language model for recommender systems. In Proceedings of the ACM on Web Conference 2024 . 3162–3172. 
+
+## A Hyperparameter Study on 𝛼 in Length Normalization 
+
+In this section, we present experimental results on the Toy and Office datasets using different values of 𝛼 in the length penalty, as illustrated in Fig. 9. As 𝛼 increases, the model performance exhibits a consistent downward trend. The best performance is achieved when 𝛼 is close to 0, indicating that the conventional length penalty can have a negative impact on model performance. 
+
+## B Feature Ablation Analysis of Length Bias 
+
+In this section, we analyze the impact of item lengths via a feature ablation study using Captum [ 36 ] to further corroborate the length LBR: Towards Mitigating Length Bias in Large Language Models for Recommendation Preprint, 2026, Hangzhou, China 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0           
+
+> Length penalty
+> 0.0124
+> 0.0126
+> 0.0128
+> 0.0130
+> NDCG@5
+> Toy
+> 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0
+> Length penalty
+> 0.0135
+> 0.0140
+> 0.0145
+> 0.0150
+> Office
+
+Figure 9: Sensitivity analysis of the hyperparameter 𝛼 .
+
+bias discussed in Section 3.1. Specifically, we treat each item in the input prompt as an independent textual feature. By iteratively removing individual items from the prompt template, we quantify the attribution score of each historical item with respect to the generated target recommendation. As shown in Figure 10, the aver-age attribution scores exhibit a clear monotonic increase with item length. 3-10 11-18 19-27 28-36 37-50    
+
+> Length Group
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> Attribution score
+> Book
+> 6-17 18-29 30-41 42-56 57-138
+> Length Group
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> Office
+
+Figure 10: Impact of item length on average attribution scores. 
+
+## C Popularity Analysis Across Item Length 
+
+To examine whether the observed preference for shorter items is confounded by item popularity, we analyze the distribution of train-ing interactions across item length groups. Specifically, we first sort all unique items in the item set by token length and partition them into five bins with equal numbers of items. We then assign each item appearing in the training interactions to the corresponding length bin and compute the proportion of training interactions in each bin. As shown in Figure 11, shorter items are not overrepresented in the training interactions. 
+
+## D Experiments with Naive Remedies for the Impact of Length Bias on Attention 
+
+In this section, we investigate two naive strategies to mitigate the impact of length bias on attention: (1) forcing each item’s token sequence to have the same length (fixed to 4) via truncation or padding; and (2) using RQ-VAE to obtain fixed-length semantic ID for items. As shown in Table. 4, our experiments indicate that neither preprocessing strategy yields consistent improvements; moreover, both can degrade performance in certain settings. 3-6 6-9 9-13 13-16 16-66     
+
+> Length Group
+> 0.00
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> Proportion
+> Book
+> 4-15 15-20 20-25 25-31 31-176
+> Length Group
+> 0.00
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> 0.25
+> Office
+
+Figure 11: Distribution of item length on training interac-tions. Table 4: The performance results of naive methods.                                  
+
+> Method Toy Office N@5 N@10 H@5 H@10 N@5 N@10 H@5 H@10 BIGRec 0.0123 0.0155 0.0209 0.0305 0.0105 0.0226 0.0213 0.0587 +Equal Length 0.0123 0.0158 0.0198 0.0307 0.0060 0.0211 0.0119 0.0597 +Semantic IDs 0.0038 0.0048 0.0056 0.0088 0.0031 0.0063 0.0057 0.0156
+
+## E Binary-decision View Diagram 
+
+A Trie node with branching factor 𝐻 can be viewed as expanding into an equivalent subtree of depth log 2 𝐻 in the binary-decision tree. In this section, we demonstrated a tree with four nodes can be represented as a two-layer binary tree (Figure 12). 
+
+Figure 12: Binary-decision View Diagram 
+
+## F Theoretical proof of Length-Aware Attention Calibration 
+
+Lemma 1. Let Attr ′ 
+
+> 𝑢
+
+(𝑖 ) denote the calibrated item-level attention attribution (i.e., the cumulative attention mass assigned to item 𝑖 when attending from a query token 𝑢 ). Under mild assumptions, applying LAAC makes the expected attribution approximately invariant to item length. 
+
+Proof. Fix a query 𝑢 . Consider 𝑚 historical items in the context. Item 𝑖 corresponds to a set of tokens T𝑖 with length 𝑙 𝑖 ≜ |T 𝑖 |. Let 
+
+𝑠 𝑢𝑣 denote the pre-calibration attention logit from 𝑢 to a context token 𝑣 . Define 
+
+𝑍 𝑢 (𝑖 ) ≜∑︁  
+
+> 𝑣 ∈ T 𝑖
+
+exp (𝑠 𝑢𝑣 ), 𝑋 𝑢 (𝑖 ) ≜ 𝑍 𝑢 (𝑖 )
+
+𝑔 (𝑙 𝑖 ) , 𝑆 𝑢 ≜
+
+> 𝑚
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑋 𝑢 ( 𝑗 ). (10) We state two mild assumptions commonly used in analyses. Preprint, 2026, Hangzhou, China Hongchen Li et al. 
+
+(A1). The softmax normalizer 𝑆 𝑢 = Í𝑚 𝑗 =1 𝑋 𝑢 ( 𝑗 ) concentrates around its mean such that, for an item 𝑖 of length 𝑙 ,
+
+E
+
+ 𝑋 𝑢 (𝑖 )
+
+𝑆 𝑢 
+
+𝑙 𝑖 = 𝑙 
+
+
+
+≈ E[𝑋 𝑢 (𝑖 ) | 𝑙 𝑖 = 𝑙 ]
+
+E[𝑆 𝑢 ] . (11) In particular, this approximation is reasonable when 𝑚 is large and 
+
+{𝑋 𝑢 ( 𝑗 )} 𝑚 𝑗 =1 are weakly dependent with finite variance, under which 
+
+𝑆 𝑢 concentrates by the law of large numbers. 
+
+(A2). There exists a constant 𝜅 𝑢 > 0 such that for any length 𝑙 ,
+
+E[𝑍 𝑢 (𝑖 ) | 𝑙 𝑖 = 𝑙 ] = 𝜅 𝑢 𝑔 (𝑙 ). (12) This assumption formalizes that, before calibration, the expected attention exhibits a multiplicative length trend captured by 𝑔 (𝑙 ). As illustrated in Fig. 3, there exists an approximately linear relationship between the sequence length and 𝑍 𝑢 (𝑖 ), which supports the validity of this assumption. We first express Attr ′ 
+
+> 𝑢
+
+(𝑖 ) in terms of the item-level masses. 
+
+Attr ′ 
+
+> 𝑢
+
+(𝑖 ) =
+
+Í𝑣 ∈ T 𝑖 exp (𝑠 𝑢𝑣 )/ 𝑔 (𝑙 𝑖 )
+
+Í𝑚 𝑗 =1
+
+Í𝑣 ∈ T 𝑗 exp (𝑠 𝑢𝑣 )/ 𝑔 (𝑙 𝑗 )
+
+= 𝑍 𝑢 (𝑖 )/ 𝑔 (𝑙 𝑖 )
+
+Í𝑚 𝑗 =1 𝑍 𝑢 ( 𝑗 )/ 𝑔 (𝑙 𝑗 ) = 𝑋 𝑢 (𝑖 )
+
+𝑆 𝑢 
+
+. (13) Conditioning on 𝑙 𝑖 = 𝑙 and applying Assumption (A1) in Eq. (11), 
+
+EAttr ′ 
+
+> 𝑢
+
+(𝑖 ) | 𝑙 𝑖 = 𝑙  = E
+
+ 𝑋 𝑢 (𝑖 )
+
+𝑆 𝑢 
+
+𝑙 𝑖 = 𝑙 
+
+
+
+≈ E[𝑋 𝑢 (𝑖 ) | 𝑙 𝑖 = 𝑙 ]
+
+E[𝑆 𝑢 ] . (14) Moreover, by the definition 𝑋 𝑢 (𝑖 ) = 𝑍 𝑢 (𝑖 )/ 𝑔 (𝑙 𝑖 ) and Assumption (A2) in Eq. (12), 
+
+E[𝑋 𝑢 (𝑖 ) | 𝑙 𝑖 = 𝑙 ] = E[𝑍 𝑢 (𝑖 ) | 𝑙 𝑖 = 𝑙 ]
+
+𝑔 (𝑙 ) = 𝜅 𝑢 𝑔 (𝑙 )
+
+𝑔 (𝑙 ) = 𝜅 𝑢 , (15) which is independent of 𝑙 . Substituting Eq. (15) into Eq. (14) yields 
+
+EAttr ′ 
+
+> 𝑢
+
+(𝑖 ) | 𝑙 𝑖 = 𝑙  ≈ 𝜅 𝑢 
+
+E[𝑆 𝑢 ] ≜ 𝑐 𝑢 , (16) where 𝑐 𝑢 does not depend on 𝑙 . This proves that the expected cali-brated attribution is approximately length-invariant. □

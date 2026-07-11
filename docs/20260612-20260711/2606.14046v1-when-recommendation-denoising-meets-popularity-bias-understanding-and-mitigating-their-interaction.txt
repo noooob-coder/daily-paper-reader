@@ -1,0 +1,447 @@
+Title: When Recommendation Denoising Meets Popularity Bias: Understanding and Mitigating Their Interaction
+
+URL Source: https://arxiv.org/pdf/2606.14046v1
+
+Published Time: Mon, 15 Jun 2026 00:28:42 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# When Recommendation Denoising Meets Popularity Bias: Understanding and Mitigating Their Interaction 
+
+# Guohang Zeng 
+
+Australian Artificial Intelligence Institute University of Technology Sydney Sydney, Australia guohang.zeng@student.uts.edu.au 
+
+# Jie Lu ∗
+
+Australian Artificial Intelligence Institute University of Technology Sydney Sydney, Australia jie.lu@uts.edu.au 
+
+# Guangquan Zhang 
+
+Australian Artificial Intelligence Institute University of Technology Sydney Sydney, Australia guangquan.zhang@uts.edu.au 
+
+## Abstract 
+
+Implicit feedback is the dominant data source for recommender sys-tems, but behavioral logs are often contaminated by false-positive interactions caused by mis-clicks, biased exposure, and interface effects. Denoising recommendation methods improve robustness by down-weighting or filtering interactions suspected to be noisy, often relying on the small-loss heuristic. We revisit this heuris-tic through the lens of popularity bias. Tail-item positives can be harder to fit because they are sparsely observed, and thus may receive larger losses even when they reflect genuine user prefer-ence. Under such popularity-dependent loss patterns, monotone loss-based reweighting can suppress clean-but-hard tail signals and increase the head-tail imbalance in effective supervision. We formalize this interaction through the effective head-tail sig-nal ratio induced by denoising weights and derive a conditional reallocation result: when the loss distribution of tail positives is right-shifted relative to that of head positives, small-loss reweight-ing increases the effective head-tail signal ratio compared with ERM. Motivated by this analysis, we propose Popularity-Aware Denoising (PAD), a lightweight plug-in framework that modulates denoising strength by item popularity. PAD applies stronger de-noising to highly exposed items while being more conservative on tail items, preserving more clean-but-hard long-tail signals. Ex-periments on three datasets and three backbones show that PAD generally improves over representative denoising baselines and pro-vides favorable accuracy-diversity tradeoffs, especially on MF-style recommenders. 
+
+## CCS Concepts 
+
+• Information systems → Collaborative filtering ; • Comput-ing methodologies → Learning from implicit feedback .
+
+## Keywords 
+
+Recommender Systems, Popularity Bias, Implicit Feedback  
+
+> ∗Corresponding Author Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than the author(s) must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+> Conference acronym ’XX, Woodstock, NY
+> ©2018 Copyright held by the owner/author(s). Publication rights licensed to ACM. ACM ISBN 978-1-4503-XXXX-X/2018/06 https://doi.org/XXXXXXX.XXXXXXX
+
+ACM Reference Format: 
+
+Guohang Zeng, Jie Lu, and Guangquan Zhang. 2018. When Recommenda-tion Denoising Meets Popularity Bias: Understanding and Mitigating Their Interaction. In Proceedings of Make sure to enter the correct conference title from your rights confirmation email (Conference acronym ’XX). ACM, New York, NY, USA, 9 pages. https://doi.org/XXXXXXX.XXXXXXX 
+
+## 1 Introduction 
+
+Modern recommender systems are predominantly trained from im-plicit feedback [ 17 , 18 , 22 ]–behavioral logs such as clicks, purchases, and reviews–rather than explicit ratings. Compared with explicit feedback, implicit feedback is much easier to collect in real-world applications and therefore serves as the primary supervision source for recommendation models. However, such logs only indirectly reflect user preference and are affected by multiple sources of noise, including false-positive interactions caused by mis-clicks [ 29 ], bi-ased exposure [ 4, 7], and other presentation effects. To cope with these noisy positives, denoising recommendation [ 8 , 11 , 32 , 35 , 40 , 44 ]has emerged as an important line of work, aiming to reduce the impact of unreliable interactions during training. From a statistical perspective, denoising recommendation can be viewed as estimating the posterior reliability of an observed positive interaction, i.e., 𝑝 (𝑌 ∗ 
+
+> 𝑢,𝑖
+
+= 1 | ¯𝑌 𝑢,𝑖 = 1, 𝑢, 𝑖 ), where 𝑌 ∗ denotes the unobserved clean preference label and ¯𝑌 denotes the observed implicit interaction. Since 𝑌 ∗ is unavailable in ordinary implicit-feedback logs, this posterior is not identifiable from observations alone. As a result, practical denoising methods inevitably rely on heuristic assumptions to approximate which observed positives are likely to be clean. A widely used principle in denoising recommendation and label-noise learning is the small-loss criterion [ 12 , 39 ]: interactions with smaller training losses are treated as more reliable, while large-loss positives are down-weighted or removed. This heuristic is useful, but it also has an important blind spot. A large loss does not neces-sarily indicate a false-positive interaction; it may also correspond to a clean but hard positive signal that the model has not yet learned. This distinction is especially important in recommendation, where item popularity strongly shapes both data availability and learning difficulty. In particular, tail-item positives are often supported by fewer ob-servations than head-item positives. Their representations are there-fore more difficult to estimate, and clean preferences for tail items may incur larger losses during training. This creates a potential interaction between denoising and popularity bias: if a loss-based denoiser treats high-loss positives as unreliable, it may suppress not  
+
+> arXiv:2606.14046v1 [cs.IR] 12 Jun 2026 Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Guohang Zeng, Jie Lu, and Guangquan Zhang
+
+Figure 1: A motivating example of the interaction between loss-based denoising and popularity bias. On GMF trained on Yelp, denoising changes both representation concentration and recommendation coverage compared with ERM. This example motivates our conditional analysis rather than serv-ing as universal evidence. (a) Spectral concentration of item representations, measured by the Top-10 singular-value mass ratio Í10  
+
+> 𝑗 =1
+
+𝜎 𝑗 /Í𝑗 𝜎 𝑗 . (b) Coverage@50. 
+
+only noisy positives but also clean-but-hard long-tail signals. The resulting effective supervision can shift toward head items, worsen-ing the head–tail imbalance that already exists in implicit-feedback recommendation. This raises the central question of this paper: when loss-based denoising is applied to implicit-feedback recommendation, how does it interact with popularity-induced head–tail imbalance? We answer this question through a conditional analysis. Rather than claiming that denoising universally worsens popularity bias, we characterize a concrete failure mode: when tail positives have a right-shifted loss distribution relative to head positives, monotone small-loss reweighting increases the effective head–tail signal ratio compared with ERM. Figure 1 provides a motivating example. In one represen-tative setting, a loss-based denoising method changes both repre-sentation concentration and recommendation coverage compared with ERM, suggesting that denoising can reshape popularity-related behavior. Motivated by this analysis, we propose Popularity-Aware De-noising (PAD), a lightweight plug-in framework that modulates denoising strength by item popularity. PAD keeps stronger denois-ing on highly exposed head items, where false-positive interactions are more likely to arise from exposure and presentation effects, while applying more conservative denoising to tail items to avoid suppressing sparse but informative positives. Importantly, PAD is not intended to replace existing denoising estimators; instead, it wraps a base denoising weight with a popularity-conditioned gate. Empirically, we evaluate PAD on three datasets, three backbone models, representative denoising baselines, and both BCE and BPR objectives. The results show that PAD generally improves over uniform loss-based denoising baselines and often provides a better accuracy–diversity tradeoff, especially on MF-style backbones such as GMF and NeuMF. At the same time, LightGCN+ERM remains a strong reference in several settings. We treat this not as a con-tradiction, but as an important boundary case: graph propagation may already smooth sparse signals and reduce the need for ex-plicit denoising. This boundary is consistent with our conditional formulation. In summary, our contributions are as follows: 
+
+• Interaction perspective: We identify recommendation denois-ing and popularity bias as interacting mechanisms rather than isolated issues, and study how loss-based denoising can alter the allocation of effective positive supervision between head and tail items. 
+
+• Conditional characterization: We provide a formal charac-terization showing that, when tail positives have a right-shifted loss distribution, monotone small-loss reweighting increases the effective head–tail signal ratio relative to ERM. 
+
+• Popularity-aware mitigation: We propose PAD, a lightweight plug-in gating framework that modulates denoising strength by item popularity to preserve clean-but-hard tail signals while retaining denoising on highly exposed items. 
+
+• Boundary-aware empirical study: Using existing experiments across datasets, backbones, denoising baselines, and a BPR com-patibility check, we show that PAD often improves over denois-ing baselines while also revealing boundary cases where ERM remains highly competitive. 
+
+## 2 Preliminaries 
+
+We consider the implicit-feedback setting in recommender systems. Let U = {𝑢 1, 𝑢 2, . . . } denote the set of users and I = {𝑖 1, 𝑖 2, . . . }
+
+represent the set of items, respectively. The supervision information is derived from an interaction matrix Y ∈ { 0, 1}| U | × | I | , where 
+
+𝑦 𝑢𝑖 = 1 indicates that user 𝑢 has interacted with item 𝑖 , and 𝑦 𝑢𝑖 = 0
+
+indicates otherwise. Since recommendation with implicit feedback corresponds to certain ranking and information retrieval problems, we are concerned with the following ranking metrics [38]. 
+
+R𝑟𝑎𝑛𝑘𝑖𝑛𝑔 = 1
+
+|U| ∑︁ 𝑢 ∈ U ∑︁ 𝑖 ∈ I 
+
+𝑃  𝑌 𝑢,𝑖 = 1 · 𝑐 
+
+b𝑍 𝑢,𝑖 
+
+
+
+, (1) where b𝑍 𝑢,𝑖 denote the predicted ranking of item 𝑖 for user 𝑢 , and the function 𝑐 (·) denotes the per-sample contribution induced by a ranking metric (e.g., top-𝐾 hit, NDCG gain, etc). Since rank-ing metrics are often non-smooth, many of them contain non-differentiable/combinatorial structures such as I[·] and rank (·) ,making direct gradient-based optimization on b𝑍 difficult. Hence, training typically relies on differentiable surrogate losses [ 5 , 10 ]such as Binary Cross-Entropy (BCE) loss and Bayesian person-alized ranking (BPR) loss. We present the main derivation with the commonly used point-wise BCE loss, since many loss-based denoising methods for implicit-feedback recommendation instanti-ate their reweighting rules in this setting. We later include a BPR compatibility check to examine whether the proposed gating idea can also be applied to a pair-wise objective. Define the per-sample BCE loss as 𝛿 (𝑦, ˆ𝑝 ) = −( 𝑌 log ˆ 𝑝 + ( 1 − 𝑌 ) log (1 − ˆ𝑝 )) , which can be equivalently decomposed into two terms: 𝛿 (1) 
+
+> 𝑢,𝑖
+
+= − log ˆ 𝑝 𝑢,𝑖 and 
+
+𝛿 (0) 
+
+> 𝑢,𝑖
+
+= − log (1 − ˆ𝑝 𝑢,𝑖 ), and ˆ𝑝 𝑢,𝑖 ∈ ( 0, 1) is the output of the model. Let the “clean label” be 𝑌 ∗ 
+
+> 𝑢,𝑖
+
+∈ { 0, 1}. The empirical risk is 
+
+L𝐵𝐶𝐸 (𝐷 ∗) = 1
+
+|D ∗ |∑︁ (𝑢,𝑖 ) ∈ D ∗
+
+h
+
+𝑌 ∗ 
+
+> 𝑢,𝑖
+
+𝛿 (1) 
+
+> 𝑢,𝑖
+
++  1 − 𝑌 ∗
+
+> 𝑢,𝑖
+
+ 𝛿 (0)
+
+> 𝑢,𝑖
+
+i
+
+, (2) where D∗ denotes the training set with clean interactions 𝑌 ∗. Min-imizing BCE corresponds to maximum likelihood estimation of the posterior 𝑝 ∗ 
+
+> 𝑢,𝑖
+
+= 𝑃 (𝑌 ∗ 
+
+> 𝑢,𝑖
+
+= 1 | 𝑢, 𝑖 ). For ranking rewards of the form When Recommendation Denoising Meets Popularity Bias: Understanding and Mitigating Their Interaction Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+in Eq. (1) , ranking items by 𝑝 ∗ 
+
+> 𝑢,𝑖
+
+is Bayes-optimal [ 9, 25 ]. Hence, minimizing Eq. (2) provides a surrogate for maximizing Eq. (1). 
+
+## 2.1 Denoising Recommendation 
+
+In the denoising recommendation setting, we consider that the observed data (𝑢, 𝑖, ¯𝑌 ) may not correspond to the true interac-tion (𝑢, 𝑖, 𝑌 ∗). We denote the observed interactions set as ¯D =  𝑢, 𝑖, ¯𝑌 𝑢𝑖 
+
+ | 𝑢 ∈ U , 𝑖 ∈ I , ¯𝑌 𝑢𝑖 ∈ { 0, 1} . Note that due to the exis-tence of noisy interactions, there is an inconsistency between 𝐷 ∗
+
+and ¯𝐷 . Specifically, we consider that ¯𝐷 contains noisy interactions, which can be represented as (𝑢, 𝑖 ) | 𝑌 ∗ = 0 ∧ ¯𝑌 = 1 . These noisy interactions are typically introduced by users’ accidental clicks or position bias. Given that the observed interaction data are not equal to the true interaction data, [ 32 ] provided a formal definition of 
+
+denoising recommendation training task as:       
+
+> Θ∗=min L𝐵𝐶𝐸
+>  𝑑𝑒𝑛𝑜𝑖𝑠𝑒 (¯D ) ,(3)
+
+where 𝑑𝑒𝑛𝑜𝑖𝑠𝑒 ( ¯D) denotes applying a denoising method to the observed implicit feedback (e.g., pruning noisy interactions) dur-ing training, so as to learn reliable parameters Θ∗. Conceptually, denoising aims to learn users’ true preferences from noisy data. 
+
+## 3 A Conditional Analysis of Denoising–Popularity Interaction 
+
+In this section, we analyze when the inductive bias of loss-based denoising can introduce an additional head–tail imbalance in ef-fective supervision. Our goal is not to claim that every denoising method always worsens popularity bias. Instead, we characterize a sufficient regime under which monotone small-loss reweighting reallocates positive training signal from tail items toward head items. 
+
+## 3.1 Loss-Based Denoising as Heuristic Reweighting 
+
+We first provide a formal view of denoising recommendation. Let the observed interaction be denoted by ¯𝑌 , which may differ from the clean label 𝑌 ∗. In this work, we focus on false-positive samples, i.e., observed positives that do not correspond to clean preferences. Although false negatives are also common in implicit-feedback recommendation, they are usually handled by negative sampling or negative mining and are beyond the scope of denoising positive feedback. A broad class of denoising recommendation methods can be written as weighted empirical risk minimization: 
+
+Ldenoise ( ¯𝐷 ) = 1
+
+| ¯D| ∑︁ (𝑢,𝑖 ) ∈ ¯D
+
+h
+
+𝑤 (𝑢, 𝑖 ) ¯𝑌 𝑢,𝑖 𝛿 (1) 
+
+> 𝑢,𝑖
+
++  1 − ¯𝑌 𝑢,𝑖 
+
+ 𝛿 (0)
+
+> 𝑢,𝑖
+
+i
+
+, (4) where 𝑤 (𝑢, 𝑖 ) is a correction weight for an observed positive pair. Ideally, 𝑤 (𝑢, 𝑖 ) should approximate the reliability posterior 
+
+𝑤 (𝑢, 𝑖 ) ≈ 𝑃 (𝑌 ∗ 
+
+> 𝑢,𝑖
+
+= 1 | ¯𝑌 𝑢,𝑖 = 1, 𝑢, 𝑖 ), (5) so that the expected risk over noisy observations better matches the clean risk: 
+
+E(𝑢,𝑖, ¯𝑌 )
+
+Ldenoise ( ¯D)  ≈ E(𝑢,𝑖,𝑌 ∗ ) [L 𝐵𝐶𝐸 (D ∗)] . (6) 
+
+Figure 2: An illustrative loss diagnostic in one representative setting. We compare the loss distributions of clean positives, clean tail positives, and noisy positives for GMF on Yelp at an early training epoch. The figure illustrates that clean tail positives can overlap with high-loss/noisy regions, motivat-ing our conditional analysis of popularity-dependent loss patterns. It is not intended as universal evidence across all datasets, backbones, or training epochs. 
+
+However, since 𝑌 ∗ 
+
+> 𝑢,𝑖
+
+is unobserved, Eq. (5) cannot be directly esti-mated from implicit logs. Practical denoising methods therefore rely on heuristic proxies for reliability. 
+
+Assumption 1 (Small-loss criterion [ 12 ]). For a positive inter-action (𝑢, 𝑖 ) ∈ D +, the positive loss 𝑙 + (𝑢, 𝑖 ) is monotonically related to the posterior probability that (𝑢, 𝑖 ) is a clean positive sample; equiv-alently, P(( 𝑢, 𝑖 ) is clean | 𝑙 + (𝑢, 𝑖 )) decreases as 𝑙 + (𝑢, 𝑖 ) increases. 
+
+This assumption should be understood as a modeling heuristic rather than a property of the data-generating process. It is neverthe-less the design principle behind many denoising methods: high-loss positives are treated as less reliable and are assigned lower weights or removed. Such a heuristic can improve robustness against false positives, but it can also penalize genuinely positive interactions that are hard to fit. 
+
+## 3.2 Popularity-Dependent Loss Patterns 
+
+Before presenting the formal result, we provide a diagnostic exam-ple to illustrate why loss alone can be an imperfect proxy for noise in sparse tail regions. We train a GMF model on Yelp with ERM and visualize the loss distributions of clean positives, clean tail positives, and noisy positives at an early training epoch. Figure 2 shows that clean tail positives can overlap with, and in this snapshot receive larger losses than, noisy samples. This suggests a plausible failure mode of small-loss denoising: some clean-but-hard tail signals may be down-weighted together with noisy interactions. Figure 2 should be interpreted only as a diagnostic example, not as a universal ver-ification across all datasets, backbones, or training epochs. Our subsequent theorem is conditional: it characterizes what happens when such a popularity-dependent loss pattern occurs. 
+
+Diagnostic takeaway. Large loss values need not correspond only to noisy interactions; in sparse tail regions, they may also arise from clean but hard positives. To formalize this mechanism, we define item popularity as 
+
+pop (𝑖 ) = E
+
+"∑︁ 
+
+> 𝑢
+
+I(𝑌 𝑢𝑖 = 1)
+
+#
+
+=∑︁ 
+
+> 𝑢
+
+E[I(𝑌 𝑢𝑖 = 1)] . (7) Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Guohang Zeng, Jie Lu, and Guangquan Zhang 
+
+Let 𝜏 be a popularity threshold. We define the tail set as T =
+
+{( 𝑢, 𝑖 ) | pop (𝑖 ) ≤ 𝜏 } and the head set as H = {( 𝑢, 𝑖 ) | pop (𝑖 ) > 𝜏 }.We consider the following condition. 
+
+Condition 1 (Popularity-dependent loss pattern). Tail positives have larger positive losses than head positives in the sense that 
+
+E(𝑢,𝑖 ) ∈ T 
+
+𝑙 + (𝑢, 𝑖 ) > E(𝑢,𝑖 ) ∈ H 
+
+𝑙 + (𝑢, 𝑖 ) . (8) For the cleanest theoretical statement, we use a distributional ver-sion of this condition in the proof: the positive-loss distribution on the tail is right-shifted relative to that on the head. This is a sufficient condition, not a necessary condition, and it should not be read as a universal empirical claim. Instead, it specifies the regime under which the following analysis applies. 
+
+## 3.3 Effective Head–Tail Signal Ratio 
+
+We next quantify how a denoising weight reallocates positive su-pervision between head and tail items. 
+
+Definition 1 (Effective head–tail signal ratio). Let 𝐷 + =
+
+{( 𝑢, 𝑖 ) | ¯𝑌 𝑢𝑖 = 1} and sample (𝑈 , 𝐼 ) uniformly from 𝐷 +. Define 
+
+𝐻 = {( 𝑢, 𝑖 ) ∈ 𝐷 + | pop (𝑖 ) > 𝜏 } and 𝑇 = {( 𝑢, 𝑖 ) ∈ 𝐷 + | pop (𝑖 ) ≤ 𝜏 }.For any weighting scheme 𝑤 (· , ·) applied to observed positives, define the effective head–tail signal ratio as 
+
+B := E[𝑤 (𝑈 , 𝐼 ) | ( 𝑈 , 𝐼 ) ∈ 𝐻 ] · P(( 𝑈 , 𝐼 ) ∈ 𝐻 )
+
+E[𝑤 (𝑈 , 𝐼 ) | ( 𝑈 , 𝐼 ) ∈ 𝑇 ] · P(( 𝑈 , 𝐼 ) ∈ 𝑇 ) . (9) Here, E[𝑤 (𝑈 , 𝐼 ) | ( 𝑈 , 𝐼 ) ∈ 𝐻 ] and E[𝑤 (𝑈 , 𝐼 ) | ( 𝑈 , 𝐼 ) ∈ 𝑇 ] are the average weights assigned to head and tail observed positives, while P(( 𝑈 , 𝐼 ) ∈ 𝐻 ) and P(( 𝑈 , 𝐼 ) ∈ 𝑇 ) capture their prevalence in the observed positive set. Thus, B measures how much effective positive training signal is allocated to head items relative to tail items. 
+
+Proposition 1 (Conditional Head–Tail Signal Realloca-tion). Assume that the denoising weight is determined by a non-increasing function of the positive loss, 
+
+𝑤 (𝑢, 𝑖 ) = 𝜓  𝑙 + (𝑢, 𝑖 ) , 𝜓 ′ (·) ≤ 0, (10) 
+
+and assume that the positive-loss distribution on 𝑇 is right-shifted relative to that on 𝐻 . Let Bdenoise and BERM denote the effective head– tail signal ratios of the denoising method and ERM, respectively. Then 
+
+𝑛 denoise := Bdenoise 
+
+BERM 
+
+> 1. (11) The proof is provided in Appendix A. Proposition 1 should be read as a sufficient-condition result. It does not state that every denoising method always worsens popularity bias. Rather, it char-acterizes a mechanism that arises when two conditions hold: de-noising weights decrease with loss, and tail positives tend to have larger losses than head positives. In this regime, denoising reduces the average weight of tail positives more strongly than that of head positives, thereby increasing the effective head–tail signal ratio rel-ative to ERM. This provides a formal explanation of how loss-based denoising can interact with popularity bias. 
+
+## 4 Popularity-Aware Denoising 
+
+The conditional analysis above suggests a potential failure mode of uniform loss-based denoising: when tail positives tend to in-cur larger losses, applying the same denoising strength across all items may over-suppress clean tail signals. We therefore propose 
+
+Popularity-Aware Denoising (PAD), a simple plug-in correction that modulates the strength of a base denoiser by item popularity. 
+
+## 4.1 Popularity-Aware Denoising (PAD) 
+
+Recall that the goal of denoising is to approximate 
+
+𝑤 (𝑢, 𝑖 ) = P 𝑌 ∗ 
+
+> 𝑢,𝑖
+
+= 1 | ¯𝑌 𝑢,𝑖 = 1, 𝑢, 𝑖  . (12) Given any base denoising weight 𝑤 (𝑢, 𝑖 ), PAD constructs a popularity-gated weight: 
+
+𝑤 PAD (𝑢, 𝑖 ) = (1 − 𝑠 𝑖 ) + 𝑠 𝑖 𝑤 (𝑢, 𝑖 ), (13) where 𝑠 𝑖 ∈ [ 0, 1] is the popularity gating coefficient of item 𝑖 . This design has two behaviors: 
+
+• Head items: When 𝑠 𝑖 ≈ 1, we have 𝑤 PAD (𝑢, 𝑖 ) ≈ 𝑤 (𝑢, 𝑖 ). PAD therefore preserves the ability of the base denoiser to suppress unreliable interactions in highly exposed regions. 
+
+• Tail items: When 𝑠 𝑖 ≈ 0, we have 𝑤 PAD (𝑢, 𝑖 ) ≈ 1. PAD therefore weakens denoising on tail positives and avoids treating sparse clean-but-hard signals as noise solely because they are hard to fit. Eq. (13) defines an implementation-agnostic plug-in framework. It does not prescribe a particular denoising estimator; instead, it controls how strongly the base estimator is trusted as a function of item popularity. In this sense, PAD is a correction to uniform denoising rather than a replacement for existing denoising methods. In our implementation, we instantiate the base denoising weight with a lightweight RCE-style reweighting [32]: 
+
+𝑤 (𝑢, 𝑖 ) = ˆ𝑦 𝛼 𝑢𝑖 , 𝛼 ∈ [ 0, 1], (14) where ˆ𝑦 𝑢𝑖 ∈ ( 0, 1) is the model prediction and 𝛼 controls denois-ing strength. For a positive interaction, the BCE loss is 𝑙 + (𝑢, 𝑖 ) =
+
+− log ˆ 𝑦 𝑢𝑖 , so ˆ𝑦 𝛼 𝑢𝑖 = exp (− 𝛼𝑙 + (𝑢, 𝑖 )) is a monotone mapping that assigns smaller weights to larger-loss positives. For the popularity gate, we use normalized item popularity: 
+
+˜𝑤 (𝑢, 𝑖 ; 𝛼, 𝜂 ) =  1 − 𝑠 𝑖 (𝜂 ) + 𝑠 𝑖 (𝜂 ) ˆ𝑦 𝛼 𝑢𝑖 , 𝑠 𝑖 (𝜂 ) =
+
+ pop (𝑖 )
+
+max 𝑗 ∈ I pop ( 𝑗 )
+
+𝜂 
+
+,
+
+(15) where 𝜂 ≥ 0 controls the strength of popularity-aware compen-sation. When 𝜂 → 0, most 𝑠 𝑖 → 1 and PAD reduces to the base denoising paradigm. As 𝜂 increases, non-popular items receive smaller 𝑠 𝑖 values, causing PAD to preserve more gradient contribu-tion from tail positives. The resulting training objective is 
+
+LPAD ( ¯D) = 1
+
+| ¯D| ∑︁ (𝑢,𝑖 ) ∈ ¯D
+
+˜𝑤 (𝑢, 𝑖 ; 𝛼, 𝜂 ) · L BCE (𝑢, 𝑖 ). (16) Intuitively, PAD keeps denoising active on head items while shrink-ing the denoising weight toward ERM on tail items. In practice, we also apply the weighting to negative samples in a symmetric manner so that the overall loss is not dominated by negatives. More-over, to mitigate the distribution mismatch between validation and test sets [ 40 ], we evaluate the validation criterion on a subset of low-loss validation samples for model selection. When Recommendation Denoising Meets Popularity Bias: Understanding and Mitigating Their Interaction Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+## 4.2 Discussion 
+
+4.2.1 PAD Reduces Conditional Signal Imbalance. Under the same sufficient conditions as Proposition 1, PAD reduces the additional head–tail signal imbalance induced by monotone loss-based denois-ing. 
+
+Proposition 2 (PAD Reduces Conditional Signal Imbalance). 
+
+Let 𝑛 PAD := BPAD /B ERM denote the head–tail signal ratio of PAD relative to ERM. Under the conditions of Proposition 1 and the PAD weighting rule in Eq. (13) ,
+
+𝑛 PAD < 𝑛 denoise . (17) The proof is provided in Appendix B. Proposition 2 shows that PAD reduces the additional head–tail signal imbalance caused by the base denoiser in the conditional regime analyzed above. The intuition is that PAD moves tail weights closer to 1 more strongly than it moves head weights, thereby compensating for the over-suppression of tail positives. 
+
+4.2.2 Collaborative-Signal-Only Hard-Positive Preservation. PAD can also be interpreted as a collaborative-signal-only mechanism for preserving hard positives. Consider the classical two-stage gen-erative process under the MNAR assumption [ 23 , 24 , 33 ]. For any 
+
+(𝑢, 𝑖 ), exposure first occurs as 
+
+𝑂 𝑢𝑖 ∼ Bernoulli (𝜃 𝑢𝑖 ) , (18) followed by the generation of an interaction according to the user’s true preference. The observed implicit positive feedback may con-tain false-positive noise induced by presentation effects, mis-clicks, or other exposure-related factors. The popularity gate can be viewed as a coarse approximation of exposure propensity: 
+
+𝑠 𝑖 ≈ E𝑢 [𝜃 𝑢𝑖 ] . (19) When exposure propensity is high, observed positives are more likely to be affected by exposure-induced artifacts, so PAD relies more on the denoiser. When exposure propensity is low, an ob-served positive may reflect stronger intent, and aggressive small-loss denoising is more likely to confuse hard positives with noise. PAD therefore shrinks the denoising weight back toward 1 in this region. Unlike hard-positive mining methods that rely on textual or multimodal evidence [ 26 , 31 ], PAD uses only collaborative signals and item popularity. It is therefore broadly applicable in settings where content features are unavailable. 
+
+## 5 Experiments 
+
+In this section, we evaluate the denoising–popularity interaction and the effect of PAD using the existing experimental setting. We focus on the following research questions: 
+
+• RQ1 : How does loss-based denoising affect popularity-related outcome diversity? 
+
+• RQ2 : Can PAD improve the accuracy–diversity tradeoff over representative denoising baselines? 
+
+• RQ3 : How does PAD behave under different denoising strengths and learning objectives? 
+
+Table 1: Statistics of the experimental datasets. Dataset #Users #Items #Interactions Sparsity 
+
+MovieLens 943 1,682 100,000 93.695% Amazon-Book 79,848 29,599 1,001,486 99.958% Yelp 45,548 57,396 1,672,520 99.959% 
+
+## 5.1 Experimental Setup 
+
+5.1.1 Datasets. To ensure a fair evaluation, we conduct experi-ments on the three datasets that are most frequently adopted in the denoising recommendation: MovieLens, Amazon-book and Yelp. 
+
+• MovieLens [13 ]: This dataset consists of movie rating records collected from the MovieLens platform. We use the MovieLens-100k version. Following [ 32 ], interactions with ratings lower than 5 are treated as false-positive feedback. 
+
+• Amazon-book : This dataset is derived from the Amazon Re-views collection [ 14 ] and records users’ book purchase behaviors along with their rating scores. Interactions with ratings lower than 3 are treated as false-positive feedback. 
+
+• Yelp : This is a user review dataset from the catering industry. Consistent with the setting in [ 32 ], ratings below 3 are considered false-positive interactions. In line with existing denoising recommendation methods, false-positive interactions are retained in both the training and validation sets, whereas only clean interactions are kept in the test set. The basic statistics of these datasets are summarized in Table 1. 
+
+5.1.2 Baselines. In the denoising recommendation setting, we ini-tially considered three representative models as baselines, including GMF, NeuMF and LightGCN: 
+
+• GMF [15 ]: an extension of matrix factorization that models user–item interactions through element-wise multiplication. 
+
+• NeuMF [ 37 ]: integrates GMF with a multilayer perceptron to jointly capture non-linear user–item interaction patterns. 
+
+• LightGCN [15 ]: a graph-based model that learns user and item representations via linear message propagation. We compare PAD with several representative baselines. We treat ERM, i.e., empirical risk minimization without denoising, as a no-denoising reference rather than as a denoising baseline. This dis-tinction is important because our goal is not to claim that denoising is always preferable to ERM, but to examine how denoising can be made less popularity-biased when it is applied. R-CE [ 32 ] re-weights user–item interactions based on their cross-entropy losses, assigning lower weights to high-loss samples. T-CE [ 32 ] filters out interactions whose losses exceed a predefined threshold dur-ing training. DeCA [ 34 ] detects noisy interactions by measuring prediction disagreement between two models. DCF [ 16 ] alleviates sparsity by re-labeling highly deterministic noisy interactions in-stead of discarding them. [ 44 ] proposes a personalized approach to re-weighting user interactions. UDT [ 8 ] models user behavior as a two-stage process and adaptively adjusts interaction weights based on uncertainty patterns. These methods represent commonly used and recent denoising strategies and serve as our primary denoising Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Guohang Zeng, Jie Lu, and Guangquan Zhang 
+
+Figure 3: Epoch-wise evolution of diversity metrics (Gini-Div and Coverage@50; higher is better) under ERM (no denoising), representative denoising baselines, and PAD (ours) on MovieLens, Amazon-Book, and Yelp with GMF, NeuMF, and LightGCN. 
+
+points of comparison. For fairness 1, we do not include denoising approaches [ 26 , 31 ] that rely on large language models with textual information for data augmentation. 
+
+5.1.3 Evaluation Metrics. For recommendation accuracy, we evalu-ate the top-𝑁 recommendations using two commonly adopted met-rics: Recall@K and NDCG@K, where higher values indicate better performance. To assess popularity bias, we use two aggregate-level diversity metrics, Coverage@K and Gini-Div. Intuitively, Cover-age@K reflects how many distinct items are exposed across all users’ Top-𝐾 lists, while Gini-Div captures how evenly item expo-sure is distributed (i.e., less concentration on a few popular items). For both metrics, larger values indicate higher diversity and thus a fairer (less popularity-biased) recommendation outcome. 
+
+5.1.4 Implementation Details. For all models, we fix the embedding dimensionality to 32, use a batch size of 1024, and set the learning rate to 1e-3, with training carried out using the Adam optimizer. For baseline methods, the remaining hyperparameters are adopted from the optimal configurations reported in their original publica-tions. Since denoising methods can exhibit sensitivity to dataset characteristics, we perform limited hyperparameter tuning in cases where the authors do not explicitly specify parameter settings, en-suring a fair evaluation across different datasets. In the proposed PAD method, there are two hyperparameters, 𝛼 and 𝜂 . We search 
+
+𝛼 in the range [0.1, 0.5] and 𝜂 in the range [0.3, 0.7]. Based on our experiments, we primarily set 𝛼 = 0.2 and 𝜂 = 0.5. For model selection, we use the lowest-loss 80% of validation examples.    
+
+> 1Two denoising methods are not included in our comparisons. We exclude [ 11 ] due to its high computational cost; this limitation is also noted in [ 8]. We also exclude [ 35 ]because its implementation may suffer from test-set data leakage, as noted by [40].
+
+## 5.2 Outcome Diversity under Denoising (RQ1) 
+
+To examine how loss-based denoising affects popularity-related outcomes, we evaluate two diversity-oriented metrics: Gini-Div and Coverage@50, where higher values indicate more even and broader item exposure. Figure 3 reports epoch-wise trajectories under ERM, representative denoising baselines, and PAD. We plot trajectories rather than a single checkpoint because different methods have dif-ferent convergence dynamics; the full curves better reveal whether a method preserves or weakens diversity throughout training. Figure 3 shows that representative denoising baselines often yield lower Coverage@50 and Gini-Div than ERM, especially as training proceeds. This pattern is consistent with the conditional mechanism analyzed in Section 3: when high-loss positives are down-weighted, supervision from hard tail regions may be weak-ened, leading to more concentrated recommendation outcomes. PAD generally mitigates this drop and often yields higher diversity than the corresponding uniform denoising baselines. The mag-nitude of the effect varies across datasets and backbones, which supports our conditional view rather than a universal claim. The role of Figure 3 is complementary to that of Figure 2. Figure 2 illustrates a microscopic loss-level failure mode in one representa-tive setting, whereas Figure 3 examines downstream outcome-level diversity across multiple datasets and backbones. Together, they suggest that popularity-aware modulation can reduce the diversity loss introduced by aggressive denoising. When Recommendation Denoising Meets Popularity Bias: Understanding and Mitigating Their Interaction Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+Table 2: Comparison with representative denoising methods using GMF, NeuMF, and LightGCN as backbones. The best performance for each backbone is in bold, and the second-best is underlined. We use R to stand for Recall and N for NDCG. MovieLens Amazon-Book Yelp Method R@50 N@50 R@100 N@100 R@50 N@50 R@100 N@100 R@50 N@50 R@100 N@100 
+
+GMF-ERM 0.1998 0.0947 0.2703 0.1130 0.1222 0.0453 0.1822 0.0567 0.0857 0.0359 0.1361 0.0473 GMF-RCE 0.1985 0.0974 0.2764 0.1178 0.1231 0.0452 0.1824 0.0566 0.0868 0.0367 0.1379 0.0482 GMF-TCE 0.2065 0.1020 0.2769 0.1203 0.1294 0.0480 0.1936 0.0602 0.0885 0.0356 0.1460 0.0486 GMF-DeCA 0.1616 0.0862 0.2382 0.1059 0.0874 0.0336 0.1284 0.0416 0.0677 0.0292 0.1063 0.0380 GMF-DCF 0.1579 0.0842 0.2344 0.1035 0.0895 0.0343 0.1315 0.0425 0.0667 0.0287 0.1047 0.0375 GMF-PLD 0.1862 0.0925 0.2583 0.1112 0.1222 0.0453 0.1822 0.0567 0.0857 0.0359 0.1361 0.0473 GMF-UDT 0.1630 0.0898 0.2327 0.1079 0.0981 0.0375 0.1445 0.0464 0.0816 0.0348 0.1283 0.0453 
+
+GMF-PAD 0.2085 0.1101 0.2834 0.1293 0.1369 0.0499 0.2040 0.0628 0.0971 0.0389 0.1570 0.0523 
+
+Improvement +1.0% +8.0% +2.4% +7.5% +5.8% +4.1% +5.4% +4.3% +9.7% +6.0% +7.5% +7.8% NeuMF-ERM 0.1974 0.0985 0.2802 0.1193 0.1104 0.0399 0.1691 0.0511 0.0728 0.0293 0.1216 0.0402 NeuMF-RCE 0.1989 0.0999 0.2863 0.1212 0.1086 0.0391 0.1671 0.0503 0.0772 0.0315 0.1275 0.0429 NeuMF-TCE 0.1965 0.0971 0.2722 0.1164 0.1192 0.0431 0.1805 0.0548 0.0748 0.0292 0.1292 0.0414 NeuMF-DeCA 0.1510 0.0755 0.2235 0.0935 0.0460 0.0157 0.0719 0.0206 0.0707 0.0288 0.1157 0.0394 NeuMF-DCF 0.1551 0.0775 0.2296 0.0961 0.0448 0.0153 0.0701 0.0201 0.0716 0.0296 0.1171 0.0398 NeuMF-PLD 0.2027 0.0999 0.2793 0.1194 0.1110 0.0399 0.1695 0.0511 0.0728 0.0293 0.1216 0.0402 NeuMF-UDT 0.1575 0.0786 0.2341 0.0973 0.0735 0.0263 0.1140 0.0342 0.0760 0.0319 0.1227 0.0424 
+
+NeuMF-PAD 0.2081 0.1100 0.2865 0.1298 0.1279 0.0462 0.1927 0.0586 0.0802 0.0320 0.1349 0.0442 
+
+Improvement +2.7% +10.1% +0.1% +7.1% +7.3% +7.2% +6.7% +6.8% +3.8% +0.2% +4.4% +3.2% LightGCN-ERM 0.1938 0.1000 0.2746 0.1204 0.1766 0.0660 0.2579 0.0814 0.1215 0.0520 0.1888 0.0671 
+
+LightGCN-RCE 0.1995 0.1001 0.2742 0.1197 0.1394 0.0516 0.2067 0.0643 0.0932 0.0393 0.1450 0.0510 LightGCN-TCE 0.1961 0.1002 0.2708 0.1195 0.1351 0.0499 0.2018 0.0625 0.0989 0.0425 0.1535 0.0549 LightGCN-DeCA 0.1534 0.0817 0.2275 0.1002 0.1372 0.0507 0.2049 0.0635 0.0719 0.0308 0.1126 0.0400 LightGCN-DCF 0.1882 0.0926 0.2527 0.1096 0.1411 0.0532 0.2069 0.0658 0.0737 0.0315 0.1154 0.0409 LightGCN-PLD 0.1944 0.0975 0.2656 0.1157 0.1731 0.0650 0.2497 0.0796 0.1059 0.0452 0.1654 0.0586 LightGCN-UDT 0.1518 0.0808 0.2250 0.0991 0.1459 0.0539 0.2133 0.0667 0.0945 0.0400 0.1470 0.0518 
+
+LightGCN-PAD 0.2018 0.1028 0.2795 0.1228 0.1749 0.0644 0.2579 0.0801 0.1140 0.0475 0.1797 0.0622 Improvement +1.2% +2.7% +1.8% +2.0% -1.0% -2.4% +0.0% -1.6% -6.2% -8.7% -4.8% -7.4% 
+
+## 5.3 Accuracy–Diversity Tradeoff with PAD (RQ2) 
+
+Table 2 reports ranking performance on three datasets and three backbones. We interpret the results along two axes: comparison with representative denoising baselines and comparison with the no-denoising ERM reference. On MF-style backbones, PAD is particularly effective. For GMF and NeuMF, PAD achieves the best performance in most metrics and datasets, indicating that popularity-aware denoising is useful when sparse tail signals are vulnerable to over-suppression. For example, on MovieLens, PAD improves GMF’s NDCG@50 over the strongest competing method, and on Amazon-Book it improves NeuMF’s Recall@50 over the strongest competing baseline. These gains suggest that PAD can preserve informative hard positives while retaining the robustness benefit of denoising. On LightGCN, ERM is a strong reference and sometimes out-performs PAD, especially on Amazon-Book and Yelp. We view this as an important boundary case rather than a contradiction. Graph propagation can exploit multi-hop neighborhood structure and may partially smooth sparse or noisy signals, thereby reducing the need for explicit denoising; this is also consistent with the discussion in [ 40 ]. Nevertheless, PAD remains competitive and is often prefer-able to applying uniform loss-based denoising. Overall, the table supports a more nuanced conclusion: PAD improves the behav-ior of denoising methods, especially on MF-style backbones, but denoising is not universally superior to ERM. 
+
+## 5.4 Compatibility & Sensitivity Analysis (RQ3) 
+
+Hyperparameter sensitivity. We investigate the sensitivity of PAD to its two hyperparameters, 𝛼 and 𝜂 . Here, 𝛼 controls the strength of the base denoising effect, while 𝜂 controls the popularity-aware compensation. Figure 4 reports their influence on MovieLens with the GMF backbone. The sensitivity curves provide direct evidence for the mech-anism behind PAD. As 𝛼 increases from small to moderate val-ues, NDCG@20 improves under several 𝜂 settings, suggesting that moderate denoising can suppress noisy supervision and improve ranking. However, stronger denoising also tends to reduce Cov-erage@20, reflecting the accuracy–coverage tradeoff induced by small-loss weighting. By contrast, increasing 𝜂 generally recovers coverage under the same 𝛼 while affecting NDCG more mildly. This is consistent with the role of popularity-aware compensation: 𝜂 
+
+counteracts excessive tail suppression without fully abandoning denoising on head items. 
+
+Compatibility with BPR. Since our main derivation uses a point-wise BCE objective, we also conduct a limited compatibility check with BPR on Yelp. BPR is a representative pair-wise objective and differs from BCE, so it provides a useful test of whether the PAD gating idea is tied to a particular point-wise loss. Table 3 shows that PAD remains effective on GMF and NeuMF un-der BPR and is comparable to ERM on LightGCN. The margin over LightGCN+ERM is very small, so this result should be interpreted as a compatibility check rather than broad proof of objective-level Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Guohang Zeng, Jie Lu, and Guangquan Zhang 
+
+Figure 4: Sensitivity analysis of hyperparameters 𝛼 and 𝜂 on MovieLens with the GMF backbone. Table 3: Recall@50 comparison with BPR loss on Yelp dataset. Method GMF NeuMF LightGCN 
+
++BCE +BPR +BCE +BPR +BCE +BPR ERM 0.0857 0.1040 0.0728 0.0896 0.1215 0.1381 RCE 0.0868 0.1017 0.0772 0.0995 0.0932 0.1314 TCE 0.0885 0.0847 0.0748 0.0464 0.0989 0.0770 DeCA 0.0677 0.0840 0.0707 0.0460 0.0719 0.0703 DCF 0.0667 0.1112 0.0716 0.1010 0.0737 0.0737 PLD 0.0857 0.0825 0.0728 0.0773 0.1059 0.0893 UDT 0.0816 0.0848 0.0760 0.0763 0.0945 0.0942 PAD 0.0971 0.1121 0.0802 0.1061 0.1140 0.1382 
+
+Improvement +9.7% +0.8% +3.8% +5.0% -6.6% +0.1% generality. Overall, the BPR results suggest that popularity-aware gating can be instantiated beyond BCE, while a broader study of contrastive objectives and stronger modern backbones remains an important direction for future work. 
+
+## 5.5 Scope and Limitations 
+
+Our study focuses on understanding and mitigating a specific failure mode of loss-based denoising: popularity-dependent suppression of positive signals. The theoretical results are conditional and should be interpreted as characterizing a sufficient regime under which denoising increases the effective head–tail signal ratio. Empiri-cally, our results are based on point estimates from representative datasets, backbones, denoising baselines, and a limited BPR compat-ibility check. We do not claim that denoising always outperforms ERM or that PAD universally improves all backbones. In fact, the strong performance of LightGCN+ERM suggests that graph-based propagation can sometimes reduce the need for explicit denoising. A broader investigation with additional modern self-supervised backbones, contrastive objectives, and multi-seed statistical testing is an important direction for future work. 
+
+## 6 Related Work 6.1 Denoising Recommendation 
+
+Implicit feedback has attracted increasing attention in recommender systems due to its ease of collection, but its data quality is suscep-tible to various types of noise [ 2, 6]. Noisy positives can mislead recommendation models and cause them to fit incorrect user pref-erence patterns [ 19 , 27 , 30 , 32 ]. To address this issue, denoising recommendation methods have been proposed [30, 43]. The core of denoising recommendation is to estimate 𝑃 (𝑌 ∗ |
+
+𝑌, 𝑢, 𝑖 ). Since 𝑌 ∗ is unobservable, most collaborative-filtering de-noising methods rely on heuristic estimators, many of which use the small-loss principle either directly or indirectly. As a pioneer-ing work, [ 32 ] learns robust recommenders by dynamically down-weighting high-loss samples or discarding them during training. Subsequent methods extend this idea in different ways: [ 16 ] flips labels of potentially noisy interactions, [ 8] models user behavior through willingness and action phases, [ 44 ] uses user-specific loss distributions, and [ 34 ] identifies noise by prediction disagreement across models. Beyond collaborative signals, some recent methods use textual or multimodal information for denoising and hard-sample mining [ 26 , 31 ], while others are tailored to specific recom-mendation scenarios or model structures [28, 36, 41, 42]. Different from these works, our focus is not to design a more complex noise detector. Instead, we study how loss-based denoising itself interacts with popularity-induced head–tail imbalance, and we propose a lightweight gate that can be applied on top of a base denoising weight. 
+
+## 6.2 Popularity Bias and Exposure-Aware Learning 
+
+Popularity bias is a long-standing issue in recommender systems: popular items tend to receive more exposure and feedback, which further increases their dominance in both learned representations and recommendation outcomes [ 1– 3, 20 , 21 ]. Prior work studies this issue from multiple perspectives, including biased exposure, evaluation mismatch, representation concentration, and aggregate-level diversity. PAD is related in spirit to exposure-aware learning, but its goal is different from classical inverse-propensity-weighting style debi-asing. IPW-style methods aim to correct biased observation proba-bilities by inversely weighting samples, which requires estimating exposure propensities. PAD instead modulates the strength of de-noising weights to avoid over-suppressing tail positives. It should therefore be viewed as a correction to denoising, not as a general replacement for exposure-debiased learning. 
+
+## 7 Conclusion 
+
+This work revisits recommendation denoising through the lens of popularity bias. We show that loss-based denoising can inter-act with item popularity: when tail positives incur larger losses than head positives, monotone small-loss reweighting may dis-proportionately reduce effective tail supervision and increase the head–tail signal ratio. We formalize this conditional mechanism and propose PAD, a lightweight popularity-aware gating framework that mitigates excessive tail suppression by adapting denoising strength across head and tail items. Experiments show that PAD of-ten improves over representative denoising baselines and provides favorable accuracy–diversity tradeoffs, especially on MF-style back-bones, while also revealing boundary cases where ERM remains competitive. These findings suggest that denoising should be ap-plied in a popularity-aware rather than uniform manner, and that future denoising recommenders should evaluate not only robust-ness and accuracy, but also how denoising reallocates supervision across popularity groups. When Recommendation Denoising Meets Popularity Bias: Understanding and Mitigating Their Interaction Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+## References 
+
+[1] Himan Abdollahpouri. 2019. Popularity bias in ranking and recommendation. In 
+
+Proceedings of the 2019 AAAI/ACM Conference on AI, Ethics, and Society . 529–530. [2] Himan Abdollahpouri, Robin Burke, and Bamshad Mobasher. 2019. Managing popularity bias in recommender systems with personalized re-ranking. arXiv preprint arXiv:1901.07555 (2019). [3] Himan Abdollahpouri, Masoud Mansoury, Robin Burke, and Bamshad Mobasher. 2020. The connection between popularity bias, calibration, and fairness in recom-mendation. In Proceedings of the 14th ACM conference on recommender systems .726–731. [4] Ricardo Baeza-Yates. 2020. Bias in search and recommender systems. In Proceed-ings of the 14th ACM conference on recommender systems . 2–2. [5] Sebastian Bruch, Xuanhui Wang, Michael Bendersky, and Marc Najork. 2019. An analysis of the softmax cross entropy loss for learning-to-rank with binary relevance. In Proceedings of the 2019 ACM SIGIR international conference on theory of information retrieval . 75–78. [6] Jiawei Chen, Hande Dong, Xiang Wang, Fuli Feng, Meng Wang, and Xiangnan He. 2020. Bias and debias in recommender system: a survey and future directions (2020). arXiv preprint arXiv:2010.03240 (2020). [7] Jiawei Chen, Hande Dong, Xiang Wang, Fuli Feng, Meng Wang, and Xiangnan He. 2023. Bias and debias in recommender system: A survey and future directions. 
+
+ACM Transactions on Information Systems 41, 3 (2023), 1–39. [8] Haoyan Chua, Yingpeng Du, Zhu Sun, Ziyan Wang, Jie Zhang, and Yew-Soon Ong. 2024. Unified Denoising Training for Recommendation. In Proceedings of the 18th ACM Conference on Recommender Systems . 612–621. [9] David Cossock and Tong Zhang. 2008. Statistical analysis of Bayes optimal subset ranking. IEEE Transactions on Information Theory 54, 11 (2008), 5140–5154. [10] Giulia Di Teodoro, Federico Siciliano, Nicola Tonellotto, and Fabrizio Silvestri. 2025. A theoretical analysis of recommendation loss functions under negative sampling. In 2025 International Joint Conference on Neural Networks (IJCNN) .IEEE, 1–9. [11] Yunjun Gao, Yuntao Du, Yujia Hu, Lu Chen, Xinjun Zhu, Ziquan Fang, and Baihua Zheng. 2022. Self-guided learning to denoise for robust recommendation. In Proceedings of the 45th international ACM SIGIR conference on research and development in information retrieval . 1412–1422. [12] Bo Han, Quanming Yao, Xingrui Yu, Gang Niu, Miao Xu, Weihua Hu, Ivor Tsang, and Masashi Sugiyama. 2018. Co-teaching: Robust training of deep neural net-works with extremely noisy labels. Advances in neural information processing systems 31 (2018). [13] F Maxwell Harper and Joseph A Konstan. 2015. The movielens datasets: History and context. Acm transactions on interactive intelligent systems (tiis) 5, 4 (2015), 1–19. [14] Ruining He and Julian McAuley. 2016. Ups and downs: Modeling the visual evolution of fashion trends with one-class collaborative filtering. In proceedings of the 25th international conference on world wide web . 507–517. [15] Xiangnan He, Lizi Liao, Hanwang Zhang, Liqiang Nie, Xia Hu, and Tat-Seng Chua. 2017. Neural collaborative filtering. In Proceedings of the 26th international conference on world wide web . 173–182. [16] Zhuangzhuang He, Yifan Wang, Yonghui Yang, Peijie Sun, Le Wu, Haoyue Bai, Jinqi Gong, Richang Hong, and Min Zhang. 2024. Double correction frame-work for denoising recommendation. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 1062–1072. [17] Yifan Hu, Yehuda Koren, and Chris Volinsky. 2008. Collaborative filtering for implicit feedback datasets. In 2008 Eighth IEEE international conference on data mining . Ieee, 263–272. [18] Thorsten Joachims, Laura Granka, Bing Pan, Helene Hembrooke, and Geri Gay. 2017. Accurately interpreting clickthrough data as implicit feedback. In Acm Sigir Forum , Vol. 51. Acm New York, NY, USA, 4–11. [19] Dongha Lee, SeongKu Kang, Hyunjun Ju, Chanyoung Park, and Hwanjo Yu. 2021. Bootstrapping user and item representations for one-class collaborative filtering. In Proceedings of the 44th international ACM SIGIR conference on Research and Development in information retrieval . 317–326. [20] Siyi Lin, Chongming Gao, Jiawei Chen, Sheng Zhou, Binbin Hu, Yan Feng, Chun Chen, and Can Wang. 2025. How do recommendation models amplify popularity bias? An analysis from the spectral perspective. In Proceedings of the Eighteenth ACM International Conference on Web Search and Data Mining . 659–668. [21] Weijieying Ren, Lei Wang, Kunpeng Liu, Ruocheng Guo, Lim Ee Peng, and Yanjie Fu. 2022. Mitigating popularity bias in recommendation with unbalanced interactions: A gradient perspective. In 2022 IEEE International Conference on Data Mining (ICDM) . IEEE, 438–447. [22] Steffen Rendle, Christoph Freudenthaler, Zeno Gantner, and Lars Schmidt-Thieme. 2012. BPR: Bayesian personalized ranking from implicit feedback. arXiv preprint arXiv:1205.2618 (2012). [23] Yuta Saito. 2020. Doubly robust estimator for ranking metrics with post-click conversions. In Proceedings of the 14th ACM Conference on Recommender Systems .92–100. [24] Tobias Schnabel, Adith Swaminathan, Ashudeep Singh, Navin Chandak, and Thorsten Joachims. 2016. Recommendations as treatments: Debiasing learning and evaluation. In international conference on machine learning . PMLR, 1670– 1679. [25] Hinrich Schütze, Christopher D Manning, and Prabhakar Raghavan. 2008. Intro-duction to information retrieval . Vol. 39. Cambridge University Press Cambridge. [26] Tianrui Song, Wen-Shuo Chao, and Hao Liu. 2025. Hard vs. Noise: Resolving Hard-Noisy Sample Confusion in Recommender Systems via Large Language Models. arXiv preprint arXiv:2511.07295 (2025). [27] Yanchao Tan, Carl Yang Member, Xiangyu Wei, Ziyue Wu, and Xiaolin Zheng. 2022. Partial relaxed optimal transport for denoised recommendation. arXiv preprint arXiv:2204.08619 (2022). [28] Changxin Tian, Yuexiang Xie, Yaliang Li, Nan Yang, and Wayne Xin Zhao. 2022. Learning to denoise unreliable interactions for graph collaborative filtering. In Proceedings of the 45th international ACM SIGIR conference on research and development in information retrieval . 122–132. [29] Gabriele Tolomei, Mounia Lalmas, Ayman Farahat, and Andrew Haines. 2019. You must have clicked on this ad by mistake! Data-driven identification of accidental clicks on mobile ads with applications to advertiser cost discounting and click-through rate prediction. International Journal of Data Science and Analytics 7(2019), 53–66. [30] Pengfei Wang, Chenliang Li, Lixin Zou, Zhichao Feng, Kaiyuan Li, Xiaochen Li, Xialong Liu, and Shangguang Wang. 2023. Tutorial: Data Denoising Metrics in Recommender Systems. In Proceedings of the 32nd ACM International Conference on Information and Knowledge Management . 5224–5227. [31] Shuyao Wang, Zhi Zheng, Yongduo Sui, and Hui Xiong. 2025. Unleashing the Power of Large Language Model for Denoising Recommendation. In Proceedings of the ACM on Web Conference 2025 . 252–263. [32] Wenjie Wang, Fuli Feng, Xiangnan He, Liqiang Nie, and Tat-Seng Chua. 2021. Denoising implicit feedback for recommendation. In Proceedings of the 14th ACM international conference on web search and data mining . 373–381. [33] Xiaojie Wang, Rui Zhang, Yu Sun, and Jianzhong Qi. 2019. Doubly robust joint learning for recommendation on data missing not at random. In International Conference on Machine Learning . PMLR, 6638–6647. [34] Yu Wang, Xin Xin, Zaiqiao Meng, Joemon M Jose, Fuli Feng, and Xiangnan He. 2022. Learning robust recommenders through cross-model agreement. In 
+
+Proceedings of the ACM web conference 2022 . 2015–2025. [35] Zongwei Wang, Min Gao, Wentao Li, Junliang Yu, Linxin Guo, and Hongzhi Yin. 2023. Efficient bi-level optimization for recommendation denoising. In Proceedings of the 29th ACM SIGKDD conference on knowledge discovery and data mining .2502–2511. [36] Tongzhou Wu, Yuhao Wang, Maolin Wang, Chi Zhang, and Xiangyu Zhao. 2025. Empowering Denoising Sequential Recommendation with Large Language Model Embeddings. In Proceedings of the 34th ACM International Conference on Informa-tion and Knowledge Management . 3427–3437. [37] Yao Wu, Christopher DuBois, Alice X Zheng, and Martin Ester. 2016. Collabora-tive denoising auto-encoders for top-n recommender systems. In Proceedings of the ninth ACM international conference on web search and data mining . 153–162. [38] Longqi Yang, Yin Cui, Yuan Xuan, Chenyang Wang, Serge Belongie, and Debo-rah Estrin. 2018. Unbiased offline recommender evaluation for missing-not-at-random implicit feedback. In Proceedings of the 12th ACM conference on recom-mender systems . 279–287. [39] Xingrui Yu, Bo Han, Jiangchao Yao, Gang Niu, Ivor Tsang, and Masashi Sugiyama. 2019. How does disagreement help generalization against label corruption?. In 
+
+International conference on machine learning . PMLR, 7164–7173. [40] Guohang Zeng, Jie Lu, and Guangquan Zhang. 2025. Are We Really Making Recommendations Robust? Revisiting Model Evaluation for Denoising Recom-mendation. In Proceedings of the Nineteenth ACM Conference on Recommender Systems . 706–715. [41] Chi Zhang, Yantong Du, Xiangyu Zhao, Qilong Han, Rui Chen, and Li Li. 2022. Hierarchical item inconsistency signal learning for sequence denoising in se-quential recommendation. In Proceedings of the 31st ACM international conference on information & knowledge management . 2508–2518. [42] Chi Zhang, Qilong Han, Rui Chen, Xiangyu Zhao, Peng Tang, and Hongtao Song. 2024. Ssdrec: Self-augmented sequence denoising for sequential recommendation. In 2024 IEEE 40th International Conference on Data Engineering (ICDE) . IEEE, 803– 815. [43] Kaike Zhang, Qi Cao, Fei Sun, Yunfan Wu, Shuchang Tao, Huawei Shen, and Xueqi Cheng. 2023. Robust recommender system: a survey and future directions. 
+
+arXiv preprint arXiv:2309.02057 (2023). [44] Kaike Zhang, Qi Cao, Yunfan Wu, Fei Sun, Huawei Shen, and Xueqi Cheng. 2025. Personalized Denoising Implicit Feedback for Robust Recommender System. In 
+
+Proceedings of the ACM on Web Conference 2025 . 4470–4481.
